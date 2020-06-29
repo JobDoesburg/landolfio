@@ -127,3 +127,17 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# PyCharm
+.idea
+
+# DS Store
+.DS_Store
+
+# Docker
+docker-compose.yml
+/media
+/static
+/database
+/database_init/*.sql
+/log
