@@ -21,3 +21,7 @@ This project is built using the [Django](https://github.com/django/django) frame
 11. Run ```./manage.py runserver``` to start the development server locally.
 
 Now your server is setup and running on ```localhost:8000```. The administrator interface can be accessed by going to ```localhost:8000/admin```.
+
+
+## Moneybird API
+This website can connect to [Moneybird](https://moneybird.com) using their [API](https://developer.moneybird.com) and the [`moneybird-python` client](https://github.com/jjkester/moneybird-python/), to link asset management to administration and bookkeeping in Moneybird. 

@@ -16,10 +16,23 @@ ALLOWED_HOSTS = []
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "brief": {
+            "format": "%(name)s %(levelname)s %(message)s"
+        },
+    },
     "handlers": {
-        "console": {"level": "INFO", "class": "logging.StreamHandler",},  # noqa
-    },  # noqa
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "brief",
+        }
+    },
     "loggers": {
-        "": {"handlers": ["console"], "level": "INFO", "propagate": True,},  # noqa
+        "django": {"handlers": ["console"], "level": "INFO", "propagate": False,},  # noqa
+        "moneybird": {"handlers": ["console"], "level": "DEBUG", "propagate": False, },  # noqa
     },  # noqa
 }
+
+MONEYBIRD_API_TOKEN = os.environ.get("MONEYBIRD_API_TOKEN")
+MONEYBIRD_ADMINISTRATION_ID = os.environ.get("MONEYBIRD_ADMINISTRATION_ID")

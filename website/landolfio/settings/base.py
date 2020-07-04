@@ -28,7 +28,10 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "admin_auto_filters",
     "import_export",
+    "django_countries",
+    "django_iban",
     "landolfio",
+    "moneybird_accounting",
 ]
 
 MIDDLEWARE = [

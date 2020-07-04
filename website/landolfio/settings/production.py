@@ -27,15 +27,30 @@ DATABASES = {
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "%(asctime)s %(name)s %(levelname)s %(message)s"
+        },
+        "brief": {
+            "format": "%(name)s %(levelname)s %(message)s"
+        },
+    },
     "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "brief",
+        },
         "file": {
-            "level": "INFO",
+            "level": os.environ.get("DJANGO_LOG_LEVEL", "INFO"),
             "class": "logging.FileHandler",
+            "formatter": "verbose",
             "filename": "/landolfio/log/django.log",
         },
     },
     "loggers": {
-        "": {"handlers": ["file"], "level": "DEBUG", "propagate": True,},  # noqa
+        "django": {"handlers": ["file"], "level": "INFO", "propagate": True,},  # noqa
+        "moneybird": {"handlers": ["file"], "level": "INFO", "propagate": True,},  # noqa
     },  # noqa
 }
 
@@ -46,3 +61,6 @@ if os.environ.get("DJANGO_EMAIL_HOST"):
     EMAIL_HOST_PASSWORD = os.environ.get("DJANGO_EMAIL_HOST_PASSWORD")
     EMAIL_USE_TLS = os.environ.get("DJANGO_EMAIL_USE_TLS", False) == "True"
     EMAIL_USE_SSL = os.environ.get("DJANGO_EMAIL_USE_SSL", False) == "True"
+
+MONEYBIRD_API_TOKEN = os.environ["MONEYBIRD_API_TOKEN"]
+MONEYBIRD_ADMINISTRATION_ID = os.environ["MONEYBIRD_ADMINISTRATION_ID"]
