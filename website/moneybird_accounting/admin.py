@@ -34,10 +34,35 @@ class MoneybirdContactAdmin(ImportExportModelAdmin):
     class Media:
         """Necessary to use AutocompleteFilter."""
 
-    view_on_site = True
-    readonly_fields = ["id", "version", "get_moneybird_resource_url", "email", "attention"]
+    list_display = [
+        "get_display_name",
+        "firstname",
+        "lastname",
+        "company_name",
+        "email",
+        "city",
+        "customer_id",
+        "sepa_active",
+        "get_moneybird_resource_url_short",
+    ]
+    list_display_links = [
+        "get_display_name",
+    ]
+    search_fields = [
+        "company_name",
+        "firstname",
+        "lastname",
+        "email",
+        "phone",
+        "attention",
+    ]
+    list_filter = [
+        "sepa_active",
+    ]
 
-    inlines = [SalesInvoiceInline]
+    actions = ["sync_moneybird"]
+
+    view_on_site = True
 
     fieldsets = [
         ("Name", {"fields": ["company_name", "firstname", "lastname", "attention"]}),
@@ -74,33 +99,9 @@ class MoneybirdContactAdmin(ImportExportModelAdmin):
         ("Meta", {"fields": ["id", "version", "get_moneybird_resource_url"]}),
     ]
 
-    list_display = [
-        "get_display_name",
-        "firstname",
-        "lastname",
-        "company_name",
-        "email",
-        "city",
-        "customer_id",
-        "sepa_active",
-        "get_moneybird_resource_url_short",
-    ]
-    list_display_links = [
-        "get_display_name",
-    ]
-    search_fields = [
-        "company_name",
-        "firstname",
-        "lastname",
-        "email",
-        "phone",
-        "attention",
-    ]
-    list_filter = [
-        "sepa_active",
-    ]
+    readonly_fields = ["id", "version", "get_moneybird_resource_url", "email", "attention"]
 
-    actions = ["sync_moneybird"]
+    inlines = [SalesInvoiceInline]
 
     def changeform_view(self, request, *args, **kwargs):
         try:
