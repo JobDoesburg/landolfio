@@ -42,25 +42,20 @@ class MoneyBirdAPITalker:
 
         self._logger.info(f"Moneybird returned {len(data)} {cls.get_moneybird_resource_path_name()}")
 
-        mapped_objects = cls.objects.filter(id__in=[x["id"] for x in data])
-
-        if len(mapped_objects) > 0:
-            self._logger.info(
-                f"Mapped {len(mapped_objects)} {cls.get_moneybird_resource_path_name()}: {mapped_objects}"
-            )
-
         to_delete = cls.objects.exclude(id__in=[x["id"] for x in data])
         if len(to_delete) > 0:
             self._logger.info(
                 f"Found {len(to_delete)} {cls.get_moneybird_resource_path_name()} to delete: {to_delete}"
             )
 
-        to_delete.delete()
+        for delete_object in to_delete:
+            delete_object.processed = True
+            delete_object.delete()
 
         update_or_create = []
         for obj_data in data:
             try:
-                obj = mapped_objects.get(id=obj_data["id"])
+                obj = cls.objects.get(id=obj_data["id"])
             except cls.DoesNotExist:
                 self._logger.info(f"Found new {cls.get_moneybird_resource_name()} to create with id {obj_data['id']}")
                 update_or_create.append(obj_data["id"])
@@ -70,6 +65,12 @@ class MoneyBirdAPITalker:
                     update_or_create.append(obj_data["id"])
 
         return self.update_or_create_objects(cls, update_or_create)
+
+    def sync_objects_hard(self, cls: Type[MoneybirdSynchronizableResourceModel]):
+        self._logger.info(f"Performing hard sync on {cls} objects, setting version to None.")
+        cls.objects.update(version=None)
+
+        self.sync_objects(cls)
 
     def update_or_create_objects(self, cls: Type[MoneybirdSynchronizableResourceModel], ids: List[str]):
         """Update or create Moneybird objects with certain ids."""
@@ -89,21 +90,12 @@ class MoneyBirdAPITalker:
             )
 
             for object_data in data:
-                self.update_or_create_object(cls, object_data)
+                self._logger.info(
+                    f"Updating or creating {cls.get_moneybird_resource_path_name()} {object_data['id']}: {object_data}"
+                )
+                cls.update_or_create_object_from_moneybird(object_data)
 
         return cls.objects.filter(id__in=ids)
-
-    def update_or_create_object(self, cls: Type[MoneybirdSynchronizableResourceModel], data: Dict[str, Any]):
-        """Update or create a MoneybirdSynchronizableResourceModel object from JSON-like dict values."""
-        filtered = dict([(i, data[i]) for i in data if i in cls.get_moneybird_fields()])
-
-        self._logger.info(f"Updating or creating {cls.get_moneybird_resource_path_name()} {data['id']}: {filtered}")
-
-        obj = cls(id=data["id"]).set_moneybird_resource_data(filtered)
-        obj.processed = True  # Prevent save() triggering a callback to Moneybird
-        obj.save()
-
-        return obj
 
     def create_moneybird_resource(self, cls: Type[MoneybirdSynchronizableResourceModel], data: Dict[str, Any]):
         """Create a new resource on Moneybird."""
@@ -118,7 +110,7 @@ class MoneyBirdAPITalker:
             self._logger.info(f"Moneybird returned {cls.get_moneybird_resource_name()}: {reply}")
             return reply
         except moneybird.api.MoneyBird.InvalidData as e:
-            raise MoneyBirdSynchronizationError(e.response["error"])
+            raise MoneyBirdSynchronizationError(e.response["error"] if e.response["error"] else e.response)
 
     def patch_moneybird_resource(
         self, cls: Type[MoneybirdSynchronizableResourceModel], id: str, data: Dict[str, Any],
@@ -135,7 +127,7 @@ class MoneyBirdAPITalker:
             self._logger.info(f"Moneybird returned {cls.get_moneybird_resource_name()}: {reply}")
             return reply
         except moneybird.api.MoneyBird.InvalidData as e:
-            raise MoneyBirdSynchronizationError(e.response["error"])
+            raise MoneyBirdSynchronizationError(e.response["error"] if e.response["error"] else e.response)
 
     def delete_moneybird_resource(self, cls: Type[MoneybirdSynchronizableResourceModel], id: str):
         """Delete an existing Moneybird resource."""
@@ -146,4 +138,4 @@ class MoneyBirdAPITalker:
             if e.status_code == 204:
                 pass
             else:
-                raise MoneyBirdSynchronizationError(e.response)
+                raise MoneyBirdSynchronizationError(e.response["error"] if e.response["error"] else e.response)
