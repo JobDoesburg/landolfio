@@ -45,7 +45,7 @@ def update_or_create_moneybird_resource_on_save(sender, instance, **kwargs):
         old_data = obj.get_moneybird_resource_data()
         changes = dict_changes(old_data, new_data)
 
-        if not changes:
+        if not changes or changes == {} or ("id" in changes and len(changes) == 1):
             return
 
         obj_id = new_data["id"]
@@ -80,14 +80,14 @@ def update_or_create_moneybird_nested_data_on_save(sender, instance, **kwargs):
         changes = dict_changes(old_data, new_data)
         data[sender.get_moneybird_resource_name() + "_attributes"] = [changes]
 
-        if not changes:
+        if not changes or changes == {} or ("id" in changes and len(changes) == 1):
             return
 
     m = MoneyBirdAPITalker()
     moneybird_obj = m.patch_moneybird_resource(type(parent), parent.id, data)
 
     for returned_data in moneybird_obj[instance.get_moneybird_resource_name()]:
-        if returned_data["id"] == instance.id:
+        if returned_data["id"] == instance.id or instance.id is None or instance.id == "":
             instance.set_moneybird_resource_data(returned_data)
 
     parent.set_moneybird_resource_data(moneybird_obj)
