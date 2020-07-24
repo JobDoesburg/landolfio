@@ -1,7 +1,10 @@
 from django.db.models.signals import pre_save, pre_delete
 from django.dispatch import receiver
 
-from moneybird_accounting.models import MoneybirdSynchronizableResourceModel, MoneybirdNestedDataResourceModel
+from moneybird_accounting.models.moneybird_resource import (
+    MoneybirdNestedDataResourceModel,
+    MoneybirdReadWriteResourceModel,
+)
 from moneybird_accounting.moneybird_sync import MoneyBirdAPITalker
 
 
@@ -24,7 +27,7 @@ def dict_changes(old_data, new_data):
 
 @receiver(pre_save)
 def update_or_create_moneybird_resource_on_save(sender, instance, **kwargs):
-    if not issubclass(sender, MoneybirdSynchronizableResourceModel):
+    if not issubclass(sender, MoneybirdReadWriteResourceModel):
         return
 
     if instance.processed:  # Prevent triggering another Moneybird call on synchronization
@@ -97,7 +100,7 @@ def update_or_create_moneybird_nested_data_on_save(sender, instance, **kwargs):
 
 @receiver(pre_delete)
 def delete_moneybird_resource_on_delete(sender, instance, **kwargs):
-    if not issubclass(sender, MoneybirdSynchronizableResourceModel):
+    if not issubclass(sender, MoneybirdReadWriteResourceModel):
         return
 
     if instance.processed:  # Prevent triggering another Moneybird call on synchronization

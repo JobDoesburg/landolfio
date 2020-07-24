@@ -1,13 +1,12 @@
 import logging
-from typing import List, Any, Dict, Type
-
-from django.conf import settings
+from typing import List, Type
 
 import moneybird
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from moneybird import MoneyBird, TokenAuthentication
 
-from moneybird_accounting.models import MoneybirdSynchronizableResourceModel
+from moneybird_accounting.models import *
 
 
 class MoneyBirdSynchronizationError(ValidationError):
@@ -72,6 +71,32 @@ class MoneyBirdAPITalker:
 
         self.sync_objects(cls)
 
+    def sync_readonly_objects(self, cls: Type[MoneybirdReadOnlyResourceModel]):
+        data = self.moneybird.get(f"{cls.get_moneybird_resource_path_name()}", self.administration_id,)
+
+        ids = []
+        for obj in data:
+            ids.append(obj["id"])
+            cls.update_or_create_object_from_moneybird(obj)
+
+        for obj in cls.objects.all():
+            if obj.id not in ids:
+                obj.processed = True
+                obj.delete()
+
+    def sync_readwrite_objects(self, cls: Type[MoneybirdReadWriteResourceModel]):
+        data = self.moneybird.get(f"{cls.get_moneybird_resource_path_name()}", self.administration_id,)
+
+        ids = []
+        for obj in data:
+            ids.append(obj["id"])
+            cls.update_or_create_object_from_moneybird(obj)
+
+        for obj in cls.objects.all():
+            if obj.id not in ids:
+                obj.processed = True
+                obj.delete()
+
     def update_or_create_objects(self, cls: Type[MoneybirdSynchronizableResourceModel], ids: List[str]):
         """Update or create Moneybird objects with certain ids."""
         chunks = [ids[i : i + 100] for i in range(0, len(ids), 100)]
@@ -97,7 +122,7 @@ class MoneyBirdAPITalker:
 
         return cls.objects.filter(id__in=ids)
 
-    def create_moneybird_resource(self, cls: Type[MoneybirdSynchronizableResourceModel], data: Dict[str, Any]):
+    def create_moneybird_resource(self, cls: Type[MoneybirdReadWriteResourceModel], data: Dict[str, Any]):
         """Create a new resource on Moneybird."""
         data_filtered = dict([(x, data[x]) for x in data if x not in cls.get_moneybird_readonly_fields()])
         try:
@@ -110,10 +135,10 @@ class MoneyBirdAPITalker:
             self._logger.info(f"Moneybird returned {cls.get_moneybird_resource_name()}: {reply}")
             return reply
         except moneybird.api.MoneyBird.InvalidData as e:
-            raise MoneyBirdSynchronizationError(e.response["error"] if e.response["error"] else e.response)
+            raise IntegrityError(e.response["error"] if e.response["error"] else e.response)
 
     def patch_moneybird_resource(
-        self, cls: Type[MoneybirdSynchronizableResourceModel], id: str, data: Dict[str, Any],
+        self, cls: Type[MoneybirdReadWriteResourceModel], id: str, data: Dict[str, Any],
     ):
         """Patch an existing Moneybird resource."""
         data_filtered = dict([(x, data[x]) for x in data if x not in cls.get_moneybird_readonly_fields()])
@@ -127,9 +152,9 @@ class MoneyBirdAPITalker:
             self._logger.info(f"Moneybird returned {cls.get_moneybird_resource_name()}: {reply}")
             return reply
         except moneybird.api.MoneyBird.InvalidData as e:
-            raise MoneyBirdSynchronizationError(e.response["error"] if e.response["error"] else e.response)
+            raise IntegrityError(e.response["error"] if e.response["error"] else e.response)
 
-    def delete_moneybird_resource(self, cls: Type[MoneybirdSynchronizableResourceModel], id: str):
+    def delete_moneybird_resource(self, cls: Type[MoneybirdReadWriteResourceModel], id: str):
         """Delete an existing Moneybird resource."""
         try:
             self._logger.info(f"Deleting Moneybird {cls.get_moneybird_resource_path_name()} {id}")
@@ -138,4 +163,18 @@ class MoneyBirdAPITalker:
             if e.status_code == 204:
                 pass
             else:
-                raise MoneyBirdSynchronizationError(e.response["error"] if e.response["error"] else e.response)
+                raise IntegrityError(e.response["error"] if e.response["error"] else e.response)
+
+    def full_sync(self, hard=False):
+        for cls in MoneybirdReadOnlyResourceModel.__subclasses__():
+            if not cls._meta.abstract:
+                self.sync_readonly_objects(cls)
+        for cls in MoneybirdReadWriteResourceModel.__subclasses__():
+            if not cls._meta.abstract:
+                self.sync_readwrite_objects(cls)
+        for cls in MoneybirdSynchronizableResourceModel.__subclasses__():
+            if not cls._meta.abstract:
+                if hard:
+                    self.sync_objects_hard(cls)
+                else:
+                    self.sync_objects(cls)

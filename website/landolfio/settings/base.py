@@ -20,9 +20,10 @@ BASE_DIR = os.path.abspath(
 # Application definition
 
 INSTALLED_APPS = [
+    'polymorphic',
+    'django.contrib.contenttypes',
     "django.contrib.admin",
     "django.contrib.auth",
-    "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
@@ -32,7 +33,13 @@ INSTALLED_APPS = [
     "django_iban",
     "landolfio",
     "moneybird_accounting",
-]
+    "assets",
+    "asset_events",
+    "sales",
+    "purchases",
+    "maintenance",
+    "rentals",
+]  # TODO think about django-simple-history
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
