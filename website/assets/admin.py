@@ -1,28 +1,58 @@
 from django.contrib import admin
 from django.forms import CheckboxSelectMultiple
-from polymorphic.admin import StackedPolymorphicInline, PolymorphicInlineSupportMixin
+from django.utils.safestring import mark_safe
+from nested_admin.nested import NestedTabularInline, NestedStackedInline
+from nested_admin.polymorphic import NestedStackedPolymorphicInline, NestedPolymorphicModelAdmin
 
 from asset_events.models import *
+from asset_media.admin import AssetMediaItemInline
 from assets.models import *
-from maintenance.admin.inlines import (
-    AssetReviewEventInline,
-    AssetMaintenanceTicketEventInline,
-    AssetMaintenanceReturnEventInline,
-    AssetAmortizationEventInline,
-)
-from purchases.admin.inlines import AssetPurchaseEventInline, AssetDeliveryEventInline
-from sales.admin.inlines import AssetSaleEventInline
-from rentals.admin.inlines import (
-    AssetLoanEventInline,
-    AssetRentalEventInline,
-    AssetReturnalEventInline,
-    UnprocessedAssetIssuanceEventInline,
-)
+from maintenance.models import AssetReview, AssetMaintenanceTicket, AssetMaintenanceReturn, AssetAmortization
+from asset_media.models import MediaSet, MediaItem
+from purchases.models import SingleAssetPurchase, SingleAssetDelivery
+from rentals.models import SingleUnprocessedAssetIssuance, SingleAssetLoan, SingleAssetRental, SingleAssetReturnal
+from sales.models import SingleAssetSale
 
 
-class AssetEventHistoryInline(StackedPolymorphicInline):
+class AssetEventHistoryInline(NestedStackedPolymorphicInline):
 
     model = Event
+
+    class AssetReviewEventInline(NestedStackedPolymorphicInline.Child):
+        model = AssetReview
+
+    class AssetMaintenanceTicketEventInline(NestedStackedPolymorphicInline.Child):
+        model = AssetMaintenanceTicket
+
+    class AssetMaintenanceReturnEventInline(NestedStackedPolymorphicInline.Child):
+        model = AssetMaintenanceReturn
+
+    class AssetAmortizationEventInline(NestedStackedPolymorphicInline.Child):
+        model = AssetAmortization
+
+    class AssetPurchaseEventInline(NestedStackedPolymorphicInline.Child):
+        model = SingleAssetPurchase
+
+    class AssetDeliveryEventInline(NestedStackedPolymorphicInline.Child):
+        model = SingleAssetDelivery
+
+    class UnprocessedAssetIssuanceEventInline(NestedStackedPolymorphicInline.Child):
+        model = SingleUnprocessedAssetIssuance
+
+    class AssetLoanEventInline(NestedStackedPolymorphicInline.Child):
+        model = SingleAssetLoan
+
+    class AssetRentalEventInline(NestedStackedPolymorphicInline.Child):
+        model = SingleAssetRental
+
+    class AssetReturnalEventInline(NestedStackedPolymorphicInline.Child):
+        model = SingleAssetReturnal
+
+    class AssetSaleEventInline(NestedStackedPolymorphicInline.Child):
+        model = SingleAssetSale
+
+    class AssetMiscellaneousAssetEventInline(NestedStackedPolymorphicInline.Child):
+        model = MiscellaneousAssetEvent
 
     child_inlines = [
         AssetPurchaseEventInline,
@@ -36,14 +66,26 @@ class AssetEventHistoryInline(StackedPolymorphicInline):
         AssetRentalEventInline,
         AssetReturnalEventInline,
         UnprocessedAssetIssuanceEventInline,
+        AssetMiscellaneousAssetEventInline,
     ]
 
     extra = 0
-    can_delete = False
+
+    classes = ["collapse"]
+
+
+class AssetMediaInline(NestedStackedInline):
+    model = MediaSet
+    inlines = [AssetMediaItemInline]
+    fields = ["date", "remarks", "event"]
+    readonly_fields = ["event"]
+
+    extra = 0
+    classes = ["collapse"]
 
 
 @admin.register(Asset)
-class AssetAdmin(PolymorphicInlineSupportMixin, admin.ModelAdmin):
+class AssetAdmin(NestedPolymorphicModelAdmin):
 
     list_display = ["number", "category", "size", "status"]
     list_filter = ["category", "status", "size", "location", "location__location_group"]
@@ -52,7 +94,7 @@ class AssetAdmin(PolymorphicInlineSupportMixin, admin.ModelAdmin):
 
     search_fields = ["number", "event__memo"]
 
-    inlines = [AssetEventHistoryInline]
+    inlines = [AssetMediaInline, AssetEventHistoryInline]
 
     class Media:
         """Necessary to use AutocompleteFilter."""

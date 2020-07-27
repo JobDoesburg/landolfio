@@ -27,6 +27,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "nested_inline",
+    "nested_admin",
     "admin_auto_filters",
     "import_export",
     "django_countries",
@@ -39,6 +41,7 @@ INSTALLED_APPS = [
     "purchases",
     "maintenance",
     "rentals",
+    "asset_media",
 ]  # TODO think about django-simple-history
 
 MIDDLEWARE = [
@@ -123,5 +126,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static/")
 STATIC_URL = "/static/"
 
 MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
-MEDIA_URL = "/media/"
+MEDIA_URL = "/files/"
+
 

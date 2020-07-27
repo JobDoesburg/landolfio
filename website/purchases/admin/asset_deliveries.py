@@ -1,8 +1,13 @@
 from django.contrib import admin
 
-from asset_events.admin import AssetForeignKeyAdmin
-from purchases.admin.inlines import AssetDeliveryAssetInline
-from purchases.models.delivery import AssetDelivery
+from asset_events.admin import AssetForeignKeyAdmin, AssetForeignKeyStackedInline
+from purchases.models.delivery import AssetDelivery, SingleAssetDelivery
+
+
+class AssetDeliveryAssetInline(AssetForeignKeyStackedInline):  # TODO StatusChangingEventAdmin extend
+    model = SingleAssetDelivery
+    fk_name = "delivery"
+    extra = 0
 
 
 @admin.register(AssetDelivery)

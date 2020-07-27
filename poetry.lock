@@ -153,8 +153,28 @@ Django = ">=2.0"
 diff-match-patch = "*"
 
 [package.dependencies.tablib]
-extras = ["yaml", "xlsx", "ods", "html", "xls"]
+extras = ["xls", "xlsx", "yaml", "html", "ods"]
 version = ">=0.14.0"
+
+[[package]]
+category = "main"
+description = "Django admin classes that allow for nested inlines"
+name = "django-nested-admin"
+optional = false
+python-versions = "*"
+version = "3.3.2"
+
+[package.dependencies]
+python-monkey-business = ">=1.0.0"
+six = "*"
+
+[[package]]
+category = "main"
+description = "Recursive nesting of inline forms for Django Admin"
+name = "django-nested-inline"
+optional = false
+python-versions = "*"
+version = "0.4.2"
 
 [[package]]
 category = "main"
@@ -319,6 +339,17 @@ version = "2.2.0"
 
 [[package]]
 category = "main"
+description = "Utility functions for monkey-patching python code"
+name = "python-monkey-business"
+optional = false
+python-versions = "*"
+version = "1.0.0"
+
+[package.dependencies]
+six = ">=1.7.0"
+
+[[package]]
+category = "main"
 description = "World timezone definitions, modern and historical"
 name = "pytz"
 optional = false
@@ -358,6 +389,14 @@ urllib3 = ">=1.21.1,<1.25.0 || >1.25.0,<1.25.1 || >1.25.1,<1.26"
 [package.extras]
 security = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)"]
 socks = ["PySocks (>=1.5.6,<1.5.7 || >1.5.7)", "win-inet-pton"]
+
+[[package]]
+category = "main"
+description = "Python 2 and 3 compatibility utilities"
+name = "six"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
+version = "1.15.0"
 
 [[package]]
 category = "dev"
@@ -485,7 +524,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "bd1c6d38744f3ee4eb1693bbc1b1b7279ba03f02d1c9856a4a1fc3fd2b175814"
+content-hash = "9468d28a80ee29d190e019e320717e7d507d48b366f8c04a805ae945ba6c24be"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -541,6 +580,14 @@ django-iban-field = [
 ]
 django-import-export = [
     {file = "django-import-export-2.2.0.tar.gz", hash = "sha256:83be410caca8c1b78585677c0fd7ae0e4de5dd5507ad3cea815fbcd29323f448"},
+]
+django-nested-admin = [
+    {file = "django-nested-admin-3.3.2.tar.gz", hash = "sha256:7ec58af67107e6d7b2d0fd4fe03629eff8f7957c4aef5033c4700da1bd2d7870"},
+    {file = "django_nested_admin-3.3.2-py2.py3-none-any.whl", hash = "sha256:2e6706050057f5dc5664bc90d034d4ed9e3ae032ead6b063da9982c9e45ab7f3"},
+]
+django-nested-inline = [
+    {file = "django-nested-inline-0.4.2.tar.gz", hash = "sha256:45c3a91e530ec479359727be4a89ef2446e3dd6424f9574aac038ebfd55c38bf"},
+    {file = "django_nested_inline-0.4.2-py2.py3-none-any.whl", hash = "sha256:a54ea7c39ef5d82c536d2a8eb7ec375dd08f11c04853046bb24e5415a69cd3ed"},
 ]
 django-polymorphic = [
     {file = "django-polymorphic-2.1.2.tar.gz", hash = "sha256:6e08a76c91066635ccb7ef3ebbe9a0ad149febae6b30be2579716ec16d3c6461"},
@@ -627,6 +674,10 @@ pyflakes = [
     {file = "pyflakes-2.2.0-py2.py3-none-any.whl", hash = "sha256:0d94e0e05a19e57a99444b6ddcf9a6eb2e5c68d3ca1e98e90707af8152c90a92"},
     {file = "pyflakes-2.2.0.tar.gz", hash = "sha256:35b2d75ee967ea93b55750aa9edbbf72813e06a66ba54438df2cfac9e3c27fc8"},
 ]
+python-monkey-business = [
+    {file = "python-monkey-business-1.0.0.tar.gz", hash = "sha256:9976522989766f00b2aaa24ec96eacb91a6de7b7001d1452079323b071988e0e"},
+    {file = "python_monkey_business-1.0.0-py2.py3-none-any.whl", hash = "sha256:6d4cf47f011945db838ccf04643acd49b82f7ad6ab7ecba4c8165385687a828a"},
+]
 pytz = [
     {file = "pytz-2020.1-py2.py3-none-any.whl", hash = "sha256:a494d53b6d39c3c6e44c3bec237336e14305e4f29bbf800b599253057fbb79ed"},
     {file = "pytz-2020.1.tar.gz", hash = "sha256:c35965d010ce31b23eeb663ed3cc8c906275d6be1a34393a1d73a41febf4a048"},
@@ -670,6 +721,10 @@ regex = [
 requests = [
     {file = "requests-2.24.0-py2.py3-none-any.whl", hash = "sha256:fe75cc94a9443b9246fc7049224f75604b113c36acb93f87b80ed42c44cbb898"},
     {file = "requests-2.24.0.tar.gz", hash = "sha256:b3559a131db72c33ee969480840fff4bb6dd111de7dd27c8ee1f820f4f00231b"},
+]
+six = [
+    {file = "six-1.15.0-py2.py3-none-any.whl", hash = "sha256:8b74bedcbbbaca38ff6d7491d76f2b06b3592611af620f8426e82dddb04a5ced"},
+    {file = "six-1.15.0.tar.gz", hash = "sha256:30639c035cdb23534cd4aa2dd52c3bf48f06e5f4a941509c8bafd8ce11080259"},
 ]
 snowballstemmer = [
     {file = "snowballstemmer-2.0.0-py2.py3-none-any.whl", hash = "sha256:209f257d7533fdb3cb73bdbd24f436239ca3b2fa67d56f6ff88e86be08cc5ef0"},

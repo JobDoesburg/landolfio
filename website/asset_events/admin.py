@@ -1,10 +1,11 @@
 from django.contrib import admin
 from django.db.models import Q
+from nested_admin.nested import NestedModelAdmin
 
 from asset_events.models import *
 
 
-class AssetForeignKeyAdmin(admin.ModelAdmin):
+class AssetForeignKeyAdmin(NestedModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "asset":
             obj_id = request.resolver_match.kwargs.get("object_id")

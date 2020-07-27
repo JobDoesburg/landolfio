@@ -141,3 +141,4 @@ docker-compose.yml
 /database
 /database_init/*.sql
 /log
+/website/media/
