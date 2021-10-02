@@ -1,6 +1,8 @@
 from django.core.exceptions import ValidationError
+from django.core.validators import validate_unicode_slug
 from django.db import models
 from django.db.models import PROTECT
+from model_utils import FieldTracker
 
 from assets.models.asset_location import AssetLocation
 
@@ -11,7 +13,7 @@ class AssetCategory(models.Model):
         verbose_name_plural = "categories"
 
     name = models.CharField(null=False, blank=False, max_length=20)
-    name_singular = models.CharField(null=False, blank=False, max_length=20)
+    name_singular = models.CharField(null=False, blank=False, max_length=20, validators=[validate_unicode_slug])
 
     def __str__(self):
         return f"{self.name}"
@@ -33,7 +35,6 @@ class Asset(models.Model):
     class Meta:
         verbose_name = "asset"
         verbose_name_plural = "assets"
-        unique_together = ["number", "category"]
 
     UNKNOWN = 0
     PLACEHOLDER = 1
@@ -63,7 +64,7 @@ class Asset(models.Model):
         (SOLD, "Sold"),
     )
 
-    number = models.CharField(null=False, blank=False, max_length=10)
+    number = models.CharField(null=False, blank=False, unique=True, max_length=10, primary_key=True, validators=[validate_unicode_slug])
     category = models.ForeignKey(AssetCategory, null=False, blank=False, on_delete=PROTECT)
     size = models.ForeignKey(AssetSize, null=True, blank=True, on_delete=PROTECT)
 
@@ -73,6 +74,25 @@ class Asset(models.Model):
     )  # constraint, cannot be null if available, etc... write on review (suggest previous)
 
     retail_value = models.DecimalField(null=True, blank=True, max_digits=10, decimal_places=2)
+
+    tracker = FieldTracker(['number', 'category', 'size', 'status'])
+
+    def get_immutable_fields(self):
+        immutable_fields = []
+        if getattr(self, 'number') is not None:
+            immutable_fields.append('number')
+        if getattr(self, 'category') is not None:
+            immutable_fields.append('category')
+        if getattr(self, 'size') is not None:
+            immutable_fields.append('size')
+        return immutable_fields
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        for field in self.get_immutable_fields():
+            if self.tracker.has_changed(field) and (self.tracker.previous('field') is not None):
+                raise ValidationError("This field is immutable.")
+        super().save(force_insert, force_update, using, update_fields)
 
     def clean(self):
         super().clean()
@@ -92,8 +112,11 @@ class Asset(models.Model):
         if errors:
             raise ValidationError(errors)
 
+    def get_event_history(self):
+        return sorted(self.event_set.all(), key=lambda e: e.date)
+
     def get_last_event(self):
-        return self.event_set.all().last()
+        return self.get_event_history()[-1] if self.get_event_history() else None
 
     @property
     def stock_value(self):
@@ -101,7 +124,8 @@ class Asset(models.Model):
 
     @property
     def purchase_documents(self):
-        raise NotImplementedError  # return all documents with an invoice row to this asset with a positive result on a stock ledger
+        from purchases.models import SingleAssetPurchase
+        return sorted(self.event_set.all().instance_of(SingleAssetPurchase), key=lambda e: e.date)  # TODO add documents
 
     @property
     def collection(self):
@@ -115,4 +139,6 @@ class Asset(models.Model):
         return self.STATUS_CHOICES[self.status][1]
 
     def __str__(self):
-        return f"{self.number} ({self.category.name_singular})"
+        return f"{self.category.name_singular} {self.number}"
+
+# TODO add collection

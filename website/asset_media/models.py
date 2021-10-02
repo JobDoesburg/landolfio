@@ -30,7 +30,7 @@ class MediaSet(models.Model):
 
 
 def get_upload_path(instance, filename):
-    return f"asset_media/{instance.set.asset.number}/{instance.set.asset.number}_{timezone.now().strftime('%Y-%m-%d_%H-%M-%S')}_{filename}"
+    return f"asset_media/{instance.set.asset.category}/{instance.set.asset.number}/{instance.set.asset.number}_{timezone.now().strftime('%Y-%m-%d_%H-%M-%S')}_{filename}"
 
 
 class MediaItem(models.Model):

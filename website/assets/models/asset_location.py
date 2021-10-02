@@ -23,3 +23,7 @@ class AssetLocation(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.location_group})"
+
+
+# TODO: improve this structure (make it more recursive?)
+# TODO: location_category_set

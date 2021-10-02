@@ -23,8 +23,9 @@ class SingleAssetPurchase(StatusChangingEvent):
     def contact(self):
         return self.sale.contact
 
+    @property
     def date(self):
-        return self.sale.date
+        return self.purchase.date
 
     # todo sync with MB to right results ledger
 

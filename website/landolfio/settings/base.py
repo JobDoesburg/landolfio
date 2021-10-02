@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "maintenance",
     "rentals",
     "asset_media",
+    "ninox_import",
 ]  # TODO think about django-simple-history
 
 MIDDLEWARE = [

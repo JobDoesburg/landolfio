@@ -1,14 +1,13 @@
 from django.contrib import admin
 from django.forms import CheckboxSelectMultiple
-from django.utils.safestring import mark_safe
-from nested_admin.nested import NestedTabularInline, NestedStackedInline
+from nested_admin.nested import NestedStackedInline
 from nested_admin.polymorphic import NestedStackedPolymorphicInline, NestedPolymorphicModelAdmin
 
 from asset_events.models import *
 from asset_media.admin import AssetMediaItemInline
 from assets.models import *
 from maintenance.models import AssetReview, AssetMaintenanceTicket, AssetMaintenanceReturn, AssetAmortization
-from asset_media.models import MediaSet, MediaItem
+from asset_media.models import MediaSet
 from purchases.models import SingleAssetPurchase, SingleAssetDelivery
 from rentals.models import SingleUnprocessedAssetIssuance, SingleAssetLoan, SingleAssetRental, SingleAssetReturnal
 from sales.models import SingleAssetSale
@@ -87,7 +86,7 @@ class AssetMediaInline(NestedStackedInline):
 @admin.register(Asset)
 class AssetAdmin(NestedPolymorphicModelAdmin):
 
-    list_display = ["number", "category", "size", "status"]
+    list_display = ["number", "category", "size", "status", "location"]
     list_filter = ["category", "status", "size", "location", "location__location_group"]
 
     readonly_fields = ["status"]
@@ -95,6 +94,18 @@ class AssetAdmin(NestedPolymorphicModelAdmin):
     search_fields = ["number", "event__memo"]
 
     inlines = [AssetMediaInline, AssetEventHistoryInline]
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = super().get_readonly_fields(request, obj)
+        try:
+            fields += obj.get_immutable_fields()
+        except Exception:
+            pass
+        return fields
+
+    fieldsets = [
+        ("Name", {"fields": ["number", "category", "size", "location", "retail_value", "status"]}),
+    ]
 
     class Media:
         """Necessary to use AutocompleteFilter."""
