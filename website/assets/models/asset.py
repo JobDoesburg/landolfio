@@ -2,7 +2,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_unicode_slug
 from django.db import models
 from django.db.models import PROTECT
-from model_utils import FieldTracker
 
 from assets.models.asset_location import AssetLocation
 
@@ -64,6 +63,24 @@ class Asset(models.Model):
         (SOLD, "Sold"),
     )
 
+    BUSINESS = 0
+    PRIVATE = 1
+    CONSIGNMENT = 2
+
+    COLLECTION_CHOICES = (
+        (BUSINESS, "Business"),
+        (PRIVATE, "Private"),
+        (CONSIGNMENT, "Consignment"),
+    )
+
+    MARGIN = 0
+    TAXABLE = 1
+
+    TAX_STATUS_CHOICES = (
+        (MARGIN, "Margin"),
+        (TAXABLE, "Taxable"),
+    )
+
     number = models.CharField(null=False, blank=False, unique=True, max_length=10, primary_key=True, validators=[validate_unicode_slug])
     category = models.ForeignKey(AssetCategory, null=False, blank=False, on_delete=PROTECT)
     size = models.ForeignKey(AssetSize, null=True, blank=True, on_delete=PROTECT)
@@ -71,32 +88,27 @@ class Asset(models.Model):
     status = models.IntegerField(null=False, blank=False, choices=STATUS_CHOICES, default=PLACEHOLDER)
     location = models.ForeignKey(
         AssetLocation, null=True, blank=True, on_delete=PROTECT
-    )  # constraint, cannot be null if available, etc... write on review (suggest previous)
+    )
+
+    collection = models.IntegerField(null=False, blank=False, choices=COLLECTION_CHOICES, default=BUSINESS)
+
+    tax_status = models.IntegerField(null=False, blank=False, choices=TAX_STATUS_CHOICES, default=TAXABLE)
 
     retail_value = models.DecimalField(null=True, blank=True, max_digits=10, decimal_places=2)
 
-    tracker = FieldTracker(['number', 'category', 'size', 'status'])
-
-    def get_immutable_fields(self):
-        immutable_fields = []
-        if getattr(self, 'number') is not None:
-            immutable_fields.append('number')
-        if getattr(self, 'category') is not None:
-            immutable_fields.append('category')
-        if getattr(self, 'size') is not None:
-            immutable_fields.append('size')
-        return immutable_fields
-
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
-        for field in self.get_immutable_fields():
-            if self.tracker.has_changed(field) and (self.tracker.previous('field') is not None):
-                raise ValidationError("This field is immutable.")
-        super().save(force_insert, force_update, using, update_fields)
+    remarks = models.TextField(null=True, blank=True)
 
     def clean(self):
         super().clean()
         errors = {}
+
+        if self.collection == self.PRIVATE and self.tax_status != self.MARGIN:
+            errors.update(
+                {
+                    "tax_status": f"Private assets are margin by default"
+                }
+            )
+
         try:
             size = self.size
             if size:
@@ -112,33 +124,37 @@ class Asset(models.Model):
         if errors:
             raise ValidationError(errors)
 
-    def get_event_history(self):
-        return sorted(self.event_set.all(), key=lambda e: e.date)
-
-    def get_last_event(self):
-        return self.get_event_history()[-1] if self.get_event_history() else None
+    @property
+    def current_stock_value(self):
+        """
+        For what amount can this asset be found on the stock balance ledger right now?
+        This is the sum of all bookings to the stock balance ledger for this asset
+        - 0 if it has no purchase documents at all
+        - 0 if it has been sold or amortized
+        - 0 if it has been (fiscally) amortized directly after sales
+        """
+        return None
 
     @property
-    def stock_value(self):
-        raise NotImplementedError  # return the sum of the purchase documents
+    def purchase_value(self):
+        """
+        This is the sum of all POSITIVE bookings to the stock balance ledger for this asset,
+        or the sum of all bookings to the fiscal amortization ledger for this asset.
+        """
+        return None
 
     @property
-    def purchase_documents(self):
-        from purchases.models import SingleAssetPurchase
-        return sorted(self.event_set.all().instance_of(SingleAssetPurchase), key=lambda e: e.date)  # TODO add documents
+    def sales_value(self):
+        """
+        This is the sum of all POSITIVE bookings to the stock balance ledger for this asset,
+        """
+        return None
 
-    @property
-    def collection(self):
-        raise NotImplementedError  # return some collection (maybe derive it from purchase documents, maybe make a new foreignkey choice field)
-
-    @property
-    def tax_status(self):
-        raise NotImplementedError  # Return "margin good" or "taxable good"
-
-    def get_status(self):
-        return self.STATUS_CHOICES[self.status][1]
+    def check_stock_balance_ledger_integrity(self):
+        """
+        Perform some integrity checks
+        """
+        raise NotImplementedError
 
     def __str__(self):
         return f"{self.category.name_singular} {self.number}"
-
-# TODO add collection

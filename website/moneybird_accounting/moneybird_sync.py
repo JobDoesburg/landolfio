@@ -1,19 +1,8 @@
 import logging
-from typing import List, Type
 
-import moneybird
-from django.core.exceptions import ValidationError
-from django.db import IntegrityError
+from django.conf import settings
 from moneybird import MoneyBird, TokenAuthentication
 
-from moneybird_accounting.models import *
-
-
-class MoneyBirdSynchronizationError(ValidationError):
-    pass
-
-
-# TODO implement webhooks!
 
 
 class MoneyBirdAPITalker:
@@ -22,6 +11,16 @@ class MoneyBirdAPITalker:
     _token = settings.MONEYBIRD_API_TOKEN
     _administration_id = settings.MONEYBIRD_ADMINISTRATION_ID
     _moneybird = MoneyBird(TokenAuthentication(_token))
+
+
+    _taxable_stock_ledger_id = "340246538381952245"
+    _margin_stock_ledger_id = "340246234795083709"
+    _taxable_stock_value_ledger_id = "340246576039462518"
+    _margin_stock_value_ledger_id = "340245783921034390"
+    _margin_sales_ledger_id = "340245854757586711"
+    _taxable_sales_ledger_id = "340246558119298417"
+    _non_fiscal_amortization_ledger_id = "340246156081628510"
+    _fiscal_amortization_ledger_id = "340246156081628510"
 
     @property
     def moneybird(self):
@@ -33,148 +32,91 @@ class MoneyBirdAPITalker:
         """The administration_id to work with."""
         return self._administration_id
 
-    def sync_objects(self, cls: Type[MoneybirdSynchronizableResourceModel]):
-        """Synchronize all objects of a MoneybirdSynchronizableResourceModel."""
-        self._logger.info(f"Getting Moneybird {cls.get_moneybird_resource_path_name()} for synchronization")
+    def get_contacts(self):
+        return self.moneybird.get("contacts", self.administration_id)
 
-        data = self.moneybird.get(f"{cls.get_moneybird_resource_path_name()}/synchronization", self.administration_id,)
+    def get_document_styles(self):
+        return self.moneybird.get("document_styles", self.administration_id)
 
-        self._logger.info(f"Moneybird returned {len(data)} {cls.get_moneybird_resource_path_name()}")
+    def get_general_documents(self):
+        return self.moneybird.get("documents/general_documents", self.administration_id)
 
-        to_delete = cls.objects.exclude(id__in=[x["id"] for x in data])
-        if len(to_delete) > 0:
-            self._logger.info(
-                f"Found {len(to_delete)} {cls.get_moneybird_resource_path_name()} to delete: {to_delete}"
-            )
+    def get_purchase_invoices(self):
+        return self.moneybird.get("documents/purchase_invoices", self.administration_id)
 
-        for delete_object in to_delete:
-            delete_object.processed = True
-            delete_object.delete()
+    def get_receipts(self):
+        return self.moneybird.get("documents/receipts", self.administration_id)
 
-        update_or_create = []
-        for obj_data in data:
-            try:
-                obj = cls.objects.get(id=obj_data["id"])
-            except cls.DoesNotExist:
-                self._logger.info(f"Found new {cls.get_moneybird_resource_name()} to create with id {obj_data['id']}")
-                update_or_create.append(obj_data["id"])
-            else:
-                if obj.version != obj_data["version"]:
-                    self._logger.info(f"Found {obj} to be updated")
-                    update_or_create.append(obj_data["id"])
+    def get_general_journal_documents(self):
+        return self.moneybird.get("documents/general_journal_documents", self.administration_id)
 
-        return self.update_or_create_objects(cls, update_or_create)
+    def get_typeless_documents(self):
+        return self.moneybird.get("documents/typeless_documents", self.administration_id)
 
-    def sync_objects_hard(self, cls: Type[MoneybirdSynchronizableResourceModel]):
-        self._logger.info(f"Performing hard sync on {cls} objects, setting version to None.")
-        cls.objects.update(version=None)
+    def get_estimates(self):
+        return self.moneybird.get("estimates", self.administration_id)
 
-        self.sync_objects(cls)
+    def get_external_sales_invoices(self):
+        return self.moneybird.get("external_sales_invoices", self.administration_id)
 
-    def sync_readonly_objects(self, cls: Type[MoneybirdReadOnlyResourceModel]):
-        data = self.moneybird.get(f"{cls.get_moneybird_resource_path_name()}", self.administration_id,)
+    def get_financial_accounts(self):
+        return self.moneybird.get("financial_accounts", self.administration_id)
 
-        ids = []
-        for obj in data:
-            ids.append(obj["id"])
-            cls.update_or_create_object_from_moneybird(obj)
+    def get_financial_mutations(self):
+        return self.moneybird.get("financial_mutations", self.administration_id)
 
-        for obj in cls.objects.all():
-            if obj.id not in ids:
-                obj.processed = True
-                obj.delete()
+    def get_ledger_accounts(self):
+        return self.moneybird.get("ledger_accounts", self.administration_id)
 
-    def sync_readwrite_objects(self, cls: Type[MoneybirdReadWriteResourceModel]):
-        data = self.moneybird.get(f"{cls.get_moneybird_resource_path_name()}", self.administration_id,)
+    def get_products(self, id=None):
+        if id:
+            return self.moneybird.get(f"products/{id}", self.administration_id)
+        return self.moneybird.get("products", self.administration_id)
 
-        ids = []
-        for obj in data:
-            ids.append(obj["id"])
-            cls.update_or_create_object_from_moneybird(obj)
+    def get_identities(self):
+        return self.moneybird.get("identities", self.administration_id)
 
-        for obj in cls.objects.all():
-            if obj.id not in ids:
-                obj.processed = True
-                obj.delete()
+    def get_projects(self, id=None):
+        if id:
+            return self.moneybird.get(f"projects/{id}", self.administration_id)
+        return self.moneybird.get("projects", self.administration_id)
 
-    def update_or_create_objects(self, cls: Type[MoneybirdSynchronizableResourceModel], ids: List[str]):
-        """Update or create Moneybird objects with certain ids."""
-        chunks = [ids[i : i + 100] for i in range(0, len(ids), 100)]
+    def get_recurring_sales_invoices(self, id=None):
+        if id:
+            return self.moneybird.get(f"recurring_sales_invoices/{id}", self.administration_id)
+        return self.moneybird.get("recurring_sales_invoices", self.administration_id)
 
-        for chunk in chunks:
-            self._logger.info(
-                f"Getting {len(chunk)} Moneybird {cls.get_moneybird_resource_path_name()} by id to sync: {chunk}"
-            )
+    def get_sales_invoices(self):
+        return self.moneybird.get("sales_invoices", self.administration_id)
 
-            data = self.moneybird.post(
-                f"{cls.get_moneybird_resource_path_name()}/synchronization", {"ids": chunk}, self.administration_id,
-            )
+    def get_subscriptions(self):
+        return self.moneybird.get("subscriptions", self.administration_id)
 
-            self._logger.info(
-                f"Moneybird returned {len(data)} {cls.get_moneybird_resource_path_name()} to create or update: {data}"
-            )
+    def get_tax_rates(self):
+        return self.moneybird.get("tax_rates", self.administration_id)
 
-            for object_data in data:
-                self._logger.info(
-                    f"Updating or creating {cls.get_moneybird_resource_path_name()} {object_data['id']}: {object_data}"
-                )
-                cls.update_or_create_object_from_moneybird(object_data)
+    def get_time_entries(self):
+        return self.moneybird.get("time_entries", self.administration_id)
 
-        return cls.objects.filter(id__in=ids)
+    def get_users(self):
+        return self.moneybird.get("users", self.administration_id)
 
-    def create_moneybird_resource(self, cls: Type[MoneybirdReadWriteResourceModel], data: Dict[str, Any]):
-        """Create a new resource on Moneybird."""
-        data_filtered = dict([(x, data[x]) for x in data if x not in cls.get_moneybird_readonly_fields()])
-        try:
-            self._logger.info(f"Creating Moneybird {cls.get_moneybird_resource_path_name()} {id}: {data_filtered}")
-            reply = self.moneybird.post(
-                cls.get_moneybird_resource_path_name(),
-                {cls.get_moneybird_resource_name(): data_filtered},
-                self.administration_id,
-            )
-            self._logger.info(f"Moneybird returned {cls.get_moneybird_resource_name()}: {reply}")
-            return reply
-        except moneybird.api.MoneyBird.InvalidData as e:
-            raise IntegrityError(e.response["error"] if e.response["error"] else e.response)
+    def get_verifications(self):
+        return self.moneybird.get("verifications", self.administration_id)
 
-    def patch_moneybird_resource(
-        self, cls: Type[MoneybirdReadWriteResourceModel], id: str, data: Dict[str, Any],
-    ):
-        """Patch an existing Moneybird resource."""
-        data_filtered = dict([(x, data[x]) for x in data if x not in cls.get_moneybird_readonly_fields()])
-        try:
-            self._logger.info(f"Patching Moneybird {cls.get_moneybird_resource_path_name()} {id}: {data_filtered}")
-            reply = self.moneybird.patch(
-                f"{cls.get_moneybird_resource_path_name()}/{id}",
-                {cls.get_moneybird_resource_name(): data_filtered},
-                self.administration_id,
-            )
-            self._logger.info(f"Moneybird returned {cls.get_moneybird_resource_name()}: {reply}")
-            return reply
-        except moneybird.api.MoneyBird.InvalidData as e:
-            raise IntegrityError(e.response["error"] if e.response["error"] else e.response)
+    def get_webhooks(self):
+        return self.moneybird.get("webhooks", self.administration_id)
 
-    def delete_moneybird_resource(self, cls: Type[MoneybirdReadWriteResourceModel], id: str):
-        """Delete an existing Moneybird resource."""
-        try:
-            self._logger.info(f"Deleting Moneybird {cls.get_moneybird_resource_path_name()} {id}")
-            return self.moneybird.delete(f"{cls.get_moneybird_resource_path_name()}/{id}", self.administration_id,)
-        except moneybird.api.MoneyBird.APIError as e:
-            if e.status_code == 204:
-                pass
-            else:
-                raise IntegrityError(e.response["error"] if e.response["error"] else e.response)
+    def get_workflows(self):
+        return self.moneybird.get("workflows", self.administration_id)
 
-    def full_sync(self, hard=False):
-        for cls in MoneybirdReadOnlyResourceModel.__subclasses__():
-            if not cls._meta.abstract:
-                self.sync_readonly_objects(cls)
-        for cls in MoneybirdReadWriteResourceModel.__subclasses__():
-            if not cls._meta.abstract:
-                self.sync_readwrite_objects(cls)
-        for cls in MoneybirdSynchronizableResourceModel.__subclasses__():
-            if not cls._meta.abstract:
-                if hard:
-                    self.sync_objects_hard(cls)
-                else:
-                    self.sync_objects(cls)
+
+    def get_purchase_invoice_rows_for_keyword(self, keyword):
+        invoices = self.get_purchase_invoices()
+        for invoice in invoices:
+            details = invoice["details"]
+            for row in details:
+                if keyword in row["description"]:
+                    yield row["total_price_excl_tax_with_discount_base"], row["ledger_account_id"]
+
+
