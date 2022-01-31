@@ -25,4 +25,4 @@ jobs:
       run: poetry install
 
     - name: "Run the pre-commit hooks"
-      uses: poetry run pre-commit
+      run: poetry run pre-commit
