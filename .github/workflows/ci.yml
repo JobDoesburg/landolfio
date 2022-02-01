@@ -16,7 +16,9 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: "Install Poetry"
-      run: python -m pip install poetry
+      run: |
+          python -m pip install poetry
+          poetry env use python3
     - name: "Install dependencies"
       run: poetry install
     - name: "Run the pre-commit hooks"
