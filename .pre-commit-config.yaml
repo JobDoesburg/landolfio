@@ -2,9 +2,12 @@ repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v2.3.0
     hooks:
+      - id: check-toml
       - id: check-yaml
       - id: end-of-file-fixer
       - id: trailing-whitespace
+      - id: no-commit-to-branch
+        args: ["--branch", "main", "--branch", "development"]
 
   - repo: https://github.com/psf/black
     rev: 21.12b0
@@ -18,3 +21,10 @@ repos:
         entry: poetry run pylint
         language: python
         types: [python]
+
+      - id: django-test
+        name: django-test
+        entry: poetry run python website/manage.py test
+        always_run: true
+        pass_filenames: false
+        language: python
