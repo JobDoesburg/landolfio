@@ -4,8 +4,7 @@
 
 To get started, follow these steps:
 
-1. Install [Python 3.9+](https://www.python.org/) and
-[poetry](https://python-poetry.org/docs/#installation).
+1. Install [Python 3.9+](https://www.python.org/), [poetry](https://python-poetry.org/docs/#installation) and [pre-commit](https://pre-commit.com/#install).
 2. Clone this repository.
 3. Run `poetry install` to install all dependencies into virtual environment.
 4. Run `pre-commit install` to install the pre-commit hooks.
