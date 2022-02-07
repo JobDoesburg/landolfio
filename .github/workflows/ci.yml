@@ -31,7 +31,7 @@ jobs:
       run: poetry install
       if: steps.cache-poetry.outputs.cache-hit != 'true'
     - name: "Cache pre-commit hooks"
-      id: cache-poetry
+      id: cache-pre-commit
       uses: actions/cache@v2
       with:
         path: ~/.cache/pre-commit
