@@ -23,7 +23,7 @@ repos:
         types: [python]
 
       - id: django-test
-        name: django-test
+        name: Django tests
         entry: poetry run python website/manage.py test
         always_run: true
         pass_filenames: false
