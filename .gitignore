@@ -13,9 +13,5 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
-# User-specific pycharm stuff
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/**/usage.statistics.xml
-.idea/**/dictionaries
-.idea/**/shelf
+# Pycharm stuff
+.idea
