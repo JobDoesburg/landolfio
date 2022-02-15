@@ -15,3 +15,6 @@ db.sqlite3-journal
 
 # Pycharm stuff
 .idea
+
+# Coverage log
+.coverage
