@@ -2,39 +2,39 @@ name: Lint and test
 
 on:
   pull_request:
-    branches: [ main, development ]
+    branches: [main, development]
 
 jobs:
   pre-commit:
     runs-on: ${{ matrix.os }}
     strategy:
-        matrix:
-          os: [ubuntu-latest]
-          python-version: ['3.9', '3.10']
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.9", "3.10"]
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: "Install Poetry"
-      run: |
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: "Install Poetry"
+        run: |
           python -m pip install poetry
           poetry env use python3
-    - name: "Cache poetry"
-      id: cache-poetry
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pypoetry
-        key: ${{ runner.os }}-${{ hashFiles('poetry.lock') }}
-    - name: "Install dependencies"
-      run: poetry install
-      if: steps.cache-poetry.outputs.cache-hit != 'true'
-    - name: "Cache pre-commit hooks"
-      id: cache-pre-commit
-      uses: actions/cache@v2
-      with:
-        path: ~/.cache/pre-commit
-        key: ${{ runner.os }}-pre-commit
-    - name: "Run the pre-commit hooks"
-      run: poetry run pre-commit
+      - name: "Cache poetry"
+        id: cache-poetry
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-${{ hashFiles('poetry.lock') }}
+      - name: "Install dependencies"
+        run: poetry install
+        if: steps.cache-poetry.outputs.cache-hit != 'true'
+      - name: "Cache pre-commit hooks"
+        id: cache-pre-commit
+        uses: actions/cache@v2
+        with:
+          path: ~/.cache/pre-commit
+          key: ${{ runner.os }}-pre-commit
+      - name: "Run the pre-commit hooks"
+        run: poetry run pre-commit
