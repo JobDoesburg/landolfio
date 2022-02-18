@@ -1,3 +1,22 @@
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
+
+[tool]
+
+[tool.coverage.django_coverage_plugin]
+template_extensions = 'html, txt, tex, email'
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
+skip_covered = true
+
+[tool.coverage.run]
+branch = true
+omit = ["website/manage.py"]
+plugins = ["django_coverage_plugin"]
+
 [tool.poetry]
 authors = [""]
 description = ""
@@ -15,28 +34,10 @@ django-coverage-plugin = "^2.0.2"
 pre-commit = "^2.17.0"
 pydocstyle = {extras = ["toml"], version = "^6.1.1"}
 pylint = "^2.12.2"
-
-[build-system]
-build-backend = "poetry.core.masonry.api"
-requires = ["poetry-core>=1.0.0"]
-
-# The pylint rules are needed to avoid conflicts with Black
-
-[tool.pylint.messages_control]
-disable = "C0330, C0326, C0301"
+toml-sort = "^0.19.0"
 
 [tool.pylint.format]
 max-line-length = "88"
 
-[tool.coverage.run]
-branch = true
-omit = ["website/manage.py"]
-plugins = ["django_coverage_plugin"]
-
-[tool.coverage.report]
-fail_under = 90
-show_missing = true
-skip_covered = true
-
-[tool.coverage.django_coverage_plugin]
-template_extensions = 'html, txt, tex, email'
+[tool.pylint.messages_control]
+disable = "C0330, C0326, C0301"
