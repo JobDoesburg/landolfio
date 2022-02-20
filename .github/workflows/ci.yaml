@@ -5,7 +5,7 @@ on:
     branches: [main, development]
 
 jobs:
-  pre-commit:
+  lint-and-test:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -38,3 +38,7 @@ jobs:
           key: ${{ runner.os }}-pre-commit
       - name: "Run the pre-commit hooks"
         run: poetry run pre-commit
+      - name: "Run django tests"
+        run: poetry run coverage run --source='website' website/manage.py test website
+      - name: "Check coverage"
+        run: poetry run coverage report
