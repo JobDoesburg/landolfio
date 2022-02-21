@@ -13,8 +13,10 @@ To get started, follow these steps:
 4. Run `poetry run pre-commit install` to install the pre-commit hooks.
 5. Run `poetry shell` to enter the virtual environment.
 6. Run `cd website` to navigate to the folder containing `manage.py`.
-7. Run `python ./manage.py migrate` to initialize the database.
-8. Run `python ./manage.py runserver` to start the local testing server.
+7. Run `export DJANGO_SETTINGS_MODULE=website.settings.development` to use the
+   development settings.
+8. Run `python ./manage.py migrate` to initialize the database.
+9. Run `python ./manage.py runserver` to start the local testing server.
 
 ### Testing
 
