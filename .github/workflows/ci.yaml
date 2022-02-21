@@ -30,8 +30,6 @@ jobs:
         with:
           path: ~/.cache/pypoetry
           key: ${{ runner.os }}-${{ hashFiles('poetry.lock') }}
-      - name: "Set the the development settings as preferred settings"
-        run: export DJANGO_SETTINGS_MODULE=website.settings.development
       - name: "Install dependencies"
         run: poetry install
         if: steps.cache-poetry.outputs.cache-hit != 'true'
@@ -43,7 +41,13 @@ jobs:
           key: ${{ runner.os }}-pre-commit
       - name: "Run the pre-commit hooks"
         run: poetry run pre-commit
+        env:
+          DJANGO_SETTINGS_MODULE: website.settings.development
       - name: "Run django tests"
         run: poetry run coverage run --source='website' website/manage.py test website
+        env:
+          DJANGO_SETTINGS_MODULE: website.settings.development
       - name: "Check coverage"
         run: poetry run coverage report
+        env:
+          DJANGO_SETTINGS_MODULE: website.settings.development
