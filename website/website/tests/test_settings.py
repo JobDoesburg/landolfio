@@ -14,19 +14,18 @@ class DevelopmentSettingsTest(TestCase):
         from website.settings import development
 
 
-@mock.patch.dict(
-    os.environ,
-    {
-        "LANDOLFIO_SECRET_KEY": "myverysecretkey",
-        "LANDOLFIO_ALLOWED_HOSTS": "landolfio.example.com, landolfio2.example.com",
-        "POSTGRES_DB": "db",
-        "POSTGRES_USER": "user",
-        "POSTGRES_PASSWORD": "postgres_password",
-        "POSTGRES_HOST": "database",
-        "POSTGRES_PORT": "5432",
-    },
-    clear=True,
-)
+MOCK_ENVIRONMENT_PRODUCTION = {
+    "LANDOLFIO_SECRET_KEY": "myverysecretkey",
+    "LANDOLFIO_ALLOWED_HOSTS": "landolfio.example.com, landolfio2.example.com",
+    "POSTGRES_DB": "db",
+    "POSTGRES_USER": "user",
+    "POSTGRES_PASSWORD": "postgres_password",
+    "POSTGRES_HOST": "database",
+    "POSTGRES_PORT": "5432",
+}
+
+
+@mock.patch.dict(os.environ, MOCK_ENVIRONMENT_PRODUCTION, clear=True)
 class ProductionSettingsTest(TestCase):
     """Test the production settings."""
 
