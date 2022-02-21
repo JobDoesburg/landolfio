@@ -9,10 +9,10 @@ repos:
       - id: no-commit-to-branch
         args: ["--branch", "main", "--branch", "development"]
 
-  - repo: https://github.com/psf/black
-    rev: 21.12b0
+  - repo: https://github.com/asottile/reorder_python_imports
+    rev: v2.7.1
     hooks:
-      - id: black
+      - id: reorder-python-imports
 
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: ea782651a7e32f40a3d13b76c79d5a2474ee8723
@@ -20,10 +20,10 @@ repos:
       - id: prettier
         types_or: [css, javascript, ts, yaml, markdown]
 
-  - repo: https://github.com/asottile/reorder_python_imports
-    rev: v2.7.1
+  - repo: https://github.com/psf/black
+    rev: 21.12b0
     hooks:
-      - id: reorder-python-imports
+      - id: black
 
   - repo: local
     hooks:
@@ -44,17 +44,3 @@ repos:
         entry: poetry run pylint -j 4
         language: system
         types: [python]
-
-      - id: django-test
-        name: Django tests
-        entry: poetry run coverage run --source='website' website/manage.py test website
-        always_run: true
-        pass_filenames: false
-        language: system
-
-      - id: coverage
-        name: Check coverage
-        entry: poetry run coverage report
-        always_run: true
-        pass_filenames: false
-        language: system
