@@ -1,5 +1,7 @@
 # Landolfio
 
+![Lint and test](https://github.com/GipHouse/Landolfio-2022/actions/workflows/ci.yaml/badge.svg?branch=development)
+
 ## Getting Started
 
 To get started, follow these steps:
