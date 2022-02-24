@@ -38,6 +38,8 @@ services:
       - "443:443"
     depends_on:
       - website
+    environment:
+      - LANDOLFIO_ALLOWED_HOSTS
 
 volumes:
   postgres_data:

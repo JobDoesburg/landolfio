@@ -1,4 +1,4 @@
-localhost {
+{$LANDOLFIO_ALLOWED_HOSTS} {
     handle_path /static/* {
         root * /static
         file_server
