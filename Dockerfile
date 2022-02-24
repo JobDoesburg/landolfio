@@ -20,4 +20,4 @@ WORKDIR /usr/src/app/website
 
 RUN ./manage.py collectstatic --noinput --settings=website.settings.development
 
-CMD [ "gunicorn", "website.wsgi", "--bind=0.0.0.0:80", "--env", "DJANGO_SETTINGS_MODULE=website.settings.production" ]
+CMD [ "sh", "-c", "./manage.py migrate --settings=website.settings.production && gunicorn website.wsgi --bind=0.0.0.0:80 --env DJANGO_SETTINGS_MODULE=website.settings.production" ]
