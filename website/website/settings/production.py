@@ -42,7 +42,8 @@ DATABASES = {
     }
 }
 
-SECURE_SSL_REDIRECT = True
+# We do this in our reverse proxy, no need to do it here
+SECURE_SSL_REDIRECT = False
 
 SESSION_COOKIE_SECURE = True
 

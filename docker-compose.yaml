@@ -1,0 +1,44 @@
+version: "3.1"
+
+services:
+  database:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_DB
+      - POSTGRES_PASSWORD
+    volumes:
+      - "postgres_data:/var/lib/postgresql/data/"
+
+  website:
+    build: .
+    restart: unless-stopped
+    environment:
+      - LANDOLFIO_SECRET_KEY
+      - LANDOLFIO_ALLOWED_HOSTS
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+    volumes:
+      - "static:/usr/src/app/website/static"
+    depends_on:
+      - database
+
+  reverse-proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    volumes:
+      - "./Caddyfile:/etc/caddy/Caddyfile"
+      - "static:/static:ro"
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - website
+
+volumes:
+  postgres_data:
+  static:
