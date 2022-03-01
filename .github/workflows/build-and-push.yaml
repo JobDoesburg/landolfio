@@ -1,0 +1,43 @@
+# see: https://docs.github.com/en/actions/publishing-packages/publishing-docker-images#publishing-images-to-github-packages
+name: Build and push
+
+on:
+  push:
+    branches: ["development"]
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set some environment variables for later use
+        run: |
+          # Get the short git hash
+          echo "SHORT_HASH=$(git rev-parse --short HEAD)" >>${GITHUB_ENV}
+
+          # Use the lowercase version of the repository name as the image name,
+          # because docker does not allow uppercase characters
+          echo "IMAGE_NAME=${REGISTRY}/${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build the Docker image
+        # see: https://docs.docker.com/engine/reference/commandline/image_build/#usage
+        run: docker image build --tag '${{ env.IMAGE_NAME }}:latest' --tag '${{ env.IMAGE_NAME }}:${{ env.SHORT_HASH }}' .
+
+      - name: Push the Docker image
+        run: docker image push --all-tags '${{ env.IMAGE_NAME }}'
