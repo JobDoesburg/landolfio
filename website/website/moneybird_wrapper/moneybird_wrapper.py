@@ -31,11 +31,8 @@ class MoneyBirdWrapper:
 
         return_data = []
         for split_documents in split:
-            ids = []
-
-            # Load all the ids
-            for document in split_documents:
-                ids.append(document["id"])
+            # Get all document ids
+            ids = [document["id"] for document in split_documents]
 
             # Prepare the ids dictionary
             request_ids = {"ids": ids}
