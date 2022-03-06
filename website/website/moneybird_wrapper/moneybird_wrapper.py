@@ -1,17 +1,14 @@
-"""
-Moneybird API wrapper
-"""
-from moneybird import MoneyBird, TokenAuthentication
+"""Moneybird API wrapper."""
+from moneybird import MoneyBird
+from moneybird import TokenAuthentication
 
 
 class MoneyBirdWrapper:
-    """
-    A Moneybird API wrapper
-    """
+    """A Moneybird API wrapper."""
 
     def __init__(self, key: str):
         """
-        Initialize the Moneybird Wrapper
+        Initialize the Moneybird Wrapper.
 
         :key: the API key
         """
@@ -20,7 +17,7 @@ class MoneyBirdWrapper:
 
     def load_documents(self, document_type: str):
         """
-        Loads the documents of the specified type
+        Load the documents of the specified type.
 
         :param document_type: the type of document we want to load
         :return: requested documents as JSON
@@ -53,14 +50,16 @@ class MoneyBirdWrapper:
 
     def load_purchase_invoices(self):
         """
-        Loads purchase invoices
+        Load purchase invoices.
+
         :return: purchase invoices as JSON
         """
         return self.load_documents("purchase_invoices")
 
     def load_receipts(self):
         """
-        Loads receipts
+        Load receipts.
+
         :return: receipts as JSON
         """
         return self.load_documents("receipts")
