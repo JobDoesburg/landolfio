@@ -15,7 +15,7 @@ class MoneyBirdWrapper:
         self.api = MoneyBird(TokenAuthentication(key))
         self.administration_id = self.api.get("administrations")[0]["id"]
 
-    def load_documents(self, document_type: str):
+    def __load_documents(self, document_type: str):
         """
         Load the documents of the specified type.
 
@@ -54,7 +54,7 @@ class MoneyBirdWrapper:
 
         :return: purchase invoices as JSON
         """
-        return self.load_documents("purchase_invoices")
+        return self.__load_documents("purchase_invoices")
 
     def load_receipts(self):
         """
@@ -62,4 +62,4 @@ class MoneyBirdWrapper:
 
         :return: receipts as JSON
         """
-        return self.load_documents("receipts")
+        return self.__load_documents("receipts")
