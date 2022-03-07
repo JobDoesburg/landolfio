@@ -3,7 +3,7 @@ from django.test import RequestFactory
 from django.test import TestCase
 from django.urls import Resolver404
 
-from ..asgi import application
+from .asgi import application
 
 
 class AsgiTest(TestCase):
