@@ -1,0 +1,20 @@
+from django.test import TestCase
+from .models import Asset, AssetState
+
+
+class AssetTestCase(TestCase):
+    def setUp(self):
+        Asset.objects.create(old_id="C7801", asset_type="Violin", size="7/8", collection="Zakelijk", listing_price="750", stock_price="1200", purchasing_value="200", margin=True)
+
+    def test_assets_attributes(self):
+        """Test the functionality of an asset"""
+
+        asset = Asset.objects.get(old_id="C7801")
+        self.assertEqual(asset.old_id, 'C7801')
+        self.assertEqual(asset.asset_type, 'Violin')
+        self.assertEqual(asset.size, '7/8')
+        self.assertEqual(asset.collection, 'Zakelijk')
+        self.assertEqual(asset.listing_price, 750)
+        self.assertEqual(asset.stock_price, 1200)
+        self.assertEqual(asset.purchasing_value, 200)
+        self.assertEqual(asset.margin, True)
