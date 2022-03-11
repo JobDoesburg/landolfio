@@ -11,12 +11,6 @@ class Invoice(models.Model):
     date = models.DateField(verbose_name=_("Date"))
     amount = models.FloatField(verbose_name=_("Amount"))
 
-    class Meta:
-        """Invoice class meta data."""
-
-        verbose_name = "Invoice"
-        verbose_name_plural = "Invoices"
-
     def __str__(self):
         """Return Invoice string."""
         # Wat is een logische string hier?
@@ -30,12 +24,6 @@ class Receipt(models.Model):
     json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
     date = models.DateField(verbose_name=_("Date"))
     amount = models.FloatField(verbose_name=_("Amount"))
-
-    class Meta:
-        """Receipt class meta data."""
-
-        verbose_name = "Receipt"
-        verbose_name_plural = "Receipts"
 
     def __str__(self):
         """Return Receipt string."""

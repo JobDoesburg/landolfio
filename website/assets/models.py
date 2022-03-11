@@ -13,7 +13,7 @@ STATES = (
     ("under_repair_internal", "under_repair_internal"),
     ("under_repair_external", "under_repair_external"),
     ("sold", "sold"),
-    ("amoritzed", "amoritzed"),
+    ("amortized", "amortized"),
 )
 
 
@@ -34,12 +34,6 @@ class Asset(models.Model):
     remarks = models.TextField(
         verbose_name=_("Remarks"), max_length=1000, null=True, blank=True
     )
-
-    class Meta:
-        """Asset class meta data."""
-
-        verbose_name = "Asset"
-        verbose_name_plural = "Assets"
 
     def __str__(self):
         """Return Asset string."""
@@ -62,12 +56,6 @@ class AssetState(models.Model):
     external = models.CharField(
         verbose_name=_("External"), max_length=250, null=True, blank=True
     )
-
-    class Meta:
-        """AssetState class meta data."""
-
-        verbose_name = "Asset state"
-        verbose_name_plural = "Asset states"
 
     def __str__(self):
         """Return AssetState string."""

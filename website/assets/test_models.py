@@ -45,9 +45,9 @@ class AssetTestCase(TestCase):
     def test_asset_state_relation(self):
         """Test ability to retrieve AssetStates from Asset."""
         asset = Asset.objects.get(old_id="C7801")
-        assetState = AssetState.objects.get(asset=asset)
-        self.assertEqual(assetState.date, datetime.date(2022, 1, 25))
-        self.assertEqual(assetState.state, "purchased")
-        self.assertEqual(assetState.room, "Room A")
-        self.assertEqual(assetState.closet, "Closet B")
-        self.assertEqual(assetState.external, "External C")
+        asset_state = AssetState.objects.get(asset=asset)
+        self.assertEqual(asset_state.date, datetime.date(2022, 1, 25))
+        self.assertEqual(asset_state.state, "purchased")
+        self.assertEqual(asset_state.room, "Room A")
+        self.assertEqual(asset_state.closet, "Closet B")
+        self.assertEqual(asset_state.external, "External C")

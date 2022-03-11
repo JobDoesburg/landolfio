@@ -37,14 +37,14 @@ class AccountingTestCase(TestCase):
         )
 
     def test_invoice_attributes(self):
-        """Test the functionality of an receipt."""
+        """Test the functionality of an invoice."""
         testdate = datetime.date(2022, 1, 25)
         invoice = Invoice.objects.get(amount=1200)
         self.assertEqual(invoice.date, testdate)
         self.assertEqual(invoice.amount, 1200)
 
     def test_receipt_attributes(self):
-        """Test the functionality of an receipt."""
+        """Test the functionality of a receipt."""
         testdate = datetime.date(2022, 1, 25)
         receipt = Receipt.objects.get(amount=750)
         self.assertEqual(receipt.date, testdate)
