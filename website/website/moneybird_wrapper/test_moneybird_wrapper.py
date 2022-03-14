@@ -1,98 +1,82 @@
 """Test the MoneyBirdWrapper."""
 import unittest
-from unittest.mock import patch
+
+from .moneybird_wrapper import Diff
+from .moneybird_wrapper import MoneyBirdApiWrapper
 
 
-def make_moneybird_mock(purchase_invoices, receipts):
-    """Create a Mock version of the Moneybird API with given purchase invoices and receipts."""
+class MoneyBirdMock:
+    """Mock version of the MoneyBird API."""
 
-    class MoneyBirdMock:
-        """Mock version of the MoneyBird API."""
+    # pylint: disable=too-few-public-methods
 
-        # pylint: disable=too-few-public-methods
+    def __init__(self, documents):
+        """Initialize a new MoneyBirdMock."""
+        self.documents = documents
 
-        def __init__(self, authentication):
-            """Initialize a new MoneyBirdMock."""
-            self.authentication = authentication
-            self.purchase_invoices = purchase_invoices
-            self.receipts = receipts
+    def get(self, resource_path: str, administration_id: int = None):
+        """Mock a GET request for the Moneybird API."""
+        # pylint: disable=unused-argument
+        if resource_path == "administrations":
+            return [{"id": "0"}]
 
-        def get(self, resource_path: str, administration_id: int = None):
-            """Mock a GET request for the Moneybird API."""
-            # pylint: disable=unused-argument
-            if resource_path == "administrations":
-                return [{"id": "0"}]
+        path = resource_path.split("/")
 
-            if resource_path == "documents/purchase_invoices/synchronization":
-                return [
-                    {"id": invoice["id"], "version": invoice["version"]}
-                    for invoice in self.purchase_invoices
-                ]
+        if len(path) == 3 and path[0] == "documents" and path[2] == "synchronization":
+            documents_kind = (
+                self.documents[path[1]] if path[1] in self.documents else []
+            )
 
-            if resource_path == "documents/receipts/synchronization":
-                return [
-                    {"id": receipt["id"], "version": receipt["version"]}
-                    for receipt in self.receipts
-                ]
+            return [
+                {"id": doc["id"], "version": doc["version"]} for doc in documents_kind
+            ]
 
-            # Incorrect path was used
-            raise MoneyBirdMock.NotFound
+        # Incorrect path was used
+        raise MoneyBirdMock.NotFound
 
-        def post(self, resource_path: str, data: dict, administration_id: int = None):
-            """Mock a POST request for the Moneybird API."""
-            # pylint: disable=unused-argument
-            if resource_path == "documents/purchase_invoices/synchronization":
-                ids = data["ids"]
-                return filter(
-                    lambda invoice: invoice["id"] in ids, self.purchase_invoices
-                )
+    def post(self, resource_path: str, data: dict, administration_id: int = None):
+        """Mock a POST request for the Moneybird API."""
+        # pylint: disable=unused-argument
 
-            if resource_path == "documents/receipts/synchronization":
-                ids = data["ids"]
-                return filter(lambda receipt: receipt["id"] in ids, self.receipts)
+        path = resource_path.split("/")
+        if (
+            len(path) == 3
+            and path[0] == "documents"
+            and path[1] in self.documents
+            and path[2] == "synchronization"
+        ):
+            documents_kind = self.documents[path[1]]
+            ids = data["ids"]
+            return filter(lambda doc: doc["id"] in ids, documents_kind)
 
-            # Incorrect path was used
-            raise MoneyBirdMock.NotFound
+        # Incorrect path was used
+        raise MoneyBirdMock.NotFound
 
-        class NotFound(Exception):
-            """Exception for requests to non-existing resource paths."""
-
-    return MoneyBirdMock
+    class NotFound(Exception):
+        """Exception for requests to non-existing resource paths."""
 
 
 class MoneybirdWrapperTest(unittest.TestCase):
     """Class to test the MoneyBirdWrapper."""
 
     def test_load_purchase_invoices(self):
-        """Test loading purchase invoices."""
-        purchase_invoices = [{"id": "1", "version": 3}, {"id": "2", "version": 7}]
-        receipts = [{"id": "112", "version": 2}, {"id": "22", "version": 5}]
-        with patch(
-            "moneybird.MoneyBird", new=make_moneybird_mock(purchase_invoices, receipts)
-        ):
-            # pylint: disable=import-outside-toplevel
-            from .moneybird_wrapper import MoneyBirdWrapper
+        """If we request the changes without a tag then we must get all changes."""
+        documents = {
+            "purchase_invoices": [{"id": "1", "version": 3}, {"id": "2", "version": 7}]
+        }
+        wrapper = MoneyBirdApiWrapper(MoneyBirdMock(documents))
 
-            wrapper = MoneyBirdWrapper("mock_key")
-            self.assertListEqual(
-                wrapper.load_purchase_invoices(),
-                purchase_invoices,
-                "Incorrect purchase invoices response",
-            )
+        _tag, changes = wrapper.get_changes()
+        self.assertEqual(
+            changes["purchase_invoices"], Diff(added=documents["purchase_invoices"])
+        )
 
-    def test_load_receipts(self):
-        """Test loading receipts."""
-        purchase_invoices = [{"id": "1", "version": 3}, {"id": "2", "version": 7}]
-        receipts = [{"id": "112", "version": 2}, {"id": "22", "version": 5}]
-        with patch(
-            "moneybird.MoneyBird", new=make_moneybird_mock(purchase_invoices, receipts)
-        ):
-            # pylint: disable=import-outside-toplevel
-            from .moneybird_wrapper import MoneyBirdWrapper
+    def test_tag_usage(self):
+        """If we request changes and use the returned tag to get new changes then the difference must be empty."""
+        documents = {"receipts": [{"id": "1", "version": 3}, {"id": "2", "version": 7}]}
+        wrapper = MoneyBirdApiWrapper(MoneyBirdMock(documents))
 
-            wrapper = MoneyBirdWrapper("mock_key")
-            self.assertListEqual(
-                wrapper.load_receipts(),
-                receipts,
-                "Incorrect receipts response",
-            )
+        tag1, _changes1 = wrapper.get_changes()
+        _tag2, changes2 = wrapper.get_changes(tag1)
+
+        self.assertEqual(changes2["receipts"], Diff())
