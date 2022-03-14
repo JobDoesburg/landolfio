@@ -8,6 +8,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # Application definition
 
 INSTALLED_APPS = [
+    "assets",
+    "accounting",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
