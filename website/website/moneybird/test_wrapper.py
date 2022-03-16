@@ -1,5 +1,5 @@
 """Test the MoneyBirdWrapper."""
-import unittest
+from django.test import TestCase
 
 from .api import Administration
 from .wrapper import _get_changes_from_api as get_changes_from_api
@@ -51,7 +51,7 @@ class MockAdministration(Administration):
         raise self.NotFound
 
 
-class WrapperTest(unittest.TestCase):
+class WrapperTest(TestCase):
     """Tests for the MoneyBird wrapper."""
 
     def test_load_purchase_invoices(self):
