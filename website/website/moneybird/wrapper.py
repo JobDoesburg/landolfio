@@ -1,7 +1,7 @@
 """Moneybird API wrapper."""
 from dataclasses import dataclass
 from dataclasses import field
-from typing import Iterable
+from typing import Generator
 from typing import Literal
 
 from .api import Administration
@@ -28,11 +28,12 @@ class VersionDiff:
 
 
 Document = dict
+"""A MoneyBird document."""
 
 
 @dataclass
 class Diff:
-    """The difference between two lists of documents."""
+    """The difference between two sets of documents."""
 
     added: list[Document] = field(default_factory=list)
     changed: list[Document] = field(default_factory=list)
@@ -40,6 +41,7 @@ class Diff:
 
 
 Changes = dict[DocKind, Diff]
+"""A dictionary with diffs per document kind."""
 
 
 @dataclass
@@ -64,7 +66,7 @@ def _diff_versions(old: Version, new: Version) -> VersionDiff:
     return diff
 
 
-def _chunk(lst: list, chunk_size: int) -> Iterable:
+def _chunk(lst: list, chunk_size: int) -> Generator[list, None, None]:
     """Split a list into chunks of size chunk_size."""
     for idx in range(0, len(lst), chunk_size):
         yield lst[idx : idx + 100]
