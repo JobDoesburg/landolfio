@@ -25,6 +25,9 @@ class Administration(ABC):
     def post(self, resource_path: str, data: dict):
         """Do a POST request on the Moneybird administration."""
 
+    class InvalidResourcePath(Exception):
+        """The given resource path is invalid."""
+
     class APIError(Exception):
         """An exception that can be thrown while using the API."""
 
@@ -66,6 +69,11 @@ def _create_session_with_key(key: str) -> requests.Session:
 
 
 def _build_url(administration_id: int, resource_path: str) -> str:
+    if resource_path.startswith("/"):
+        raise Administration.InvalidResourcePath(
+            "The resource path must not start with a slash."
+        )
+
     api_base_url = "https://moneybird.com/api/v2/"
     url_parts = [api_base_url, f"{administration_id}/", f"{resource_path}.json"]
     return reduce(urljoin, url_parts)
