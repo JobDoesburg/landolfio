@@ -67,7 +67,7 @@ def _create_session_with_key(key: str) -> requests.Session:
 
 def _build_url(administration_id: int, resource_path: str) -> str:
     api_base_url = "https://moneybird.com/api/v2/"
-    url_parts = [api_base_url, administration_id, f"{resource_path}.json"]
+    url_parts = [api_base_url, f"{administration_id}/", f"{resource_path}.json"]
     return reduce(urljoin, url_parts)
 
 
