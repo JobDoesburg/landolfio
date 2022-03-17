@@ -16,7 +16,7 @@ Version = dict[DocId, DocVersion]
 """A function of document-ids to version numbers."""
 
 _MAX_REQUEST_SIZE = 100
-"""The maximum number of documents that may be retrieved in one API-request."""
+"""The maximum number of documents that may be requested in one API-request."""
 
 
 @dataclass
