@@ -1,3 +1,4 @@
+"""The accounting models."""
 from assets.models import Asset
 from django.db import models
 from django.utils.translation import gettext as _

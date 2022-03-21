@@ -1,3 +1,4 @@
+"""The Django apps concerning accounting."""
 from django.apps import AppConfig
 
 

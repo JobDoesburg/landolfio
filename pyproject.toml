@@ -29,6 +29,7 @@ moneybird = "^0.1.3"
 python = "^3.9"
 gunicorn = "^20.1.0"
 psycopg2 = "^2.9.3"
+pylint-django = "^2.5.2"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
@@ -40,10 +41,15 @@ pylint = "^2.12.2"
 toml-sort = "^0.19.0"
 
 [tool.pydocstyle]
-add-ignore = "D104,D100,D101,D103"
+add-ignore = "D200"
+
+[tool.pylint]
 
 [tool.pylint.format]
 max-line-length = "88"
 
+[tool.pylint.master]
+load-plugins = ["pylint_django"]
+
 [tool.pylint.messages_control]
-disable = "C0330, C0326, C0301, C0114, C0116, C0115, C0103, R0903"
+disable = ""

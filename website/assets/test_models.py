@@ -1,3 +1,4 @@
+"""Test the asset-models."""
 import datetime
 
 from django.test import TestCase
@@ -5,7 +6,7 @@ from django.test import TestCase
 from .models import Asset
 from .models import AssetState
 
-# pylint: disable=no-member
+
 class AssetTestCase(TestCase):
     """Test cases for the Asset model."""
 

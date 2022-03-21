@@ -1,3 +1,4 @@
+"""The Django apps for the assets module."""
 from django.apps import AppConfig
 
 

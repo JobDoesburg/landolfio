@@ -21,8 +21,9 @@ class Asset(models.Model):
     """Class model for Assets."""
 
     old_id = models.CharField(verbose_name=_("Old ID"), max_length=200)
-    # We may later add choices to the asset_type field, i.e. 'violin', 'cello' etc.
-    # I named it `asset_type` instead of `type` because `type` shadows an existing function
+    # We may later add choices to the asset_type field, i.e. 'violin', 'cello' etc. I
+    # named it `asset_type` instead of `type` because `type` shadows an existing
+    # function
     asset_type = models.CharField(verbose_name=_("Type"), max_length=200)
     # For the `size` field we may also want to add choices
     size = models.CharField(verbose_name=_("Size"), max_length=200)
