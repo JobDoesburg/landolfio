@@ -3,29 +3,27 @@ from django.db import models
 from django.utils.translation import gettext as _
 
 
-class Invoice(models.Model):
-    """Class model for Invoices."""
-
-    asset = models.ForeignKey(Asset, on_delete=models.CASCADE, verbose_name=_("Asset"))
+class DocumentLine(models.Model):
     json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
-    date = models.DateField(verbose_name=_("Date"))
-    amount = models.FloatField(verbose_name=_("Amount"))
-
-    # pylint: disable=no-member
-    def __str__(self):
-        """Return Invoice string."""
-        return "IV_" + str(self.date) + "_" + str(self.id)
-
-
-class Receipt(models.Model):
-    """Class model for Receipts."""
-
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, verbose_name=_("Asset"))
-    json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
-    date = models.DateField(verbose_name=_("Date"))
-    amount = models.FloatField(verbose_name=_("Amount"))
+    price = models.FloatField(verbose_name=_("Price"))
 
-    # pylint: disable=no-member
+
+class Document(models.Model):
+    """Class model for Documents."""
+
+    class Kind(models.TextChoices):
+        """The kind of document."""
+
+        INVOICE = "IV", _("Invoice")
+        RECEIPT = "RC", _("Receipt")
+
+    json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
+    kind = models.CharField(max_length=2, choices=Kind.choices)
+    date = models.DateField(verbose_name=_("Date"))
+    models.ManyToManyField(DocumentLine)
+
     def __str__(self):
-        """Return Receipt string."""
-        return "RC_" + str(self.date) + "_" + str(self.id)
+        """Return Document string."""
+        # pylint: disable=no-member
+        return f"{str(self.kind)}_{str(self.date)}_{str(self.id)}"
