@@ -1,4 +1,4 @@
-"""website URL Configuration
+"""website URL Configuration.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.0/topics/http/urls/
@@ -15,7 +15,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.urls import re_path
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    # The admin interface is the only thing we serve, so just always redirect
+    # there if we get an unknown path
+    re_path(r"^.*", RedirectView.as_view(url="/admin/")),
 ]
