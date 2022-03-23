@@ -4,6 +4,20 @@ from .api import _build_url as build_url
 from .api import Administration
 
 
+class TestApiErrors(TestCase):
+    """Test the API errors."""
+
+    @staticmethod
+    def test_construction():
+        """The construction of an ApiError must not fail."""
+        Administration.NotFound(404, "Resource not found")
+
+    @staticmethod
+    def test_construction_without_description():
+        """The construction of an ApiError without a description must not fail."""
+        Administration.ServerError(500)
+
+
 class TestBuildURL(TestCase):
     """Test the function to build URLs."""
 

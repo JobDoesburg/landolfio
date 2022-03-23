@@ -31,16 +31,9 @@ class Administration(ABC):
     class APIError(Exception):
         """An exception that can be thrown while using the API."""
 
-        def __init__(self, response: requests.Response, description: str = None):
-            """
-            Create a new API error.
-
-            :param response: The API response.
-            :param description: Description of the error.
-            """
-            self._response = response
-
-            msg = f"API error {response.status_code}"
+        def __init__(self, status_code: int, description: str = None):
+            """Create a new API error."""
+            msg = f"API error {status_code}"
             if description:
                 msg += f": {description}"
 
@@ -99,7 +92,7 @@ def _process_response(response: requests.Response) -> dict:
 
     if not code_is_known:
         raise Administration.APIError(
-            response, "API response contained unknown status code"
+            code, "API response contained unknown status code"
         )
 
     if code in bad_codes:
@@ -109,7 +102,7 @@ def _process_response(response: requests.Response) -> dict:
         except (AttributeError, TypeError, KeyError, ValueError):
             error_description = None
 
-        raise error(response, error_description)
+        raise error(code, error_description)
 
     return response.json()
 
