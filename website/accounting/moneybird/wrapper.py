@@ -67,7 +67,7 @@ def _diff_versions(old: Version, new: Version) -> VersionDiff:
 def _chunk(lst: list, chunk_size: int) -> Generator[list, None, None]:
     """Split a list into chunks of size chunk_size."""
     for idx in range(0, len(lst), chunk_size):
-        yield lst[idx : idx + 100]
+        yield lst[idx : idx + chunk_size]
 
 
 def _get_remote_version(api: Administration, document_kind: DocKind) -> Version:

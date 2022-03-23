@@ -2,8 +2,53 @@
 from django.test import TestCase
 
 from .api import MockAdministration
+from .wrapper import _chunk as chunk
 from .wrapper import Diff
 from .wrapper import get_changes_from_api
+
+
+class TestChunk(TestCase):
+    """Test the chunk function."""
+
+    def test_empty(self):
+        """Chunking the empty list must yield no chunks."""
+        self.assertListEqual(list(chunk([], 10)), [])
+
+    def test_one(self):
+        """Chunking a unary list must yield one chunk with that list."""
+        self.assertListEqual(list(chunk(["foo"], 10)), [["foo"]])
+
+    def test_one_less(self):
+        """
+        Test chunking with a list smaller than the chunk size.
+
+        Chunking a list smaller than the chunk size must yield one chunk with only
+        that list.
+        """
+        self.assertListEqual(list(chunk(["foo", "bar"], 3)), [["foo", "bar"]])
+
+    def test_exact(self):
+        """
+        Test chunking a list of exactly the chunk size.
+
+        Chunking a list with the length being exactly the chunk size must return one
+        chunk with exactly that list.
+        """
+        self.assertListEqual(
+            list(chunk(["foo", "bar", "baz"], 3)), [["foo", "bar", "baz"]]
+        )
+
+    def test_one_more(self):
+        """
+        Test chunking a list that is larger than the chunk size.
+
+        Chunking a list with the length being larger than the chunk size must return
+        multiple chunks.
+        """
+        self.assertListEqual(
+            list(chunk(["foo", "bar", "baz", "qux"], 3)),
+            [["foo", "bar", "baz"], ["qux"]],
+        )
 
 
 class WrapperTest(TestCase):
