@@ -155,7 +155,7 @@ class MockAdministration(Administration):
             and parts[2] == "synchronization"
         ):
             documents_kind = (
-                self.documents[parts[1]] if parts[1] in self.documents else []
+                self.documents[parts[1]] if parts[1] in self.documents else [].copy()
             )
 
             return [
@@ -167,13 +167,12 @@ class MockAdministration(Administration):
     def post(self, resource_path: str, data: dict):
         """Mock a POST request for the Moneybird API."""
         path = resource_path.split("/")
-        if (
-            len(path) == 3
-            and path[0] == "documents"
-            and path[1] in self.documents
-            and path[2] == "synchronization"
-        ):
-            documents_kind = self.documents[path[1]]
+        if len(path) == 3 and path[0] == "documents" and path[2] == "synchronization":
+            if path[1] in self.documents:
+                documents_kind = self.documents[path[1]]
+            else:
+                documents_kind = [].copy()
+
             ids = data["ids"]
             return filter(lambda doc: doc["id"] in ids, documents_kind)
 
