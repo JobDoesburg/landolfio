@@ -8,7 +8,7 @@ class Document(models.Model):
     class Kind(models.TextChoices):
         """The kind of document."""
 
-        INVOICE = "IV", _("Invoice")
+        PURCHASE_INVOICE = "PI", _("Purchase Invoice")
         RECEIPT = "RC", _("Receipt")
 
     json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
