@@ -1,4 +1,5 @@
 """Moneybird API wrapper."""
+import json
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Generator
@@ -44,11 +45,8 @@ Changes = dict[DocKind, Diff]
 """A dictionary with diffs per document kind."""
 
 
-@dataclass
-class Tag:
-    """A tag for a MoneyBird database state."""
-
-    versions: dict[DocKind, Version] = field(default_factory=dict)
+Tag = dict[DocKind, Version]
+"""A tag for a MoneyBird database state."""
 
 
 def _diff_versions(old: Version, new: Version) -> VersionDiff:
@@ -112,28 +110,18 @@ def _get_remote_documents(
     return documents
 
 
-def get_changes_from_api(api: Administration, tag: Tag = None) -> tuple[Tag, Changes]:
-    """
-    Get changes from an administration.
-
-    To get changes since a previous call, you can give the Tag returned by that
-    previous call as a parameter. If no tag is given, all documents are returned.
-
-    Returns a new Tag, and all changes that happened since the last get_changes call
-    that returned the given Tag.
-    """
-    if tag is None:
-        tag = Tag()
-
-    new_tag = Tag()
+def _get_changes_from_api_impl(
+    api: Administration, old_tag: Tag
+) -> tuple[Tag, Changes]:
     changes = {}
+    new_tag = Tag()
 
     for kind in _DOCUMENT_KINDS:
-        new_tag.versions[kind] = _get_remote_version(api, kind)
+        new_tag[kind] = _get_remote_version(api, kind)
 
     for kind in _DOCUMENT_KINDS:
-        current = tag.versions[kind] if kind in tag.versions else {}
-        remote = new_tag.versions[kind]
+        current = old_tag[kind] if kind in old_tag else {}
+        remote = new_tag[kind]
         version_diff = _diff_versions(current, remote)
 
         diff = Diff()
@@ -144,3 +132,25 @@ def get_changes_from_api(api: Administration, tag: Tag = None) -> tuple[Tag, Cha
         changes[kind] = diff
 
     return new_tag, changes
+
+
+def get_changes_from_api(
+    api: Administration, tag: bytes = None
+) -> tuple[bytes, Changes]:
+    """
+    Get changes from an administration.
+
+    To get changes since a previous call, you can give the Tag returned by that
+    previous call as a parameter. If no tag is given, all documents are returned.
+
+    Returns a new Tag, and all changes that happened since the last get_changes call
+    that returned the given Tag.
+    """
+    if tag is None:
+        old_tag = Tag()
+    else:
+        old_tag = json.loads(tag.decode())
+
+    new_tag, changes = _get_changes_from_api_impl(api, old_tag)
+
+    return json.dumps(new_tag).encode(), changes
