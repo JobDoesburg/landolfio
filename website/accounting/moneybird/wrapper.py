@@ -113,7 +113,16 @@ def _get_remote_documents(
     return documents
 
 
-def _get_changes_from_api(api: Administration, tag: Tag = None) -> tuple[Tag, Changes]:
+def get_changes_from_api(api: Administration, tag: Tag = None) -> tuple[Tag, Changes]:
+    """
+    Get changes from an administration.
+
+    To get changes since a previous call, you can give the Tag returned by that
+    previous call as a parameter. If no tag is given, all documents are returned.
+
+    Returns a new Tag, and all changes that happened since the last get_changes call
+    that returned the given Tag.
+    """
     if tag is None:
         tag = Tag()
 
@@ -144,11 +153,8 @@ def get_changes(
     """
     Get changes from MoneyBird.
 
-    To get changes since a previous call, you can give the Tag returned by that
-    previous call as a parameter. If no tag is given, all documents are returned.
-
-    Returns a new Tag, and all changes that happened since the last get_changes call
-    that returned the given Tag.
+    This is a shortcut for
+    get_changes_from_api(HttpsAdministration(key, administration_id), tag).
     """
     api = HttpsAdministration(key, administration_id)
-    return _get_changes_from_api(api, tag)
+    return get_changes_from_api(api, tag)
