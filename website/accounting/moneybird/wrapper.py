@@ -5,7 +5,6 @@ from typing import Generator
 from typing import Literal
 
 from .api import Administration
-from .api import HttpsAdministration
 
 DocId = str
 DocVersion = int
@@ -145,16 +144,3 @@ def get_changes_from_api(api: Administration, tag: Tag = None) -> tuple[Tag, Cha
         changes[kind] = diff
 
     return new_tag, changes
-
-
-def get_changes(
-    key: str, administration_id: int, tag: Tag = None
-) -> tuple[Tag, Changes]:
-    """
-    Get changes from MoneyBird.
-
-    This is a shortcut for
-    get_changes_from_api(HttpsAdministration(key, administration_id), tag).
-    """
-    api = HttpsAdministration(key, administration_id)
-    return get_changes_from_api(api, tag)
