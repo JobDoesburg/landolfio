@@ -54,6 +54,12 @@ class TestChunk(TestCase):
 class WrapperTest(TestCase):
     """Tests for the MoneyBird wrapper."""
 
+    def assertDiffEqual(self, a: Diff, b: Diff) -> None:
+        """Assert that two Diffs are identical."""
+        self.assertCountEqual(a.added, b.added)
+        self.assertCountEqual(a.changed, b.changed)
+        self.assertCountEqual(a.removed, b.removed)
+
     def test_load_purchase_invoices(self):
         """If we request the changes without a tag then we must get all changes."""
         documents = {
@@ -63,7 +69,7 @@ class WrapperTest(TestCase):
         api = MockAdministration(documents)
 
         _tag, changes = get_changes_from_api(api)
-        self.assertEqual(
+        self.assertDiffEqual(
             changes["purchase_invoices"], Diff(added=documents["purchase_invoices"])
         )
 
@@ -80,7 +86,7 @@ class WrapperTest(TestCase):
         tag1, _changes1 = get_changes_from_api(api)
         _tag2, changes2 = get_changes_from_api(api, tag=tag1)
 
-        self.assertEqual(changes2["receipts"], Diff())
+        self.assertDiffEqual(changes2["receipts"], Diff())
 
     def test_remove(self):
         """
@@ -103,6 +109,4 @@ class WrapperTest(TestCase):
 
         _tag2, changes2 = get_changes_from_api(api, tag1)
 
-        self.assertEqual(
-            sorted(changes2["purchase_invoices"].removed), sorted(ids_removed)
-        )
+        self.assertDiffEqual(changes2["purchase_invoices"], Diff(removed=ids_removed))
