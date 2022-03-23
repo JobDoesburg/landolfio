@@ -36,3 +36,28 @@ class WrapperTest(TestCase):
         _tag2, changes2 = get_changes_from_api(api, tag=tag1)
 
         self.assertEqual(changes2["receipts"], Diff())
+
+    def test_remove(self):
+        """
+        Test requesting changes when documents are removed.
+
+        If we request changes with a tag, and documents were removed on the remote,
+        then those documents must be included in the diff as removed.
+        """
+        documents = {
+            "purchase_invoices": [{"id": "1", "version": 3}, {"id": "2", "version": 7}]
+        }
+
+        api = MockAdministration(documents)
+
+        tag1, _changes1 = get_changes_from_api(api)
+
+        # remove documents
+        ids_removed = [doc["id"] for doc in documents["purchase_invoices"]]
+        api.documents.clear()
+
+        _tag2, changes2 = get_changes_from_api(api, tag1)
+
+        self.assertEqual(
+            sorted(changes2["purchase_invoices"].removed), sorted(ids_removed)
+        )

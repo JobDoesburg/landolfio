@@ -127,7 +127,7 @@ def _get_changes_from_api_impl(
         diff = Diff()
         diff.added = _get_remote_documents(api, kind, version_diff.added)
         diff.changed = _get_remote_documents(api, kind, version_diff.changed)
-        diff.removed = _get_remote_documents(api, kind, version_diff.removed)
+        diff.removed = version_diff.removed
 
         changes[kind] = diff
 
