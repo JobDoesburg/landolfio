@@ -4,7 +4,6 @@ from assets.models import Asset
 from django.test import TestCase
 
 from .models import Document
-from .models import DocumentLine
 
 
 # pylint: disable=no-member
@@ -25,21 +24,16 @@ class AccountingTestCase(TestCase):
             purchasing_value=200.0,
             margin=True,
         )
-        DocumentLine.objects.create(
-            json_MB="", asset=Asset.objects.get(old_id="C7801"), price="1200"
-        )
         Document.objects.create(
             kind="IV",
             json_MB="",
-            date=self.DATE_TEST,
         )
         Document.objects.create(
             kind="RC",
             json_MB="",
-            date=self.DATE_TEST,
         )
 
-    def test_document_attributes(self):
-        """Test the functionality of a document."""
-        document = Document.objects.get(kind="IV")
-        self.assertEqual(document.date, self.DATE_TEST)
+    @staticmethod
+    def test_get_document():
+        """Test the retrieval of a document."""
+        _document = Document.objects.get(kind="IV")
