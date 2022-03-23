@@ -4,6 +4,8 @@ The development settings.
 These settings are unsuitable for production, but have some advantages while
 developing.
 """
+import os
+
 from .common import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
@@ -19,3 +21,6 @@ DATABASES = {
         "NAME": BASE_DIR / "db.sqlite3",
     }
 }
+
+MONEYBIRD_ADMINISTRATION_ID = os.getenv("MONEYBIRD_ADMINISTRATION_ID", "")
+MONEYBIRD_API_KEY = os.getenv("MONEYBIRD_API_KEY", "")
