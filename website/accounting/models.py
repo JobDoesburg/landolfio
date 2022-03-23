@@ -21,7 +21,7 @@ class Document(models.Model):
     json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
     kind = models.CharField(max_length=2, choices=Kind.choices)
     date = models.DateField(verbose_name=_("Date"))
-    models.ManyToManyField(DocumentLine)
+    lines = models.ManyToManyField(DocumentLine)
 
     def __str__(self):
         """Return Document string."""
