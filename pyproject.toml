@@ -39,6 +39,7 @@ pydocstyle = {extras = ["toml"], version = "^6.1.1"}
 pylint = "^2.12.2"
 toml-sort = "^0.19.0"
 pylint-django = "^2.5.2"
+dj-inmemorystorage = "^2.1.0"
 
 [tool.pydocstyle]
 add-ignore = "D200"
