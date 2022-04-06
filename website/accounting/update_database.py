@@ -5,21 +5,28 @@ This module is responsible for getting changes from MoneyBird and applying those
 changes in the database.
 """
 from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 
 from . import moneybird as mb
 from .models import Document
 
 
+_TAG_PATH = "accounting/update_database/tag"
+
+
 def _load_tag_from_storage() -> bytes | None:
-    # pylint: disable=fixme
-    # TODO
-    return None
+    storage = default_storage
+
+    if not storage.exists(_TAG_PATH):
+        return None
+
+    return storage.open(_TAG_PATH).read()
 
 
-def _save_tag_to_storage(_tag: bytes) -> None:
-    # pylint: disable=fixme
-    # TODO
-    pass
+def _save_tag_to_storage(tag: bytes) -> None:
+    assert isinstance(tag, bytes)
+    default_storage.save(_TAG_PATH, ContentFile(tag))
 
 
 def _model_kind_from_moneybird_kind(kind: mb.DocKind) -> Document.Kind:
@@ -57,7 +64,6 @@ def _update_db_for_doc_kind(kind: Document.Kind, diff: mb.Diff) -> None:
 
 
 def _update_db_from_api(api: mb.Administration) -> None:
-    # pylint: disable=assignment-from-none
     old_tag = _load_tag_from_storage()
     new_tag, changes = mb.get_changes_from_api(api, old_tag)
 
