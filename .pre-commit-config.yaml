@@ -37,9 +37,13 @@ repos:
         entry: poetry run pydocstyle
         language: system
         types: [python]
+        # exclude anything in folders called 'migrations'
+        exclude: "^([^/]*/)*migrations(/.*)?$"
 
       - id: pylint
         name: pylint
-        entry: poetry run pylint -j 4
+        entry: poetry run pylint --django-settings-module=website.settings.development
         language: system
         types: [python]
+        # exclude anything in folders called 'migrations'
+        exclude: "^([^/]*/)*migrations(/.*)?$"
