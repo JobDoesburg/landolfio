@@ -24,14 +24,8 @@ class AccountingTestCase(TestCase):
             purchasing_value=200.0,
             margin=True,
         )
-        Document.objects.create(
-            kind="IV",
-            json_MB="",
-        )
-        Document.objects.create(
-            kind="RC",
-            json_MB="",
-        )
+        Document.objects.create(kind="IV", json_MB='{"id":5}', id_MB=5)
+        Document.objects.create(kind="RC", json_MB='{"id":5}', id_MB=5)
 
     @staticmethod
     def test_get_document():
