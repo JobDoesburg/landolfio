@@ -132,7 +132,7 @@ class HttpsAdministration(Administration):
 class MockAdministration(Administration):
     """Mock version of the MoneyBird API."""
 
-    def __init__(self, documents):
+    def __init__(self, documents: dict[str, list[dict]]):
         """Initialize a new MockMoneyBird."""
         super().__init__()
         self.documents = documents
