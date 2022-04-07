@@ -18,7 +18,6 @@ class Document(models.Model):
 
     def __str__(self):
         """Return Document string."""
-        # pylint: disable=no-member
         return f"{str(self.kind)}_{str(self.id)}"
 
     class Meta:
