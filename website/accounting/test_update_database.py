@@ -110,4 +110,5 @@ class UpdateDatabaseTest(TestCase):
 
         document = Document.objects.first()
         self.assertEqual(document.id_MB, invoice_id)
+        self.assertEqual(document.kind, Document.Kind.PURCHASE_INVOICE)
         self.assertEqual(document.json_MB, invoice)
