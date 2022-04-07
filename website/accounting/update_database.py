@@ -28,7 +28,13 @@ def _load_tag_from_storage() -> Union[bytes, None]:
 
 def _save_tag_to_storage(tag: bytes) -> None:
     assert isinstance(tag, bytes)
-    default_storage.save(_TAG_PATH, ContentFile(tag))
+
+    storage = default_storage
+
+    if storage.exists(_TAG_PATH):
+        storage.delete(_TAG_PATH)
+
+    storage.save(_TAG_PATH, ContentFile(tag))
 
 
 def _model_kind_from_moneybird_kind(kind: mb.DocKind) -> Document.Kind:
