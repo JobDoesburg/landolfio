@@ -4,6 +4,8 @@ Provides the update_database function.
 This module is responsible for getting changes from MoneyBird and applying those
 changes in the database.
 """
+from typing import Union
+
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
@@ -15,7 +17,7 @@ from .models import Document
 _TAG_PATH = "accounting/update_database/tag"
 
 
-def _load_tag_from_storage() -> bytes | None:
+def _load_tag_from_storage() -> Union[bytes, None]:
     storage = default_storage
 
     if not storage.exists(_TAG_PATH):
