@@ -22,5 +22,7 @@ DATABASES = {
     }
 }
 
+TEST_RUNNER = "website.custom_test_runner.TestRunner"
+
 MONEYBIRD_ADMINISTRATION_ID = os.getenv("MONEYBIRD_ADMINISTRATION_ID", "")
 MONEYBIRD_API_KEY = os.getenv("MONEYBIRD_API_KEY", "")

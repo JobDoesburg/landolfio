@@ -25,4 +25,4 @@ To test Landolfio, follow these steps:
 
 1. Run `poetry shell` to enter the virtual environment.
 2. Run `cd website` to navigate to the folder containing `manage.py`.
-3. Run `python ./manage.py test --settings=website.settings.unittests`
+3. Run `python ./manage.py test --settings=website.settings.development`

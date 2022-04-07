@@ -46,8 +46,8 @@ jobs:
       - name: "Run django tests"
         run: poetry run coverage run --source='website' website/manage.py test website
         env:
-          DJANGO_SETTINGS_MODULE: website.settings.unittests
+          DJANGO_SETTINGS_MODULE: website.settings.development
       - name: "Check coverage"
         run: poetry run coverage report
         env:
-          DJANGO_SETTINGS_MODULE: website.settings.unittests
+          DJANGO_SETTINGS_MODULE: website.settings.development
