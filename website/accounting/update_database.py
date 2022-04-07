@@ -9,6 +9,7 @@ from typing import Union
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from django.core.files.storage import Storage
 
 from . import moneybird as mb
 from .models import Document
@@ -17,19 +18,15 @@ from .models import Document
 _TAG_PATH = "accounting/update_database/tag"
 
 
-def _load_tag_from_storage() -> Union[bytes, None]:
-    storage = default_storage
-
+def _load_tag_from_storage(storage: Storage) -> Union[bytes, None]:
     if not storage.exists(_TAG_PATH):
         return None
 
     return storage.open(_TAG_PATH).read()
 
 
-def _save_tag_to_storage(tag: bytes) -> None:
+def _save_tag_to_storage(tag: bytes, storage: Storage) -> None:
     assert isinstance(tag, bytes)
-
-    storage = default_storage
 
     if storage.exists(_TAG_PATH):
         storage.delete(_TAG_PATH)
@@ -71,15 +68,15 @@ def _update_db_for_doc_kind(kind: Document.Kind, diff: mb.Diff) -> None:
     _remove_docs_of_kind_from_db(kind, diff.removed)
 
 
-def _update_db_from_api(api: mb.Administration) -> None:
-    old_tag = _load_tag_from_storage()
+def _update_db_from_api(api: mb.Administration, storage: Storage) -> None:
+    old_tag = _load_tag_from_storage(storage)
     new_tag, changes = mb.get_changes_from_api(api, old_tag)
 
     for doc_kind, changes_kind in changes.items():
         kind = _model_kind_from_moneybird_kind(doc_kind)
         _update_db_for_doc_kind(kind, changes_kind)
 
-    _save_tag_to_storage(new_tag)
+    _save_tag_to_storage(new_tag, storage)
 
 
 def update_database() -> None:
@@ -96,4 +93,4 @@ def update_database() -> None:
     key = settings.MONEYBIRD_API_KEY
     administration = mb.HttpsAdministration(key, administration_id)
 
-    _update_db_from_api(administration)
+    _update_db_from_api(administration, default_storage)
