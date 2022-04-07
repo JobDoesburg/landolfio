@@ -3,11 +3,14 @@ from django.core.files.storage import DefaultStorage
 from django.test import TestCase
 
 from . import update_database as ud
+from .models import Document
+from .moneybird import MockAdministration
 
 
 class TagStorageTest(TestCase):
-    # pylint: disable=protected-access
     """Test loading and saving of a tag."""
+
+    # pylint: disable=protected-access
 
     def setUp(self) -> None:
         """
@@ -71,3 +74,51 @@ class TagStorageTest(TestCase):
 
 class UpdateDatabaseTest(TestCase):
     """Test the update_database function."""
+
+    # pylint: disable=protected-access
+
+    def setUp(self) -> None:
+        """
+        Reset the storage before each test.
+
+        This assumes that the non-persistent in-memory storage is used.
+        """
+        ud.default_storage = DefaultStorage()
+
+    def test_empty_remote(self):
+        """
+        Test updating from an empty remote administration.
+
+        If the database is updated from an empty remote, afterwards the database must
+        not contain any documents.
+        """
+        documents = {}
+        api = MockAdministration(documents)
+        ud._update_db_from_api(api)
+
+        self.assertEqual(
+            Document.objects.count(),
+            0,
+            "There must be no documents after updating with an empty remote.",
+        )
+
+    def test_remote_with_one_purchase_invoice(self):
+        """
+        Test updating from a remote with exactly one document.
+
+        If the database is updated from a remote with exactly one document,
+        afterwards the database must that document and only that document.
+        """
+        invoice_id = 1
+        invoice_version = 3
+        invoice = {"id": str(invoice_id), "version": invoice_version}
+
+        documents = {"purchase_invoices": [invoice]}
+        api = MockAdministration(documents)
+        ud._update_db_from_api(api)
+
+        self.assertEqual(Document.objects.count(), 1)
+
+        document = Document.objects.first()
+        self.assertEqual(document.id_MB, invoice_id)
+        self.assertEqual(document.json_MB, invoice)
