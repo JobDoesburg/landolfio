@@ -1,10 +1,10 @@
 """Test the MoneyBirdWrapper."""
 from django.test import TestCase
 
-from .api import MockAdministration
+from .administration import MockAdministration
 from .wrapper import _chunk as chunk
 from .wrapper import Diff
-from .wrapper import get_changes_from_api
+from .wrapper import get_administration_changes
 
 
 class TestChunk(TestCase):
@@ -55,6 +55,7 @@ class WrapperTest(TestCase):
     """Tests for the MoneyBird wrapper."""
 
     def assertDiffEqual(self, a: Diff, b: Diff) -> None:
+        # pylint: disable=invalid-name
         """Assert that two Diffs are identical."""
         self.assertCountEqual(a.added, b.added)
         self.assertCountEqual(a.changed, b.changed)
@@ -66,9 +67,9 @@ class WrapperTest(TestCase):
             "purchase_invoices": [{"id": "1", "version": 3}, {"id": "2", "version": 7}]
         }
 
-        api = MockAdministration(documents)
+        adm = MockAdministration(documents)
 
-        _tag, changes = get_changes_from_api(api)
+        _tag, changes = get_administration_changes(adm)
         self.assertDiffEqual(
             changes["purchase_invoices"], Diff(added=documents["purchase_invoices"])
         )
@@ -81,10 +82,10 @@ class WrapperTest(TestCase):
         difference must be empty.
         """
         documents = {"receipts": [{"id": "1", "version": 3}, {"id": "2", "version": 7}]}
-        api = MockAdministration(documents)
+        adm = MockAdministration(documents)
 
-        tag1, _changes1 = get_changes_from_api(api)
-        _tag2, changes2 = get_changes_from_api(api, tag=tag1)
+        tag1, _changes1 = get_administration_changes(adm)
+        _tag2, changes2 = get_administration_changes(adm, tag=tag1)
 
         self.assertDiffEqual(changes2["receipts"], Diff())
 
@@ -99,14 +100,14 @@ class WrapperTest(TestCase):
             "purchase_invoices": [{"id": "1", "version": 3}, {"id": "2", "version": 7}]
         }
 
-        api = MockAdministration(documents)
+        adm = MockAdministration(documents)
 
-        tag1, _changes1 = get_changes_from_api(api)
+        tag1, _changes1 = get_administration_changes(adm)
 
         # remove documents
         ids_removed = [doc["id"] for doc in documents["purchase_invoices"]]
-        api.documents.clear()
+        adm.documents.clear()
 
-        _tag2, changes2 = get_changes_from_api(api, tag1)
+        _tag2, changes2 = get_administration_changes(adm, tag1)
 
         self.assertDiffEqual(changes2["purchase_invoices"], Diff(removed=ids_removed))

@@ -28,30 +28,30 @@ class Administration(ABC):
     class InvalidResourcePath(Exception):
         """The given resource path is invalid."""
 
-    class APIError(Exception):
-        """An exception that can be thrown while using the API."""
+    class Error(Exception):
+        """An exception that can be thrown while using the administration."""
 
         def __init__(self, status_code: int, description: str = None):
-            """Create a new API error."""
+            """Create a new administration error."""
             msg = f"API error {status_code}"
             if description:
                 msg += f": {description}"
 
             super().__init__(msg)
 
-    class Unauthorized(APIError):
+    class Unauthorized(Error):
         """The client has insufficient authorization."""
 
-    class NotFound(APIError):
+    class NotFound(Error):
         """The client requested a resource that could not be found."""
 
-    class InvalidData(APIError):
+    class InvalidData(Error):
         """The client sent invalid data."""
 
-    class Throttled(APIError):
+    class Throttled(Error):
         """The client sent too many requests."""
 
-    class ServerError(APIError):
+    class ServerError(Error):
         """An error happened on the server."""
 
 
@@ -74,7 +74,7 @@ def _build_url(administration_id: int, resource_path: str) -> str:
 
 def _process_response(response: requests.Response) -> dict:
     good_codes = {200, 201, 204}
-    bad_codes: dict[int, Type[Administration.APIError]] = {
+    bad_codes: dict[int, Type[Administration.Error]] = {
         400: Administration.Unauthorized,
         401: Administration.Unauthorized,
         403: Administration.Throttled,
@@ -91,9 +91,7 @@ def _process_response(response: requests.Response) -> dict:
     code_is_known: bool = code in good_codes | bad_codes.keys()
 
     if not code_is_known:
-        raise Administration.APIError(
-            code, "API response contained unknown status code"
-        )
+        raise Administration.Error(code, "API response contained unknown status code")
 
     if code in bad_codes:
         error = bad_codes[code]
@@ -108,10 +106,10 @@ def _process_response(response: requests.Response) -> dict:
 
 
 class HttpsAdministration(Administration):
-    """The HTTPS implementation of the MoneyBird API interface."""
+    """The HTTPS implementation of the MoneyBird Administration interface."""
 
     def __init__(self, key, administration_id: int):
-        """Create a new MoneyBird administration API connection."""
+        """Create a new MoneyBird administration connection."""
         super().__init__()
         self.session = _create_session_with_key(key)
         self.administration_id = administration_id
@@ -130,15 +128,15 @@ class HttpsAdministration(Administration):
 
 
 class MockAdministration(Administration):
-    """Mock version of the MoneyBird API."""
+    """Mock version of a MoneyBird administration."""
 
     def __init__(self, documents: dict[str, list[dict]]):
-        """Initialize a new MockMoneyBird."""
+        """Initialize a new MockAdministration."""
         super().__init__()
         self.documents = documents
 
     def get(self, resource_path: str):
-        """Mock a GET request for the Moneybird API."""
+        """Mock a GET request for the Moneybird Administration."""
         parts = resource_path.split("/")
 
         # Mock a GET request for a /documents/* resource path
@@ -158,7 +156,7 @@ class MockAdministration(Administration):
         raise self.NotFound
 
     def post(self, resource_path: str, data: dict):
-        """Mock a POST request for the Moneybird API."""
+        """Mock a POST request for the Moneybird Administration."""
         path = resource_path.split("/")
         if len(path) == 3 and path[0] == "documents" and path[2] == "synchronization":
             if path[1] in self.documents:

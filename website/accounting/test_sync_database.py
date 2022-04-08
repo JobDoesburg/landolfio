@@ -80,8 +80,8 @@ class SyncDatabaseTest(TestCase):
         """
         storage = InMemoryStorage()
         documents = {}
-        api = MockAdministration(documents)
-        ud._sync_db_from_api(api, storage)
+        adm = MockAdministration(documents)
+        ud._sync_db_from_adm(adm, storage)
 
         self.assertEqual(
             Document.objects.count(),
@@ -102,9 +102,9 @@ class SyncDatabaseTest(TestCase):
 
         documents = {"purchase_invoices": [invoice]}
 
-        api = MockAdministration(documents)
+        adm = MockAdministration(documents)
         storage = InMemoryStorage()
-        ud._sync_db_from_api(api, storage)
+        ud._sync_db_from_adm(adm, storage)
 
         self.assertEqual(Document.objects.count(), 1)
 

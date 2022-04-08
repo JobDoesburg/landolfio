@@ -1,21 +1,21 @@
-"""Test the Moneybird API."""
+"""Test the Moneybird Administrations."""
 from django.test import TestCase
 
-from .api import _build_url as build_url
-from .api import Administration
+from .administration import _build_url as build_url
+from .administration import Administration
 
 
-class TestApiErrors(TestCase):
-    """Test the API errors."""
+class TestErrors(TestCase):
+    """Test the Administration errors."""
 
     @staticmethod
     def test_construction():
-        """The construction of an ApiError must not fail."""
+        """The construction of an error must not fail."""
         Administration.NotFound(404, "Resource not found")
 
     @staticmethod
     def test_construction_without_description():
-        """The construction of an ApiError without a description must not fail."""
+        """The construction of an error without a description must not fail."""
         Administration.ServerError(500)
 
 

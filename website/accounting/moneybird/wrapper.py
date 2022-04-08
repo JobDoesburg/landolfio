@@ -5,7 +5,7 @@ from dataclasses import field
 from typing import Generator
 from typing import Literal
 
-from .api import Administration
+from .administration import Administration
 
 DocId = str
 DocVersion = int
@@ -70,8 +70,8 @@ def _chunk(lst: list, chunk_size: int) -> Generator[list, None, None]:
         yield lst[idx : idx + chunk_size]
 
 
-def _get_remote_version(api: Administration, document_kind: DocKind) -> Version:
-    documents = api.get(
+def _get_remote_version(adm: Administration, document_kind: DocKind) -> Version:
+    documents = adm.get(
         f"documents/{document_kind}/synchronization",
     )
 
@@ -79,18 +79,18 @@ def _get_remote_version(api: Administration, document_kind: DocKind) -> Version:
 
 
 def _get_remote_documents_limited(
-    api: Administration, kind: DocKind, ids: list[DocId]
+    adm: Administration, kind: DocKind, ids: list[DocId]
 ) -> list[Document]:
     assert len(ids) <= _MAX_REQUEST_SIZE
 
-    return api.post(
+    return adm.post(
         f"documents/{kind}/synchronization",
         data={"ids": ids},
     )
 
 
 def _get_remote_documents(
-    api: Administration, kind: DocKind, ids: list[DocId]
+    adm: Administration, kind: DocKind, ids: list[DocId]
 ) -> list[Document]:
     """
     Load some documents of the specified kind.
@@ -105,19 +105,19 @@ def _get_remote_documents(
     documents = []
 
     for id_chunk in _chunk(ids, _MAX_REQUEST_SIZE):
-        documents.extend(_get_remote_documents_limited(api, kind, id_chunk))
+        documents.extend(_get_remote_documents_limited(adm, kind, id_chunk))
 
     return documents
 
 
-def _get_changes_from_api_impl(
-    api: Administration, old_tag: Tag
+def _get_administration_changes_impl(
+    adm: Administration, old_tag: Tag
 ) -> tuple[Tag, Changes]:
     changes = {}
     new_tag = Tag()
 
     for kind in _DOCUMENT_KINDS:
-        new_tag[kind] = _get_remote_version(api, kind)
+        new_tag[kind] = _get_remote_version(adm, kind)
 
     for kind in _DOCUMENT_KINDS:
         current = old_tag[kind] if kind in old_tag else {}
@@ -125,8 +125,8 @@ def _get_changes_from_api_impl(
         version_diff = _diff_versions(current, remote)
 
         diff = Diff()
-        diff.added = _get_remote_documents(api, kind, version_diff.added)
-        diff.changed = _get_remote_documents(api, kind, version_diff.changed)
+        diff.added = _get_remote_documents(adm, kind, version_diff.added)
+        diff.changed = _get_remote_documents(adm, kind, version_diff.changed)
         diff.removed = version_diff.removed
 
         changes[kind] = diff
@@ -134,8 +134,8 @@ def _get_changes_from_api_impl(
     return new_tag, changes
 
 
-def get_changes_from_api(
-    api: Administration, tag: bytes = None
+def get_administration_changes(
+    adm: Administration, tag: bytes = None
 ) -> tuple[bytes, Changes]:
     """
     Get changes from an administration.
@@ -151,6 +151,6 @@ def get_changes_from_api(
     else:
         old_tag = json.loads(tag.decode())
 
-    new_tag, changes = _get_changes_from_api_impl(api, old_tag)
+    new_tag, changes = _get_administration_changes_impl(adm, old_tag)
 
     return json.dumps(new_tag).encode(), changes

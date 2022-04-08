@@ -68,9 +68,9 @@ def _update_db_for_doc_kind(kind: Document.Kind, diff: mb.Diff) -> None:
     _remove_docs_of_kind_from_db(kind, diff.removed)
 
 
-def _sync_db_from_api(api: mb.Administration, storage: Storage) -> None:
+def _sync_db_from_adm(adm: mb.Administration, storage: Storage) -> None:
     old_tag = _load_tag_from_storage(storage)
-    new_tag, changes = mb.get_changes_from_api(api, old_tag)
+    new_tag, changes = mb.get_administration_changes(adm, old_tag)
 
     for doc_kind, changes_kind in changes.items():
         kind = _model_kind_from_moneybird_kind(doc_kind)
@@ -93,4 +93,4 @@ def sync_database() -> None:
     key = settings.MONEYBIRD_API_KEY
     administration = mb.HttpsAdministration(key, administration_id)
 
-    _sync_db_from_api(administration, default_storage)
+    _sync_db_from_adm(administration, default_storage)
