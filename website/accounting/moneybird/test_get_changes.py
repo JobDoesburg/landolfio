@@ -1,10 +1,10 @@
-"""Test the MoneyBirdWrapper."""
+"""Test the get_changes module."""
 from django.test import TestCase
 
 from .administration import MockAdministration
-from .wrapper import _chunk as chunk
-from .wrapper import Diff
-from .wrapper import get_administration_changes
+from .get_changes import _chunk as chunk
+from .get_changes import Diff
+from .get_changes import get_administration_changes
 
 
 class TestChunk(TestCase):
@@ -51,8 +51,8 @@ class TestChunk(TestCase):
         )
 
 
-class WrapperTest(TestCase):
-    """Tests for the MoneyBird wrapper."""
+class GetChangesTest(TestCase):
+    """Tests for the code responsible for getting changes from an administration."""
 
     def assertDiffEqual(self, a: Diff, b: Diff) -> None:
         # pylint: disable=invalid-name

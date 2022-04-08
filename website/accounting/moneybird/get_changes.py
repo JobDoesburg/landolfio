@@ -1,4 +1,4 @@
-"""Moneybird API wrapper."""
+"""The module containing the 'get_administration_changes' function."""
 import json
 from dataclasses import dataclass
 from dataclasses import field
