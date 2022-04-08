@@ -1,8 +1,8 @@
-"""Test the update_database module."""
+"""Test the sync_database module."""
 from django.test import TestCase
 from inmemorystorage import InMemoryStorage
 
-from . import update_database as ud
+from . import sync_database as ud
 from .models import Document
 from .moneybird import MockAdministration
 
@@ -66,8 +66,8 @@ class TagStorageTest(TestCase):
         self.assertEqual(tag2, ud._load_tag_from_storage(storage))
 
 
-class UpdateDatabaseTest(TestCase):
-    """Test the update_database function."""
+class SyncDatabaseTest(TestCase):
+    """Test the sync_database function."""
 
     # pylint: disable=protected-access
 
@@ -75,13 +75,13 @@ class UpdateDatabaseTest(TestCase):
         """
         Test updating from an empty remote administration.
 
-        If the database is updated from an empty remote, afterwards the database must
+        If the database is synchronized to an empty remote, afterwards the database must
         not contain any documents.
         """
         storage = InMemoryStorage()
         documents = {}
         api = MockAdministration(documents)
-        ud._update_db_from_api(api, storage)
+        ud._sync_db_from_api(api, storage)
 
         self.assertEqual(
             Document.objects.count(),
@@ -93,7 +93,7 @@ class UpdateDatabaseTest(TestCase):
         """
         Test updating from a remote with exactly one document.
 
-        If the database is updated from a remote with exactly one document,
+        If the database is synchronized to a remote with exactly one document,
         afterwards the database must that document and only that document.
         """
         invoice_id = 1
@@ -104,7 +104,7 @@ class UpdateDatabaseTest(TestCase):
 
         api = MockAdministration(documents)
         storage = InMemoryStorage()
-        ud._update_db_from_api(api, storage)
+        ud._sync_db_from_api(api, storage)
 
         self.assertEqual(Document.objects.count(), 1)
 

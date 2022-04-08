@@ -1,5 +1,5 @@
 """
-Provides the update_database function.
+Provides the sync_database function.
 
 This module is responsible for getting changes from MoneyBird and applying those
 changes in the database.
@@ -15,7 +15,7 @@ from . import moneybird as mb
 from .models import Document
 
 
-_TAG_PATH = "accounting/update_database/tag"
+_TAG_PATH = "accounting/sync_database/tag"
 
 
 def _load_tag_from_storage(storage: Storage) -> Union[bytes, None]:
@@ -68,7 +68,7 @@ def _update_db_for_doc_kind(kind: Document.Kind, diff: mb.Diff) -> None:
     _remove_docs_of_kind_from_db(kind, diff.removed)
 
 
-def _update_db_from_api(api: mb.Administration, storage: Storage) -> None:
+def _sync_db_from_api(api: mb.Administration, storage: Storage) -> None:
     old_tag = _load_tag_from_storage(storage)
     new_tag, changes = mb.get_changes_from_api(api, old_tag)
 
@@ -79,9 +79,9 @@ def _update_db_from_api(api: mb.Administration, storage: Storage) -> None:
     _save_tag_to_storage(new_tag, storage)
 
 
-def update_database() -> None:
+def sync_database() -> None:
     """
-    Update the database from the Remote MoneyBird.
+    Synchronize the database to the remote MoneyBird administration.
 
     Get changes from the remote MoneyBird administration and apply them in the database.
 
@@ -93,4 +93,4 @@ def update_database() -> None:
     key = settings.MONEYBIRD_API_KEY
     administration = mb.HttpsAdministration(key, administration_id)
 
-    _update_db_from_api(administration, default_storage)
+    _sync_db_from_api(administration, default_storage)
