@@ -1,8 +1,8 @@
 """Test the accounting models."""
 import datetime
 
-from assets.models import Asset
 from django.test import TestCase
+from inventory.models import Asset
 
 from .models import Document
 

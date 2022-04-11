@@ -6,7 +6,7 @@ from django.db import models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("assets", "0001_initial"),
+        ("inventory", "0001_initial"),
     ]
 
     operations = [

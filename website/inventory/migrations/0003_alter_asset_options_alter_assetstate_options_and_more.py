@@ -6,7 +6,7 @@ from django.db import models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("assets", "0002_remove_asset_invoice_remove_asset_receipt_and_more"),
+        ("inventory", "0002_remove_asset_invoice_remove_asset_receipt_and_more"),
     ]
 
     operations = [

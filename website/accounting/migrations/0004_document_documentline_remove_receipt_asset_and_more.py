@@ -7,7 +7,7 @@ from django.db import models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("assets", "0003_alter_asset_options_alter_assetstate_options_and_more"),
+        ("inventory", "0003_alter_asset_options_alter_assetstate_options_and_more"),
         ("accounting", "0003_alter_invoice_options_alter_receipt_options"),
     ]
 
@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
                     "asset",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="assets.asset",
+                        to="inventory.asset",
                         verbose_name="Asset",
                     ),
                 ),

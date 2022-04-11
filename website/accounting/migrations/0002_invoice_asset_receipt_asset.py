@@ -7,7 +7,7 @@ from django.db import models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("assets", "0002_remove_asset_invoice_remove_asset_receipt_and_more"),
+        ("inventory", "0002_remove_asset_invoice_remove_asset_receipt_and_more"),
         ("accounting", "0001_initial"),
     ]
 
@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 default=1,
                 on_delete=django.db.models.deletion.CASCADE,
-                to="assets.asset",
+                to="inventory.asset",
                 verbose_name="Asset",
             ),
             preserve_default=False,
@@ -29,7 +29,7 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(
                 default=1,
                 on_delete=django.db.models.deletion.CASCADE,
-                to="assets.asset",
+                to="inventory.asset",
                 verbose_name="Asset",
             ),
             preserve_default=False,

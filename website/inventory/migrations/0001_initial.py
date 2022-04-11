@@ -107,7 +107,7 @@ class Migration(migrations.Migration):
                     "asset",
                     models.ForeignKey(
                         on_delete=django.db.models.deletion.CASCADE,
-                        to="assets.asset",
+                        to="inventory.asset",
                         verbose_name="Asset",
                     ),
                 ),
