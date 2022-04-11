@@ -13,6 +13,9 @@ x hours
 **Who does this affect**
 User / programmer
 
+**Deadline**
+When should this issue be addressed
+
 **Description**
 A clear and concise description of the feature you'd like implemented.
 
