@@ -1,0 +1,96 @@
+- model: inventory.Asset
+  pk: 1
+  fields:
+    old_id: C7801
+    asset_type: Violin
+    size: 7/8
+    collection: Zakelijk
+    listing_price: 750
+    stock_price: 0
+    purchasing_value: 300
+    margin: true
+    remarks: ""
+- model: inventory.Asset
+  pk: 2
+  fields:
+    old_id: C7802
+    asset_type: Violin
+    size: 7/8
+    collection: Zakelijk
+    listing_price: 200
+    stock_price: 200
+    purchasing_value: 600
+    margin: true
+    remarks: ""
+- model: inventory.Asset
+  pk: 3
+  fields:
+    old_id: C44101
+    asset_type: Hobo
+    size: 4/4
+    collection: Zakelijk
+    listing_price: 1000
+    stock_price: 0
+    purchasing_value: 1200
+    margin: false
+    remarks: ""
+- model: inventory.Asset
+  pk: 4
+  fields:
+    old_id: C44102
+    asset_type: Hobo
+    size: 4/4
+    collection: Zakelijk
+    listing_price: 1000
+    stock_price: 0
+    purchasing_value: 1200
+    margin: false
+    remarks: ""
+- model: inventory.Asset
+  pk: 5
+  fields:
+    old_id: C44103
+    asset_type: Guitar
+    size: 4/4
+    collection: Zakelijk
+    listing_price: 1500
+    stock_price: 0
+    purchasing_value: 400
+    margin: false
+    remarks: ""
+- model: inventory.Asset
+  pk: 6
+  fields:
+    old_id: C44104
+    asset_type: Cello
+    size: 4/4
+    collection: Zakelijk
+    listing_price: 200
+    stock_price: 0
+    purchasing_value: 300
+    margin: false
+    remarks: ""
+- model: inventory.Asset
+  pk: 7
+  fields:
+    old_id: C44105
+    asset_type: Hobo
+    size: 4/4
+    collection: Zakelijk
+    listing_price: 0
+    stock_price: 0
+    purchasing_value: 350
+    margin: false
+    remarks: ""
+- model: inventory.Asset
+  pk: 8
+  fields:
+    old_id: C44106
+    asset_type: Hobo
+    size: 4/3
+    collection: Zakelijk
+    listing_price: 0
+    stock_price: 600
+    purchasing_value: 600
+    margin: true
+    remarks: ""
