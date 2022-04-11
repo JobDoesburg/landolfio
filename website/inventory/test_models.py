@@ -10,10 +10,12 @@ from .models import AssetState
 class AssetTestCase(TestCase):
     """Test cases for the Asset model."""
 
+    fixtures = ["assets"]
+
     def setUp(self):
         """Set up the test case."""
         asset = Asset.objects.create(
-            old_id="C7801",
+            old_id="C7800",
             asset_type="Violin",
             size="7/8",
             collection="Zakelijk",
@@ -33,8 +35,8 @@ class AssetTestCase(TestCase):
 
     def test_assets_attributes(self):
         """Test the functionality of an asset."""
-        asset = Asset.objects.get(old_id="C7801")
-        self.assertEqual(asset.old_id, "C7801")
+        asset = Asset.objects.get(old_id="C7800")
+        self.assertEqual(asset.old_id, "C7800")
         self.assertEqual(asset.asset_type, "Violin")
         self.assertEqual(asset.size, "7/8")
         self.assertEqual(asset.collection, "Zakelijk")
@@ -45,7 +47,7 @@ class AssetTestCase(TestCase):
 
     def test_asset_state_relation(self):
         """Test ability to retrieve AssetStates from Asset."""
-        asset = Asset.objects.get(old_id="C7801")
+        asset = Asset.objects.get(old_id="C7800")
         asset_state = AssetState.objects.get(asset=asset)
         self.assertEqual(asset_state.date, datetime.date(2022, 1, 25))
         self.assertEqual(asset_state.state, "purchased")
