@@ -17,7 +17,8 @@ To get started, follow these steps:
 7. Run `export DJANGO_SETTINGS_MODULE=website.settings.development` to use the
    development settings.
 8. Run `python ./manage.py migrate` to initialize the database.
-9. Run `python ./manage.py runserver` to start the local testing server.
+9. If you want to add the mock assets, run `python ./manage.py loaddata assets`.
+10. Run `python ./manage.py runserver` to start the local testing server.
 
 ### Testing
 
