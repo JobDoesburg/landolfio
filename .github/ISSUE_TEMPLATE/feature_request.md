@@ -18,3 +18,6 @@ A clear and concise description of the feature you'd like implemented.
 
 **Acceptance criteria**
 - A list of criteria that need to be met before this issue can be closed
+
+**Actual hours spent**
+y hours
