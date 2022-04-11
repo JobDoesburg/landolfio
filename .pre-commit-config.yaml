@@ -18,13 +18,14 @@ repos:
       - id: prettier
         types_or: [css, javascript, ts, yaml, markdown]
 
-  - repo: https://github.com/psf/black
-    rev: 21.12b0
-    hooks:
-      - id: black
-
   - repo: local
     hooks:
+      - id: black
+        name: black
+        entry: poetry run black
+        language: system
+        types: [python]
+
       - id: toml-sort
         name: toml-sort
         entry: poetry run toml-sort -i

@@ -13,6 +13,8 @@ MOCK_ENVIRONMENT_PRODUCTION = {
     "POSTGRES_PASSWORD": "postgres_password",
     "POSTGRES_HOST": "database",
     "POSTGRES_PORT": "5432",
+    "MONEYBIRD_ADMINISTRATION_ID": "060960246",
+    "MONEYBIRD_API_KEY": "verysecret_moneybird_key",
 }
 
 

@@ -1,32 +1,32 @@
 """The accounting models."""
-from assets.models import Asset
 from django.db import models
 from django.utils.translation import gettext as _
 
 
-class Invoice(models.Model):
-    """Class model for Invoices."""
+class Document(models.Model):
+    """Class model for Documents."""
 
-    asset = models.ForeignKey(Asset, on_delete=models.CASCADE, verbose_name=_("Asset"))
+    class Kind(models.TextChoices):
+        """The kind of document."""
+
+        PURCHASE_INVOICE = "PI", _("Purchase Invoice")
+        RECEIPT = "RC", _("Receipt")
+
+    id_MB = models.IntegerField(verbose_name=_("Id MoneyBird"))
     json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
-    date = models.DateField(verbose_name=_("Date"))
-    amount = models.FloatField(verbose_name=_("Amount"))
+    kind = models.CharField(max_length=2, choices=Kind.choices)
 
-    # pylint: disable=no-member
     def __str__(self):
-        """Return Invoice string."""
-        return "IV_" + str(self.date) + "_" + str(self.id)
+        """Return Document string."""
+        return f"{str(self.kind)}_{str(self.id)}"
 
+    class Meta:
+        """
+        The meta-variables for the Document model.
 
-class Receipt(models.Model):
-    """Class model for Receipts."""
+        As the MoneyBird API documentation does not clearly specify whether Document
+        IDs are globally unique or just unique for one Document Kind, we must assume
+        the latter.
+        """
 
-    asset = models.ForeignKey(Asset, on_delete=models.CASCADE, verbose_name=_("Asset"))
-    json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
-    date = models.DateField(verbose_name=_("Date"))
-    amount = models.FloatField(verbose_name=_("Amount"))
-
-    # pylint: disable=no-member
-    def __str__(self):
-        """Return Receipt string."""
-        return "RC_" + str(self.date) + "_" + str(self.id)
+        unique_together = ("id_MB", "kind")

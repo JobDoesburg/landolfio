@@ -28,37 +28,30 @@ class Administration(ABC):
     class InvalidResourcePath(Exception):
         """The given resource path is invalid."""
 
-    class APIError(Exception):
-        """An exception that can be thrown while using the API."""
+    class Error(Exception):
+        """An exception that can be thrown while using the administration."""
 
-        def __init__(self, response: requests.Response, description: str = None):
-            """
-            Create a new API error.
-
-            :param response: The API response.
-            :param description: Description of the error.
-            """
-            self._response = response
-
-            msg = f"API error {response.status_code}"
+        def __init__(self, status_code: int, description: str = None):
+            """Create a new administration error."""
+            msg = f"API error {status_code}"
             if description:
                 msg += f": {description}"
 
             super().__init__(msg)
 
-    class Unauthorized(APIError):
+    class Unauthorized(Error):
         """The client has insufficient authorization."""
 
-    class NotFound(APIError):
+    class NotFound(Error):
         """The client requested a resource that could not be found."""
 
-    class InvalidData(APIError):
+    class InvalidData(Error):
         """The client sent invalid data."""
 
-    class Throttled(APIError):
+    class Throttled(Error):
         """The client sent too many requests."""
 
-    class ServerError(APIError):
+    class ServerError(Error):
         """An error happened on the server."""
 
 
@@ -81,7 +74,7 @@ def _build_url(administration_id: int, resource_path: str) -> str:
 
 def _process_response(response: requests.Response) -> dict:
     good_codes = {200, 201, 204}
-    bad_codes: dict[int, Type[Administration.APIError]] = {
+    bad_codes: dict[int, Type[Administration.Error]] = {
         400: Administration.Unauthorized,
         401: Administration.Unauthorized,
         403: Administration.Throttled,
@@ -98,9 +91,7 @@ def _process_response(response: requests.Response) -> dict:
     code_is_known: bool = code in good_codes | bad_codes.keys()
 
     if not code_is_known:
-        raise Administration.APIError(
-            response, "API response contained unknown status code"
-        )
+        raise Administration.Error(code, "API response contained unknown status code")
 
     if code in bad_codes:
         error = bad_codes[code]
@@ -109,16 +100,16 @@ def _process_response(response: requests.Response) -> dict:
         except (AttributeError, TypeError, KeyError, ValueError):
             error_description = None
 
-        raise error(response, error_description)
+        raise error(code, error_description)
 
     return response.json()
 
 
 class HttpsAdministration(Administration):
-    """The HTTPS implementation of the MoneyBird API interface."""
+    """The HTTPS implementation of the MoneyBird Administration interface."""
 
     def __init__(self, key, administration_id: int):
-        """Create a new MoneyBird administration API connection."""
+        """Create a new MoneyBird administration connection."""
         super().__init__()
         self.session = _create_session_with_key(key)
         self.administration_id = administration_id
@@ -134,3 +125,47 @@ class HttpsAdministration(Administration):
         url = _build_url(self.administration_id, resource_path)
         response = self.session.get(url)
         return _process_response(response)
+
+
+class MockAdministration(Administration):
+    """Mock version of a MoneyBird administration."""
+
+    def __init__(self, documents: dict[str, list[dict]]):
+        """Initialize a new MockAdministration."""
+        super().__init__()
+        self.documents = documents
+
+    def get(self, resource_path: str):
+        """Mock a GET request for the Moneybird Administration."""
+        parts = resource_path.split("/")
+
+        # Mock a GET request for a /documents/* resource path
+        if (
+            len(parts) == 3
+            and parts[0] == "documents"
+            and parts[2] == "synchronization"
+        ):
+            documents_kind = (
+                self.documents[parts[1]] if parts[1] in self.documents else [].copy()
+            )
+
+            return [
+                {"id": doc["id"], "version": doc["version"]} for doc in documents_kind
+            ]
+
+        raise self.NotFound
+
+    def post(self, resource_path: str, data: dict):
+        """Mock a POST request for the Moneybird Administration."""
+        path = resource_path.split("/")
+        if len(path) == 3 and path[0] == "documents" and path[2] == "synchronization":
+            if path[1] in self.documents:
+                documents_kind = self.documents[path[1]]
+            else:
+                documents_kind = [].copy()
+
+            ids = data["ids"]
+            return filter(lambda doc: doc["id"] in ids, documents_kind)
+
+        # Incorrect path was used
+        raise self.NotFound

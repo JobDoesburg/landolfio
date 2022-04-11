@@ -1,11 +1,11 @@
-"""Moneybird API wrapper."""
+"""The module containing the 'get_administration_changes' function."""
+import json
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Generator
 from typing import Literal
 
-from .api import Administration
-from .api import HttpsAdministration
+from .administration import Administration
 
 DocId = str
 DocVersion = int
@@ -45,11 +45,8 @@ Changes = dict[DocKind, Diff]
 """A dictionary with diffs per document kind."""
 
 
-@dataclass
-class Tag:
-    """A tag for a MoneyBird database state."""
-
-    versions: dict[DocKind, Version] = field(default_factory=dict)
+Tag = dict[DocKind, Version]
+"""A tag for a MoneyBird database state."""
 
 
 def _diff_versions(old: Version, new: Version) -> VersionDiff:
@@ -70,11 +67,11 @@ def _diff_versions(old: Version, new: Version) -> VersionDiff:
 def _chunk(lst: list, chunk_size: int) -> Generator[list, None, None]:
     """Split a list into chunks of size chunk_size."""
     for idx in range(0, len(lst), chunk_size):
-        yield lst[idx : idx + 100]
+        yield lst[idx : idx + chunk_size]
 
 
-def _get_remote_version(api: Administration, document_kind: DocKind) -> Version:
-    documents = api.get(
+def _get_remote_version(adm: Administration, document_kind: DocKind) -> Version:
+    documents = adm.get(
         f"documents/{document_kind}/synchronization",
     )
 
@@ -82,18 +79,18 @@ def _get_remote_version(api: Administration, document_kind: DocKind) -> Version:
 
 
 def _get_remote_documents_limited(
-    api: Administration, kind: DocKind, ids: list[DocId]
+    adm: Administration, kind: DocKind, ids: list[DocId]
 ) -> list[Document]:
     assert len(ids) <= _MAX_REQUEST_SIZE
 
-    return api.post(
+    return adm.post(
         f"documents/{kind}/synchronization",
         data={"ids": ids},
     )
 
 
 def _get_remote_documents(
-    api: Administration, kind: DocKind, ids: list[DocId]
+    adm: Administration, kind: DocKind, ids: list[DocId]
 ) -> list[Document]:
     """
     Load some documents of the specified kind.
@@ -108,41 +105,40 @@ def _get_remote_documents(
     documents = []
 
     for id_chunk in _chunk(ids, _MAX_REQUEST_SIZE):
-        documents.extend(_get_remote_documents_limited(api, kind, id_chunk))
+        documents.extend(_get_remote_documents_limited(adm, kind, id_chunk))
 
     return documents
 
 
-def _get_changes_from_api(api: Administration, tag: Tag = None) -> tuple[Tag, Changes]:
-    if tag is None:
-        tag = Tag()
-
-    new_tag = Tag()
+def _get_administration_changes_impl(
+    adm: Administration, old_tag: Tag
+) -> tuple[Tag, Changes]:
     changes = {}
+    new_tag = Tag()
 
     for kind in _DOCUMENT_KINDS:
-        new_tag.versions[kind] = _get_remote_version(api, kind)
+        new_tag[kind] = _get_remote_version(adm, kind)
 
     for kind in _DOCUMENT_KINDS:
-        current = tag.versions[kind] if kind in tag.versions else {}
-        remote = new_tag.versions[kind]
+        current = old_tag[kind] if kind in old_tag else {}
+        remote = new_tag[kind]
         version_diff = _diff_versions(current, remote)
 
         diff = Diff()
-        diff.added = _get_remote_documents(api, kind, version_diff.added)
-        diff.changed = _get_remote_documents(api, kind, version_diff.changed)
-        diff.removed = _get_remote_documents(api, kind, version_diff.removed)
+        diff.added = _get_remote_documents(adm, kind, version_diff.added)
+        diff.changed = _get_remote_documents(adm, kind, version_diff.changed)
+        diff.removed = version_diff.removed
 
         changes[kind] = diff
 
     return new_tag, changes
 
 
-def get_changes(
-    key: str, administration_id: int, tag: Tag = None
-) -> tuple[Tag, Changes]:
+def get_administration_changes(
+    adm: Administration, tag: bytes = None
+) -> tuple[bytes, Changes]:
     """
-    Get changes from MoneyBird.
+    Get changes from an administration.
 
     To get changes since a previous call, you can give the Tag returned by that
     previous call as a parameter. If no tag is given, all documents are returned.
@@ -150,5 +146,11 @@ def get_changes(
     Returns a new Tag, and all changes that happened since the last get_changes call
     that returned the given Tag.
     """
-    api = HttpsAdministration(key, administration_id)
-    return _get_changes_from_api(api, tag)
+    if tag is None:
+        old_tag = Tag()
+    else:
+        old_tag = json.loads(tag.decode())
+
+    new_tag, changes = _get_administration_changes_impl(adm, old_tag)
+
+    return json.dumps(new_tag).encode(), changes
