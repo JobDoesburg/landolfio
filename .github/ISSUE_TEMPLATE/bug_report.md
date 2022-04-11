@@ -25,3 +25,6 @@ x hours
 
 **Deadline**
 day/month/year
+
+**Actual hours spent**
+y hours
