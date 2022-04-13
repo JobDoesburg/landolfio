@@ -7,7 +7,7 @@ from .get_changes import Diff
 from .get_changes import get_administration_changes
 
 
-class TestChunk(TestCase):
+class ChunkTest(TestCase):
     """Test the chunk function."""
 
     def test_empty(self):
