@@ -14,11 +14,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
+from django.urls import include
 from django.urls import path
 from django.urls import re_path
 from django.views.generic.base import RedirectView
 
 urlpatterns = [
+    re_path("api/accounting/", include("accounting.api.urls")),
     path("admin/", admin.site.urls),
     # The admin interface is the only thing we serve, so just always redirect
     # there if we get an unknown path
