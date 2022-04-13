@@ -7,7 +7,7 @@ from .models import Asset
 from .models import AssetState
 
 
-class AssetTestCase(TestCase):
+class AssetModelTest(TestCase):
     """Test cases for the Asset model."""
 
     fixtures = ["assets"]

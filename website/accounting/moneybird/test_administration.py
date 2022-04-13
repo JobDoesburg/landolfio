@@ -5,7 +5,7 @@ from .administration import _build_url as build_url
 from .administration import Administration
 
 
-class TestErrors(TestCase):
+class ErrorTest(TestCase):
     """Test the Administration errors."""
 
     @staticmethod
@@ -19,7 +19,7 @@ class TestErrors(TestCase):
         Administration.ServerError(500)
 
 
-class TestBuildURL(TestCase):
+class BuildURLTest(TestCase):
     """Test the function to build URLs."""
 
     def test_one_file_without_leading_slash(self):

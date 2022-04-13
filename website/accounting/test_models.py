@@ -7,7 +7,7 @@ from inventory.models import Asset
 from .models import Document
 
 
-class AccountingTestCase(TestCase):
+class AccountingModelTest(TestCase):
     """Test cases for accounting models."""
 
     DATE_TEST = datetime.date(2022, 1, 25)
