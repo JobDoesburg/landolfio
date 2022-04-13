@@ -98,7 +98,11 @@ class SyncDatabaseTest(TestCase):
         """
         invoice_id = 1
         invoice_version = 3
-        invoice = {"id": str(invoice_id), "version": invoice_version}
+        invoice = {
+            "id": str(invoice_id),
+            "version": invoice_version,
+            "details": ["line1", "line2"],
+        }
 
         documents = {"purchase_invoices": [invoice]}
 
