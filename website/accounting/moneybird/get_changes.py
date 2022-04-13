@@ -59,7 +59,7 @@ def _diff_versions(old: Version, new: Version) -> VersionDiff:
     diff = VersionDiff()
     diff.added = list(new_ids - old_ids)
     diff.removed = list(old_ids - new_ids)
-    diff.changed = list(filter(lambda doc_id: old[doc_id] < new[doc_id], kept))
+    diff.changed = list(filter(lambda doc_id: old[doc_id] != new[doc_id], kept))
 
     return diff
 
