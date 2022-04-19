@@ -111,5 +111,5 @@ class SyncDatabaseTest(TestCase):
 
         document = Document.objects.first()
         self.assertEqual(document.id_MB, invoice_id)
-        self.assertEqual(document.kind, "PI")
+        self.assertEqual(document.kind, DocKind.PURCHASE_INVOICE)
         self.assertEqual(document.json_MB, invoice)
