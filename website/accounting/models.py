@@ -10,7 +10,7 @@ class Document(models.Model):
 
     id_MB = models.IntegerField(verbose_name=_("Id MoneyBird"))
     json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
-    kind = models.CharField(max_length=2, choices=DocKind.choices())
+    kind = models.CharField(max_length=2, choices=DocKind.choices)
 
     def __str__(self):
         """Return Document string."""

@@ -5,6 +5,7 @@ from dataclasses import field
 from enum import Enum
 from typing import Generator
 
+from django.utils.functional import classproperty
 from django.utils.translation import gettext as _
 
 from .administration import Administration
@@ -43,9 +44,10 @@ class DocKind(str, Enum):
             f"The human readable name for document kind '{self}' is not yet defined."
         )
 
-    @classmethod
+    @classproperty
     def choices(cls):
         """Get the Django choices for document kinds."""
+        # pylint: disable=no-self-argument
         return [(choice.value, choice.human_readable_name) for choice in cls]
 
 
