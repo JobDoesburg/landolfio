@@ -8,6 +8,20 @@ from .get_changes import DocKind
 from .get_changes import get_administration_changes
 
 
+class DocKindTest(TestCase):
+    """Test the DocKind enum."""
+
+    def test_all_kinds_have_a_path(self):
+        """Each DocKind must have a path."""
+        for kind in DocKind:
+            self.assertIsNotNone(kind.path)
+
+    def test_all_kinds_have_a_human_readable_name(self):
+        """Each DocKind must have a human readable name."""
+        for kind in DocKind:
+            self.assertIsNotNone(kind.human_readable_name)
+
+
 class ChunkTest(TestCase):
     """Test the chunk function."""
 
