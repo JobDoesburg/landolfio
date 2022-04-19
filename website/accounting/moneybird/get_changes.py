@@ -1,16 +1,51 @@
 """The module containing the 'get_administration_changes' function."""
 import json
+import typing
 from dataclasses import dataclass
 from dataclasses import field
 from typing import Generator
 from typing import Literal
 
+from django.utils.translation import gettext as _
+
 from .administration import Administration
 
 DocId = str
 DocVersion = int
-DocKind = Literal["purchase_invoices", "receipts"]
-_DOCUMENT_KINDS: list[DocKind] = ["purchase_invoices", "receipts"]
+
+DocKind = Literal["PI", "RC"]
+DOCUMENT_KINDS: typing.Tuple[DocKind, ...] = typing.get_args(DocKind)
+
+
+def path_for_kind(doc_kind: DocKind) -> str:
+    """Get the moneybird administration resource path for a document kind."""
+    if doc_kind == "PI":
+        return "documents/purchase_invoices"
+    if doc_kind == "RC":
+        return "documents/receipts"
+
+    if doc_kind in DOCUMENT_KINDS:
+        raise NotImplementedError(
+            f"Document kind '{doc_kind}' is not yet added to path_for_kind()."
+        )
+
+    raise ValueError(f"There is no such document kind: {doc_kind}.")
+
+
+def name_for_kind(doc_kind: DocKind) -> str:
+    """Get the human-readable name for a document kind."""
+    if doc_kind == "PI":
+        return _("Purchase Invoice")
+    if doc_kind == "RC":
+        return _("Receipt")
+
+    if doc_kind in DOCUMENT_KINDS:
+        raise NotImplementedError(
+            f"Document kind '{doc_kind}' is not yet added to name_for_kind()."
+        )
+
+    raise ValueError(f"There is no such document kind: {doc_kind}.")
+
 
 Version = dict[DocId, DocVersion]
 """A function of document-ids to version numbers."""
@@ -44,9 +79,16 @@ class Diff:
 Changes = dict[DocKind, Diff]
 """A dictionary with diffs per document kind."""
 
-
 Tag = dict[DocKind, Version]
 """A tag for a MoneyBird database state."""
+
+
+def _deserialize_tag(tag_bytes: bytes) -> Tag:
+    return json.loads(tag_bytes.decode())
+
+
+def _serialize_tag(tag: Tag) -> bytes:
+    return json.dumps(tag).encode()
 
 
 def _diff_versions(old: Version, new: Version) -> VersionDiff:
@@ -70,21 +112,21 @@ def _chunk(lst: list, chunk_size: int) -> Generator[list, None, None]:
         yield lst[idx : idx + chunk_size]
 
 
-def _get_remote_version(adm: Administration, document_kind: DocKind) -> Version:
+def _get_remote_version(adm: Administration, doc_kind: DocKind) -> Version:
     documents = adm.get(
-        f"documents/{document_kind}/synchronization",
+        f"{path_for_kind(doc_kind)}/synchronization",
     )
 
     return {doc["id"]: doc["version"] for doc in documents}
 
 
 def _get_remote_documents_limited(
-    adm: Administration, kind: DocKind, ids: list[DocId]
+    adm: Administration, doc_kind: DocKind, ids: list[DocId]
 ) -> list[Document]:
     assert len(ids) <= _MAX_REQUEST_SIZE
 
     return adm.post(
-        f"documents/{kind}/synchronization",
+        f"{path_for_kind(doc_kind)}/synchronization",
         data={"ids": ids},
     )
 
@@ -116,10 +158,10 @@ def _get_administration_changes_impl(
     changes = {}
     new_tag = Tag()
 
-    for kind in _DOCUMENT_KINDS:
+    for kind in DOCUMENT_KINDS:
         new_tag[kind] = _get_remote_version(adm, kind)
 
-    for kind in _DOCUMENT_KINDS:
+    for kind in DOCUMENT_KINDS:
         current = old_tag[kind] if kind in old_tag else {}
         remote = new_tag[kind]
         version_diff = _diff_versions(current, remote)
@@ -135,7 +177,7 @@ def _get_administration_changes_impl(
 
 
 def get_administration_changes(
-    adm: Administration, tag: bytes = None
+    adm: Administration, tag_bytes: bytes = None
 ) -> tuple[bytes, Changes]:
     """
     Get changes from an administration.
@@ -146,11 +188,11 @@ def get_administration_changes(
     Returns a new Tag, and all changes that happened since the last get_changes call
     that returned the given Tag.
     """
-    if tag is None:
+    if tag_bytes is None:
         old_tag = Tag()
     else:
-        old_tag = json.loads(tag.decode())
+        old_tag = _deserialize_tag(tag_bytes)
 
     new_tag, changes = _get_administration_changes_impl(adm, old_tag)
 
-    return json.dumps(new_tag).encode(), changes
+    return _serialize_tag(new_tag), changes

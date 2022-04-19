@@ -137,30 +137,26 @@ class MockAdministration(Administration):
 
     def get(self, resource_path: str):
         """Mock a GET request for the Moneybird Administration."""
-        parts = resource_path.split("/")
-
-        # Mock a GET request for a /documents/* resource path
-        if (
-            len(parts) == 3
-            and parts[0] == "documents"
-            and parts[2] == "synchronization"
-        ):
+        if resource_path.endswith("/synchronization"):
+            document_path = resource_path.removesuffix("/synchronization")
             documents_kind = (
-                self.documents[parts[1]] if parts[1] in self.documents else [].copy()
+                self.documents[document_path]
+                if document_path in self.documents
+                else [].copy()
             )
 
             return [
                 {"id": doc["id"], "version": doc["version"]} for doc in documents_kind
             ]
 
-        raise self.NotFound
+        raise self.NotFound(404, f"Could not find a resource at path {resource_path}")
 
     def post(self, resource_path: str, data: dict):
         """Mock a POST request for the Moneybird Administration."""
-        path = resource_path.split("/")
-        if len(path) == 3 and path[0] == "documents" and path[2] == "synchronization":
-            if path[1] in self.documents:
-                documents_kind = self.documents[path[1]]
+        if resource_path.endswith("/synchronization"):
+            document_path = resource_path.removesuffix("/synchronization")
+            if document_path in self.documents:
+                documents_kind = self.documents[document_path]
             else:
                 documents_kind = [].copy()
 

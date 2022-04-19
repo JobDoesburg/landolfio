@@ -5,6 +5,7 @@ from inmemorystorage import InMemoryStorage
 from . import sync_database as ud
 from .models import Document
 from .moneybird import MockAdministration
+from .moneybird.get_changes import path_for_kind
 
 
 class TagStorageTest(TestCase):
@@ -100,7 +101,7 @@ class SyncDatabaseTest(TestCase):
         invoice_version = 3
         invoice = {"id": str(invoice_id), "version": invoice_version}
 
-        documents = {"purchase_invoices": [invoice]}
+        documents = {path_for_kind("PI"): [invoice]}
 
         adm = MockAdministration(documents)
         storage = InMemoryStorage()
@@ -110,5 +111,5 @@ class SyncDatabaseTest(TestCase):
 
         document = Document.objects.first()
         self.assertEqual(document.id_MB, invoice_id)
-        self.assertEqual(document.kind, Document.Kind.PURCHASE_INVOICE)
+        self.assertEqual(document.kind, "PI")
         self.assertEqual(document.json_MB, invoice)

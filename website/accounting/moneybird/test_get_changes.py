@@ -5,6 +5,7 @@ from .administration import MockAdministration
 from .get_changes import _chunk as chunk
 from .get_changes import Diff
 from .get_changes import get_administration_changes
+from .get_changes import path_for_kind
 
 
 class ChunkTest(TestCase):
@@ -64,15 +65,14 @@ class GetChangesTest(TestCase):
     def test_load_purchase_invoices(self):
         """If we request the changes without a tag then we must get all changes."""
         documents = {
-            "purchase_invoices": [{"id": "1", "version": 3}, {"id": "2", "version": 7}]
+            path_for_kind("PI"): [{"id": "1", "version": 3}, {"id": "2", "version": 7}]
         }
 
         adm = MockAdministration(documents)
 
         _tag, changes = get_administration_changes(adm)
-        self.assertDiffEqual(
-            changes["purchase_invoices"], Diff(added=documents["purchase_invoices"])
-        )
+
+        self.assertDiffEqual(changes["PI"], Diff(added=documents[path_for_kind("PI")]))
 
     def test_tag_usage(self):
         """
@@ -81,13 +81,15 @@ class GetChangesTest(TestCase):
         If we request changes and use the returned tag to get new changes then the
         difference must be empty.
         """
-        documents = {"receipts": [{"id": "1", "version": 3}, {"id": "2", "version": 7}]}
+        documents = {
+            path_for_kind("RC"): [{"id": "1", "version": 3}, {"id": "2", "version": 7}]
+        }
         adm = MockAdministration(documents)
 
         tag1, _changes1 = get_administration_changes(adm)
-        _tag2, changes2 = get_administration_changes(adm, tag=tag1)
+        _tag2, changes2 = get_administration_changes(adm, tag_bytes=tag1)
 
-        self.assertDiffEqual(changes2["receipts"], Diff())
+        self.assertDiffEqual(changes2["RC"], Diff())
 
     def test_remove(self):
         """
@@ -97,7 +99,7 @@ class GetChangesTest(TestCase):
         then those documents must be included in the diff as removed.
         """
         documents = {
-            "purchase_invoices": [{"id": "1", "version": 3}, {"id": "2", "version": 7}]
+            path_for_kind("PI"): [{"id": "1", "version": 3}, {"id": "2", "version": 7}]
         }
 
         adm = MockAdministration(documents)
@@ -105,9 +107,9 @@ class GetChangesTest(TestCase):
         tag1, _changes1 = get_administration_changes(adm)
 
         # remove documents
-        ids_removed = [doc["id"] for doc in documents["purchase_invoices"]]
+        ids_removed = [doc["id"] for doc in documents[path_for_kind("PI")]]
         adm.documents.clear()
 
         _tag2, changes2 = get_administration_changes(adm, tag1)
 
-        self.assertDiffEqual(changes2["purchase_invoices"], Diff(removed=ids_removed))
+        self.assertDiffEqual(changes2["PI"], Diff(removed=ids_removed))
