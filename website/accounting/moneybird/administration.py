@@ -163,5 +163,4 @@ class MockAdministration(Administration):
             ids = data["ids"]
             return filter(lambda doc: doc["id"] in ids, documents_kind)
 
-        # Incorrect path was used
-        raise self.NotFound
+        raise self.NotFound(404, f"Could not find a resource at path {resource_path}")
