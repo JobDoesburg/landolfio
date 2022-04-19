@@ -4,8 +4,8 @@ from inmemorystorage import InMemoryStorage
 
 from . import sync_database as ud
 from .models import Document
+from .moneybird import DocKind
 from .moneybird import MockAdministration
-from .moneybird.get_changes import path_for_kind
 
 
 class TagStorageTest(TestCase):
@@ -101,7 +101,7 @@ class SyncDatabaseTest(TestCase):
         invoice_version = 3
         invoice = {"id": str(invoice_id), "version": invoice_version}
 
-        documents = {path_for_kind("PI"): [invoice]}
+        documents = {DocKind.PURCHASE_INVOICE.path: [invoice]}
 
         adm = MockAdministration(documents)
         storage = InMemoryStorage()

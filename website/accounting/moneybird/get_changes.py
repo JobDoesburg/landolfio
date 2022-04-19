@@ -1,10 +1,9 @@
 """The module containing the 'get_administration_changes' function."""
 import json
-import typing
 from dataclasses import dataclass
 from dataclasses import field
+from enum import Enum
 from typing import Generator
-from typing import Literal
 
 from django.utils.translation import gettext as _
 
@@ -13,38 +12,41 @@ from .administration import Administration
 DocId = str
 DocVersion = int
 
-DocKind = Literal["PI", "RC"]
-DOCUMENT_KINDS: typing.Tuple[DocKind, ...] = typing.get_args(DocKind)
 
+class DocKind(str, Enum):
+    """A Moneybird administration document kind."""
 
-def path_for_kind(doc_kind: DocKind) -> str:
-    """Get the moneybird administration resource path for a document kind."""
-    if doc_kind == "PI":
-        return "documents/purchase_invoices"
-    if doc_kind == "RC":
-        return "documents/receipts"
+    PURCHASE_INVOICE = "PI"
+    RECEIPT = "RC"
 
-    if doc_kind in DOCUMENT_KINDS:
+    @property
+    def path(self):
+        """Get the moneybird administration resource path for a document kind."""
+        if self == "PI":
+            return "documents/purchase_invoices"
+        if self == "RC":
+            return "documents/receipts"
+
         raise NotImplementedError(
-            f"Document kind '{doc_kind}' is not yet added to path_for_kind()."
+            f"The path for document kind '{self}' is not yet defined."
         )
 
-    raise ValueError(f"There is no such document kind: {doc_kind}.")
+    @property
+    def human_readable_name(self):
+        """Get the human-readable name for a document kind."""
+        if self == "PI":
+            return _("Purchase Invoice")
+        if self == "RC":
+            return _("Receipt")
 
-
-def name_for_kind(doc_kind: DocKind) -> str:
-    """Get the human-readable name for a document kind."""
-    if doc_kind == "PI":
-        return _("Purchase Invoice")
-    if doc_kind == "RC":
-        return _("Receipt")
-
-    if doc_kind in DOCUMENT_KINDS:
         raise NotImplementedError(
-            f"Document kind '{doc_kind}' is not yet added to name_for_kind()."
+            f"The human readable name for document kind '{self}' is not yet defined."
         )
 
-    raise ValueError(f"There is no such document kind: {doc_kind}.")
+    @classmethod
+    def choices(cls):
+        """Get the Django choices for document kinds."""
+        return [(choice.value, choice.human_readable_name) for choice in cls]
 
 
 Version = dict[DocId, DocVersion]
@@ -114,7 +116,7 @@ def _chunk(lst: list, chunk_size: int) -> Generator[list, None, None]:
 
 def _get_remote_version(adm: Administration, doc_kind: DocKind) -> Version:
     documents = adm.get(
-        f"{path_for_kind(doc_kind)}/synchronization",
+        f"{doc_kind.path}/synchronization",
     )
 
     return {doc["id"]: doc["version"] for doc in documents}
@@ -126,7 +128,7 @@ def _get_remote_documents_limited(
     assert len(ids) <= _MAX_REQUEST_SIZE
 
     return adm.post(
-        f"{path_for_kind(doc_kind)}/synchronization",
+        f"{doc_kind.path}/synchronization",
         data={"ids": ids},
     )
 
@@ -158,10 +160,10 @@ def _get_administration_changes_impl(
     changes = {}
     new_tag = Tag()
 
-    for kind in DOCUMENT_KINDS:
+    for kind in DocKind:
         new_tag[kind] = _get_remote_version(adm, kind)
 
-    for kind in DOCUMENT_KINDS:
+    for kind in DocKind:
         current = old_tag[kind] if kind in old_tag else {}
         remote = new_tag[kind]
         version_diff = _diff_versions(current, remote)
