@@ -121,10 +121,36 @@ class TestFindAssetID(TestCase):
 
     def test_nested(self):
         """
-        If the description exactly one ID in nested brackets, that ID must be found.
+        Test with nested brackets.
+
+        If the description contains exactly one ID in nested brackets, then that ID
+        must be found.
         """
         asset_id = "test"
         description = f"[[{asset_id}]]"
+
+        self.assertEqual(asset_id, ud._find_asset_id_from_description(description))
+
+    def test_over_lines(self):
+        """
+        Test with an invalid ID.
+
+        If the description only contains something looking like an ID but split over
+        lines, then no ID must be found.
+        """
+        description = "[t\nest]"
+
+        self.assertIsNone(ud._find_asset_id_from_description(description))
+
+    def test_multiple_lines(self):
+        """
+        Test with a multiline-description.
+
+        If the description contains multiple lines of which only the second line
+        contains the ID, that ID must be found.
+        """
+        asset_id = "test_id"
+        description = f"This is a sentence.\nThis is an [{asset_id}]."
 
         self.assertEqual(asset_id, ud._find_asset_id_from_description(description))
 
