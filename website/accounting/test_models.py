@@ -15,7 +15,7 @@ class AccountingModelTest(TestCase):
     def setUp(self):
         """Set up the test case."""
         Asset.objects.create(
-            old_id="C7801",
+            id="C7801",
             asset_type="Violin",
             size="7/8",
             collection="Zakelijk",

@@ -1,7 +1,6 @@
 - model: inventory.Asset
-  pk: 1
+  pk: C7801
   fields:
-    old_id: C7801
     asset_type: Violin
     size: 7/8
     collection: Zakelijk
@@ -11,9 +10,8 @@
     margin: true
     remarks: ""
 - model: inventory.Asset
-  pk: 2
+  pk: C7802
   fields:
-    old_id: C7802
     asset_type: Violin
     size: 7/8
     collection: Zakelijk
@@ -23,9 +21,8 @@
     margin: true
     remarks: ""
 - model: inventory.Asset
-  pk: 3
+  pk: C44101
   fields:
-    old_id: C44101
     asset_type: Hobo
     size: 4/4
     collection: Zakelijk
@@ -35,9 +32,8 @@
     margin: false
     remarks: ""
 - model: inventory.Asset
-  pk: 4
+  pk: C44102
   fields:
-    old_id: C44102
     asset_type: Hobo
     size: 4/4
     collection: Zakelijk
@@ -47,9 +43,8 @@
     margin: false
     remarks: ""
 - model: inventory.Asset
-  pk: 5
+  pk: C44103
   fields:
-    old_id: C44103
     asset_type: Guitar
     size: 4/4
     collection: Zakelijk
@@ -59,9 +54,8 @@
     margin: false
     remarks: ""
 - model: inventory.Asset
-  pk: 6
+  pk: C44104
   fields:
-    old_id: C44104
     asset_type: Cello
     size: 4/4
     collection: Zakelijk
@@ -71,9 +65,8 @@
     margin: false
     remarks: ""
 - model: inventory.Asset
-  pk: 7
+  pk: C44105
   fields:
-    old_id: C44105
     asset_type: Hobo
     size: 4/4
     collection: Zakelijk
@@ -83,9 +76,8 @@
     margin: false
     remarks: ""
 - model: inventory.Asset
-  pk: 8
+  pk: C44106
   fields:
-    old_id: C44106
     asset_type: Hobo
     size: 4/3
     collection: Zakelijk

@@ -20,12 +20,8 @@ STATES = (
 class Asset(models.Model):
     """Class model for Assets."""
 
-    old_id = models.CharField(verbose_name=_("Old ID"), max_length=200)
-    # We may later add choices to the asset_type field, i.e. 'violin', 'cello' etc. I
-    # named it `asset_type` instead of `type` because `type` shadows an existing
-    # function
+    id = models.CharField(verbose_name=_("ID"), max_length=200, primary_key=True)
     asset_type = models.CharField(verbose_name=_("Type"), max_length=200)
-    # For the `size` field we may also want to add choices
     size = models.CharField(verbose_name=_("Size"), max_length=200)
     collection = models.CharField(verbose_name=_("Collection"), max_length=200)
     listing_price = models.FloatField(verbose_name=_("Listing price"))
@@ -38,8 +34,7 @@ class Asset(models.Model):
 
     def __str__(self):
         """Return Asset string."""
-        # I think we should ask Job (client) how a string should be formed
-        return str(self.asset_type) + " " + str(self.size)
+        return f"{self.asset_type} {self.size}"
 
 
 class AssetState(models.Model):
@@ -60,4 +55,4 @@ class AssetState(models.Model):
 
     def __str__(self):
         """Return AssetState string."""
-        return str(self.state) + " | " + str(self.state)
+        return f"{self.asset.id} | {self.state}"
