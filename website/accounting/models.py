@@ -39,3 +39,7 @@ class DocumentLine(models.Model):
     asset = models.ForeignKey(
         Asset, null=True, on_delete=models.SET_NULL, verbose_name=_("Asset")
     )
+
+    def __str__(self):
+        """Format a DocumentLine as a human readable string."""
+        return f"Line in {self.document} with asset {self.asset_id}"
