@@ -102,7 +102,10 @@ class SyncDatabaseTest(TestCase):
         invoice = {
             "id": str(invoice_id),
             "version": invoice_version,
-            "details": ["line1", "line2"],
+            "details": [
+                {"description": "document line 1\n"},
+                {"description": "document line 2\n"},
+            ],
         }
 
         documents = {DocKind.PURCHASE_INVOICE.path: [invoice]}

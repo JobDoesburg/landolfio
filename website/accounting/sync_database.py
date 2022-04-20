@@ -4,12 +4,14 @@ Provides the sync_database function.
 This module is responsible for getting changes from MoneyBird and applying those
 changes in the database.
 """
+import re
 from typing import Union
 
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.core.files.storage import Storage
+from inventory.models import Asset
 
 from . import moneybird as mb
 from .models import Document
@@ -34,13 +36,37 @@ def _save_tag_to_storage(tag: bytes, storage: Storage) -> None:
     storage.save(_TAG_PATH, ContentFile(tag))
 
 
+def _find_asset_from_description(description: str) -> Union[Asset, None]:
+    match = re.match(r"\[\s*([\w\d]+)\s*\]", description)
+
+    if match is None:
+        return None
+
+    asset_id = match.group(1)
+
+    try:
+        return Asset.objects.get(id=asset_id)
+    except Asset.DoesNotExist:
+        return None
+
+
+def _add_doc_lines_to_db(doc: Document) -> None:
+    assert doc.documentline_set.count() == 0
+
+    for line_data in doc.json_MB["details"]:
+        line_description = line_data["description"]
+        asset_or_none = _find_asset_from_description(line_description)
+
+        DocumentLine.objects.create(
+            document=doc, json_MB=line_data, asset=asset_or_none
+        )
+
+
 def _add_docs_of_kind_to_db(kind: mb.DocKind, docs: list[mb.Document]) -> None:
     for doc_data in docs:
         doc_id = int(doc_data["id"])
         doc = Document.objects.create(id_MB=doc_id, json_MB=doc_data, kind=kind)
-
-        for line_data in doc_data["details"]:
-            DocumentLine.objects.create(document=doc, json_MB=line_data)
+        _add_doc_lines_to_db(doc)
 
 
 def _change_docs_of_kind_in_db(kind: mb.DocKind, docs: list[mb.Document]) -> None:
@@ -56,8 +82,7 @@ def _change_docs_of_kind_in_db(kind: mb.DocKind, docs: list[mb.Document]) -> Non
         document.documentline_set.all().delete()
 
         # Add all document lines
-        for line_data in doc_data["details"]:
-            DocumentLine.objects.create(document=document, json_MB=line_data)
+        _add_doc_lines_to_db(document)
 
 
 def _remove_docs_of_kind_from_db(kind: mb.DocKind, docs: list[mb.DocId]) -> None:
