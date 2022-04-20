@@ -4,6 +4,7 @@ from inmemorystorage import InMemoryStorage
 
 from . import sync_database as ud
 from .models import Document
+from .moneybird import DocKind
 from .moneybird import MockAdministration
 
 
@@ -98,9 +99,13 @@ class SyncDatabaseTest(TestCase):
         """
         invoice_id = 1
         invoice_version = 3
-        invoice = {"id": str(invoice_id), "version": invoice_version}
+        invoice = {
+            "id": str(invoice_id),
+            "version": invoice_version,
+            "details": ["line1", "line2"],
+        }
 
-        documents = {"purchase_invoices": [invoice]}
+        documents = {DocKind.PURCHASE_INVOICE.path: [invoice]}
 
         adm = MockAdministration(documents)
         storage = InMemoryStorage()
@@ -110,5 +115,5 @@ class SyncDatabaseTest(TestCase):
 
         document = Document.objects.first()
         self.assertEqual(document.id_MB, invoice_id)
-        self.assertEqual(document.kind, Document.Kind.PURCHASE_INVOICE)
+        self.assertEqual(document.kind, DocKind.PURCHASE_INVOICE)
         self.assertEqual(document.json_MB, invoice)
