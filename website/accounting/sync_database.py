@@ -15,7 +15,6 @@ from . import moneybird as mb
 from .models import Document
 from .models import DocumentLine
 
-
 _TAG_PATH = "accounting/sync_database/tag"
 
 
@@ -35,16 +34,7 @@ def _save_tag_to_storage(tag: bytes, storage: Storage) -> None:
     storage.save(_TAG_PATH, ContentFile(tag))
 
 
-def _model_kind_from_moneybird_kind(kind: mb.DocKind) -> Document.Kind:
-    if kind == "purchase_invoices":
-        return Document.Kind.PURCHASE_INVOICE
-    if kind == "receipts":
-        return Document.Kind.RECEIPT
-
-    raise NotImplementedError(f"Unhandled kind '{kind}'.")
-
-
-def _add_docs_of_kind_to_db(kind: Document.Kind, docs: list[mb.Document]) -> None:
+def _add_docs_of_kind_to_db(kind: mb.DocKind, docs: list[mb.Document]) -> None:
     for doc_data in docs:
         doc_id = int(doc_data["id"])
         doc = Document.objects.create(id_MB=doc_id, json_MB=doc_data, kind=kind)
@@ -53,7 +43,7 @@ def _add_docs_of_kind_to_db(kind: Document.Kind, docs: list[mb.Document]) -> Non
             DocumentLine.objects.create(document=doc, json_MB=line_data)
 
 
-def _change_docs_of_kind_in_db(kind: Document.Kind, docs: list[mb.Document]) -> None:
+def _change_docs_of_kind_in_db(kind: mb.DocKind, docs: list[mb.Document]) -> None:
     for doc_data in docs:
         doc_id = int(doc_data["id"])
 
@@ -70,12 +60,12 @@ def _change_docs_of_kind_in_db(kind: Document.Kind, docs: list[mb.Document]) -> 
             DocumentLine.objects.create(document=document, json_MB=line_data)
 
 
-def _remove_docs_of_kind_from_db(kind: Document.Kind, docs: list[mb.DocId]) -> None:
+def _remove_docs_of_kind_from_db(kind: mb.DocKind, docs: list[mb.DocId]) -> None:
     for doc_id in docs:
         Document.objects.get(id_MB=doc_id, kind=kind).delete()
 
 
-def _update_db_for_doc_kind(kind: Document.Kind, diff: mb.Diff) -> None:
+def _update_db_for_doc_kind(kind: mb.DocKind, diff: mb.Diff) -> None:
     _add_docs_of_kind_to_db(kind, diff.added)
     _change_docs_of_kind_in_db(kind, diff.changed)
     _remove_docs_of_kind_from_db(kind, diff.removed)
@@ -85,8 +75,7 @@ def _sync_db_from_adm(adm: mb.Administration, storage: Storage) -> None:
     old_tag = _load_tag_from_storage(storage)
     new_tag, changes = mb.get_administration_changes(adm, old_tag)
 
-    for doc_kind, changes_kind in changes.items():
-        kind = _model_kind_from_moneybird_kind(doc_kind)
+    for kind, changes_kind in changes.items():
         _update_db_for_doc_kind(kind, changes_kind)
 
     _save_tag_to_storage(new_tag, storage)
