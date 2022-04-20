@@ -26,3 +26,12 @@ class Document(models.Model):
         """
 
         unique_together = ("id_MB", "kind")
+
+
+class DocumentLine(models.Model):
+    """A line in a document."""
+
+    json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
+    document = models.ForeignKey(
+        Document, on_delete=models.CASCADE, verbose_name=_("Document")
+    )

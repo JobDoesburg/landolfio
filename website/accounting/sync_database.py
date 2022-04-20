@@ -13,6 +13,7 @@ from django.core.files.storage import Storage
 
 from . import moneybird as mb
 from .models import Document
+from .models import DocumentLine
 
 _TAG_PATH = "accounting/sync_database/tag"
 
@@ -34,17 +35,29 @@ def _save_tag_to_storage(tag: bytes, storage: Storage) -> None:
 
 
 def _add_docs_of_kind_to_db(kind: mb.DocKind, docs: list[mb.Document]) -> None:
-    for doc in docs:
-        doc_id = int(doc["id"])
-        Document.objects.create(id_MB=doc_id, json_MB=doc, kind=kind)
+    for doc_data in docs:
+        doc_id = int(doc_data["id"])
+        doc = Document.objects.create(id_MB=doc_id, json_MB=doc_data, kind=kind)
+
+        for line_data in doc_data["details"]:
+            DocumentLine.objects.create(document=doc, json_MB=line_data)
 
 
 def _change_docs_of_kind_in_db(kind: mb.DocKind, docs: list[mb.Document]) -> None:
-    for doc in docs:
-        doc_id = int(doc["id"])
+    for doc_data in docs:
+        doc_id = int(doc_data["id"])
+
+        # Change the document itself
         document = Document.objects.get(id_MB=doc_id, kind=kind)
-        document.json_MB = doc
+        document.json_MB = doc_data
         document.save()
+
+        # Remove all current document lines connected to this document
+        document.documentline_set.all().delete()
+
+        # Add all document lines
+        for line_data in doc_data["details"]:
+            DocumentLine.objects.create(document=document, json_MB=line_data)
 
 
 def _remove_docs_of_kind_from_db(kind: mb.DocKind, docs: list[mb.DocId]) -> None:
