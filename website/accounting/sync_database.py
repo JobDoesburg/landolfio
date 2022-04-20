@@ -36,13 +36,20 @@ def _save_tag_to_storage(tag: bytes, storage: Storage) -> None:
     storage.save(_TAG_PATH, ContentFile(tag))
 
 
-def _find_asset_from_description(description: str) -> Union[Asset, None]:
-    match = re.match(r"\[\s*([\w\d]+)\s*\]", description)
+def _find_asset_id_from_description(description: str) -> Union[str, None]:
+    match = re.search(r"\[\s*([\w\d]+)\s*\]", description)
 
     if match is None:
         return None
 
-    asset_id = match.group(1)
+    return match.group(1)
+
+
+def _find_asset_from_description(description: str) -> Union[Asset, None]:
+    asset_id = _find_asset_id_from_description(description)
+
+    if asset_id is None:
+        return None
 
     try:
         return Asset.objects.get(id=asset_id)

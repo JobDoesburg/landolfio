@@ -67,6 +67,68 @@ class TagStorageTest(TestCase):
         self.assertEqual(tag2, ud._load_tag_from_storage(storage))
 
 
+class TestFindAssetID(TestCase):
+    """Test the find_asset_id_from_description function."""
+
+    # pylint: disable=protected-access
+
+    def test_empty(self):
+        """If the description is empty, no ID must be found in it."""
+        self.assertIsNone(ud._find_asset_id_from_description(""))
+
+    def test_full(self):
+        """If the description contains only an ID, that ID must be found."""
+        asset_id = "testid"
+        description = f"[{asset_id}]"
+
+        self.assertEqual(asset_id, ud._find_asset_id_from_description(description))
+
+    def test_more_than_one(self):
+        """If the description contains more than one ID, the first ID must be found."""
+        asset_id = "testid"
+        description = f"[{asset_id}][a][b][c]"
+
+        self.assertEqual(asset_id, ud._find_asset_id_from_description(description))
+
+    def test_id_surrounded_with_spaces(self):
+        """
+        Test using an ID with spaces.
+
+        If the description contains an ID that is surrounded by spaces, the spaces
+        must be ignored.
+        """
+        asset_id = "testid"
+        description = f"[   {asset_id}     ]"
+
+        self.assertEqual(asset_id, ud._find_asset_id_from_description(description))
+
+    def test_in_sentence(self):
+        """
+        If the description is normal sentence with an ID in it, the ID must be found.
+        """
+        asset_id = "testid"
+        description = f"The id is [{asset_id}]."
+
+        self.assertEqual(asset_id, ud._find_asset_id_from_description(description))
+
+    def test_empty_brackets(self):
+        """
+        If the description contains just '[]' then no ID must be found.
+        """
+        description = "[]"
+
+        self.assertIsNone(ud._find_asset_id_from_description(description))
+
+    def test_nested(self):
+        """
+        If the description exactly one ID in nested brackets, that ID must be found.
+        """
+        asset_id = "test"
+        description = f"[[{asset_id}]]"
+
+        self.assertEqual(asset_id, ud._find_asset_id_from_description(description))
+
+
 class SyncDatabaseTest(TestCase):
     """Test the sync_database function."""
 
