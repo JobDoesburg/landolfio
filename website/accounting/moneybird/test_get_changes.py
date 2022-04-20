@@ -138,3 +138,28 @@ class GetChangesTest(TestCase):
         self.assertDiffEqual(
             changes2[DocKind.PURCHASE_INVOICE], Diff(removed=ids_removed)
         )
+
+    def test_version_downgrade(self):
+        """
+        Test getting changes when a document version number is lowered.
+
+        If the remote version has a document version which is lower than our current
+        version for that document, then that document must be marked as 'changed' in
+        the diff.
+        """
+        old_doc = {"id": "1", "version": 3}
+        downgraded_doc = {"id": "1", "version": 2}
+
+        documents = {DocKind.PURCHASE_INVOICE.path: [old_doc]}
+        adm = MockAdministration(documents)
+
+        tag1, _changes1 = get_administration_changes(adm)
+
+        # downgrade document on the remote
+        adm.documents[DocKind.PURCHASE_INVOICE.path][0] = downgraded_doc
+
+        _tag2, changes2 = get_administration_changes(adm, tag1)
+
+        self.assertDiffEqual(
+            changes2[DocKind.PURCHASE_INVOICE], Diff(changed=[downgraded_doc])
+        )
