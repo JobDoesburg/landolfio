@@ -8,7 +8,7 @@ from .moneybird.get_changes import DocKind
 class Document(models.Model):
     """Class model for Documents."""
 
-    id_MB = models.IntegerField(verbose_name=_("Id MoneyBird"))
+    id_MB = models.PositiveBigIntegerField(verbose_name=_("Id MoneyBird"))
     json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
     kind = models.CharField(max_length=2, choices=DocKind.choices)
 
