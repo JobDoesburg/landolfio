@@ -7,7 +7,7 @@ FROM base AS requirements-builder
 RUN pip install poetry==1.1.8
 COPY pyproject.toml .
 COPY poetry.lock .
-RUN poetry export -f requirements.txt -o requirements.txt
+RUN poetry export --extras production -f requirements.txt -o requirements.txt
 
 FROM base AS final
 
