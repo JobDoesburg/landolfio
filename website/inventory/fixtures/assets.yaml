@@ -1,88 +1,108 @@
+- model: inventory.Collection
+  pk: 0
+  fields:
+    name: Zakelijk
 - model: inventory.Asset
   pk: C7801
   fields:
     asset_type: Violin
     size: 7/8
-    collection: Zakelijk
+    collection: 0
     listing_price: 750
     stock_price: 0
     purchasing_value: 300
-    margin: true
     remarks: ""
+    ledger: "Voorraad marge"
+    MB_state: " Purchased"
+    local_state: "Purchased"
 - model: inventory.Asset
   pk: C7802
   fields:
     asset_type: Violin
     size: 7/8
-    collection: Zakelijk
+    collection: 0
     listing_price: 200
     stock_price: 200
     purchasing_value: 600
-    margin: true
     remarks: ""
+    ledger: "Voorraad marge"
+    MB_state: " Purchased"
+    local_state: "Purchased"
 - model: inventory.Asset
   pk: C44101
   fields:
     asset_type: Hobo
     size: 4/4
-    collection: Zakelijk
+    collection: 0
     listing_price: 1000
     stock_price: 0
     purchasing_value: 1200
-    margin: false
     remarks: ""
+    ledger: "Voorraad marge"
+    MB_state: " Purchased"
+    local_state: "Purchased"
 - model: inventory.Asset
   pk: C44102
   fields:
     asset_type: Hobo
     size: 4/4
-    collection: Zakelijk
+    collection: 0
     listing_price: 1000
     stock_price: 0
     purchasing_value: 1200
-    margin: false
     remarks: ""
+    ledger: "Voorraad marge"
+    MB_state: " Purchased"
+    local_state: "Purchased"
 - model: inventory.Asset
   pk: C44103
   fields:
     asset_type: Guitar
     size: 4/4
-    collection: Zakelijk
+    collection: 0
     listing_price: 1500
     stock_price: 0
     purchasing_value: 400
-    margin: false
     remarks: ""
+    ledger: "Voorraad marge"
+    MB_state: " Purchased"
+    local_state: "Purchased"
 - model: inventory.Asset
   pk: C44104
   fields:
     asset_type: Cello
     size: 4/4
-    collection: Zakelijk
+    collection: 0
     listing_price: 200
     stock_price: 0
     purchasing_value: 300
-    margin: false
     remarks: ""
+    ledger: "Voorraad marge"
+    MB_state: " Purchased"
+    local_state: "Purchased"
 - model: inventory.Asset
   pk: C44105
   fields:
     asset_type: Hobo
     size: 4/4
-    collection: Zakelijk
+    collection: 0
     listing_price: 0
     stock_price: 0
     purchasing_value: 350
-    margin: false
     remarks: ""
+    ledger: "Voorraad marge"
+    MB_state: " Purchased"
+    local_state: "Purchased"
 - model: inventory.Asset
   pk: C44106
   fields:
     asset_type: Hobo
     size: 4/3
-    collection: Zakelijk
+    collection: 0
     listing_price: 0
     stock_price: 600
     purchasing_value: 600
-    margin: true
     remarks: ""
+    ledger: "Voorraad marge"
+    MB_state: " Purchased"
+    local_state: "Purchased"
