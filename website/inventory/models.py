@@ -4,33 +4,36 @@ from django.utils.translation import gettext as _
 
 
 Asset_States = (
-    ("Unknown", "Unknown"),
-    ("N/A", "N/A"),
-    ("Purchased", "Purchased"),
-    ("Sold", "Sold"),
-    ("Sold (incomplete)", "Sold (incomplete)"),
-    ("Sold (error)", "Sold (error)"),
-    ("Rented", "Rented"),
-    ("Rented (error)", "Rented (error)"),
-    ("Loaned", "Loaned"),
-    ("Amortize", "Amortize"),
+    ("Unknown", _("Unknown")),
+    ("N/A", _("N/A")),
+    ("Purchased", _("Purchased")),
+    ("Sold", _("Sold")),
+    ("Sold (incomplete)", _("Sold (incomplete)")),
+    ("Sold (error)", _("Sold (error)")),
+    ("Rented", _("Rented")),
+    ("Rented (error)", _("Rented (error)")),
+    ("Loaned", _("Loaned")),
+    ("Amortized", _("Amortized")),
 )
 
 Ledgers = (
-    ("Voorraad marge", "Voorraad marge"),
-    ("Voorraad niet-marge", "Voorraad niet-marge"),
-    ("Voorraadwaarde bij verkoop marge", "Voorraadwaarde bij verkoop marge"),
-    ("Voorraadwaarde bij verkoop niet-marge", "Voorraadwaarde bij verkoop niet-marge"),
-    ("Verkoop marge", "Verkoop marge"),
-    ("Verkoop niet-marge", "Verkoop niet-marge"),
-    ("Directe afschrijving bij aankoop", "Directe afschrijving bij aankoop"),
-    ("Afschrijvingen", "Afschrijvingen"),
-    ("Borgen", "Borgen"),
+    ("Voorraad marge", _("Voorraad marge")),
+    ("Voorraad niet-marge", _("Voorraad niet-marge")),
+    ("Voorraadwaarde bij verkoop marge", _("Voorraadwaarde bij verkoop marge")),
+    (
+        "Voorraadwaarde bij verkoop niet-marge",
+        _("Voorraadwaarde bij verkoop niet-marge"),
+    ),
+    ("Verkoop marge", _("Verkoop marge")),
+    ("Verkoop niet-marge", _("Verkoop niet-marge")),
+    ("Directe afschrijving bij aankoop", _("Directe afschrijving bij aankoop")),
+    ("Afschrijvingen", _("Afschrijvingen")),
+    ("Borgen", _("Borgen")),
 )
 
 Estimates = (
-    ("Huurovereenkomst", "Huurovereenkomst"),
-    ("Leenovereenkomst", "Leenovereenkomst"),
+    ("Huurovereenkomst", _("Huurovereenkomst")),
+    ("Leenovereenkomst", _("Leenovereenkomst")),
 )
 
 
