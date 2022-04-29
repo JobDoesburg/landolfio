@@ -1,0 +1,13 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+{% block content %}
+    {{ block.super }}
+
+    <h1>Related documents</h1>
+
+    <ul>
+    {% for document in related_documents %}
+        <li><a href="{% url 'admin:accounting_document_change' document.id %}">{{ document }}</a></li>
+    {% endfor %}
+    </ul>
+{% endblock %}

@@ -1,8 +1,6 @@
 """Test the asset-models."""
 import datetime
 
-from accounting.models import Document
-from accounting.models import DocumentLine
 from django.test import TestCase
 
 from .models import Asset
@@ -15,7 +13,6 @@ class AssetModelTest(TestCase):
     fixtures = ["assets"]
 
     def setUp(self):
-        # pylint: disable=unused-variable
         """Set up the test case."""
         asset = Asset.objects.create(
             id="C7800",
@@ -27,14 +24,6 @@ class AssetModelTest(TestCase):
             purchasing_value="200",
             margin=True,
         )
-        document = Document.objects.create(
-            id_MB=1,
-            json_MB={"test": "test"},
-            kind="PI",
-        )
-        document_line = DocumentLine.objects.create(
-            document=document, json_MB={"test": "test"}, asset=asset
-        )  # pylint: disable=unused-variable
         AssetState.objects.create(
             asset=asset,
             date=datetime.date(2022, 1, 25),
@@ -65,11 +54,3 @@ class AssetModelTest(TestCase):
         self.assertEqual(asset_state.room, "Room A")
         self.assertEqual(asset_state.closet, "Closet B")
         self.assertEqual(asset_state.external, "External C")
-
-    def test_related_documents(self):
-        """
-        Test whether related_documents returns the correct Documents from an Asset.
-        """
-        asset = Asset.objects.get(id="C7800")
-        documents = [Document.objects.get(id_MB=1)]
-        self.assertEqual(asset.related_documents(), documents)

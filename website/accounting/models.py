@@ -1,6 +1,7 @@
 """The accounting models."""
 from django.db import models
 from django.utils.translation import gettext as _
+from inventory.models import Asset
 
 from .moneybird.get_changes import DocKind
 
@@ -36,7 +37,7 @@ class DocumentLine(models.Model):
         Document, on_delete=models.CASCADE, verbose_name=_("Document")
     )
     asset = models.ForeignKey(
-        "inventory.Asset", null=True, on_delete=models.SET_NULL, verbose_name=_("Asset")
+        Asset, null=True, on_delete=models.SET_NULL, verbose_name=_("Asset")
     )
 
     def __str__(self):
