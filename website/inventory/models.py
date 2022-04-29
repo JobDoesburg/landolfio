@@ -1,5 +1,8 @@
 """Asset models."""
+from accounting.models import DocumentLine
 from django.db import models
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 
@@ -35,6 +38,34 @@ class Asset(models.Model):
     def __str__(self):
         """Return Asset string."""
         return f"{self.asset_type} {self.size}"
+
+    def related_documents(self):
+        """Return all related Documents."""
+        document_lines = DocumentLine.objects.filter(asset=self)
+        documents = []
+
+        for line in document_lines:
+            document = line.document
+            if document not in documents:
+                documents.append(document)
+        return documents
+
+    @property
+    def related_documents_links(self):
+        """Return all related Documents as an HTML list of links."""
+        result = ""
+        for document in self.related_documents():
+            result += get_object_admin_link(document) + "<br>"
+        return mark_safe(result)
+
+
+def get_object_admin_link(obj):
+    """Return the admin HTML link of an object."""
+    url = reverse(
+        f"admin:{obj._meta.app_label}_{obj._meta.model_name}_change",
+        args=(obj.pk,),
+    )
+    return f"<a href={url}>{str(obj)}</a>"
 
 
 class AssetState(models.Model):

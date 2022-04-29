@@ -17,6 +17,7 @@ class AssetAdmin(admin.ModelAdmin):
 
     model = Asset
     list_display = ("asset_type", "size", "collection", "listing_price", "stock_price")
+    readonly_fields = ["related_documents_links"]
     inlines = [AssetStateInlineAdmin]
 
 
