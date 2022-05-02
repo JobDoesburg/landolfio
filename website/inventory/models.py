@@ -16,21 +16,6 @@ Asset_States = (
     ("Amortized", _("Amortized")),
 )
 
-Ledgers = (
-    ("Voorraad marge", _("Voorraad marge")),
-    ("Voorraad niet-marge", _("Voorraad niet-marge")),
-    ("Voorraadwaarde bij verkoop marge", _("Voorraadwaarde bij verkoop marge")),
-    (
-        "Voorraadwaarde bij verkoop niet-marge",
-        _("Voorraadwaarde bij verkoop niet-marge"),
-    ),
-    ("Verkoop marge", _("Verkoop marge")),
-    ("Verkoop niet-marge", _("Verkoop niet-marge")),
-    ("Directe afschrijving bij aankoop", _("Directe afschrijving bij aankoop")),
-    ("Afschrijvingen", _("Afschrijvingen")),
-    ("Borgen", _("Borgen")),
-)
-
 Estimates = (
     ("Huurovereenkomst", _("Huurovereenkomst")),
     ("Leenovereenkomst", _("Leenovereenkomst")),
@@ -64,7 +49,6 @@ class Asset(models.Model):
     remarks = models.TextField(
         verbose_name=_("Remarks"), max_length=1000, null=True, blank=True
     )
-    ledger = models.CharField(max_length=40, choices=Ledgers, null=True, blank=True)
     MB_state = models.CharField(
         max_length=40,
         choices=Asset_States,
