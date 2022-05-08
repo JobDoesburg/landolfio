@@ -18,6 +18,7 @@ class DocKind(str, Enum):
     """A Moneybird administration document kind."""
 
     PURCHASE_INVOICE = "PI"
+    SALES_INVOICE = "SI"
     RECEIPT = "RC"
 
     @property
@@ -25,6 +26,8 @@ class DocKind(str, Enum):
         """Get the moneybird administration resource path for a document kind."""
         if self == "PI":
             return "documents/purchase_invoices"
+        if self == "SI":
+            return "sales_invoices"
         if self == "RC":
             return "documents/receipts"
 
@@ -37,6 +40,8 @@ class DocKind(str, Enum):
         """Get the human-readable name for a document kind."""
         if self == "PI":
             return _("Purchase Invoice")
+        if self == "SI":
+            return _("Sales Invoice")
         if self == "RC":
             return _("Receipt")
 
