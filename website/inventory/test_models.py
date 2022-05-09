@@ -12,7 +12,7 @@ class AssetModelTest(TestCase):
 
     def setUp(self):
         """Set up the test case."""
-        collection = Collection.objects.create(id=1, name="Privé")
+        collection = Collection.objects.create(id=2, name="Privé")
         Asset.objects.create(
             id="C7800",
             asset_type="Violin",
@@ -29,7 +29,7 @@ class AssetModelTest(TestCase):
         self.assertEqual(asset.id, "C7800")
         self.assertEqual(asset.asset_type, "Violin")
         self.assertEqual(asset.size, "7/8")
-        self.assertEqual(asset.collection, Collection.objects.get(id=1))
+        self.assertEqual(asset.collection, Collection.objects.get(id=2))
         self.assertEqual(asset.listing_price, 750)
         self.assertEqual(asset.stock_price, 1200)
         self.assertEqual(asset.purchasing_value, 200)
