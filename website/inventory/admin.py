@@ -4,22 +4,28 @@ from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Asset
-from .models import AssetState
-
-
-class AssetStateInlineAdmin(admin.StackedInline):
-    """Asset state inline admin."""
-
-    model = AssetState
-    extra = 1
+from .models import Collection
 
 
 class AssetAdmin(admin.ModelAdmin):
     """Asset admin."""
 
     model = Asset
-    list_display = ("asset_type", "size", "collection", "listing_price", "stock_price")
-    inlines = [AssetStateInlineAdmin]
+    list_display = (
+        "id",
+        "asset_type",
+        "size",
+        "collection",
+        "listing_price",
+        "stock_price",
+    )
+
+
+class CollectionAdmin(admin.ModelAdmin):
+    """Collection admin."""
+
+    model = Collection
+    list_display = ("id", "name")
 
     def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
         """Render the change page for an Asset."""
@@ -43,3 +49,4 @@ class AssetAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Asset, AssetAdmin)
+admin.site.register(Collection, CollectionAdmin)

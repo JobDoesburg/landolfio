@@ -5,6 +5,21 @@ from inventory.models import Asset
 
 from .moneybird.get_changes import DocKind
 
+Ledgers = (
+    ("Voorraad marge", _("Voorraad marge")),
+    ("Voorraad niet-marge", _("Voorraad niet-marge")),
+    ("Voorraadwaarde bij verkoop marge", _("Voorraadwaarde bij verkoop marge")),
+    (
+        "Voorraadwaarde bij verkoop niet-marge",
+        _("Voorraadwaarde bij verkoop niet-marge"),
+    ),
+    ("Verkoop marge", _("Verkoop marge")),
+    ("Verkoop niet-marge", _("Verkoop niet-marge")),
+    ("Directe afschrijving bij aankoop", _("Directe afschrijving bij aankoop")),
+    ("Afschrijvingen", _("Afschrijvingen")),
+    ("Borgen", _("Borgen")),
+)
+
 
 class Document(models.Model):
     """Class model for Documents."""
@@ -12,6 +27,7 @@ class Document(models.Model):
     id_MB = models.PositiveBigIntegerField(verbose_name=_("Id MoneyBird"))
     json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
     kind = models.CharField(max_length=2, choices=DocKind.choices)
+    link = models.URLField(verbose_name=_("Moneybird document"), null=True, blank=True)
 
     def __str__(self):
         """Return Document string."""
@@ -33,6 +49,7 @@ class DocumentLine(models.Model):
     """A line in a document."""
 
     json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
+    ledger = models.CharField(max_length=40, choices=Ledgers, null=True, blank=True)
     document = models.ForeignKey(
         Document, on_delete=models.CASCADE, verbose_name=_("Document")
     )
