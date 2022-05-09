@@ -1,6 +1,7 @@
 """Inventory admin configuration."""
 from accounting.models import Document
 from django.contrib import admin
+from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Asset
 from .models import AssetState
@@ -25,9 +26,16 @@ class AssetAdmin(admin.ModelAdmin):
         if extra_context is None:
             extra_context = {}
 
-        asset = Asset.objects.get(pk=object_id)
-        related_document_ids = asset.documentline_set.values_list("document", flat=True)
-        related_documents = Document.objects.filter(pk__in=set(related_document_ids))
+        try:
+            asset = Asset.objects.get(pk=object_id)
+            related_document_ids = asset.documentline_set.values_list(
+                "document", flat=True
+            )
+            related_documents = Document.objects.filter(
+                pk__in=set(related_document_ids)
+            )
+        except ObjectDoesNotExist:
+            related_documents = None
 
         extra_context["related_documents"] = related_documents
 
