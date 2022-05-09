@@ -22,7 +22,7 @@ class DocKind(str, Enum):
     RECEIPT = "RC"
 
     @property
-    def path(self):
+    def adm_path(self):
         """Get the moneybird administration resource path for a document kind."""
         if self == "PI":
             return "documents/purchase_invoices"
@@ -30,6 +30,18 @@ class DocKind(str, Enum):
             return "sales_invoices"
         if self == "RC":
             return "documents/receipts"
+
+        raise NotImplementedError(
+            f"The adm_path for document kind '{self}' is not yet defined."
+        )
+
+    @property
+    def user_path(self):
+        """Get the moneybird administration user interface path for a document kind."""
+        if self in ("PI", "RC"):
+            return "documents"
+        if self == "SI":
+            return "sales_invoices"
 
         raise NotImplementedError(
             f"The path for document kind '{self}' is not yet defined."
@@ -123,7 +135,7 @@ def _chunk(lst: list, chunk_size: int) -> Generator[list, None, None]:
 
 def _get_remote_version(adm: Administration, doc_kind: DocKind) -> Version:
     documents = adm.get(
-        f"{doc_kind.path}/synchronization",
+        f"{doc_kind.adm_path}/synchronization",
     )
 
     return {doc["id"]: doc["version"] for doc in documents}
@@ -135,7 +147,7 @@ def _get_remote_documents_limited(
     assert len(ids) <= _MAX_REQUEST_SIZE
 
     return adm.post(
-        f"{doc_kind.path}/synchronization",
+        f"{doc_kind.adm_path}/synchronization",
         data={"ids": ids},
     )
 

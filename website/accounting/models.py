@@ -27,7 +27,14 @@ class Document(models.Model):
     id_MB = models.PositiveBigIntegerField(verbose_name=_("Id MoneyBird"))
     json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
     kind = models.CharField(max_length=2, choices=DocKind.choices)
-    link = models.URLField(verbose_name=_("Moneybird document"), null=True, blank=True)
+
+    @property
+    def moneybird_url(self) -> str:
+        """Return the moneybird url."""
+        kind = DocKind(self.kind)
+        adm_id = self.json_MB["administration_id"]
+        doc_id = self.json_MB["id"]
+        return f"https://moneybird.com/{adm_id}/{kind.user_path}/{doc_id}"
 
     def __str__(self):
         """Return Document string."""

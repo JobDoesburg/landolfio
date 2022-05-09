@@ -189,6 +189,7 @@ class SyncDatabaseTest(TestCase):
         invoice_version = 3
         invoice = {
             "id": str(invoice_id),
+            "administration_id": "5",
             "version": invoice_version,
             "details": [
                 {"description": "document line 1\n"},
@@ -196,7 +197,7 @@ class SyncDatabaseTest(TestCase):
             ],
         }
 
-        documents = {DocKind.PURCHASE_INVOICE.path: [invoice]}
+        documents = {DocKind.PURCHASE_INVOICE.adm_path: [invoice]}
 
         adm = MockAdministration(documents)
         storage = InMemoryStorage()

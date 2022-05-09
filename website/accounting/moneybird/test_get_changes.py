@@ -11,10 +11,15 @@ from .get_changes import get_administration_changes
 class DocKindTest(TestCase):
     """Test the DocKind enum."""
 
-    def test_all_kinds_have_a_path(self):
-        """Each DocKind must have a path."""
+    def test_all_kinds_have_an_adm_path(self):
+        """Each DocKind must have an adm_path."""
         for kind in DocKind:
-            self.assertIsNotNone(kind.path)
+            self.assertIsNotNone(kind.adm_path)
+
+    def test_all_kinds_have_a_user_path(self):
+        """Each DocKind must have a user_path."""
+        for kind in DocKind:
+            self.assertIsNotNone(kind.user_path)
 
     def test_all_kinds_have_a_human_readable_name(self):
         """Each DocKind must have a human readable name."""
@@ -79,7 +84,7 @@ class GetChangesTest(TestCase):
     def test_load_purchase_invoices(self):
         """If we request the changes without a tag then we must get all changes."""
         documents = {
-            DocKind.PURCHASE_INVOICE.path: [
+            DocKind.PURCHASE_INVOICE.adm_path: [
                 {"id": "1", "version": 3},
                 {"id": "2", "version": 7},
             ]
@@ -91,7 +96,7 @@ class GetChangesTest(TestCase):
 
         self.assertDiffEqual(
             changes[DocKind.PURCHASE_INVOICE],
-            Diff(added=documents[DocKind.PURCHASE_INVOICE.path]),
+            Diff(added=documents[DocKind.PURCHASE_INVOICE.adm_path]),
         )
 
     def test_tag_usage(self):
@@ -102,7 +107,10 @@ class GetChangesTest(TestCase):
         difference must be empty.
         """
         documents = {
-            DocKind.RECEIPT.path: [{"id": "1", "version": 3}, {"id": "2", "version": 7}]
+            DocKind.RECEIPT.adm_path: [
+                {"id": "1", "version": 3},
+                {"id": "2", "version": 7},
+            ]
         }
         adm = MockAdministration(documents)
 
@@ -119,7 +127,7 @@ class GetChangesTest(TestCase):
         then those documents must be included in the diff as removed.
         """
         documents = {
-            DocKind.PURCHASE_INVOICE.path: [
+            DocKind.PURCHASE_INVOICE.adm_path: [
                 {"id": "1", "version": 3},
                 {"id": "2", "version": 7},
             ]
@@ -130,7 +138,9 @@ class GetChangesTest(TestCase):
         tag1, _changes1 = get_administration_changes(adm)
 
         # remove documents
-        ids_removed = [doc["id"] for doc in documents[DocKind.PURCHASE_INVOICE.path]]
+        ids_removed = [
+            doc["id"] for doc in documents[DocKind.PURCHASE_INVOICE.adm_path]
+        ]
         adm.documents.clear()
 
         _tag2, changes2 = get_administration_changes(adm, tag1)
@@ -150,13 +160,13 @@ class GetChangesTest(TestCase):
         old_doc = {"id": "1", "version": 3}
         downgraded_doc = {"id": "1", "version": 2}
 
-        documents = {DocKind.PURCHASE_INVOICE.path: [old_doc]}
+        documents = {DocKind.PURCHASE_INVOICE.adm_path: [old_doc]}
         adm = MockAdministration(documents)
 
         tag1, _changes1 = get_administration_changes(adm)
 
         # downgrade document on the remote
-        adm.documents[DocKind.PURCHASE_INVOICE.path][0] = downgraded_doc
+        adm.documents[DocKind.PURCHASE_INVOICE.adm_path][0] = downgraded_doc
 
         _tag2, changes2 = get_administration_changes(adm, tag1)
 
