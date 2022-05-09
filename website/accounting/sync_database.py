@@ -69,10 +69,24 @@ def _add_doc_lines_to_db(doc: Document) -> None:
         )
 
 
+def _build_document_url(kind: mb.DocKind, doc_data: mb.Document) -> str:
+    return (
+        "https://moneybird.com/"
+        + doc_data["administration_id"]
+        + "/"
+        + kind.user_path
+        + "/"
+        + doc_data["id"]
+    )
+
+
 def _add_docs_of_kind_to_db(kind: mb.DocKind, docs: list[mb.Document]) -> None:
     for doc_data in docs:
         doc_id = int(doc_data["id"])
-        doc = Document.objects.create(id_MB=doc_id, json_MB=doc_data, kind=kind)
+        url = _build_document_url(kind, doc_data)
+        doc = Document.objects.create(
+            id_MB=doc_id, json_MB=doc_data, kind=kind, url=url
+        )
         _add_doc_lines_to_db(doc)
 
 
