@@ -67,47 +67,6 @@ class TagStorageTest(TestCase):
         self.assertEqual(tag2, ud._load_tag_from_storage(storage))
 
 
-class TestBuildDocumentUrl(TestCase):
-    """Test the _build_document_url function."""
-
-    # pylint: disable=protected-access
-
-    def test_purchase_invoice(self):
-        """Test the _build_document_url function with a purchase invoice."""
-        invoice = {
-            "id": "340247496762590378",
-            "administration_id": "293065149189719909",
-        }
-        url = ud._build_document_url(DocKind.PURCHASE_INVOICE, invoice)
-        self.assertEqual(
-            url, "https://moneybird.com/293065149189719909/documents/340247496762590378"
-        )
-
-    def test_sales_invoice(self):
-        """Test the _build_document_url function with a sales invoice."""
-        invoice = {
-            "id": "340247835118142508",
-            "administration_id": "293065149189719909",
-        }
-        url = ud._build_document_url(DocKind.SALES_INVOICE, invoice)
-        self.assertEqual(
-            url,
-            "https://moneybird.com/293065149189719909/"
-            "sales_invoices/340247835118142508",
-        )
-
-    def test_receipt(self):
-        """Test the _build_document_url function with a receipt."""
-        invoice = {
-            "id": "340247496762590378",
-            "administration_id": "293065149189719909",
-        }
-        url = ud._build_document_url(DocKind.RECEIPT, invoice)
-        self.assertEqual(
-            url, "https://moneybird.com/293065149189719909/documents/340247496762590378"
-        )
-
-
 class TestFindAssetID(TestCase):
     """Test the find_asset_id_from_description function."""
 

@@ -11,9 +11,7 @@
             <a href="{% url 'admin:accounting_document_change' document.id %}">
                 {{ document }}
             </a>
-            {% if document.link %}
-                (<a target="_blank" href="{{ document.link }}">MoneyBird</a>)
-            {% endif %}
+            (<a target="_blank" href="{{ document.moneybird_url }}">MoneyBird</a>)
         </li>
     {% endfor %}
     </ul>
