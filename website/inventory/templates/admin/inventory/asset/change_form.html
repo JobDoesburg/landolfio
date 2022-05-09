@@ -7,7 +7,14 @@
 
     <ul>
     {% for document in related_documents %}
-        <li><a href="{% url 'admin:accounting_document_change' document.id %}">{{ document }}</a></li>
+        <li>
+            <a href="{% url 'admin:accounting_document_change' document.id %}">
+                {{ document }}
+            </a>
+            {% if document.link %}
+                (<a target="_blank" href="{{ document.link }}">MoneyBird</a>)
+            {% endif %}
+        </li>
     {% endfor %}
     </ul>
 {% endblock %}
