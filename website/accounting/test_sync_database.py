@@ -192,8 +192,8 @@ class SyncDatabaseTest(TestCase):
             "administration_id": "5",
             "version": invoice_version,
             "details": [
-                {"description": "document line 1\n"},
-                {"description": "document line 2\n"},
+                {"description": "document line 1\n", "ledger_account_id": "0"},
+                {"description": "document line 2\n", "ledger_account_id": "0"},
             ],
         }
 
