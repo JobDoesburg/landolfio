@@ -16,6 +16,7 @@ from inventory.models import Asset
 from . import moneybird as mb
 from .models import Document
 from .models import DocumentLine
+from .models import LedgerAccountId
 
 _TAG_PATH = "accounting/sync_database/tag"
 
@@ -63,9 +64,11 @@ def _add_doc_lines_to_db(doc: Document) -> None:
     for line_data in doc.json_MB["details"]:
         line_description = line_data["description"]
         asset_or_none = _find_asset_from_description(line_description)
+        ledger_account_id = int(line_data["ledger_account_id"])
+        ledger_id = LedgerAccountId.translate(ledger_id=ledger_account_id)
 
         DocumentLine.objects.create(
-            document=doc, json_MB=line_data, asset=asset_or_none
+            document=doc, json_MB=line_data, asset=asset_or_none, ledger=ledger_id
         )
 
 
