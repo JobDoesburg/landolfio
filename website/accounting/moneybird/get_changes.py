@@ -152,11 +152,14 @@ def _get_remote_documents_limited(
     )
 
 
-def _get_remote_documents(
+def _get_remote_documents_greedy(
     adm: Administration, kind: DocKind, ids: list[DocId]
 ) -> list[Document]:
     """
-    Load some documents of the specified kind.
+    Load as many documents as possible of the specified kind.
+
+    Try to retrieve requested documents, untill either all documents have been
+    returned or the rate-limit was exceeded.
 
     :param kind: the kind of document we want to load
     :param ids: the identifiers of the documents we want to load
@@ -168,7 +171,10 @@ def _get_remote_documents(
     documents = []
 
     for id_chunk in _chunk(ids, _MAX_REQUEST_SIZE):
-        documents.extend(_get_remote_documents_limited(adm, kind, id_chunk))
+        try:
+            documents.extend(_get_remote_documents_limited(adm, kind, id_chunk))
+        except Administration.Throttled:
+            break
 
     return documents
 
@@ -180,19 +186,24 @@ def _get_administration_changes_impl(
     new_tag = Tag()
 
     for kind in DocKind:
-        new_tag[kind] = _get_remote_version(adm, kind)
-
-    for kind in DocKind:
         current = old_tag[kind] if kind in old_tag else {}
-        remote = new_tag[kind]
+        remote = _get_remote_version(adm, kind)
         version_diff = _diff_versions(current, remote)
 
         diff = Diff()
-        diff.added = _get_remote_documents(adm, kind, version_diff.added)
-        diff.changed = _get_remote_documents(adm, kind, version_diff.changed)
+        diff.added = _get_remote_documents_greedy(adm, kind, version_diff.added)
+        diff.changed = _get_remote_documents_greedy(adm, kind, version_diff.changed)
         diff.removed = version_diff.removed
 
         changes[kind] = diff
+
+    for kind, diff in changes.items():
+        new_tag[kind] = {}
+
+        for doc in diff.added + diff.changed:
+            doc_id = doc["id"]
+            doc_version = doc["version"]
+            new_tag[kind][doc_id] = doc_version
 
     return new_tag, changes
 
