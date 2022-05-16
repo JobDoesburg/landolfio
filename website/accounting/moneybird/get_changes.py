@@ -1,4 +1,5 @@
 """The module containing the 'get_administration_changes' function."""
+import copy
 import json
 from dataclasses import dataclass
 from dataclasses import field
@@ -183,10 +184,12 @@ def _get_administration_changes_impl(
     adm: Administration, old_tag: Tag
 ) -> tuple[Tag, Changes]:
     changes = {}
-    new_tag = Tag()
+    for kind in DocKind:
+        if kind not in old_tag:
+            old_tag[kind] = {}
 
     for kind in DocKind:
-        current = old_tag[kind] if kind in old_tag else {}
+        current = old_tag[kind]
         remote = _get_remote_version(adm, kind)
         version_diff = _diff_versions(current, remote)
 
@@ -197,8 +200,11 @@ def _get_administration_changes_impl(
 
         changes[kind] = diff
 
+    new_tag = copy.deepcopy(old_tag)
+
     for kind, diff in changes.items():
-        new_tag[kind] = {}
+        for doc_id in diff.removed:
+            new_tag[kind].pop(doc_id)
 
         for doc in diff.added + diff.changed:
             doc_id = doc["id"]
