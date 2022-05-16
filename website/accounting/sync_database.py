@@ -65,7 +65,7 @@ def _add_doc_lines_to_db(doc: Document) -> None:
         line_description = line_data["description"]
         asset_or_none = _find_asset_from_description(line_description)
         ledger_account_id = int(line_data["ledger_account_id"])
-        ledger_id = LedgerAccountId.translate(ledger_id=ledger_account_id)
+        ledger_id = LedgerAccountId(ledger_account_id)
 
         DocumentLine.objects.create(
             document=doc, json_MB=line_data, asset=asset_or_none, ledger=ledger_id

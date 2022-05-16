@@ -10,10 +10,11 @@ from .moneybird.get_changes import DocKind
 
 
 class LedgerAccountId(IntEnum):
-    """ "
-    Enum to translate legder account ids to python enum
+    """
+    Enum to translate legder account ids to python enum.
 
-    The integer value on the right side is the moneybird ledger account id. These values may be different per administration
+    The integer value on the right side is the moneybird ledger account id. These
+    values may be different per administration.
     """
 
     VOORRAAD_MARGE = 340246234795083709
@@ -25,47 +26,39 @@ class LedgerAccountId(IntEnum):
     DIRECTE_AFSCHRIJVING = 6
     AFSCHRIJVINGEN = 340246156081628510
     BORGEN = 340246430358701525
-    UNKNOWN = -1
 
     @property
     def human_readable_name(self):
+        """Return a human readable name for a ledger account id."""
+        # pylint: disable=too-many-return-statements
         if self == LedgerAccountId.VOORRAAD_MARGE:
-            return _("Voorraad marge")
+            return "Voorraad marge"
         if self == LedgerAccountId.VOORRAAD_NIET_MARGE:
-            return _("Voorraad niet-marge")
+            return "Voorraad niet-marge"
         if self == LedgerAccountId.VOORRAAD_BIJ_VERKOOP_MARGE:
-            return _("Voorraadwaarde bij verkoop marge")
+            return "Voorraadwaarde bij verkoop marge"
         if self == LedgerAccountId.VOORRAAD_BIJ_VERKOOP_NIET_MARGE:
-            return _("Voorraadwaarde bij verkoop niet-marge")
+            return "Voorraadwaarde bij verkoop niet-marge"
         if self == LedgerAccountId.VERKOOP_MARGE:
-            return _("Verkoop marge")
+            return "Verkoop marge"
         if self == LedgerAccountId.VERKOOP_NIET_MARGE:
-            return _("Verkoop niet-marge")
+            return "Verkoop niet-marge"
         if self == LedgerAccountId.DIRECTE_AFSCHRIJVING:
-            return _("Directe afschrijving bij aankoop")
+            return "Directe afschrijving bij aankoop"
         if self == LedgerAccountId.AFSCHRIJVINGEN:
-            return _("Afschrijvingen")
+            return "Afschrijvingen"
         if self == LedgerAccountId.BORGEN:
-            return _("Borgen")
-        if self == LedgerAccountId.UNKNOWN:
-            return _("Unknown")
+            return "Borgen"
 
         raise NotImplementedError(
-            f"The human readable name for ledger account id '{self}' is not yet defined."
+            f"The human readable name for ledger account '{self}' is not yet defined."
         )
 
     @classproperty
     def choices(cls):
-        """Create a (name, human_readable_name) list for Django choices"""
+        """Create a (name, human_readable_name) list for Django choices."""
+        # pylint: disable=no-self-argument
         return [(e.name, e.human_readable_name) for e in cls]
-
-    def translate(ledger_id: int):
-        """ "Translate ledger ids to enum, return unknown if not found"""
-        for e in LedgerAccountId:
-            if e.value == ledger_id:
-                return e
-
-        return LedgerAccountId.UNKNOWN
 
 
 class Document(models.Model):
@@ -104,7 +97,7 @@ class DocumentLine(models.Model):
 
     json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
     ledger = models.CharField(
-        max_length=100, choices=LedgerAccountId.choices, default=LedgerAccountId.UNKNOWN
+        max_length=100, choices=LedgerAccountId.choices, null=True, blank=True
     )
     document = models.ForeignKey(
         Document, on_delete=models.CASCADE, verbose_name=_("Document")
