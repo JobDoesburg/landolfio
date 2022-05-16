@@ -189,8 +189,12 @@ def _get_administration_changes_impl(
             old_tag[kind] = {}
 
     for kind in DocKind:
+        try:
+            remote = _get_remote_version(adm, kind)
+        except Administration.Throttled:
+            break
+
         current = old_tag[kind]
-        remote = _get_remote_version(adm, kind)
         version_diff = _diff_versions(current, remote)
 
         diff = Diff()
