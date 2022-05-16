@@ -96,9 +96,7 @@ class DocumentLine(models.Model):
     """A line in a document."""
 
     json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
-    ledger = models.CharField(
-        max_length=100, choices=LedgerAccountId.choices, null=True, blank=True
-    )
+    ledger = models.CharField(max_length=100, choices=LedgerAccountId.choices)
     document = models.ForeignKey(
         Document, on_delete=models.CASCADE, verbose_name=_("Document")
     )
