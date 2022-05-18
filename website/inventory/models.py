@@ -1,7 +1,8 @@
 """Asset models."""
+from accounting.models import DocumentLine
 from django.db import models
+from django.dispatch import receiver
 from django.utils.translation import gettext as _
-
 
 Asset_States = (
     ("Unknown", _("Unknown")),
@@ -68,3 +69,14 @@ class Asset(models.Model):
     def __str__(self):
         """Return Asset string."""
         return f"{self.asset_type} {self.size}"
+
+
+@receiver(models.signals.post_save, sender=Asset)
+def on_asset_save(sender, instance: Asset, **kwargs):
+    # pylint: disable=unused-argument
+    """Link DocumentLines to their asset upon asset creation."""
+    asset_id = instance.id
+    document_lines = DocumentLine.objects.filter(asset_id_field=asset_id)
+    for document_line in document_lines:
+        document_line.asset = instance
+        document_line.save()

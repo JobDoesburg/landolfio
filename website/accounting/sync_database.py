@@ -60,7 +60,6 @@ def _find_asset_from_description(description: str) -> Union[Asset, None]:
 
 def _add_doc_lines_to_db(doc: Document) -> None:
     assert doc.documentline_set.count() == 0
-
     for line_data in doc.json_MB["details"]:
         line_description = line_data["description"]
         asset_or_none = _find_asset_from_description(line_description)
