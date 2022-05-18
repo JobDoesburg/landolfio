@@ -100,6 +100,9 @@ class DocumentLine(models.Model):
     document = models.ForeignKey(
         Document, on_delete=models.CASCADE, verbose_name=_("Document")
     )
+    asset_id_field = models.CharField(
+        max_length=50, null=True, verbose_name=_("Asset Id")
+    )
     asset = models.ForeignKey(
         Asset, null=True, on_delete=models.SET_NULL, verbose_name=_("Asset")
     )
