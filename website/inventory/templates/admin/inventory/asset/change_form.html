@@ -8,10 +8,15 @@
     <ul>
     {% for document in related_documents %}
         <li>
-            <a href="{% url 'admin:accounting_document_change' document.id %}">
-                {{ document }}
-            </a>
-            (<a target="_blank" href="{{ document.moneybird_url }}">MoneyBird</a>)
+				<input type="button"
+					onclick="window.location.href=
+					'{% url 'admin:accounting_document_change' document.id %}';"
+					value="Go to {{ document }} local"
+				>
+				<input type="button"
+					onclick="window.location.href='{{ document.moneybird_url }}';"
+					value="Go to {{ document }} Moneybird"
+				>
         </li>
     {% endfor %}
     </ul>
