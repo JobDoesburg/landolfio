@@ -46,9 +46,7 @@ def _find_asset_id_from_description(description: str) -> Union[str, None]:
     return match.group(1)
 
 
-def _find_asset_from_description(description: str) -> Union[Asset, None]:
-    asset_id = _find_asset_id_from_description(description)
-
+def _find_asset_from_id(asset_id) -> Union[Asset, None]:
     if asset_id is None:
         return None
 
@@ -62,8 +60,8 @@ def _add_doc_lines_to_db(doc: Document) -> None:
     assert doc.documentline_set.count() == 0
     for line_data in doc.json_MB["details"]:
         line_description = line_data["description"]
-        asset_or_none = _find_asset_from_description(line_description)
         asset_id = _find_asset_id_from_description(line_description)
+        asset_or_none = _find_asset_from_id(asset_id)
         ledger_account_id = int(line_data["ledger_account_id"])
         ledger_id = LedgerAccountId(ledger_account_id)
 
