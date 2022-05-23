@@ -5,9 +5,9 @@
 
    <h1>Related documents</h1>
 
-   <ul>
+   <div>
    {% for document in related_documents %}
-      <li>
+         <div>
          <input type="button"
             onclick="window.location.href=
             '{% url 'admin:accounting_document_change' document.id %}';"
@@ -18,7 +18,7 @@
             onclick="window.location.href='{{ document.moneybird_url }}';"
             value="Go to {{ document }} Moneybird"
          >
-      </li>
+         </div>
    {% endfor %}
-   </ul>
+   </div>
 {% endblock %}
