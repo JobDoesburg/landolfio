@@ -79,6 +79,7 @@ class DocumentLine(models.Model):
 
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))
     ledger = models.ForeignKey(Ledger, on_delete=models.PROTECT)
+    price = models.DecimalField(max_digits=19, decimal_places=4)
     document = models.ForeignKey(
         Document, on_delete=models.CASCADE, verbose_name=_("Document")
     )

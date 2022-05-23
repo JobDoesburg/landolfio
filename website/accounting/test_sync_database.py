@@ -195,10 +195,12 @@ class SyncDatabaseTest(TestCase):
                 {
                     "description": "document line 1\n",
                     "ledger_account_id": 10,
+                    "total_price_excl_tax_with_discount_base": 100.0,
                 },
                 {
                     "description": "document line 2\n",
                     "ledger_account_id": 5,
+                    "total_price_excl_tax_with_discount_base": 50.0,
                 },
             ],
         }

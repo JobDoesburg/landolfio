@@ -64,6 +64,7 @@ def _add_doc_lines_to_db(doc: Document) -> None:
         asset_or_none = _find_asset_from_id(asset_id)
         ledger_account_id = int(line_data["ledger_account_id"])
 
+        price = line_data["total_price_excl_tax_with_discount_base"]
         ledger, _ledger_created = Ledger.objects.get_or_create(
             moneybird_id=ledger_account_id
         )
@@ -74,6 +75,7 @@ def _add_doc_lines_to_db(doc: Document) -> None:
             asset=asset_or_none,
             asset_id_field=asset_id,
             ledger=ledger,
+            price=price,
         )
 
 
