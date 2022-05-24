@@ -1,63 +1,46 @@
 """The accounting models."""
-from enum import IntEnum
-
 from django.db import models
-from django.utils.functional import classproperty
 from django.utils.translation import gettext as _
 
 from .moneybird.get_changes import DocKind
 
 
-class LedgerAccountId(IntEnum):
-    """
-    Enum to translate legder account ids to python enum.
+class LedgerKind(models.TextChoices):
+    """A kind of ledger."""
 
-    The integer value on the right side is the moneybird ledger account id. These
-    values may be different per administration.
-    """
+    VOORRAAD_MARGE = "VOORRAAD_MARGE", "Voorraad Marge"
+    VOORRAAD_NIET_MARGE = "VOORRAAD_NIET_MARGE", "Voorraad niet-marge"
+    VOORRAAD_BIJ_VERKOOP_MARGE = (
+        "VOORRAAD_BIJ_VERKOOP_MARGE",
+        "Voorraadwaarde bij verkoop marge",
+    )
+    VOORRAAD_BIJ_VERKOOP_NIET_MARGE = (
+        "VOORRAAD_BIJ_VERKOOP_NIET_MARGE",
+        "Voorraadwaarde bij verkoop niet-marge",
+    )
+    VERKOOP_MARGE = "VERKOOP_MARGE", "Verkoop marge"
+    VERKOOP_NIET_MARGE = "VERKOOP_NIET_MARGE", "Verkoop niet-marge"
+    DIRECTE_AFSCHRIJVING = "DIRECTE_AFSCHRIJVING", "Directe afschrijving"
+    AFSCHRIJVINGEN = "AFSCHRIJVINGEN", "Afschrijvingen"
+    BORGEN = "BORGEN", "Borgen"
 
-    VOORRAAD_MARGE = 340246234795083709
-    VOORRAAD_NIET_MARGE = 340246538381952245
-    VOORRAAD_BIJ_VERKOOP_MARGE = 340245783921034390
-    VOORRAAD_BIJ_VERKOOP_NIET_MARGE = 340246576039462518
-    VERKOOP_MARGE = 340245854757586711
-    VERKOOP_NIET_MARGE = 340246558119298417
-    DIRECTE_AFSCHRIJVING = 6
-    AFSCHRIJVINGEN = 340246156081628510
-    BORGEN = 340246430358701525
 
-    @property
-    def human_readable_name(self):
-        """Return a human readable name for a ledger account id."""
-        # pylint: disable=too-many-return-statements
-        if self == LedgerAccountId.VOORRAAD_MARGE:
-            return "Voorraad marge"
-        if self == LedgerAccountId.VOORRAAD_NIET_MARGE:
-            return "Voorraad niet-marge"
-        if self == LedgerAccountId.VOORRAAD_BIJ_VERKOOP_MARGE:
-            return "Voorraadwaarde bij verkoop marge"
-        if self == LedgerAccountId.VOORRAAD_BIJ_VERKOOP_NIET_MARGE:
-            return "Voorraadwaarde bij verkoop niet-marge"
-        if self == LedgerAccountId.VERKOOP_MARGE:
-            return "Verkoop marge"
-        if self == LedgerAccountId.VERKOOP_NIET_MARGE:
-            return "Verkoop niet-marge"
-        if self == LedgerAccountId.DIRECTE_AFSCHRIJVING:
-            return "Directe afschrijving bij aankoop"
-        if self == LedgerAccountId.AFSCHRIJVINGEN:
-            return "Afschrijvingen"
-        if self == LedgerAccountId.BORGEN:
-            return "Borgen"
+class Ledger(models.Model):
+    """A ledger."""
 
-        raise NotImplementedError(
-            f"The human readable name for ledger account '{self}' is not yet defined."
-        )
+    moneybird_id = models.PositiveBigIntegerField(
+        primary_key=True, verbose_name=_("Id MoneyBird")
+    )
+    kind = models.CharField(
+        max_length=100, choices=LedgerKind.choices, null=True, unique=True
+    )
 
-    @classproperty
-    def choices(cls):
-        """Create a (name, human_readable_name) list for Django choices."""
-        # pylint: disable=no-self-argument
-        return [(e.name, e.human_readable_name) for e in cls]
+    def __str__(self):
+        """Return a human-readable string for a Ledger."""
+        if not self.kind:
+            return str(self.moneybird_id)
+
+        return LedgerKind(self.kind).label
 
 
 class Document(models.Model):
@@ -95,7 +78,7 @@ class DocumentLine(models.Model):
     """A line in a document."""
 
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))
-    ledger = models.CharField(max_length=100, choices=LedgerAccountId.choices)
+    ledger = models.ForeignKey(Ledger, on_delete=models.DO_NOTHING)
     document = models.ForeignKey(
         Document, on_delete=models.CASCADE, verbose_name=_("Document")
     )

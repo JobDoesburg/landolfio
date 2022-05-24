@@ -4,7 +4,6 @@ from inmemorystorage import InMemoryStorage
 
 from . import sync_database as ud
 from .models import Document
-from .models import LedgerAccountId
 from .moneybird import DocKind
 from .moneybird import MockAdministration
 
@@ -195,11 +194,11 @@ class SyncDatabaseTest(TestCase):
             "details": [
                 {
                     "description": "document line 1\n",
-                    "ledger_account_id": LedgerAccountId.AFSCHRIJVINGEN,
+                    "ledger_account_id": 10,
                 },
                 {
                     "description": "document line 2\n",
-                    "ledger_account_id": LedgerAccountId.VOORRAAD_MARGE,
+                    "ledger_account_id": 5,
                 },
             ],
         }
