@@ -213,6 +213,6 @@ class SyncDatabaseTest(TestCase):
         self.assertEqual(Document.objects.count(), 1)
 
         document = Document.objects.first()
-        self.assertEqual(document.id_MB, invoice_id)
+        self.assertEqual(document.moneybird_id, invoice_id)
         self.assertEqual(document.kind, DocKind.PURCHASE_INVOICE)
-        self.assertEqual(document.json_MB, invoice)
+        self.assertEqual(document.moneybird_json, invoice)

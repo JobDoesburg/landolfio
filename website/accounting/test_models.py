@@ -18,10 +18,10 @@ class TestGetDocumentUrl(TestCase):
         """Test the _build_document_url function with a purchase invoice."""
         doc_id = 340247496762590378
         adm_id = 293065149189719909
-        json_mb = {"id": str(doc_id), "administration_id": str(adm_id)}
+        doc_data = {"id": str(doc_id), "administration_id": str(adm_id)}
 
         doc = Document.objects.create(
-            id_MB=doc_id, json_MB=json_mb, kind=DocKind.PURCHASE_INVOICE
+            moneybird_id=doc_id, moneybird_json=doc_data, kind=DocKind.PURCHASE_INVOICE
         )
         self.assertEqual(
             doc.moneybird_url,
@@ -32,10 +32,10 @@ class TestGetDocumentUrl(TestCase):
         """Test the _build_document_url function with a sales invoice."""
         doc_id = 340247835118142508
         adm_id = 293065149189719909
-        json_mb = {"id": str(doc_id), "administration_id": str(adm_id)}
+        doc_data = {"id": str(doc_id), "administration_id": str(adm_id)}
 
         doc = Document.objects.create(
-            id_MB=doc_id, json_MB=json_mb, kind=DocKind.SALES_INVOICE
+            moneybird_id=doc_id, moneybird_json=doc_data, kind=DocKind.SALES_INVOICE
         )
         self.assertEqual(
             doc.moneybird_url,
@@ -61,8 +61,8 @@ class AccountingModelTest(TestCase):
             stock_price="1200",
             purchasing_value=200.0,
         )
-        Document.objects.create(kind="IV", json_MB='{"id":5}', id_MB=5)
-        Document.objects.create(kind="RC", json_MB='{"id":5}', id_MB=5)
+        Document.objects.create(kind="IV", moneybird_json='{"id":5}', moneybird_id=5)
+        Document.objects.create(kind="RC", moneybird_json='{"id":5}', moneybird_id=5)
 
     @staticmethod
     def test_get_document():

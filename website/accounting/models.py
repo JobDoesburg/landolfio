@@ -63,16 +63,16 @@ class LedgerAccountId(IntEnum):
 class Document(models.Model):
     """Class model for Documents."""
 
-    id_MB = models.PositiveBigIntegerField(verbose_name=_("Id MoneyBird"))
-    json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
+    moneybird_id = models.PositiveBigIntegerField(verbose_name=_("Id MoneyBird"))
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))
     kind = models.CharField(max_length=2, choices=DocKind.choices)
 
     @property
     def moneybird_url(self) -> str:
         """Return the moneybird url."""
         kind = DocKind(self.kind)
-        adm_id = self.json_MB["administration_id"]
-        doc_id = self.json_MB["id"]
+        adm_id = self.moneybird_json["administration_id"]
+        doc_id = self.moneybird_json["id"]
         return f"https://moneybird.com/{adm_id}/{kind.user_path}/{doc_id}"
 
     def __str__(self):
@@ -88,13 +88,13 @@ class Document(models.Model):
         the latter.
         """
 
-        unique_together = ("id_MB", "kind")
+        unique_together = ("moneybird_id", "kind")
 
 
 class DocumentLine(models.Model):
     """A line in a document."""
 
-    json_MB = models.JSONField(verbose_name=_("JSON MoneyBird"))
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))
     ledger = models.CharField(max_length=100, choices=LedgerAccountId.choices)
     document = models.ForeignKey(
         Document, on_delete=models.CASCADE, verbose_name=_("Document")

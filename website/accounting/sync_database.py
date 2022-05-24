@@ -58,7 +58,7 @@ def _find_asset_from_id(asset_id) -> Union[Asset, None]:
 
 def _add_doc_lines_to_db(doc: Document) -> None:
     assert doc.documentline_set.count() == 0
-    for line_data in doc.json_MB["details"]:
+    for line_data in doc.moneybird_json["details"]:
         line_description = line_data["description"]
         asset_id = _find_asset_id_from_description(line_description)
         asset_or_none = _find_asset_from_id(asset_id)
@@ -67,7 +67,7 @@ def _add_doc_lines_to_db(doc: Document) -> None:
 
         DocumentLine.objects.create(
             document=doc,
-            json_MB=line_data,
+            moneybird_json=line_data,
             asset=asset_or_none,
             asset_id_field=asset_id,
             ledger=ledger_id,
@@ -77,7 +77,9 @@ def _add_doc_lines_to_db(doc: Document) -> None:
 def _add_docs_of_kind_to_db(kind: mb.DocKind, docs: list[mb.Document]) -> None:
     for doc_data in docs:
         doc_id = int(doc_data["id"])
-        doc = Document.objects.create(id_MB=doc_id, json_MB=doc_data, kind=kind)
+        doc = Document.objects.create(
+            moneybird_id=doc_id, moneybird_json=doc_data, kind=kind
+        )
         _add_doc_lines_to_db(doc)
 
 
@@ -86,8 +88,8 @@ def _change_docs_of_kind_in_db(kind: mb.DocKind, docs: list[mb.Document]) -> Non
         doc_id = int(doc_data["id"])
 
         # Change the document itself
-        document = Document.objects.get(id_MB=doc_id, kind=kind)
-        document.json_MB = doc_data
+        document = Document.objects.get(moneybird_id=doc_id, kind=kind)
+        document.moneybird_json = doc_data
         document.save()
 
         # Remove all current document lines connected to this document
@@ -99,7 +101,7 @@ def _change_docs_of_kind_in_db(kind: mb.DocKind, docs: list[mb.Document]) -> Non
 
 def _remove_docs_of_kind_from_db(kind: mb.DocKind, docs: list[mb.DocId]) -> None:
     for doc_id in docs:
-        Document.objects.get(id_MB=doc_id, kind=kind).delete()
+        Document.objects.get(moneybird_id=doc_id, kind=kind).delete()
 
 
 def _update_db_for_doc_kind(kind: mb.DocKind, diff: mb.Diff) -> None:
