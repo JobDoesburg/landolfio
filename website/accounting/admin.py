@@ -17,5 +17,13 @@ class DocumentAdmin(admin.ModelAdmin):
 
     inlines = (DocumentLineAdmin,)
 
+    def has_add_permission(self, request):
+        """Prevent all users from adding Documents."""
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Prevent all users from changing Documents."""
+        return False
+
 
 admin.site.register(Document, DocumentAdmin)
