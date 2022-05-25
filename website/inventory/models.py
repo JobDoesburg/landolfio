@@ -50,7 +50,7 @@ class Asset(models.Model):
     remarks = models.TextField(
         verbose_name=_("Remarks"), max_length=1000, null=True, blank=True
     )
-    MB_state = models.CharField(
+    moneybird_state = models.CharField(
         max_length=40,
         choices=Asset_States,
         verbose_name=_("Moneybird State"),
