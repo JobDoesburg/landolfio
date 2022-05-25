@@ -12,7 +12,7 @@
     stock_price: 0
     purchasing_value: 300
     remarks: ""
-    MB_state: " Purchased"
+    moneybird_state: " Purchased"
     local_state: "Purchased"
 - model: inventory.Asset
   pk: C7802
@@ -24,7 +24,7 @@
     stock_price: 200
     purchasing_value: 600
     remarks: ""
-    MB_state: " Purchased"
+    moneybird_state: " Purchased"
     local_state: "Purchased"
 - model: inventory.Asset
   pk: C44101
@@ -36,7 +36,7 @@
     stock_price: 0
     purchasing_value: 1200
     remarks: ""
-    MB_state: " Purchased"
+    moneybird_state: " Purchased"
     local_state: "Purchased"
 - model: inventory.Asset
   pk: C44102
@@ -48,7 +48,7 @@
     stock_price: 0
     purchasing_value: 1200
     remarks: ""
-    MB_state: " Purchased"
+    moneybird_state: " Purchased"
     local_state: "Purchased"
 - model: inventory.Asset
   pk: C44103
@@ -60,7 +60,7 @@
     stock_price: 0
     purchasing_value: 400
     remarks: ""
-    MB_state: " Purchased"
+    moneybird_state: " Purchased"
     local_state: "Purchased"
 - model: inventory.Asset
   pk: C44104
@@ -72,7 +72,7 @@
     stock_price: 0
     purchasing_value: 300
     remarks: ""
-    MB_state: " Purchased"
+    moneybird_state: " Purchased"
     local_state: "Purchased"
 - model: inventory.Asset
   pk: C44105
@@ -84,7 +84,7 @@
     stock_price: 0
     purchasing_value: 350
     remarks: ""
-    MB_state: " Purchased"
+    moneybird_state: " Purchased"
     local_state: "Purchased"
 - model: inventory.Asset
   pk: C44106
@@ -96,5 +96,5 @@
     stock_price: 600
     purchasing_value: 600
     remarks: ""
-    MB_state: " Purchased"
+    moneybird_state: " Purchased"
     local_state: "Purchased"
