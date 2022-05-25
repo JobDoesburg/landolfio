@@ -78,7 +78,7 @@ class DocumentLine(models.Model):
     """A line in a document."""
 
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))
-    ledger = models.ForeignKey(Ledger, on_delete=models.DO_NOTHING)
+    ledger = models.ForeignKey(Ledger, on_delete=models.PROTECT)
     document = models.ForeignKey(
         Document, on_delete=models.CASCADE, verbose_name=_("Document")
     )
