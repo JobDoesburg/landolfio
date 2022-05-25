@@ -40,7 +40,7 @@ jobs:
           path: ~/.cache/pre-commit
           key: ${{ runner.os }}-pre-commit
       - name: "Run the pre-commit hooks"
-        run: poetry run pre-commit
+        run: poetry run pre-commit run --all
         env:
           DJANGO_SETTINGS_MODULE: website.settings.development
       - name: "Run django tests"
