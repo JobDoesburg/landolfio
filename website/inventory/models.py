@@ -80,3 +80,23 @@ def on_asset_save(sender, instance: Asset, **kwargs):
     for document_line in document_lines:
         document_line.asset = instance
         document_line.save()
+
+
+def attachments_directory_path(instance, filename):
+    """Return the attachment's directory path."""
+    return f"attachments/{instance.asset.id}/{filename}"
+
+
+class Attachment(models.Model):
+    """Class model for Attachments."""
+
+    asset = models.ForeignKey(Asset, on_delete=models.CASCADE, verbose_name=_("Asset"))
+    attachment = models.FileField(upload_to=attachments_directory_path)
+    upload_date = models.DateField(auto_now_add=True)
+    remarks = models.TextField(
+        verbose_name=_("Remarks"), max_length=1000, null=True, blank=True
+    )
+
+    def __str__(self):
+        """Return Attachment string."""
+        return f"{self.attachment} from {self.asset}"
