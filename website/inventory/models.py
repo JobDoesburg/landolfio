@@ -84,7 +84,7 @@ def on_asset_save(sender, instance: Asset, **kwargs):
 
 def attachments_directory_path(instance, filename):
     """Return the attachment's directory path."""
-    return f"attachments/{instance.asset.id}/{filename}"
+    return f"inventory/attachments/{instance.asset.id}/{filename}"
 
 
 class Attachment(models.Model):
