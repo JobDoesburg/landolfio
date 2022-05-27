@@ -93,9 +93,7 @@ class Attachment(models.Model):
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, verbose_name=_("Asset"))
     attachment = models.FileField(upload_to=attachments_directory_path)
     upload_date = models.DateField(auto_now_add=True)
-    remarks = models.TextField(
-        verbose_name=_("Remarks"), max_length=1000, null=True, blank=True
-    )
+    remarks = models.TextField(verbose_name=_("Remarks"), max_length=1000, blank=True)
 
     def __str__(self):
         """Return Attachment string."""
