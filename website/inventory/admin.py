@@ -4,7 +4,16 @@ from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 
 from .models import Asset
+from .models import Attachment
 from .models import Collection
+
+
+class AttachmentInlineAdmin(admin.StackedInline):
+    """Attachment inline admin."""
+
+    model = Attachment
+    readonly_fields = ["upload_date"]
+    extra = 0
 
 
 class AssetAdmin(admin.ModelAdmin):
@@ -19,6 +28,7 @@ class AssetAdmin(admin.ModelAdmin):
         "listing_price",
         "stock_price",
     )
+    inlines = [AttachmentInlineAdmin]
 
     def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
         """Render the change page for an Asset."""
@@ -48,5 +58,14 @@ class CollectionAdmin(admin.ModelAdmin):
     list_display = ("id", "name")
 
 
+class AttachmentAdmin(admin.ModelAdmin):
+    """Attachments admin."""
+
+    model = Attachment
+    list_display = ("asset", "attachment", "upload_date", "remarks")
+    readonly_fields = ["upload_date"]
+
+
 admin.site.register(Asset, AssetAdmin)
 admin.site.register(Collection, CollectionAdmin)
+admin.site.register(Attachment, AttachmentAdmin)

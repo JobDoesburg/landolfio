@@ -1,10 +1,9 @@
 ---
 name: Feature request
 about: Suggest an idea for this project
-title: ''
+title: ""
 labels: feature
-assignees: ''
-
+assignees: ""
 ---
 
 **Estimated hours**
@@ -20,6 +19,7 @@ When should this issue be addressed
 A clear and concise description of the feature you'd like implemented.
 
 **Acceptance criteria**
+
 - A list of criteria that need to be met before this issue can be closed
 
 **Actual hours spent**

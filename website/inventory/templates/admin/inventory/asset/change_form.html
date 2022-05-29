@@ -1,18 +1,24 @@
 {% extends "admin/change_form.html" %}
 {% load static %}
 {% block content %}
-    {{ block.super }}
+   {{ block.super }}
 
-    <h1>Related documents</h1>
+   <h1>Related documents</h1>
 
-    <ul>
-    {% for document in related_documents %}
-        <li>
-            <a href="{% url 'admin:accounting_document_change' document.id %}">
-                {{ document }}
-            </a>
-            (<a target="_blank" href="{{ document.moneybird_url }}">MoneyBird</a>)
-        </li>
-    {% endfor %}
-    </ul>
+   <div>
+   {% for document in related_documents %}
+         <div>
+         <input type="button"
+            onclick="window.location.href=
+            '{% url 'admin:accounting_document_change' document.id %}';"
+            value="Go to {{ document }} local"
+         >
+         <input type="button"
+            style="background-color:#417690;"
+            onclick="window.location.href='{{ document.moneybird_url }}';"
+            value="Go to {{ document }} Moneybird"
+         >
+         </div>
+   {% endfor %}
+   </div>
 {% endblock %}
