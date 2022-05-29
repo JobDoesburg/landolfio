@@ -29,6 +29,7 @@ python = "^3.9"
 gunicorn = "^20.1.0"
 psycopg2 = {version = "^2.9.3", optional = true}
 requests = "^2.27.1"
+timeloop = "^1.0.2"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"
