@@ -34,7 +34,7 @@ def _update_database():
             print("Something went wrong while trying to update the database")
             print(error)
         finally:
-            shutting_down.wait(settings.MONEYBIRD_SYNC_INTERVAL * 60)
+            shutting_down.wait(settings.MONEYBIRD_SYNC_INTERVAL_MINUTES * 60)
 
     print("Update database thread was successfully shut down")
 
