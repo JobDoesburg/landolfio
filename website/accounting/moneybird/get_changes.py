@@ -18,49 +18,27 @@ DocVersion = int
 class DocKind(str, Enum):
     """A Moneybird administration document kind."""
 
-    PURCHASE_INVOICE = "PI"
-    SALES_INVOICE = "SI"
-    RECEIPT = "RC"
+    def __new__(cls, value, *_args):
+        """Create and return a new DocKind object."""
+        obj = str.__new__(cls, value)
+        obj._value_ = value
+        return obj
 
-    @property
-    def adm_path(self):
-        """Get the moneybird administration resource path for a document kind."""
-        if self == "PI":
-            return "documents/purchase_invoices"
-        if self == "SI":
-            return "sales_invoices"
-        if self == "RC":
-            return "documents/receipts"
+    def __init__(self, _value, human_readable_name, adm_path, user_path):
+        """Initialize self."""
+        self.human_readable_name = human_readable_name
+        self.adm_path = adm_path
+        self.user_path = user_path
+        super().__init__()
 
-        raise NotImplementedError(
-            f"The adm_path for document kind '{self}' is not yet defined."
-        )
-
-    @property
-    def user_path(self):
-        """Get the moneybird administration user interface path for a document kind."""
-        if self in ("PI", "RC"):
-            return "documents"
-        if self == "SI":
-            return "sales_invoices"
-
-        raise NotImplementedError(
-            f"The path for document kind '{self}' is not yet defined."
-        )
-
-    @property
-    def human_readable_name(self):
-        """Get the human-readable name for a document kind."""
-        if self == "PI":
-            return _("Purchase Invoice")
-        if self == "SI":
-            return _("Sales Invoice")
-        if self == "RC":
-            return _("Receipt")
-
-        raise NotImplementedError(
-            f"The human readable name for document kind '{self}' is not yet defined."
-        )
+    PURCHASE_INVOICE = (
+        "PI",
+        _("Purchase Invoice"),
+        "documents/purchase_invoices",
+        "documents",
+    )
+    SALES_INVOICE = ("SI", _("Sales Invoice"), "sales_invoices", "sales_invoices")
+    RECEIPT = ("RC", _("Receipt"), "documents/receipts", "documents")
 
     @classproperty
     def choices(cls):
