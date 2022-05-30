@@ -4,7 +4,7 @@ production = ["psycopg2"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "e21742a1d9521a5a3f5279cde603b5c92e1d43f9afca64725053cac9f964095b"
+content-hash = "1f3ac7c7b880ab3ade0abaed9c4dadd890951be229872dd31bfd4cf4447f60e2"
 
 [metadata.files]
 asgiref = [
@@ -285,10 +285,6 @@ snowballstemmer = [
 sqlparse = [
     {file = "sqlparse-0.4.2-py3-none-any.whl", hash = "sha256:48719e356bb8b42991bdbb1e8b83223757b93789c00910a616a071910ca4a64d"},
     {file = "sqlparse-0.4.2.tar.gz", hash = "sha256:0c00730c74263a94e5a9919ade150dfc3b19c574389985446148402998287dae"},
-]
-timeloop = [
-    {file = "timeloop-1.0.2-py2-none-any.whl", hash = "sha256:70cb69eeef39968ea0e6dd68a3a3a51257d5f4aa27b177ab1b19ca86ff525946"},
-    {file = "timeloop-1.0.2.tar.gz", hash = "sha256:4e716c67fe6bcadcee7ddb91e2520792426818a70f27e630cfbbbd9becc48a13"},
 ]
 toml = [
     {file = "toml-0.10.2-py2.py3-none-any.whl", hash = "sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b"},
@@ -802,14 +798,6 @@ description = "A non-validating SQL parser."
 category = "main"
 optional = false
 python-versions = ">=3.5"
-
-[[package]]
-name = "timeloop"
-version = "1.0.2"
-description = "An elegant way to run period tasks."
-category = "main"
-optional = false
-python-versions = "*"
 
 [[package]]
 name = "toml"

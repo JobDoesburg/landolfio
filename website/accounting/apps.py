@@ -1,32 +1,42 @@
 """The Django apps concerning accounting."""
 import os
-import signal
-import sys
-from datetime import timedelta
+import threading
+from threading import Event
 
 from django.apps import AppConfig
 from django.conf import settings
-from timeloop import Timeloop
 
-tl = Timeloop()
+from .moneybird.administration import Administration
 
-
-def shutdown(*args):
-    """Shutdown the timeloop."""
-    if os.environ.get("RUN_MAIN", None) != "true":
-        tl.stop()
-    sys.exit(0)
+shutting_down = Event()
 
 
-@tl.job(interval=timedelta(minutes=settings.MONEYBIRD_SYNC_INTERVAL))
-def update_database():
+def _detect_shutdown():
+    main_thread = threading.main_thread()
+    main_thread.join()
+    shutting_down.set()
+
+
+def _update_database():
     """Update the database in the background."""
     # pylint: disable=import-outside-toplevel
     # We can only import here as the other models are not loaded yet when this file
     # is initialized
     from .sync_database import sync_database
 
-    sync_database()
+    shutting_down.wait(10)
+
+    while not shutting_down.is_set():
+        try:
+            sync_database()
+            print("The database was successfully updated")
+        except Administration.Error as error:
+            print("Something went wrong while trying to update the database")
+            print(error)
+        finally:
+            shutting_down.wait(settings.MONEYBIRD_SYNC_INTERVAL * 60)
+
+    print("Update database thread was successfully shut down")
 
 
 class AccountingConfig(AppConfig):
@@ -42,5 +52,10 @@ class AccountingConfig(AppConfig):
         #   application if changes are detected
         # This check assures that the time loop is only started once
         if os.environ.get("RUN_MAIN", None) != "true":
-            tl.start()
-            signal.signal(signal.SIGINT, shutdown)
+            update_database_thread = threading.Thread(
+                target=_update_database, daemon=False
+            )
+            update_database_thread.start()
+
+            watcher = threading.Thread(target=_detect_shutdown, daemon=False)
+            watcher.start()
