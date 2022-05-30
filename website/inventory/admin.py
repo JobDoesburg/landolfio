@@ -22,7 +22,7 @@ class AttachmentInlineAdmin(admin.StackedInline):
         # pylint: disable=no-self-use
         """Show a file as an image if it is one."""
         if is_an_image_path(obj.attachment.name):
-            return mark_safe(f'<img src="{obj.attachment.url}" width="500"/>')
+            return mark_safe(f'<img src="{obj.attachment.url}" height="600px"/>')
         return "Not an image"
 
     model = Attachment
