@@ -5,37 +5,51 @@ from json2html import json2html
 
 from .models import Document
 from .models import DocumentLine
+from .models import Ledger
 
 
-@admin.register(Document)
-class DocumentAdmin(admin.ModelAdmin):
-    """
-    The admin class for the Document model.
-    """
+class LedgerAdmin(admin.ModelAdmin):
+    """The Django admin config for the Ledger model."""
 
-    model = Document
-    fields = ["id_MB", "json_mb_html", "kind"]
-    readonly_fields = ["json_mb_html"]
-
-    def json_mb_html(self, obj):  # pylint: disable = no-self-use
-        """Convert JSON to HTML table."""
-        return mark_safe(json2html.convert(obj.json_MB))
-
-    json_mb_html.short_description = "JSON MoneyBird"
+    model = Ledger
+    list_display = ("kind", "moneybird_id")
 
 
-@admin.register(DocumentLine)
-class DocumentLineAdmin(admin.ModelAdmin):
-    """
-    The admin class for the DocumentLine model.
-    """
+class DocumentLineAdmin(admin.StackedInline):
+    """The admin view for DocumentLines."""
 
     model = DocumentLine
-    fields = ["json_mb_html", "ledger", "document", "asset_id_field", "asset"]
+    fields = ("asset_id_field", "asset", "ledger", "json_mb_html")
     readonly_fields = ["json_mb_html"]
 
     def json_mb_html(self, obj):  # pylint: disable = no-self-use
         """Convert JSON to HTML table."""
-        return mark_safe(json2html.convert(obj.json_MB))
+        return mark_safe(json2html.convert(obj.moneybird_json))
 
     json_mb_html.short_description = "JSON MoneyBird"
+
+
+class DocumentAdmin(admin.ModelAdmin):
+    """The admin view for Documents."""
+
+    model = Document
+    inlines = (DocumentLineAdmin,)
+    readonly_fields = ["json_mb_html"]
+
+    def json_mb_html(self, obj):  # pylint: disable = no-self-use
+        """Convert JSON to HTML table."""
+        return mark_safe(json2html.convert(obj.moneybird_json))
+
+    json_mb_html.short_description = "JSON MoneyBird"
+
+    def has_add_permission(self, request):
+        """Prevent all users from adding Documents."""
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        """Prevent all users from changing Documents."""
+        return False
+
+
+admin.site.register(Ledger, LedgerAdmin)
+admin.site.register(Document, DocumentAdmin)

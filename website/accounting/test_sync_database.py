@@ -4,7 +4,6 @@ from inmemorystorage import InMemoryStorage
 
 from . import sync_database as ud
 from .models import Document
-from .models import LedgerAccountId
 from .moneybird import DocKind
 from .moneybird import MockAdministration
 
@@ -195,11 +194,13 @@ class SyncDatabaseTest(TestCase):
             "details": [
                 {
                     "description": "document line 1\n",
-                    "ledger_account_id": LedgerAccountId.AFSCHRIJVINGEN,
+                    "ledger_account_id": 10,
+                    "total_price_excl_tax_with_discount_base": 100.0,
                 },
                 {
                     "description": "document line 2\n",
-                    "ledger_account_id": LedgerAccountId.VOORRAAD_MARGE,
+                    "ledger_account_id": 5,
+                    "total_price_excl_tax_with_discount_base": 50.0,
                 },
             ],
         }
@@ -213,6 +214,6 @@ class SyncDatabaseTest(TestCase):
         self.assertEqual(Document.objects.count(), 1)
 
         document = Document.objects.first()
-        self.assertEqual(document.id_MB, invoice_id)
+        self.assertEqual(document.moneybird_id, invoice_id)
         self.assertEqual(document.kind, DocKind.PURCHASE_INVOICE)
-        self.assertEqual(document.json_MB, invoice)
+        self.assertEqual(document.moneybird_json, invoice)

@@ -1,0 +1,44 @@
+- model: accounting.Ledger
+  pk: 340246234795083709
+  fields:
+    kind: "VOORRAAD_MARGE"
+
+- model: accounting.Ledger
+  pk: 340246538381952245
+  fields:
+    kind: "VOORRAAD_NIET_MARGE"
+
+- model: accounting.Ledger
+  pk: 340245783921034390
+  fields:
+    kind: "VOORRAAD_BIJ_VERKOOP_MARGE"
+
+- model: accounting.Ledger
+  pk: 340246576039462518
+  fields:
+    kind: "VOORRAAD_BIJ_VERKOOP_NIET_MARGE"
+
+- model: accounting.Ledger
+  pk: 340245854757586711
+  fields:
+    kind: "VERKOOP_MARGE"
+
+- model: accounting.Ledger
+  pk: 340246558119298417
+  fields:
+    kind: "VERKOOP_NIET_MARGE"
+
+- model: accounting.Ledger
+  pk: 6
+  fields:
+    kind: "DIRECTE_AFSCHRIJVING"
+
+- model: accounting.Ledger
+  pk: 340246156081628510
+  fields:
+    kind: "AFSCHRIJVINGEN"
+
+- model: accounting.Ledger
+  pk: 340246430358701525
+  fields:
+    kind: "BORGEN"
