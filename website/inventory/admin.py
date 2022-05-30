@@ -9,15 +9,21 @@ from .models import Attachment
 from .models import Collection
 
 
+def is_an_image_path(path: str) -> bool:
+    """Return true if the path points to an image."""
+    extension = path.split(".")[-1]
+    return extension in ("jpg", "jpeg", "png")
+
+
 class AttachmentInlineAdmin(admin.StackedInline):
     """Attachment inline admin."""
 
     def show_image(self, obj):
         # pylint: disable=no-self-use
-        """Show a file as an image if it is a '.jpg'."""
-        if obj.attachment.name[-4:] == ".jpg":
+        """Show a file as an image if it is one."""
+        if is_an_image_path(obj.attachment.name):
             return mark_safe(f'<img src="{obj.attachment.url}" width="500"/>')
-        return "Not an image (.jpg)"
+        return "Not an image"
 
     model = Attachment
     readonly_fields = ["show_image", "upload_date"]
