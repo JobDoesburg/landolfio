@@ -21,7 +21,6 @@ from django.urls import path
 from django.urls import re_path
 from django.views.generic.base import RedirectView
 
-# Static files are NOT authenticated and should be replaced by files in an S3 bucket.
 urlpatterns = static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + [
     re_path("api/accounting/", include("accounting.api.urls")),
     path("admin/", admin.site.urls),

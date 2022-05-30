@@ -2,6 +2,7 @@
 from accounting.models import Document
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.safestring import mark_safe
 
 from .models import Asset
 from .models import Attachment
@@ -11,8 +12,15 @@ from .models import Collection
 class AttachmentInlineAdmin(admin.StackedInline):
     """Attachment inline admin."""
 
+    def show_image(self, obj):
+        # pylint: disable=no-self-use
+        """Show a file as an image if it is a '.jpg'."""
+        if obj.attachment.name[-4:] == ".jpg":
+            return mark_safe(f'<img src="{obj.attachment.url}" width="500"/>')
+        return "Not an image (.jpg)"
+
     model = Attachment
-    readonly_fields = ["upload_date"]
+    readonly_fields = ["show_image", "upload_date"]
     extra = 0
 
 
