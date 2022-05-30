@@ -26,6 +26,3 @@ urlpatterns = [
     # there if we get an unknown path
     re_path(r"^.*", RedirectView.as_view(url="/admin/")),
 ]
-
-"""Changes 'Django-admin' in the header to 'Landolfio'"""
-admin.site.site_header = "Landolfio"
