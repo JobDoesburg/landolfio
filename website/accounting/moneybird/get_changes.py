@@ -26,10 +26,29 @@ class DocKind(str, Enum):
 
     def __init__(self, _value, human_readable_name, adm_path, user_path):
         """Initialize self."""
-        self.human_readable_name = human_readable_name
-        self.adm_path = adm_path
-        self.user_path = user_path
+        self._human_readable_name = human_readable_name
+        self._adm_path = adm_path
+        self._user_path = user_path
         super().__init__()
+
+    @property
+    def human_readable_name(self):
+        """Return the human readable name for this DocKind."""
+        return self._human_readable_name
+
+    @property
+    def adm_path(self):
+        """Return the administration path for this DocKind."""
+        return self._adm_path
+
+    @property
+    def user_path(self):
+        """
+        Return the user path for this DocKind.
+
+        This is used for building the web-URL of a document with this path.
+        """
+        return self._user_path
 
     PURCHASE_INVOICE = (
         "PI",
