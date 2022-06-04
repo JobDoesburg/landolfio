@@ -6,8 +6,6 @@ from threading import Event
 from django.apps import AppConfig
 from django.conf import settings
 
-from .moneybird.administration import Administration
-
 shutting_down = Event()
 
 
@@ -23,6 +21,7 @@ def _update_database():
     # We can only import here as the other models are not loaded yet when this file
     # is initialized
     from .sync_database import sync_database
+    from .moneybird.administration import Administration
 
     print("Update database thread was successfully started")
     shutting_down.wait(10)
