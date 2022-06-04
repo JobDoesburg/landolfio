@@ -24,6 +24,7 @@ def _update_database():
     # is initialized
     from .sync_database import sync_database
 
+    print("Update database thread was successfully started")
     shutting_down.wait(10)
 
     while not shutting_down.is_set():
@@ -50,8 +51,10 @@ class AccountingConfig(AppConfig):
         # The ready function is called twice if `runserver` is used:
         # Once for the actual application and once to automatically reload the
         #   application if changes are detected
-        # This check assures that the time loop is only started once
-        if os.environ.get("RUN_MAIN", None) != "true":
+        # This check assures that the update thread is only started once as the RUN_MAIN
+        #   environment variable is only set (to true) for the reload process
+        main_thread = os.environ.get("RUN_MAIN", None) != "true"
+        if main_thread:
             update_database_thread = threading.Thread(
                 target=_update_database, daemon=False
             )
