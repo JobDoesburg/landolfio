@@ -5,6 +5,7 @@ This module is responsible for getting changes from MoneyBird and applying those
 changes in the database.
 """
 import re
+import threading
 from typing import Union
 
 from django.conf import settings
@@ -19,6 +20,8 @@ from .models import DocumentLine
 from .models import Ledger
 
 _TAG_PATH = "accounting/sync_database/tag"
+
+sync_lock = threading.Lock()
 
 
 def _load_tag_from_storage(storage: Storage) -> Union[bytes, None]:
@@ -135,8 +138,14 @@ def sync_database() -> None:
      - MONEYBIRD_ADMINISTRATION_ID
      - MONEYBIRD_API_KEY
     """
-    administration_id = settings.MONEYBIRD_ADMINISTRATION_ID
-    key = settings.MONEYBIRD_API_KEY
-    administration = mb.HttpsAdministration(key, administration_id)
+    # pylint: disable=consider-using-with
+    locked = sync_lock.acquire(blocking=False)
+    if locked:
+        try:
+            administration_id = settings.MONEYBIRD_ADMINISTRATION_ID
+            key = settings.MONEYBIRD_API_KEY
+            administration = mb.HttpsAdministration(key, administration_id)
 
-    _sync_db_from_adm(administration, default_storage)
+            _sync_db_from_adm(administration, default_storage)
+        finally:
+            sync_lock.release()
