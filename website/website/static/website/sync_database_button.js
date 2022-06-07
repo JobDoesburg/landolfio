@@ -20,7 +20,6 @@ async function sync_database_button_click(button) {
     }
 
     button.innerText = STATUS_SUCCESS;
-    await sleep(1000);
     window.location.reload();
   } catch {
     button.innerText = STATUS_FAILED;
