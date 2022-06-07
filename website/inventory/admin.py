@@ -2,17 +2,31 @@
 from accounting.models import Document
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.safestring import mark_safe
 
 from .models import Asset
 from .models import Attachment
 from .models import Collection
 
 
+def is_an_image_path(path: str) -> bool:
+    """Return true if the path points to an image."""
+    extension = path.split(".")[-1]
+    return extension in ("jpg", "jpeg", "png")
+
+
 class AttachmentInlineAdmin(admin.StackedInline):
     """Attachment inline admin."""
 
+    def show_image(self, obj):
+        # pylint: disable=no-self-use
+        """Show a file as an image if it is one."""
+        if is_an_image_path(obj.attachment.name):
+            return mark_safe(f'<img src="{obj.attachment.url}" height="600px"/>')
+        return "Not an image"
+
     model = Attachment
-    readonly_fields = ["upload_date"]
+    readonly_fields = ["show_image", "upload_date"]
     extra = 0
 
 

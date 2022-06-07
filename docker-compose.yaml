@@ -22,8 +22,11 @@ services:
       - POSTGRES_PASSWORD
       - POSTGRES_HOST
       - POSTGRES_PORT
+      - MONEYBIRD_ADMINISTRATION_ID
+      - MONEYBIRD_API_KEY
     volumes:
       - "static:/usr/src/app/website/static"
+      - "media:/usr/src/app/website/media"
     depends_on:
       - database
 
@@ -32,7 +35,8 @@ services:
     restart: unless-stopped
     volumes:
       - "./Caddyfile:/etc/caddy/Caddyfile"
-      - "static:/static:ro"
+      - "static:/website/static:ro"
+      - "media:/website/media:ro"
     ports:
       - "80:80"
       - "443:443"
@@ -44,3 +48,4 @@ services:
 volumes:
   postgres_data:
   static:
+  media:
