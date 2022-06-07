@@ -1,0 +1,11 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block extrahead %}
+    <script src="{% static "website/sync_database_button.js" %}" defer></script>
+{% endblock %}
+
+{% block usertools %}
+    <button class="button" onclick="sync_database_button_click(this)">&#128257; Synchronize with MoneyBird</button>
+    {{ block.super }}
+{% endblock %}
