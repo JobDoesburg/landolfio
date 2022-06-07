@@ -6,6 +6,9 @@
 {% endblock %}
 
 {% block usertools %}
-    <button class="button" onclick="sync_database_button_click(this)">&#128257; Synchronize with MoneyBird</button>
+    {% if has_permission %}
+        <button class="button" onclick="sync_database_button_click(this)">&#128257; Synchronize with MoneyBird</button>
+    {% endif %}
+
     {{ block.super }}
 {% endblock %}
