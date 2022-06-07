@@ -24,6 +24,7 @@ services:
       - POSTGRES_PORT
       - MONEYBIRD_ADMINISTRATION_ID
       - MONEYBIRD_API_KEY
+      - MONEYBIRD_SYNC_INTERVAL_MINUTES
     volumes:
       - "static:/usr/src/app/website/static"
       - "media:/usr/src/app/website/media"
