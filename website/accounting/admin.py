@@ -1,5 +1,7 @@
 """Accounting admin configuration."""
 from django.contrib import admin
+from django.utils.safestring import mark_safe
+from json2html import json2html
 
 from .models import Document
 from .models import DocumentLine
@@ -13,17 +15,32 @@ class LedgerAdmin(admin.ModelAdmin):
     list_display = ("kind", "moneybird_id")
 
 
-class DocumentLineAdmin(admin.TabularInline):
+class DocumentLineAdmin(admin.StackedInline):
     """The admin view for DocumentLines."""
 
     model = DocumentLine
-    fields = ("asset_id_field", "asset", "ledger")
+    fields = ("asset_id_field", "asset", "ledger", "json_mb_html")
+    readonly_fields = ["json_mb_html"]
+
+    def json_mb_html(self, obj):  # pylint: disable = no-self-use
+        """Convert JSON to HTML table."""
+        return mark_safe(json2html.convert(obj.moneybird_json))
+
+    json_mb_html.short_description = "JSON MoneyBird"
 
 
 class DocumentAdmin(admin.ModelAdmin):
     """The admin view for Documents."""
 
+    model = Document
     inlines = (DocumentLineAdmin,)
+    readonly_fields = ["json_mb_html"]
+
+    def json_mb_html(self, obj):  # pylint: disable = no-self-use
+        """Convert JSON to HTML table."""
+        return mark_safe(json2html.convert(obj.moneybird_json))
+
+    json_mb_html.short_description = "JSON MoneyBird"
 
     def has_add_permission(self, request):
         """Prevent all users from adding Documents."""
