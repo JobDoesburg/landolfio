@@ -173,3 +173,95 @@ class GetChangesTest(TestCase):
         self.assertDiffEqual(
             changes2[DocKind.PURCHASE_INVOICE], Diff(changed=[downgraded_doc])
         )
+
+
+class RateLimitTest(TestCase):
+    """Test the behaviour of rate limits."""
+
+    def setUp(self):
+        """Set up the documents used for all test cases."""
+        self.documents = {
+            DocKind.PURCHASE_INVOICE.adm_path: [
+                {"id": "1", "version": 3},
+                {"id": "2", "version": 7},
+            ],
+            DocKind.SALES_INVOICE.adm_path: [
+                {"id": "3", "version": 3},
+                {"id": "4", "version": 7},
+            ],
+        }
+
+    def assertDiffEqual(self, a: Diff, b: Diff) -> None:
+        # pylint: disable=invalid-name
+        """Assert that two Diffs are identical."""
+        self.assertCountEqual(a.added, b.added)
+        self.assertCountEqual(a.changed, b.changed)
+        self.assertCountEqual(a.removed, b.removed)
+
+    def test_immediate_rate_limit(self):
+        """
+        Test running into the rate limit immediately.
+
+        If the rate limit is hit on the first request then no changes should be
+        returned.
+        """
+        adm = MockAdministration(self.documents, 0)
+        _tag, changes = get_administration_changes(adm)
+
+        self.assertDictEqual(changes, {})
+
+    def test_get_rate_limit(self):
+        """
+        Test running into a rate limit when requesting versions for a document kind.
+
+        If the synchronization GET request for a document kind fails then it is not
+        part of the returned changes. All document kinds that were loaded before this
+        rate limit was hit must be part of the returned changes. This is simulated by
+        having a maximum number of two requests, so that the first document kind can
+        be loaded fully but the second document kind will fail immediately.
+        """
+        adm = MockAdministration(self.documents, 2)
+        _tag, changes = get_administration_changes(adm)
+
+        self.assertDiffEqual(
+            changes[DocKind.PURCHASE_INVOICE],
+            Diff(added=self.documents[DocKind.PURCHASE_INVOICE.adm_path]),
+        )
+        self.assertTrue(DocKind.SALES_INVOICE not in changes)
+
+    def test_post_rate_limit(self):
+        """
+        Test running into a limit after retrieving versions for a document kind.
+
+        If the synchronization POST request for a document kind fails then an empty
+        diff should be part of the returned changes. This is simulated by having the
+        maximum number of requests at 3, so that the first document kind can be fully
+        loaded and the versions can be retrieved for the second document kind.
+        """
+        adm = MockAdministration(self.documents, 3)
+        _tag, changes = get_administration_changes(adm)
+
+        self.assertDiffEqual(
+            changes[DocKind.PURCHASE_INVOICE],
+            Diff(added=self.documents[DocKind.PURCHASE_INVOICE.adm_path]),
+        )
+        self.assertDiffEqual(changes[DocKind.SALES_INVOICE], Diff())
+
+    def test_resolved_rate_limit(self):
+        """
+        Test running into a rate limit at first which is resolved later.
+
+        If a rate limit is hit then the updates that were not loaded must not be part
+        of the tag, so that they can be loaded in future requests.
+        """
+        adm = MockAdministration(self.documents, 3)
+        tag1, _changes1 = get_administration_changes(adm)
+
+        adm.reset_total_requests()
+        _tag2, changes2 = get_administration_changes(adm, tag1)
+
+        self.assertDiffEqual(changes2[DocKind.PURCHASE_INVOICE], Diff())
+        self.assertDiffEqual(
+            changes2[DocKind.SALES_INVOICE],
+            Diff(added=self.documents[DocKind.SALES_INVOICE.adm_path]),
+        )

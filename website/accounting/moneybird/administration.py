@@ -5,6 +5,7 @@ This code is largely based on moneybird-python by Jan-Jelle Kester,
 licensed under the MIT license. The source code of moneybird-python
 can be found on GitHub: https://github.com/jjkester/moneybird-python.
 """
+import math
 from abc import ABC
 from abc import abstractmethod
 from functools import reduce
@@ -130,13 +131,23 @@ class HttpsAdministration(Administration):
 class MockAdministration(Administration):
     """Mock version of a MoneyBird administration."""
 
-    def __init__(self, documents: dict[str, list[dict]]):
+    def __init__(self, documents: dict[str, list[dict]], max_requests: int = math.inf):
         """Initialize a new MockAdministration."""
         super().__init__()
         self.documents = documents
+        self.max_requests = max_requests
+        self.total_requests = 0
+
+    def reset_total_requests(self):
+        """Reset the number of requests made so far."""
+        self.total_requests = 0
 
     def get(self, resource_path: str):
         """Mock a GET request for the Moneybird Administration."""
+        if self.total_requests >= self.max_requests:
+            raise self.Throttled(429, "Too many requests")
+        self.total_requests += 1
+
         if resource_path.endswith("/synchronization"):
             document_path = resource_path.removesuffix("/synchronization")
             documents_kind = (
@@ -153,6 +164,10 @@ class MockAdministration(Administration):
 
     def post(self, resource_path: str, data: dict):
         """Mock a POST request for the Moneybird Administration."""
+        if self.total_requests >= self.max_requests:
+            raise self.Throttled(429, "Too many requests")
+        self.total_requests += 1
+
         if resource_path.endswith("/synchronization"):
             document_path = resource_path.removesuffix("/synchronization")
             if document_path in self.documents:
