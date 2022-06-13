@@ -21,6 +21,7 @@ class DocumentLineAdmin(admin.StackedInline):
     model = DocumentLine
     fields = ("asset_id_field", "asset", "ledger", "json_mb_html")
     readonly_fields = ["json_mb_html"]
+    change_form_template = "admin/accounting/document/change_form.html"
 
     def json_mb_html(self, obj):  # pylint: disable = no-self-use
         """Convert JSON to HTML table."""
@@ -35,6 +36,7 @@ class DocumentAdmin(admin.ModelAdmin):
     model = Document
     inlines = (DocumentLineAdmin,)
     readonly_fields = ["json_mb_html"]
+    change_form_template = "admin/accounting/document/change_form.html"
 
     def json_mb_html(self, obj):  # pylint: disable = no-self-use
         """Convert JSON to HTML table."""
