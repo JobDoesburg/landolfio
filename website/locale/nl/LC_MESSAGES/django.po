@@ -1,0 +1,182 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-06-13 12:00+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: accounting/models.py:32 accounting/models.py:55
+msgid "Id MoneyBird"
+msgstr "MoneyBird-ID"
+
+#: accounting/models.py:35 accounting/models.py:57
+msgid "Kind"
+msgstr "Soort"
+
+#: accounting/models.py:56 accounting/models.py:87
+msgid "JSON MoneyBird"
+msgstr ""
+
+#: accounting/models.py:88
+msgid "Ledger"
+msgstr "Grootboekrekening"
+
+#: accounting/models.py:89
+msgid "Price"
+msgstr "Prijs"
+
+#: accounting/models.py:91
+msgid "Document"
+msgstr ""
+
+#: accounting/models.py:94
+msgid "Asset Id"
+msgstr "Asset-ID"
+
+#: accounting/models.py:97 inventory/models.py:98
+msgid "Asset"
+msgstr ""
+
+#: accounting/moneybird/get_changes.py:55
+msgid "Purchase Invoice"
+msgstr "Aankoopfactuur"
+
+#: accounting/moneybird/get_changes.py:59
+msgid "Sales Invoice"
+msgstr "Verkoopfactuur"
+
+#: accounting/moneybird/get_changes.py:60
+msgid "Receipt"
+msgstr "Bon"
+
+#: inventory/admin.py:27
+msgid "Not an image"
+msgstr "Geen afbeelding"
+
+#: inventory/admin.py:29
+msgid "Image"
+msgstr "Afbeelding"
+
+#: inventory/models.py:8
+msgid "Unknown"
+msgstr "Onbekend"
+
+#: inventory/models.py:9
+msgid "N/A"
+msgstr "n.v.t."
+
+#: inventory/models.py:10
+msgid "Purchased"
+msgstr "Gekocht"
+
+#: inventory/models.py:11
+msgid "Sold"
+msgstr "Verkocht"
+
+#: inventory/models.py:12
+msgid "Sold (incomplete)"
+msgstr "Verkocht (incompleet)"
+
+#: inventory/models.py:13
+msgid "Sold (error)"
+msgstr "Verkocht (error)"
+
+#: inventory/models.py:14
+msgid "Rented"
+msgstr "Verhuurd"
+
+#: inventory/models.py:15
+msgid "Rented (error)"
+msgstr "Verhuurd (error)"
+
+#: inventory/models.py:16
+msgid "Loaned"
+msgstr "Uitgeleend"
+
+#: inventory/models.py:17
+msgid "Amortized"
+msgstr "Afgeschreven"
+
+#: inventory/models.py:21
+msgid "Huurovereenkomst"
+msgstr "Huurovereenkomst"
+
+#: inventory/models.py:22
+msgid "Leenovereenkomst"
+msgstr "Leenovereenkomst"
+
+#: inventory/models.py:30
+msgid "Collection Name"
+msgstr "Collectienaam"
+
+#: inventory/models.py:46
+msgid "ID"
+msgstr ""
+
+#: inventory/models.py:47
+msgid "Type"
+msgstr ""
+
+#: inventory/models.py:48
+msgid "Size"
+msgstr "Formaat"
+
+#: inventory/models.py:50
+msgid "Collection"
+msgstr "Collectie"
+
+#: inventory/models.py:52
+msgid "Listing price"
+msgstr "Vraagprijs"
+
+#: inventory/models.py:53
+msgid "Stock price"
+msgstr "Koers"
+
+#: inventory/models.py:54
+msgid "Purchasing value"
+msgstr "Inkoopwaarde"
+
+#: inventory/models.py:56 inventory/models.py:101
+msgid "Remarks"
+msgstr "Opmerkingen"
+
+#: inventory/models.py:61
+msgid "Moneybird State"
+msgstr "MoneyBird-status"
+
+#: inventory/models.py:67
+msgid "Local State"
+msgstr "Lokale status"
+
+#: inventory/models.py:71
+msgid "Estimates"
+msgstr ""
+
+#: inventory/models.py:99
+msgid "Attachment"
+msgstr "Bijlage"
+
+#: inventory/models.py:100
+msgid "Upload date"
+msgstr "Uploaddatum"
+
+#: website/settings/common.py:92
+msgid "Dutch"
+msgstr "Nederlands"
+
+#~ msgid "English"
+#~ msgstr "Engels"

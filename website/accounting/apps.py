@@ -44,6 +44,7 @@ class AccountingConfig(AppConfig):
 
     default_auto_field = "django.db.models.BigAutoField"
     name = "accounting"
+    verbose_name = "boekhouding"
 
     def ready(self):
         """Start the timeloop if this is called on the main thread."""
