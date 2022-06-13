@@ -34,6 +34,11 @@ class Collection(models.Model):
         """Return Asset string."""
         return f"{self.name}"
 
+    class Meta:
+        """Meta Class to define verbose_name."""
+
+        verbose_name = "Collectie"
+
 
 class Asset(models.Model):
     """Class model for Assets."""
@@ -63,7 +68,11 @@ class Asset(models.Model):
         default="Unknown",
     )
     estimates = models.CharField(
-        max_length=16, choices=Estimates, null=True, blank=True
+        max_length=16,
+        choices=Estimates,
+        null=True,
+        blank=True,
+        verbose_name=_("Estimates"),
     )
 
     def __str__(self):
@@ -91,10 +100,17 @@ class Attachment(models.Model):
     """Class model for Attachments."""
 
     asset = models.ForeignKey(Asset, on_delete=models.CASCADE, verbose_name=_("Asset"))
-    attachment = models.FileField(upload_to=attachments_directory_path)
-    upload_date = models.DateField(auto_now_add=True)
+    attachment = models.FileField(
+        upload_to=attachments_directory_path, verbose_name=_("Attachment")
+    )
+    upload_date = models.DateField(auto_now_add=True, verbose_name=_("Upload date"))
     remarks = models.TextField(verbose_name=_("Remarks"), max_length=1000, blank=True)
 
     def __str__(self):
         """Return Attachment string."""
         return f"{self.attachment} from {self.asset}"
+
+    class Meta:
+        """Meta Class to define verbose_name."""
+
+        verbose_name = "Bijlage"

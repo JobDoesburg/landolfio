@@ -44,6 +44,7 @@ class AccountingConfig(AppConfig):
 
     default_auto_field = "django.db.models.BigAutoField"
     name = "accounting"
+    verbose_name = "boekhouding"
 
     def ready(self):
         """Start the timeloop if this is called on the main thread."""
@@ -53,7 +54,9 @@ class AccountingConfig(AppConfig):
         # This check assures that the update thread is only started once as the RUN_MAIN
         #   environment variable is only set (to true) for the reload process
         main_thread = os.environ.get("RUN_MAIN", None) != "true"
-        if main_thread:
+        periodic_sync_is_enabled = settings.MONEYBIRD_SYNC_INTERVAL_MINUTES > 0
+
+        if main_thread and periodic_sync_is_enabled:
             update_database_thread = threading.Thread(
                 target=_update_database, daemon=False
             )

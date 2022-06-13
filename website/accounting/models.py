@@ -32,7 +32,11 @@ class Ledger(models.Model):
         primary_key=True, verbose_name=_("Id MoneyBird")
     )
     kind = models.CharField(
-        max_length=100, choices=LedgerKind.choices, null=True, unique=True
+        max_length=100,
+        choices=LedgerKind.choices,
+        null=True,
+        unique=True,
+        verbose_name=_("Kind"),
     )
 
     def __str__(self):
@@ -42,13 +46,21 @@ class Ledger(models.Model):
 
         return LedgerKind(self.kind).label
 
+    class Meta:
+        """Meta Class to define verbose_name."""
+
+        verbose_name = "Grootboekrekening"
+        verbose_name_plural = "Grootboekrekeningen"
+
 
 class Document(models.Model):
     """Class model for Documents."""
 
     moneybird_id = models.PositiveBigIntegerField(verbose_name=_("Id MoneyBird"))
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))
-    kind = models.CharField(max_length=2, choices=DocKind.choices)
+    kind = models.CharField(
+        max_length=2, choices=DocKind.choices, verbose_name=_("Kind")
+    )
 
     @property
     def moneybird_url(self) -> str:
@@ -72,14 +84,19 @@ class Document(models.Model):
         """
 
         unique_together = ("moneybird_id", "kind")
+        verbose_name_plural = "Documenten"
 
 
 class DocumentLine(models.Model):
     """A line in a document."""
 
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))
-    ledger = models.ForeignKey(Ledger, on_delete=models.PROTECT)
-    price = models.DecimalField(max_digits=19, decimal_places=4)
+    ledger = models.ForeignKey(
+        Ledger, on_delete=models.PROTECT, verbose_name=_("Ledger")
+    )
+    price = models.DecimalField(
+        max_digits=19, decimal_places=4, verbose_name=_("Price")
+    )
     document = models.ForeignKey(
         Document, on_delete=models.CASCADE, verbose_name=_("Document")
     )
@@ -93,3 +110,8 @@ class DocumentLine(models.Model):
     def __str__(self):
         """Format a DocumentLine as a human readable string."""
         return f"Line in {self.document} with asset {self.asset_id}"
+
+    class Meta:
+        """Meta Class to define verbose_name."""
+
+        verbose_name = "Documentregel"

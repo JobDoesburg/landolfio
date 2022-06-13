@@ -4,10 +4,10 @@ function sleep(ms) {
 
 async function sync_database_button_click(button) {
   const HOOK_LOCATION = "/api/accounting/hooks/sync_database";
-  const STATUS_AVAILABLE = "\u{1F501} Synchronize with MoneyBird";
-  const STATUS_BUSY = "\u{23F3} Synchronizing with MoneyBird";
-  const STATUS_FAILED = "\u{274E} Failed to Synchronize";
-  const STATUS_SUCCESS = "\u{2705} Successfully Synchronized";
+  const STATUS_AVAILABLE = "\u{1F501} Met MoneyBird synchroniseren";
+  const STATUS_BUSY = "\u{23F3} Aan het synchroniseren met MoneyBird";
+  const STATUS_FAILED = "\u{274E} Synchroniseren mislukt";
+  const STATUS_SUCCESS = "\u{2705} Synchroniseren gelukt";
 
   button.disabled = true;
   button.innerText = STATUS_BUSY;
