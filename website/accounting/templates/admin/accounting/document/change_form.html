@@ -3,10 +3,9 @@
 
 {% block extrahead %}
     {{ block.super }}
-    <script>
-        window.addEventListener("load", function(event) {
-            const formElement = document.getElementsByClassName("field-json_mb_html")[0];
-            formElement.style.overflow = "scroll";
-        });
-    </script>
+    <style>
+        .field-json_mb_html {
+            overflow: scroll;
+        }
+    </style>
 {% endblock %}
