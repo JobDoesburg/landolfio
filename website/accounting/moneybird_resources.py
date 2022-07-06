@@ -54,9 +54,10 @@ class SalesInvoiceResourceType(JournalDocumentResourceType):
         kwargs = super().get_model_kwargs(data)
         kwargs["document_kind"] = DocumentKind.SALES_INVOICE
         kwargs["date"] = data["invoice_date"]
-        contact_id = MoneybirdResourceId(data["contact"]["id"])
-        contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
-        kwargs["contact"] = contact
+        if data["contact"]:
+            contact_id = MoneybirdResourceId(data["contact"]["id"])
+            contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
+            kwargs["contact"] = contact
         return kwargs
 
     @classmethod
@@ -88,9 +89,10 @@ class PurchaseInvoiceDocumentResourceType(JournalDocumentResourceType):
         kwargs = super().get_model_kwargs(data)
         kwargs["document_kind"] = DocumentKind.PURCHASE_INVOICE
         kwargs["date"] = data["date"]
-        contact_id = MoneybirdResourceId(data["contact"]["id"])
-        contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
-        kwargs["contact"] = contact
+        if data["contact"]:
+            contact_id = MoneybirdResourceId(data["contact"]["id"])
+            contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
+            kwargs["contact"] = contact
         return kwargs
 
     @classmethod
@@ -113,9 +115,10 @@ class ReceiptResourceType(JournalDocumentResourceType):
         kwargs = super().get_model_kwargs(data)
         kwargs["document_kind"] = DocumentKind.RECEIPT
         kwargs["date"] = data["date"]
-        contact_id = MoneybirdResourceId(data["contact"]["id"])
-        contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
-        kwargs["contact"] = contact
+        if data["contact"]:
+            contact_id = MoneybirdResourceId(data["contact"]["id"])
+            contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
+            kwargs["contact"] = contact
         return kwargs
 
     @classmethod
@@ -206,9 +209,10 @@ class EstimateResourceType(MoneybirdResourceTypeWithDocumentLines):
     def get_model_kwargs(cls, data):
         kwargs = super().get_model_kwargs(data)
         kwargs["moneybird_json"] = data
-        contact_id = MoneybirdResourceId(data["contact"]["id"])
-        contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
-        kwargs["contact"] = contact
+        if data["contact"]:
+            contact_id = MoneybirdResourceId(data["contact"]["id"])
+            contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
+            kwargs["contact"] = contact
         return kwargs
 
     @classmethod

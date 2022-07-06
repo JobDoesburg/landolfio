@@ -30,3 +30,17 @@ MONEYBIRD_API_KEY = os.getenv("MONEYBIRD_API_KEY", "")
 MONEYBIRD_SYNC_INTERVAL_MINUTES = int(
     os.getenv("MONEYBIRD_SYNC_INTERVAL_MINUTES", "-1")
 )
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}

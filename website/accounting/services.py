@@ -24,7 +24,6 @@ def sync_moneybird() -> None:
         PurchaseInvoiceDocumentResourceType,
         ReceiptResourceType,
         GeneralJournalDocumentResourceType,
-        GeneralJournalDocumentResourceType,
         ContactResourceType,
         LedgerAccountResourceType,
         ProductResourceType,

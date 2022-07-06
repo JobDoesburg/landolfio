@@ -298,10 +298,7 @@ def on_document_line_save(sender, instance: JournalDocumentLine, **kwargs):
 @receiver(models.signals.pre_save, sender=EstimateDocumentLine)
 def on_document_line_save(sender, instance: EstimateDocumentLine, **kwargs):
     # pylint: disable=unused-argument
-    if instance.document.document_kind == DocumentKind.GENERAL_JOURNAL_DOCUMENT:
-        description = instance.document.moneybird_json["reference"]
-    else:
-        description = instance.moneybird_json["description"]
+    description = instance.moneybird_json["description"]
     asset_id = find_asset_id_from_description(description)
     asset_or_none = find_asset_from_id(asset_id)
     instance.asset = asset_or_none

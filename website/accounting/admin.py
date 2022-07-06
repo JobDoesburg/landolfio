@@ -22,6 +22,12 @@ class LedgerAdmin(admin.ModelAdmin):
     list_display = ("name", "moneybird_id", "account_type", "ledger_kind")
     list_filter = ("account_type",)
 
+    search_fields = (
+        "name",
+        "ledger_kind",
+        "moneybird_id",
+    )
+
     def has_add_permission(self, request):
         """Prevent all users from adding Documents."""
         return False

@@ -138,8 +138,9 @@ class JournalDocument(SynchronizableMoneybirdResourceModel):
 
     class Meta:
         unique_together = ("moneybird_id", "document_kind")
-        verbose_name_plural = "Documenten"
-        ordering = ("date",)
+        verbose_name = _("Journal document")
+        verbose_name_plural = _("Journal documents")
+        ordering = ("-date",)
 
 
 class JournalDocumentLine(MoneybirdResourceModel):
@@ -171,8 +172,9 @@ class JournalDocumentLine(MoneybirdResourceModel):
         return f"Line in {self.document} with asset {self.asset_id}"
 
     class Meta:
-        verbose_name = "Documentregel"
-        ordering = ("document__date",)
+        verbose_name = _("Journal document line")
+        verbose_name_plural = _("Journal document lines")
+        ordering = ("-document__date",)
 
 
 class Estimate(SynchronizableMoneybirdResourceModel):
@@ -190,6 +192,11 @@ class Estimate(SynchronizableMoneybirdResourceModel):
         if self.moneybird_json["estimate_id"] is not None:
             return f"OFF {self.moneybird_json['estimate_id']}"
         return f"OFF {_('draft')} {self.moneybird_json['draft_id']}"
+
+    class Meta:
+        verbose_name = _("Estimate")
+        verbose_name_plural = _("Estimates")
+        ordering = ("-date",)
 
 
 class EstimateDocumentLine(MoneybirdResourceModel):
@@ -215,8 +222,9 @@ class EstimateDocumentLine(MoneybirdResourceModel):
         return f"Line in {self.document} with asset {self.asset_id}"
 
     class Meta:
-        verbose_name = "Documentregel"
-        ordering = ("document__date",)
+        verbose_name = _("Estimate document line")
+        verbose_name_plural = _("Estimate document lines")
+        ordering = ("-document__date",)
 
 
 class Subscription(MoneybirdResourceModel):

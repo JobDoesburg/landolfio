@@ -1,3 +1,4 @@
+import logging
 from typing import Generator
 
 from accounting.moneybird.administration import Administration, HttpsAdministration
@@ -86,13 +87,16 @@ class MoneybirdSync:
         return resources_diff
 
     def sync_resource_type(self, resource_type: MoneybirdResourceType):
+        logging.info(f"Start synchronizing {resource_type.human_readable_name}")
         local_versions = resource_type.get_local_versions()
         if issubclass(resource_type, SynchronizableMoneybirdResourceType):
             changes = self.get_resource_diffs(resource_type, local_versions)
         else:
             resources = self.get_all_resources(resource_type)
             changes = MoneybirdResourceType.diff_resources(local_versions, resources)
+        logging.info(f"Updating {resource_type.human_readable_name} resources")
         resource_type.update_resources(changes)
+        logging.info(f"Finished synchronizing {resource_type.human_readable_name}")
 
     def perform_sync(self, resource_types: list[MoneybirdResourceType]):
         for resource_type in resource_types:

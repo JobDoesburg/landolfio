@@ -5,6 +5,7 @@ This code is largely based on moneybird-python by Jan-Jelle Kester,
 licensed under the MIT license. The source code of moneybird-python
 can be found on GitHub: https://github.com/jjkester/moneybird-python.
 """
+import logging
 from abc import ABC
 from abc import abstractmethod
 from functools import reduce
@@ -117,17 +118,20 @@ class HttpsAdministration(Administration):
     def post(self, resource_path: str, data: dict):
         """Do a POST request on the Moneybird administration."""
         url = _build_url(self.administration_id, resource_path)
+        logging.info(f"POST {url} with {data}")
         response = self.session.post(url, json=data)
         return _process_response(response)
 
     def get(self, resource_path: str):
         """Do a GET on the Moneybird administration."""
         url = _build_url(self.administration_id, resource_path)
+        logging.info(f"GET {url}")
         response = self.session.get(url)
         return _process_response(response)
 
     def delete(self, resource_path: str):
         """Do a DELETE on the Moneybird administration."""
         url = _build_url(self.administration_id, resource_path)
+        logging.info(f"POST {url}")
         response = self.session.delete(url)
         return _process_response(response)
