@@ -11,6 +11,8 @@ from .models import (
     Contact,
     Estimate,
     EstimateDocumentLine,
+    RecurringSalesInvoice,
+    RecurringSalesInvoiceDocumentLine,
 )
 
 
@@ -128,6 +130,58 @@ class EstimateAdmin(admin.ModelAdmin):
     list_display = ("__str__", "date", "contact", "moneybird_id")
 
     date_hierarchy = "date"
+
+    readonly_fields = ["json_mb_html"]
+    change_form_template = "admin/accounting/document/change_form.html"
+
+    def json_mb_html(self, obj):  # pylint: disable = no-self-use
+        """Convert JSON to HTML table."""
+        return mark_safe(json2html.convert(obj.moneybird_json))
+
+    json_mb_html.short_description = "JSON MoneyBird"
+
+    def has_add_permission(self, request):
+        """Prevent all users from adding Documents."""
+        return False
+
+
+class RecurringSalesInvoiceDocumentLineInline(admin.StackedInline):
+    """The admin view for DocumentLines."""
+
+    model = RecurringSalesInvoiceDocumentLine
+    fields = ("asset_id_field", "asset", "json_mb_html")
+    readonly_fields = ["json_mb_html"]
+    change_form_template = "admin/accounting/document/change_form.html"
+    extra = 0
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    def json_mb_html(self, obj):  # pylint: disable = no-self-use
+        """Convert JSON to HTML table."""
+        return mark_safe(json2html.convert(obj.moneybird_json))
+
+    json_mb_html.short_description = "JSON MoneyBird"
+
+
+@register(RecurringSalesInvoice)
+class RecurringSalesInvoiceAdmin(admin.ModelAdmin):
+    """The admin view for Documents."""
+
+    model = RecurringSalesInvoice
+    inlines = (RecurringSalesInvoiceDocumentLineInline,)
+
+    list_display = (
+        "__str__",
+        "start_date",
+        "contact",
+        "active",
+        "frequency",
+        "moneybird_id",
+    )
+    list_filter = ("active", "frequency")
+
+    date_hierarchy = "start_date"
 
     readonly_fields = ["json_mb_html"]
     change_form_template = "admin/accounting/document/change_form.html"

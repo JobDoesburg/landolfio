@@ -227,6 +227,71 @@ class EstimateDocumentLine(MoneybirdResourceModel):
         ordering = ("-document__date",)
 
 
+class RecurringSalesInvoiceFrequencies(models.TextChoices):
+    DAY = "day", _("day")
+    WEEK = "week", _("week")
+    MONTH = "month", _("month")
+    QUARTER = "quarter", _("quarter")
+    YEAR = "year", _("year")
+
+
+class RecurringSalesInvoice(SynchronizableMoneybirdResourceModel):
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
+    contact = models.ForeignKey(
+        Contact,
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_("Contact"),
+        related_name="recurring_sales_invoices",
+    )
+    auto_send = models.BooleanField(verbose_name=_("Auto send"))
+    active = models.BooleanField(verbose_name=_("Active"))
+    frequency = models.CharField(
+        max_length=10,
+        choices=RecurringSalesInvoiceFrequencies.choices,
+        verbose_name=_("frequency"),
+    )
+    start_date = models.DateField(null=True, verbose_name=_("start date"))
+    invoice_date = models.DateField(null=True, verbose_name=_("invoice date"))
+    last_date = models.DateField(null=True, verbose_name=_("last date"))
+
+    def __str__(self):
+        return f"PER {self.contact} every {self.frequency} since {self.start_date}"
+
+    class Meta:
+        verbose_name = _("Recurring sales invoice")
+        verbose_name_plural = _("Recurring sales invoices")
+        ordering = ("-start_date",)
+
+
+class RecurringSalesInvoiceDocumentLine(MoneybirdResourceModel):
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
+    document = models.ForeignKey(
+        RecurringSalesInvoice,
+        on_delete=models.CASCADE,
+        verbose_name=_("Document"),
+        related_name="document_lines",
+    )
+    asset_id_field = models.CharField(
+        max_length=50, null=True, verbose_name=_("Asset Id")
+    )
+    asset = models.ForeignKey(
+        "inventory.Asset",
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_("Asset"),
+        related_name="recurring_sales_invoice_document_lines",
+    )
+
+    def __str__(self):
+        return f"Line in {self.document} with asset {self.asset_id}"
+
+    class Meta:
+        verbose_name = _("Recurring sales invoice document line")
+        verbose_name_plural = _("Recurring sales invoice document lines")
+        ordering = ("-document__start_date",)
+
+
 class Subscription(MoneybirdResourceModel):
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
 

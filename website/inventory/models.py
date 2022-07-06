@@ -14,6 +14,7 @@ from accounting.models import (
     EstimateDocumentLine,
     LedgerKind,
     Ledger,
+    RecurringSalesInvoiceDocumentLine,
 )
 
 Asset_States = (
@@ -258,9 +259,11 @@ def on_asset_save(sender, instance: Asset, **kwargs):
     # pylint: disable=unused-argument
     """Link DocumentLines to their asset upon asset creation."""
     asset_id = instance.id
-    document_lines = JournalDocumentLine.objects.filter(
-        asset_id_field=asset_id
-    ) + EstimateDocumentLine.objects.filter(asset_id_field=asset_id)
+    document_lines = (
+        JournalDocumentLine.objects.filter(asset_id_field=asset_id)
+        + EstimateDocumentLine.objects.filter(asset_id_field=asset_id)
+        + RecurringSalesInvoiceDocumentLine.objects.filter(asset_id_field=asset_id)
+    )
     for document_line in document_lines:
         document_line.asset = instance
         document_line.save()
@@ -297,6 +300,18 @@ def on_document_line_save(sender, instance: JournalDocumentLine, **kwargs):
 
 @receiver(models.signals.pre_save, sender=EstimateDocumentLine)
 def on_document_line_save(sender, instance: EstimateDocumentLine, **kwargs):
+    # pylint: disable=unused-argument
+    description = instance.moneybird_json["description"]
+    asset_id = find_asset_id_from_description(description)
+    asset_or_none = find_asset_from_id(asset_id)
+    instance.asset = asset_or_none
+    instance.asset_id_field = asset_id
+
+
+@receiver(models.signals.pre_save, sender=RecurringSalesInvoiceDocumentLine)
+def on_document_line_save(
+    sender, instance: RecurringSalesInvoiceDocumentLine, **kwargs
+):
     # pylint: disable=unused-argument
     description = instance.moneybird_json["description"]
     asset_id = find_asset_id_from_description(description)

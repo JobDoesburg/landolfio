@@ -11,6 +11,7 @@ from accounting.models import (
     Ledger,
     LedgerKind,
     Estimate,
+    RecurringSalesInvoice,
 )
 
 from accounting.moneybird.resource_types import (
@@ -208,6 +209,35 @@ class EstimateResourceType(MoneybirdResourceTypeWithDocumentLines):
     @classmethod
     def get_model_kwargs(cls, data):
         kwargs = super().get_model_kwargs(data)
+        kwargs["moneybird_json"] = data
+        if data["contact"]:
+            contact_id = MoneybirdResourceId(data["contact"]["id"])
+            contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
+            kwargs["contact"] = contact
+        return kwargs
+
+    @classmethod
+    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource):
+        kwargs = super().get_document_line_model_kwargs(line_data)
+        kwargs["moneybird_json"] = line_data
+        return kwargs
+
+
+class RecurringSalesInvoiceResourceType(MoneybirdResourceTypeWithDocumentLines):
+    human_readable_name = _("Recurring sales invoice")
+    api_path = "recurring_sales_invoices"
+    model = RecurringSalesInvoice
+
+    @classmethod
+    def get_model_kwargs(cls, data):
+        kwargs = super().get_model_kwargs(data)
+        kwargs["moneybird_json"] = data
+        kwargs["auto_send"] = data["auto_send"]
+        kwargs["active"] = data["active"]
+        kwargs["frequency"] = data["frequency_type"]
+        kwargs["start_date"] = data["start_date"]
+        kwargs["invoice_date"] = data["invoice_date"]
+        kwargs["last_date"] = data["last_date"]
         kwargs["moneybird_json"] = data
         if data["contact"]:
             contact_id = MoneybirdResourceId(data["contact"]["id"])
