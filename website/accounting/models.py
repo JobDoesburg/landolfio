@@ -93,6 +93,19 @@ class Ledger(MoneybirdResourceModel):
         verbose_name=_("Kind"),
     )
 
+    is_margin = models.BooleanField(
+        default=False,
+        help_text=_("All assets on this ledger account are margin assets."),
+    )
+
+    is_sales = models.BooleanField(
+        default=False, help_text=_("Ledger account is used for selling assets.")
+    )
+
+    is_purchase = models.BooleanField(
+        default=False, help_text=_("Ledger account is used for purchasing assets.")
+    )
+
     class Meta:
         verbose_name = _("Ledger account")
         verbose_name_plural = _("Ledger accounts")
@@ -195,7 +208,7 @@ class JournalDocumentLine(MoneybirdResourceModel):
         null=True,
         on_delete=models.SET_NULL,
         verbose_name=_("Asset"),
-        related_name="document_lines",
+        related_name="journal_document_lines",
     )
 
     def __str__(self):

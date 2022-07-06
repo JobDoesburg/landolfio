@@ -13,6 +13,7 @@ from accounting.models import (
     Estimate,
     RecurringSalesInvoice,
     Workflow,
+    LedgerAccountType,
 )
 
 from accounting.moneybird.resource_types import (
@@ -74,11 +75,10 @@ class SalesInvoiceResourceType(JournalDocumentResourceType):
         kwargs = super().get_document_line_model_kwargs(line_data)
         ledger = kwargs["ledger"]
         kwargs["price"] = line_data["total_price_excl_tax_with_discount_base"]
-        if ledger.ledger_kind and ledger.ledger_kind in [
-            LedgerKind.VOORRAAD_MARGE,
-            LedgerKind.VOORRAAD_NIET_MARGE,
-        ]:
-            # TODO if ledger.kind is None, not doing this this will result in invalid data
+        if (
+            ledger.account_type
+            and ledger.account_type == LedgerAccountType.NON_CURRENT_ASSETS
+        ):
             kwargs["price"] = -1 * Decimal(kwargs["price"])
         return kwargs
 

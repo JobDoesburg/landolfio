@@ -13,9 +13,11 @@ from accounting.models import (
     JournalDocumentLine,
     EstimateDocumentLine,
     LedgerKind,
+    LedgerAccountType,
     Ledger,
     RecurringSalesInvoiceDocumentLine,
 )
+
 
 Asset_States = (
     ("Unknown", _("Unknown")),
@@ -127,12 +129,6 @@ class Asset(models.Model):
     remarks = models.TextField(
         verbose_name=_("Remarks"), max_length=1000, null=True, blank=True
     )
-    moneybird_state = models.CharField(
-        max_length=40,
-        choices=Asset_States,
-        verbose_name=_("Moneybird State"),
-        default="Unknown",
-    )
     local_state = models.CharField(
         max_length=40,
         choices=Asset_States,
@@ -147,82 +143,154 @@ class Asset(models.Model):
                 Ledger.objects.get(moneybird_id=x["ledger__moneybird_id"]),
                 x["price__sum"],
             )
-            for x in self.document_lines.values("ledger__moneybird_id").annotate(
-                Sum("price")
+            for x in self.journal_document_lines.values(
+                "ledger__moneybird_id"
+            ).annotate(Sum("price"))
+        )
+
+    @property
+    def total_assets_value(self):
+        return (
+            self.journal_document_lines.filter(
+                ledger__account_type=LedgerAccountType.NON_CURRENT_ASSETS
             )
+            .values("price")
+            .aggregate(Sum("price"))["price__sum"]
+        )
+
+    @property
+    def total_direct_costs_value(self):
+        return (
+            self.journal_document_lines.filter(
+                ledger__account_type=LedgerAccountType.DIRECT_COSTS
+            )
+            .values("price")
+            .aggregate(Sum("price"))["price__sum"]
+        )
+
+    @property
+    def total_expenses_value(self):
+        return (
+            self.journal_document_lines.filter(
+                ledger__account_type=LedgerAccountType.EXPENSES
+            )
+            .values("price")
+            .aggregate(Sum("price"))["price__sum"]
+        )
+
+    @property
+    def total_purchase_expenses(self):
+        return (
+            self.journal_document_lines.filter(
+                ledger__account_type=LedgerAccountType.EXPENSES,
+                ledger__is_purchase=True,
+            )
+                .values("price")
+                .aggregate(Sum("price"))["price__sum"]
+        )
+
+    @property
+    def total_other_expenses(self):
+        return (
+            self.journal_document_lines.filter(
+                ledger__account_type=LedgerAccountType.EXPENSES,
+                ledger__is_purchase=False,
+            )
+                .values("price")
+                .aggregate(Sum("price"))["price__sum"]
+        )
+
+
+    @property
+    def total_revenue_value(self):
+        return (
+            self.journal_document_lines.filter(
+                ledger__account_type=LedgerAccountType.REVENUE
+            )
+            .values("price")
+            .aggregate(Sum("price"))["price__sum"]
+        )
+
+    @property
+    def total_sales_revenue(self):
+        return (
+            self.journal_document_lines.filter(
+                ledger__account_type=LedgerAccountType.REVENUE, ledger__is_sales=True
+            )
+            .values("price")
+            .aggregate(Sum("price"))["price__sum"]
+        )
+
+    @property
+    def total_other_revenue(self):
+        return (
+            self.journal_document_lines.filter(
+                ledger__account_type=LedgerAccountType.REVENUE, ledger__is_sales=False
+            )
+            .values("price")
+            .aggregate(Sum("price"))["price__sum"]
         )
 
     @property
     def stock_value(self):
-        return self.ledger_amounts.get(
-            Ledger.objects.get(ledger_kind=LedgerKind.VOORRAAD_NIET_MARGE), 0
-        ) + self.ledger_amounts.get(
-            Ledger.objects.get(ledger_kind=LedgerKind.VOORRAAD_MARGE), 0
+        return self.total_assets_value
+
+    @property
+    def amortization_value(self):
+        return self.total_purchase_expenses
+
+    @property
+    def purchase_value(self):
+        if not self.collection.commerce:
+            return None
+        return (
+            (self.total_purchase_expenses or 0)
+            + ((self.total_assets_value or 0)
+            + (self.total_direct_costs_value or 0))
         )
 
     @property
     def sales_value(self):
-        return self.ledger_amounts.get(
-            Ledger.objects.get(ledger_kind=LedgerKind.VERKOOP_NIET_MARGE), 0
-        ) + self.ledger_amounts.get(
-            Ledger.objects.get(ledger_kind=LedgerKind.VERKOOP_MARGE), 0
-        )
+        return self.total_sales_revenue
 
-    @property
-    def purchase_value(self):
-        return (
-            self.ledger_amounts.get(
-                Ledger.objects.get(ledger_kind=LedgerKind.DIRECTE_AFSCHRIJVING), 0
-            )
-            + self.ledger_amounts.get(
-                Ledger.objects.get(
-                    ledger_kind=LedgerKind.VOORRAAD_BIJ_VERKOOP_NIET_MARGE
-                ),
-                0,
-            )
-            + self.ledger_amounts.get(
-                Ledger.objects.get(ledger_kind=LedgerKind.VOORRAAD_BIJ_VERKOOP_MARGE), 0
-            )
-        )
+    def sales_profit(self):
+        return self.total_sales_revenue - self.purchase_value
 
     @property
     def is_sold(self):
+        return self.sales_value and self.sales_value > 0
+
+    @property
+    def is_amortized_not_at_purchase(self):
+        if not self.collection.commerce:
+            return None
+        return self.stock_value == 0
+
+    @property
+    def is_amortized_at_purchase(self):
         return (
-            Ledger.objects.get(ledger_kind=LedgerKind.VERKOOP_MARGE)
-            in self.ledger_amounts.keys()
-            or Ledger.objects.get(ledger_kind=LedgerKind.VERKOOP_NIET_MARGE)
-            in self.ledger_amounts.keys()
-            and self.sales_value > 0
+            self.stock_value is None
+            and self.amortization_value
+            and self.amortization_value > 0
         )
 
     @property
     def is_amortized(self):
         if not self.collection.commerce:
             return None
-        return self.stock_value == 0
-
-    @property
-    def is_amortized_not_at_purchase(self):
-        return (
-            Ledger.objects.get(ledger_kind=LedgerKind.AFSCHRIJVINGEN)
-            in self.ledger_amounts.keys()
-        )
-
-    @property
-    def is_amortized_at_purchase(self):
-        return (
-            Ledger.objects.get(ledger_kind=LedgerKind.DIRECTE_AFSCHRIJVING)
-            in self.ledger_amounts.keys()
-        )
+        return not self.stock_value or self.stock_value == 0
 
     @property
     def is_margin(self):
         if not self.collection.commerce:
             return None
-        return (
-            Ledger.objects.get(ledger_kind=LedgerKind.VOORRAAD_MARGE)
-            in self.ledger_amounts.keys()
-        )
+        return self.journal_document_lines.filter(ledger__is_margin=True).exists()
+
+    @property
+    def is_non_margin(self):
+        if not self.collection.commerce:
+            return None
+        return self.journal_document_lines.filter(ledger__is_margin=False).exists()
 
     @property
     def moneybird_status(self):
@@ -235,19 +303,7 @@ class Asset(models.Model):
         return "Available"
 
     def check_moneybird_errors(self):
-        ledgers = self.ledger_amounts.keys()
-        if self.is_margin and any(
-            [
-                Ledger.objects.get(ledger_kind=LedgerKind.VOORRAAD_NIET_MARGE)
-                in ledgers,
-                Ledger.objects.get(ledger_kind=LedgerKind.VERKOOP_NIET_MARGE)
-                in ledgers,
-                Ledger.objects.get(
-                    ledger_kind=LedgerKind.VOORRAAD_BIJ_VERKOOP_NIET_MARGE
-                )
-                in ledgers,
-            ]
-        ):
+        if self.is_margin and self.is_non_margin:
             return "Margin asset on non-margin ledgers"
 
     def __str__(self):

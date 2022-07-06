@@ -113,15 +113,17 @@ class AssetAdmin(admin.ModelAdmin):  # and NumericFilterModelAdmin
         "collection",
         "listing_price",
         "stock_value",
-        "purchase_value",
+        "amortization_value",
         "sales_value",
+        "purchase_value",
         "is_margin",
         "is_sold",
+        "is_amortized_not_at_purchase",
+        "is_amortized_at_purchase",
         "is_amortized",
         "ledger_amounts",
         "moneybird_status",
         "check_moneybird_errors",
-        # "stock_value_non_margin",
     )
     list_filter = (
         "category",
@@ -156,16 +158,18 @@ class AssetAdmin(admin.ModelAdmin):  # and NumericFilterModelAdmin
                 "fields": [
                     "listing_price",
                     "stock_value",
-                    "purchase_value",
+                    "amortization_value",
                     "sales_value",
+                    "purchase_value",
                     "is_margin",
                     "is_sold",
+                    "is_amortized_not_at_purchase",
+                    "is_amortized_at_purchase",
                     "is_amortized",
                     "ledger_amounts",
                     "moneybird_status",
                     "check_moneybird_errors",
                     "local_state",
-                    "moneybird_state",
                 ]
             },
         ),
@@ -181,15 +185,17 @@ class AssetAdmin(admin.ModelAdmin):  # and NumericFilterModelAdmin
 
     readonly_fields = (
         "stock_value",
-        "purchase_value",
+        "amortization_value",
         "sales_value",
+        "purchase_value",
         "ledger_amounts",
         "is_margin",
         "is_sold",
+        "is_amortized_not_at_purchase",
+        "is_amortized_at_purchase",
         "is_amortized",
         "moneybird_status",
         "check_moneybird_errors",
-        # "stock_value_non_margin",
     )
     inlines = [AttachmentInlineAdmin, JournalDocumentLineInline]
 
@@ -203,6 +209,16 @@ class AssetAdmin(admin.ModelAdmin):  # and NumericFilterModelAdmin
 
     is_sold.boolean = True
 
+    def is_amortized_not_at_purchase(self, obj):
+        return obj.is_amortized_not_at_purchase
+
+    is_amortized_not_at_purchase.boolean = True
+
+    def is_amortized_at_purchase(self, obj):
+        return obj.is_amortized_at_purchase
+
+    is_amortized_at_purchase.boolean = True
+
     def is_amortized(self, obj):
         return obj.is_amortized
 
@@ -215,7 +231,7 @@ class AssetAdmin(admin.ModelAdmin):  # and NumericFilterModelAdmin
 
         try:
             asset = Asset.objects.get(pk=object_id)
-            related_document_ids = asset.document_lines.values_list(
+            related_document_ids = asset.journal_document_lines.values_list(
                 "document", flat=True
             )
             related_documents = JournalDocument.objects.filter(

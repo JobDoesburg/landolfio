@@ -24,16 +24,16 @@ def sync_moneybird(full_sync=False) -> None:
      - MONEYBIRD_API_KEY
     """
     resource_types = [
+        LedgerAccountResourceType,  # These should be first
+        WorkflowResourceType,
+        ContactResourceType,
         SalesInvoiceResourceType,
         PurchaseInvoiceDocumentResourceType,
         ReceiptResourceType,
         GeneralJournalDocumentResourceType,
-        ContactResourceType,
-        LedgerAccountResourceType,
         ProductResourceType,
         EstimateResourceType,
         RecurringSalesInvoiceResourceType,
-        WorkflowResourceType,
     ]
 
     # pylint: disable=consider-using-with
