@@ -1,19 +1,10 @@
 from django.db import models
 from django.utils.translation import gettext as _
 
-
-class MoneybirdResourceModel(models.Model):
-    moneybird_id = models.PositiveBigIntegerField(verbose_name=_("Id MoneyBird"))
-
-    class Meta:
-        abstract = True
-
-
-class SynchronizableMoneybirdResourceModel(MoneybirdResourceModel):
-    version = models.PositiveBigIntegerField(verbose_name=_("version"))
-
-    class Meta:
-        abstract = True
+from accounting.moneybird.models import (
+    MoneybirdResourceModel,
+    SynchronizableMoneybirdResourceModel,
+)
 
 
 class Contact(SynchronizableMoneybirdResourceModel):
@@ -98,7 +89,7 @@ class DocumentLine(MoneybirdResourceModel):
         max_digits=19, decimal_places=4, verbose_name=_("Price")
     )
     document = models.ForeignKey(
-        JournalDocument, on_delete=models.CASCADE, verbose_name=_("Document")
+        JournalDocument, on_delete=models.CASCADE, verbose_name=_("Document"), related_name="document_lines",
     )
     asset_id_field = models.CharField(
         max_length=50, null=True, verbose_name=_("Asset Id")

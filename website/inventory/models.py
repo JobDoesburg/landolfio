@@ -168,7 +168,10 @@ class Asset(models.Model):
                 Ledger.objects.get(ledger_kind=LedgerKind.DIRECTE_AFSCHRIJVING), 0
             )
             + self.ledger_amounts.get(
-                Ledger.objects.get(ledger_kind=LedgerKind.VOORRAAD_BIJ_VERKOOP_NIET_MARGE), 0
+                Ledger.objects.get(
+                    ledger_kind=LedgerKind.VOORRAAD_BIJ_VERKOOP_NIET_MARGE
+                ),
+                0,
             )
             + self.ledger_amounts.get(
                 Ledger.objects.get(ledger_kind=LedgerKind.VOORRAAD_BIJ_VERKOOP_MARGE), 0
@@ -228,9 +231,13 @@ class Asset(models.Model):
         ledgers = self.ledger_amounts.keys()
         if self.is_margin and any(
             [
-                Ledger.objects.get(ledger_kind=LedgerKind.VOORRAAD_NIET_MARGE) in ledgers,
-                Ledger.objects.get(ledger_kind=LedgerKind.VERKOOP_NIET_MARGE) in ledgers,
-                Ledger.objects.get(ledger_kind=LedgerKind.VOORRAAD_BIJ_VERKOOP_NIET_MARGE)
+                Ledger.objects.get(ledger_kind=LedgerKind.VOORRAAD_NIET_MARGE)
+                in ledgers,
+                Ledger.objects.get(ledger_kind=LedgerKind.VERKOOP_NIET_MARGE)
+                in ledgers,
+                Ledger.objects.get(
+                    ledger_kind=LedgerKind.VOORRAAD_BIJ_VERKOOP_NIET_MARGE
+                )
                 in ledgers,
             ]
         ):

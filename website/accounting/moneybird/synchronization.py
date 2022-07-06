@@ -1,14 +1,10 @@
-import threading
 from typing import Generator
 
-from django.conf import settings
-
 from accounting.moneybird.administration import Administration, HttpsAdministration
-from accounting.moneybird.resources import (
+from accounting.moneybird.resource_types import (
     MoneybirdResourceId,
     MoneybirdResource,
     MoneybirdResourceVersion,
-    MoneybirdResourceTypes,
     ResourceDiff,
     ResourceVersionDiff,
     MoneybirdResourceType,
@@ -18,13 +14,13 @@ from accounting.moneybird.resources import (
 MAX_REQUEST_SIZE = 100
 
 
-def chunks(lst: list, chunk_size: int) -> Generator[list, None, None]:
-    """Split a list into chunks of size chunk_size."""
-    for idx in range(0, len(lst), chunk_size):
-        yield lst[idx : idx + chunk_size]
-
-
 class MoneybirdSync:
+    @staticmethod
+    def __chunks(lst: list, chunk_size: int) -> Generator[list, None, None]:
+        """Split a list into chunks of size chunk_size."""
+        for idx in range(0, len(lst), chunk_size):
+            yield lst[idx : idx + chunk_size]
+
     def __init__(self, administration: Administration):
         self.administration = administration
 
@@ -56,7 +52,7 @@ class MoneybirdSync:
 
         objects = []
 
-        for id_chunk in chunks(ids, MAX_REQUEST_SIZE):
+        for id_chunk in self.__chunks(ids, MAX_REQUEST_SIZE):
             try:
                 objects.extend(
                     self._get_resources_by_id_paginated(resource_type, id_chunk)
@@ -98,32 +94,6 @@ class MoneybirdSync:
             changes = MoneybirdResourceType.diff_resources(local_versions, resources)
         resource_type.update_resources(changes)
 
-    def perform_sync(self):
-        for resource_type in MoneybirdResourceTypes:
+    def perform_sync(self, resource_types: list[MoneybirdResourceType]):
+        for resource_type in resource_types:
             self.sync_resource_type(resource_type)
-
-
-sync_lock = threading.Lock()
-
-
-def sync_database() -> None:
-    """
-    Synchronize the database to the remote MoneyBird administration.
-
-    Get changes from the remote MoneyBird administration and apply them in the database.
-
-    This function expects the following Django settings to be set:
-     - MONEYBIRD_ADMINISTRATION_ID
-     - MONEYBIRD_API_KEY
-    """
-    # pylint: disable=consider-using-with
-    locked = sync_lock.acquire(blocking=False)
-    if locked:
-        try:
-            administration_id = settings.MONEYBIRD_ADMINISTRATION_ID
-            key = settings.MONEYBIRD_API_KEY
-            administration = HttpsAdministration(key, administration_id)
-
-            MoneybirdSync(administration).perform_sync()
-        finally:
-            sync_lock.release()
