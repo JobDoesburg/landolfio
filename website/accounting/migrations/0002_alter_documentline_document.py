@@ -7,13 +7,18 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounting', '0001_initial'),
+        ("accounting", "0001_initial"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='documentline',
-            name='document',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='document_lines', to='accounting.journaldocument', verbose_name='Document'),
+            model_name="documentline",
+            name="document",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="document_lines",
+                to="accounting.journaldocument",
+                verbose_name="Document",
+            ),
         ),
     ]

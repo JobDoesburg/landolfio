@@ -9,88 +9,228 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('inventory', '0004_assetcategory_assetlocationgroup_and_more'),
+        ("inventory", "0004_assetcategory_assetlocationgroup_and_more"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Contact',
+            name="Contact",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('moneybird_id', models.PositiveBigIntegerField(verbose_name='Moneybird ID')),
-                ('moneybird_version', models.PositiveBigIntegerField(verbose_name='Moneybird version')),
-                ('moneybird_json', models.JSONField(verbose_name='JSON MoneyBird')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "moneybird_id",
+                    models.PositiveBigIntegerField(verbose_name="Moneybird ID"),
+                ),
+                (
+                    "moneybird_version",
+                    models.PositiveBigIntegerField(verbose_name="Moneybird version"),
+                ),
+                ("moneybird_json", models.JSONField(verbose_name="JSON MoneyBird")),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Ledger',
+            name="Ledger",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('moneybird_id', models.PositiveBigIntegerField(verbose_name='Moneybird ID')),
-                ('name', models.CharField(blank=True, max_length=100, null=True)),
-                ('ledger_kind', models.CharField(choices=[('VOORRAAD_MARGE', 'Voorraad Marge'), ('VOORRAAD_NIET_MARGE', 'Voorraad niet-marge'), ('VOORRAAD_BIJ_VERKOOP_MARGE', 'Voorraadwaarde bij verkoop marge'), ('VOORRAAD_BIJ_VERKOOP_NIET_MARGE', 'Voorraadwaarde bij verkoop niet-marge'), ('VERKOOP_MARGE', 'Verkoop marge'), ('VERKOOP_NIET_MARGE', 'Verkoop niet-marge'), ('DIRECTE_AFSCHRIJVING', 'Directe afschrijving'), ('AFSCHRIJVINGEN', 'Afschrijvingen'), ('BORGEN', 'Borgen')], max_length=100, null=True, unique=True, verbose_name='Soort')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "moneybird_id",
+                    models.PositiveBigIntegerField(verbose_name="Moneybird ID"),
+                ),
+                ("name", models.CharField(blank=True, max_length=100, null=True)),
+                (
+                    "ledger_kind",
+                    models.CharField(
+                        choices=[
+                            ("VOORRAAD_MARGE", "Voorraad Marge"),
+                            ("VOORRAAD_NIET_MARGE", "Voorraad niet-marge"),
+                            (
+                                "VOORRAAD_BIJ_VERKOOP_MARGE",
+                                "Voorraadwaarde bij verkoop marge",
+                            ),
+                            (
+                                "VOORRAAD_BIJ_VERKOOP_NIET_MARGE",
+                                "Voorraadwaarde bij verkoop niet-marge",
+                            ),
+                            ("VERKOOP_MARGE", "Verkoop marge"),
+                            ("VERKOOP_NIET_MARGE", "Verkoop niet-marge"),
+                            ("DIRECTE_AFSCHRIJVING", "Directe afschrijving"),
+                            ("AFSCHRIJVINGEN", "Afschrijvingen"),
+                            ("BORGEN", "Borgen"),
+                        ],
+                        max_length=100,
+                        null=True,
+                        unique=True,
+                        verbose_name="Soort",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Grootboekrekening',
-                'verbose_name_plural': 'Grootboekrekeningen',
+                "verbose_name": "Grootboekrekening",
+                "verbose_name_plural": "Grootboekrekeningen",
             },
         ),
         migrations.CreateModel(
-            name='Product',
+            name="Product",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('moneybird_id', models.PositiveBigIntegerField(verbose_name='Moneybird ID')),
-                ('moneybird_json', models.JSONField(verbose_name='JSON MoneyBird')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "moneybird_id",
+                    models.PositiveBigIntegerField(verbose_name="Moneybird ID"),
+                ),
+                ("moneybird_json", models.JSONField(verbose_name="JSON MoneyBird")),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Subscription',
+            name="Subscription",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('moneybird_id', models.PositiveBigIntegerField(verbose_name='Moneybird ID')),
-                ('moneybird_json', models.JSONField(verbose_name='JSON MoneyBird')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "moneybird_id",
+                    models.PositiveBigIntegerField(verbose_name="Moneybird ID"),
+                ),
+                ("moneybird_json", models.JSONField(verbose_name="JSON MoneyBird")),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='JournalDocument',
+            name="JournalDocument",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('moneybird_id', models.PositiveBigIntegerField(verbose_name='Moneybird ID')),
-                ('moneybird_version', models.PositiveBigIntegerField(verbose_name='Moneybird version')),
-                ('date', models.DateField()),
-                ('moneybird_json', models.JSONField(verbose_name='JSON MoneyBird')),
-                ('document_kind', models.CharField(choices=[('FAC', 'Sales invoice'), ('INK', 'Purchase invoice'), ('BON', 'Bon'), ('MEM', 'General journal document')], max_length=3, verbose_name='document kind')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "moneybird_id",
+                    models.PositiveBigIntegerField(verbose_name="Moneybird ID"),
+                ),
+                (
+                    "moneybird_version",
+                    models.PositiveBigIntegerField(verbose_name="Moneybird version"),
+                ),
+                ("date", models.DateField()),
+                ("moneybird_json", models.JSONField(verbose_name="JSON MoneyBird")),
+                (
+                    "document_kind",
+                    models.CharField(
+                        choices=[
+                            ("FAC", "Sales invoice"),
+                            ("INK", "Purchase invoice"),
+                            ("BON", "Bon"),
+                            ("MEM", "General journal document"),
+                        ],
+                        max_length=3,
+                        verbose_name="document kind",
+                    ),
+                ),
             ],
             options={
-                'verbose_name_plural': 'Documenten',
-                'ordering': ('date',),
-                'unique_together': {('moneybird_id', 'document_kind')},
+                "verbose_name_plural": "Documenten",
+                "ordering": ("date",),
+                "unique_together": {("moneybird_id", "document_kind")},
             },
         ),
         migrations.CreateModel(
-            name='DocumentLine',
+            name="DocumentLine",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('moneybird_id', models.PositiveBigIntegerField(verbose_name='Moneybird ID')),
-                ('moneybird_json', models.JSONField(verbose_name='JSON MoneyBird')),
-                ('price', models.DecimalField(decimal_places=4, max_digits=19, verbose_name='Prijs')),
-                ('asset_id_field', models.CharField(max_length=50, null=True, verbose_name='Asset-ID')),
-                ('asset', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='document_lines', to='inventory.asset', verbose_name='Asset')),
-                ('document', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='accounting.journaldocument', verbose_name='Document')),
-                ('ledger', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='accounting.ledger', verbose_name='Grootboekrekening')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "moneybird_id",
+                    models.PositiveBigIntegerField(verbose_name="Moneybird ID"),
+                ),
+                ("moneybird_json", models.JSONField(verbose_name="JSON MoneyBird")),
+                (
+                    "price",
+                    models.DecimalField(
+                        decimal_places=4, max_digits=19, verbose_name="Prijs"
+                    ),
+                ),
+                (
+                    "asset_id_field",
+                    models.CharField(max_length=50, null=True, verbose_name="Asset-ID"),
+                ),
+                (
+                    "asset",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        related_name="document_lines",
+                        to="inventory.asset",
+                        verbose_name="Asset",
+                    ),
+                ),
+                (
+                    "document",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="accounting.journaldocument",
+                        verbose_name="Document",
+                    ),
+                ),
+                (
+                    "ledger",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.PROTECT,
+                        to="accounting.ledger",
+                        verbose_name="Grootboekrekening",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'Documentregel',
-                'ordering': ('document__date',),
+                "verbose_name": "Documentregel",
+                "ordering": ("document__date",),
             },
         ),
     ]

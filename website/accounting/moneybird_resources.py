@@ -14,6 +14,7 @@ from accounting.models import (
 )
 
 from accounting.moneybird.resource_types import (
+    MoneybirdResourceId,
     MoneybirdResource,
     MoneybirdResourceType,
     SynchronizableMoneybirdResourceType,
@@ -34,7 +35,7 @@ class JournalDocumentResourceType(MoneybirdResourceTypeWithDocumentLines):
     def get_document_line_model_kwargs(cls, line_data: MoneybirdResource):
         kwargs = super().get_document_line_model_kwargs(line_data)
         kwargs["moneybird_json"] = line_data
-        ledger_account_id = int(line_data["ledger_account_id"])
+        ledger_account_id = MoneybirdResourceId(line_data["ledger_account_id"])
         ledger, _ = Ledger.objects.get_or_create(moneybird_id=ledger_account_id)
         kwargs["ledger"] = ledger
         return kwargs
@@ -53,6 +54,9 @@ class SalesInvoiceResourceType(JournalDocumentResourceType):
         kwargs = super().get_model_kwargs(data)
         kwargs["document_kind"] = DocumentKind.SALES_INVOICE
         kwargs["date"] = data["invoice_date"]
+        contact_id = MoneybirdResourceId(data["contact"]["id"])
+        contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
+        kwargs["contact"] = contact
         return kwargs
 
     @classmethod
@@ -84,6 +88,9 @@ class PurchaseInvoiceDocumentResourceType(JournalDocumentResourceType):
         kwargs = super().get_model_kwargs(data)
         kwargs["document_kind"] = DocumentKind.PURCHASE_INVOICE
         kwargs["date"] = data["date"]
+        contact_id = MoneybirdResourceId(data["contact"]["id"])
+        contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
+        kwargs["contact"] = contact
         return kwargs
 
     @classmethod
@@ -106,6 +113,9 @@ class ReceiptResourceType(JournalDocumentResourceType):
         kwargs = super().get_model_kwargs(data)
         kwargs["document_kind"] = DocumentKind.RECEIPT
         kwargs["date"] = data["date"]
+        contact_id = MoneybirdResourceId(data["contact"]["id"])
+        contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
+        kwargs["contact"] = contact
         return kwargs
 
     @classmethod
@@ -154,6 +164,11 @@ class ContactResourceType(SynchronizableMoneybirdResourceType):
     def get_model_kwargs(cls, data):
         kwargs = super().get_model_kwargs(data)
         kwargs["moneybird_json"] = data
+        kwargs["company_name"] = data["company_name"]
+        kwargs["first_name"] = data["firstname"]
+        kwargs["last_name"] = data["lastname"]
+        kwargs["email"] = data["email"]
+        kwargs["sepa_active"] = data["sepa_active"]
         return kwargs
 
 
@@ -178,6 +193,7 @@ class LedgerAccountResourceType(MoneybirdResourceType):
     def get_model_kwargs(cls, data):
         kwargs = super().get_model_kwargs(data)
         kwargs["name"] = data["name"]
+        kwargs["account_type"] = data["account_type"]
         return kwargs
 
 

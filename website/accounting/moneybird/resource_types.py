@@ -99,7 +99,7 @@ class SynchronizableMoneybirdResourceType(MoneybirdResourceType):
             map(
                 lambda x: (
                     MoneybirdResourceId(x[0]),
-                    MoneybirdResourceVersion(x[1]),
+                    MoneybirdResourceVersion(x[1] or 0),
                 ),
                 cls.get_queryset().values_list("moneybird_id", "moneybird_version"),
             )

@@ -14,7 +14,12 @@ class LedgerAdmin(admin.ModelAdmin):
     """The Django admin config for the Ledger model."""
 
     model = Ledger
-    list_display = ("ledger_kind", "moneybird_id")
+    list_display = ("name", "moneybird_id", "account_type", "ledger_kind")
+    list_filter = ("account_type",)
+
+    def has_add_permission(self, request):
+        """Prevent all users from adding Documents."""
+        return False
 
 
 class DocumentLineAdmin(admin.StackedInline):
@@ -24,6 +29,10 @@ class DocumentLineAdmin(admin.StackedInline):
     fields = ("asset_id_field", "asset", "ledger", "price", "json_mb_html")
     readonly_fields = ["json_mb_html"]
     change_form_template = "admin/accounting/document/change_form.html"
+    extra = 0
+
+    def has_add_permission(self, request, obj):
+        return False
 
     def json_mb_html(self, obj):  # pylint: disable = no-self-use
         """Convert JSON to HTML table."""
@@ -38,6 +47,12 @@ class JournalDocumentAdmin(admin.ModelAdmin):
 
     model = JournalDocument
     inlines = (DocumentLineAdmin,)
+
+    list_display = ("__str__", "document_kind", "date", "contact", "moneybird_id")
+    list_filter = ("document_kind",)
+
+    date_hierarchy = "date"
+
     readonly_fields = ["json_mb_html"]
     change_form_template = "admin/accounting/document/change_form.html"
 
@@ -51,13 +66,23 @@ class JournalDocumentAdmin(admin.ModelAdmin):
         """Prevent all users from adding Documents."""
         return False
 
-    def has_change_permission(self, request, obj=None):
-        """Prevent all users from changing Documents."""
-        return False
-
 
 @register(Contact)
 class ContactAdmin(admin.ModelAdmin):
     """The admin view for Contacts."""
 
     model = Contact
+
+    list_display = (
+        "__str__",
+        "company_name",
+        "first_name",
+        "last_name",
+        "email",
+        "sepa_active",
+    )
+    list_filter = ("sepa_active",)
+
+    def has_add_permission(self, request):
+        """Prevent all users from adding Documents."""
+        return False

@@ -8,7 +8,36 @@ from accounting.moneybird.models import (
 
 
 class Contact(SynchronizableMoneybirdResourceModel):
-    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
+    company_name = models.CharField(
+        verbose_name=_("company name"),
+        max_length=100,
+        null=True,
+        blank=True,
+    )
+    first_name = models.CharField(
+        verbose_name=_("first name"),
+        max_length=100,
+        null=True,
+        blank=True,
+    )
+    last_name = models.CharField(
+        verbose_name=_("last name"),
+        max_length=100,
+        null=True,
+        blank=True,
+    )
+    email = models.EmailField(
+        verbose_name=_("email"),
+        null=True,
+        blank=True,
+    )
+    sepa_active = models.BooleanField(verbose_name=_("sepa active"), default=False)
+
+    def __str__(self):
+        if self.company_name:
+            return self.company_name
+        return f"{self.first_name} {self.last_name}"
 
 
 class LedgerKind(models.TextChoices):
@@ -29,11 +58,31 @@ class LedgerKind(models.TextChoices):
     BORGEN = "BORGEN", "Borgen"
 
 
+class LedgerAccountType(models.TextChoices):
+    NON_CURRENT_ASSETS = "non_current_assets", _("non current assets")
+    CURRENT_ASSETS = "current_assets", _("current assets")
+    EQUITY = "equity", _("equity")
+    PROVISIONS = "provisions", _("provisions")
+    NON_CURRENT_LIABILITIES = "non_current_liabilities", _("non current liabilities")
+    CURRENT_LIABILITIES = "current_liabilities", _("current liabilities")
+    REVENUE = "revenue", _("revenue")
+    DIRECT_COSTS = "direct_costs", _("direct costs")
+    EXPENSES = "expenses", _("expenses")
+    OTHER_INCOME_EXPENSES = "other_income_expenses", _("other income expenses")
+
+
 class Ledger(MoneybirdResourceModel):
     name = models.CharField(
         max_length=100,
         null=True,
         blank=True,
+    )
+
+    account_type = models.CharField(
+        max_length=100,
+        choices=LedgerAccountType.choices,
+        null=True,
+        verbose_name=_("Account type"),
     )
 
     ledger_kind = models.CharField(
@@ -44,14 +93,16 @@ class Ledger(MoneybirdResourceModel):
         verbose_name=_("Kind"),
     )
 
+    class Meta:
+        verbose_name = _("Ledger account")
+        verbose_name_plural = _("Ledger accounts")
+
     def __str__(self):
+        if self.name:
+            return self.name
         if not self.ledger_kind:
             return str(self.moneybird_id)
         return LedgerKind(self.ledger_kind).label
-
-    class Meta:
-        verbose_name = "Grootboekrekening"
-        verbose_name_plural = "Grootboekrekeningen"
 
 
 class DocumentKind(models.TextChoices):
@@ -63,14 +114,21 @@ class DocumentKind(models.TextChoices):
 
 class JournalDocument(SynchronizableMoneybirdResourceModel):
     date = models.DateField()
-    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
     document_kind = models.CharField(
         max_length=3, choices=DocumentKind.choices, verbose_name=_("document kind")
+    )
+    contact = models.ForeignKey(
+        Contact,
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_("Contact"),
+        related_name="journal_documents",
     )
 
     def __str__(self):
         if self.document_kind == DocumentKind.SALES_INVOICE:
-            return f"FAC {self.moneybird_json['invoice_id']}"
+            return f"{self.document_kind} {self.moneybird_json['invoice_id']}"
         else:
             return f"{self.document_kind} {self.moneybird_json['reference']}"
 
@@ -81,7 +139,7 @@ class JournalDocument(SynchronizableMoneybirdResourceModel):
 
 
 class DocumentLine(MoneybirdResourceModel):
-    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
     ledger = models.ForeignKey(
         Ledger, on_delete=models.PROTECT, verbose_name=_("Ledger")
     )
@@ -89,7 +147,10 @@ class DocumentLine(MoneybirdResourceModel):
         max_digits=19, decimal_places=4, verbose_name=_("Price")
     )
     document = models.ForeignKey(
-        JournalDocument, on_delete=models.CASCADE, verbose_name=_("Document"), related_name="document_lines",
+        JournalDocument,
+        on_delete=models.CASCADE,
+        verbose_name=_("Document"),
+        related_name="document_lines",
     )
     asset_id_field = models.CharField(
         max_length=50, null=True, verbose_name=_("Asset Id")
@@ -111,8 +172,8 @@ class DocumentLine(MoneybirdResourceModel):
 
 
 class Subscription(MoneybirdResourceModel):
-    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
 
 
 class Product(MoneybirdResourceModel):
-    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
