@@ -6,10 +6,14 @@ from accounting.moneybird.administration import HttpsAdministration
 from accounting.moneybird.synchronization import MoneybirdSync
 from accounting.moneybird_resources import *
 
+from accounting.moneybird.resource_types import (
+    SynchronizableMoneybirdResourceType,
+)
+
 sync_lock = threading.Lock()
 
 
-def sync_moneybird() -> None:
+def sync_moneybird(full_sync=False) -> None:
     """
     Synchronize the database to the remote MoneyBird administration.
 
@@ -39,6 +43,11 @@ def sync_moneybird() -> None:
             administration_id = settings.MONEYBIRD_ADMINISTRATION_ID
             key = settings.MONEYBIRD_API_KEY
             administration = HttpsAdministration(key, administration_id)
+
+            if full_sync:
+                for resource_type in resource_types:
+                    if issubclass(resource_type, SynchronizableMoneybirdResourceType):
+                        resource_type.get_queryset().update(moneybird_version=None)
 
             MoneybirdSync(administration).perform_sync(resource_types)
         finally:

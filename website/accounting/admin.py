@@ -77,7 +77,16 @@ class JournalDocumentAdmin(admin.ModelAdmin):
     model = JournalDocument
     inlines = (JournalDocumentLineInline,)
 
-    list_display = ("__str__", "document_kind", "date", "contact", "moneybird_id")
+    list_display = (
+        "__str__",
+        "document_kind",
+        "date",
+        "contact",
+        "total_price",
+        "total_paid",
+        "total_unpaid",
+        "moneybird_id",
+    )
     list_filter = (
         "document_kind",
         "workflow",
@@ -146,7 +155,7 @@ class EstimateAdmin(admin.ModelAdmin):
     model = Estimate
     inlines = (EstimateDocumentLineInline,)
 
-    list_display = ("__str__", "date", "contact", "moneybird_id")
+    list_display = ("__str__", "date", "contact", "total_price", "moneybird_id")
     list_filter = ("workflow",)
 
     date_hierarchy = "date"
@@ -197,6 +206,7 @@ class RecurringSalesInvoiceAdmin(admin.ModelAdmin):
         "contact",
         "active",
         "frequency",
+        "total_price",
         "moneybird_id",
     )
     list_filter = (

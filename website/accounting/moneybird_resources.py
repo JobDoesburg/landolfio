@@ -64,6 +64,9 @@ class SalesInvoiceResourceType(JournalDocumentResourceType):
         workflow_id = MoneybirdResourceId(data["workflow_id"])
         workflow, _ = Workflow.objects.get_or_create(moneybird_id=workflow_id)
         kwargs["workflow"] = workflow
+        kwargs["total_price"] = data["total_price_incl_tax_base"]
+        kwargs["total_paid"] = data["total_paid"]
+        kwargs["total_unpaid"] = data["total_unpaid"]
         return kwargs
 
     @classmethod
@@ -99,6 +102,7 @@ class PurchaseInvoiceDocumentResourceType(JournalDocumentResourceType):
             contact_id = MoneybirdResourceId(data["contact"]["id"])
             contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
             kwargs["contact"] = contact
+        kwargs["total_price"] = data["total_price_incl_tax_base"]
         return kwargs
 
     @classmethod
@@ -125,6 +129,7 @@ class ReceiptResourceType(JournalDocumentResourceType):
             contact_id = MoneybirdResourceId(data["contact"]["id"])
             contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
             kwargs["contact"] = contact
+        kwargs["total_price"] = data["total_price_incl_tax_base"]
         return kwargs
 
     @classmethod
@@ -223,6 +228,7 @@ class EstimateResourceType(MoneybirdResourceTypeWithDocumentLines):
         workflow_id = MoneybirdResourceId(data["workflow_id"])
         workflow, _ = Workflow.objects.get_or_create(moneybird_id=workflow_id)
         kwargs["workflow"] = workflow
+        kwargs["total_price"] = data["total_price_incl_tax_base"]
 
         return kwargs
 
@@ -257,6 +263,7 @@ class RecurringSalesInvoiceResourceType(MoneybirdResourceTypeWithDocumentLines):
         workflow_id = MoneybirdResourceId(data["workflow_id"])
         workflow, _ = Workflow.objects.get_or_create(moneybird_id=workflow_id)
         kwargs["workflow"] = workflow
+        kwargs["total_price"] = data["total_price_incl_tax_base"]
 
         return kwargs
 

@@ -143,7 +143,17 @@ class JournalDocument(SynchronizableMoneybirdResourceModel):
         related_name="journal_documents",
     )
     workflow = models.ForeignKey(
-        Workflow, null=True, on_delete=models.PROTECT, verbose_name=_("Workflow")
+        Workflow, null=True, on_delete=models.SET_NULL, verbose_name=_("Workflow")
+    )
+    total_price = models.DecimalField(
+        max_digits=19, decimal_places=2, verbose_name=_("total price"), null=True
+    )
+    total_paid = models.DecimalField(
+        max_digits=19, decimal_places=2, verbose_name=_("total paid"), null=True
+    )
+
+    total_unpaid = models.DecimalField(
+        max_digits=19, decimal_places=2, verbose_name=_("total unpaid"), null=True
     )
 
     def __str__(self):
@@ -169,7 +179,7 @@ class JournalDocumentLine(MoneybirdResourceModel):
         Ledger, on_delete=models.PROTECT, verbose_name=_("Ledger")
     )
     price = models.DecimalField(
-        max_digits=19, decimal_places=4, verbose_name=_("Price")
+        max_digits=19, decimal_places=2, verbose_name=_("Price")
     )
     document = models.ForeignKey(
         JournalDocument,
@@ -208,7 +218,10 @@ class Estimate(SynchronizableMoneybirdResourceModel):
         related_name="estimates",
     )
     workflow = models.ForeignKey(
-        Workflow, null=True, on_delete=models.PROTECT, verbose_name=_("Workflow")
+        Workflow, null=True, on_delete=models.SET_NULL, verbose_name=_("Workflow")
+    )
+    total_price = models.DecimalField(
+        max_digits=19, decimal_places=2, verbose_name=_("total price"), null=True
     )
 
     def __str__(self):
@@ -278,7 +291,10 @@ class RecurringSalesInvoice(SynchronizableMoneybirdResourceModel):
     invoice_date = models.DateField(null=True, verbose_name=_("invoice date"))
     last_date = models.DateField(null=True, verbose_name=_("last date"))
     workflow = models.ForeignKey(
-        Workflow, null=True, on_delete=models.PROTECT, verbose_name=_("Workflow")
+        Workflow, null=True, on_delete=models.SET_NULL, verbose_name=_("Workflow")
+    )
+    total_price = models.DecimalField(
+        max_digits=19, decimal_places=2, verbose_name=_("total price"), null=True
     )
 
     def __str__(self):
