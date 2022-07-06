@@ -13,6 +13,7 @@ from .models import (
     EstimateDocumentLine,
     RecurringSalesInvoice,
     RecurringSalesInvoiceDocumentLine,
+    Workflow,
 )
 
 
@@ -27,6 +28,21 @@ class LedgerAdmin(admin.ModelAdmin):
     search_fields = (
         "name",
         "ledger_kind",
+        "moneybird_id",
+    )
+
+    def has_add_permission(self, request):
+        """Prevent all users from adding Documents."""
+        return False
+
+
+@register(Workflow)
+class WorkflowAdmin(admin.ModelAdmin):
+    """The Django admin config for the Ledger model."""
+
+    model = Workflow
+    list_display = (
+        "name",
         "moneybird_id",
     )
 
@@ -62,7 +78,10 @@ class JournalDocumentAdmin(admin.ModelAdmin):
     inlines = (JournalDocumentLineInline,)
 
     list_display = ("__str__", "document_kind", "date", "contact", "moneybird_id")
-    list_filter = ("document_kind",)
+    list_filter = (
+        "document_kind",
+        "workflow",
+    )
 
     date_hierarchy = "date"
 
@@ -128,6 +147,7 @@ class EstimateAdmin(admin.ModelAdmin):
     inlines = (EstimateDocumentLineInline,)
 
     list_display = ("__str__", "date", "contact", "moneybird_id")
+    list_filter = ("workflow",)
 
     date_hierarchy = "date"
 
@@ -179,7 +199,11 @@ class RecurringSalesInvoiceAdmin(admin.ModelAdmin):
         "frequency",
         "moneybird_id",
     )
-    list_filter = ("active", "frequency")
+    list_filter = (
+        "active",
+        "frequency",
+        "workflow",
+    )
 
     date_hierarchy = "start_date"
 

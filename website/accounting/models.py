@@ -105,6 +105,23 @@ class Ledger(MoneybirdResourceModel):
         return LedgerKind(self.ledger_kind).label
 
 
+class Workflow(MoneybirdResourceModel):
+    name = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+    )
+
+    class Meta:
+        verbose_name = _("Workflow")
+        verbose_name_plural = _("Workflows")
+
+    def __str__(self):
+        if self.name:
+            return self.name
+        return f"Workflow {self.moneybird_id}"
+
+
 class DocumentKind(models.TextChoices):
     SALES_INVOICE = "FAC", _("Sales invoice")
     PURCHASE_INVOICE = "INK", _("Purchase invoice")
@@ -124,6 +141,9 @@ class JournalDocument(SynchronizableMoneybirdResourceModel):
         on_delete=models.SET_NULL,
         verbose_name=_("Contact"),
         related_name="journal_documents",
+    )
+    workflow = models.ForeignKey(
+        Workflow, null=True, on_delete=models.PROTECT, verbose_name=_("Workflow")
     )
 
     def __str__(self):
@@ -186,6 +206,9 @@ class Estimate(SynchronizableMoneybirdResourceModel):
         on_delete=models.SET_NULL,
         verbose_name=_("Contact"),
         related_name="estimates",
+    )
+    workflow = models.ForeignKey(
+        Workflow, null=True, on_delete=models.PROTECT, verbose_name=_("Workflow")
     )
 
     def __str__(self):
@@ -254,6 +277,9 @@ class RecurringSalesInvoice(SynchronizableMoneybirdResourceModel):
     start_date = models.DateField(null=True, verbose_name=_("start date"))
     invoice_date = models.DateField(null=True, verbose_name=_("invoice date"))
     last_date = models.DateField(null=True, verbose_name=_("last date"))
+    workflow = models.ForeignKey(
+        Workflow, null=True, on_delete=models.PROTECT, verbose_name=_("Workflow")
+    )
 
     def __str__(self):
         return f"PER {self.contact} every {self.frequency} since {self.start_date}"

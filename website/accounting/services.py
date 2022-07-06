@@ -29,6 +29,7 @@ def sync_moneybird() -> None:
         ProductResourceType,
         EstimateResourceType,
         RecurringSalesInvoiceResourceType,
+        WorkflowResourceType,
     ]
 
     # pylint: disable=consider-using-with

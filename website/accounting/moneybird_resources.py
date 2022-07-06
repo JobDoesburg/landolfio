@@ -12,6 +12,7 @@ from accounting.models import (
     LedgerKind,
     Estimate,
     RecurringSalesInvoice,
+    Workflow,
 )
 
 from accounting.moneybird.resource_types import (
@@ -59,6 +60,10 @@ class SalesInvoiceResourceType(JournalDocumentResourceType):
             contact_id = MoneybirdResourceId(data["contact"]["id"])
             contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
             kwargs["contact"] = contact
+
+        workflow_id = MoneybirdResourceId(data["workflow_id"])
+        workflow, _ = Workflow.objects.get_or_create(moneybird_id=workflow_id)
+        kwargs["workflow"] = workflow
         return kwargs
 
     @classmethod
@@ -214,6 +219,11 @@ class EstimateResourceType(MoneybirdResourceTypeWithDocumentLines):
             contact_id = MoneybirdResourceId(data["contact"]["id"])
             contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
             kwargs["contact"] = contact
+
+        workflow_id = MoneybirdResourceId(data["workflow_id"])
+        workflow, _ = Workflow.objects.get_or_create(moneybird_id=workflow_id)
+        kwargs["workflow"] = workflow
+
         return kwargs
 
     @classmethod
@@ -243,12 +253,29 @@ class RecurringSalesInvoiceResourceType(MoneybirdResourceTypeWithDocumentLines):
             contact_id = MoneybirdResourceId(data["contact"]["id"])
             contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
             kwargs["contact"] = contact
+
+        workflow_id = MoneybirdResourceId(data["workflow_id"])
+        workflow, _ = Workflow.objects.get_or_create(moneybird_id=workflow_id)
+        kwargs["workflow"] = workflow
+
         return kwargs
 
     @classmethod
     def get_document_line_model_kwargs(cls, line_data: MoneybirdResource):
         kwargs = super().get_document_line_model_kwargs(line_data)
         kwargs["moneybird_json"] = line_data
+        return kwargs
+
+
+class WorkflowResourceType(MoneybirdResourceType):
+    human_readable_name = _("Workflow")
+    api_path = "workflows"
+    model = Workflow
+
+    @classmethod
+    def get_model_kwargs(cls, data):
+        kwargs = super().get_model_kwargs(data)
+        kwargs["name"] = data["name"]
         return kwargs
 
 
