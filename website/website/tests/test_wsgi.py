@@ -2,7 +2,7 @@
 from django.test import RequestFactory
 from django.test import TestCase
 
-from .wsgi import application
+from website.wsgi import application
 
 
 class WsgiTest(TestCase):

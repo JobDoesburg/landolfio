@@ -1,14 +1,15 @@
 {% extends "admin/base.html" %}
-{% load static %}
+{% load static i18n %}
 
 {% block extrahead %}
     <script src="{% static "website/sync_database_button.js" %}" defer></script>
 {% endblock %}
 
-{% block usertools %}
+{% block userlinks %}
     {% if has_permission %}
-        <button class="button" onclick="sync_database_button_click(this)">&#128257; Synchroniseren met MoneyBird</button>
+        <a href="#" onclick="sync_database_button_click(this)">{% trans '&#128257; Synchroniseren met MoneyBird' %}</a> /
     {% endif %}
-
-    {{ block.super }}
+    <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
+    <a href="{% url 'admin:logout' %}" id="yourlogoutid">{% trans 'Log out' %} </a>
 {% endblock %}
+

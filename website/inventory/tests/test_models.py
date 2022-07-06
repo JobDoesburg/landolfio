@@ -1,8 +1,7 @@
 """Test the asset-models."""
 from django.test import TestCase
 
-from .models import Asset
-from .models import Collection
+from website.inventory.models import Collection, Asset
 
 
 class AssetModelTest(TestCase):

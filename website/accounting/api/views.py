@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest
 from django.http import HttpResponse
 
-from ..sync_database import sync_database
+from accounting.moneybird.synchronization import sync_database
 
 
 @login_required

@@ -2,10 +2,9 @@
 from django.test import TestCase
 from inmemorystorage import InMemoryStorage
 
-from . import sync_database as ud
-from .models import Document
-from .moneybird import DocKind
-from .moneybird import MockAdministration
+from .. import sync_database as ud
+from ..models import Document
+from ..moneybird import DocKind, MockAdministration
 
 
 class TagStorageTest(TestCase):

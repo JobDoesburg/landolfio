@@ -1,11 +1,11 @@
 """Test the get_changes module."""
 from django.test import TestCase
 
-from .administration import MockAdministration
-from .get_changes import _chunk as chunk
-from .get_changes import Diff
-from .get_changes import DocKind
-from .get_changes import get_administration_changes
+from website.accounting.moneybird.administration import MockAdministration
+from website.accounting.moneybird.get_changes import _chunk as chunk
+from website.accounting.moneybird.get_changes import Diff
+from website.accounting.moneybird.get_changes import DocKind
+from website.accounting.moneybird.get_changes import get_administration_changes
 
 
 class DocKindTest(TestCase):

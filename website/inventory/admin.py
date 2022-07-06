@@ -1,13 +1,16 @@
 """Inventory admin configuration."""
-from accounting.models import Document
+# from admin_numeric_filter.admin import SliderNumericFilter, NumericFilterModelAdmin
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
+from django.forms import CheckboxSelectMultiple
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from .models import Asset
+from .models import Asset, AssetLocation, AssetLocationGroup, AssetSize, AssetCategory
 from .models import Attachment
 from .models import Collection
+from accounting.models import JournalDocument, DocumentLine, LedgerKind
 
 
 def is_an_image_path(path: str) -> bool:
@@ -33,19 +36,177 @@ class AttachmentInlineAdmin(admin.StackedInline):
     extra = 0
 
 
-class AssetAdmin(admin.ModelAdmin):
+class DocumentInline(admin.TabularInline):
+    model = DocumentLine
+    extra = 0
+    can_delete = False
+
+    fields = [
+        "_date",
+        "document",
+        "price",
+        "ledger",
+        "_moneybird_button",
+    ]
+
+    readonly_fields = (
+        "_date",
+        "_moneybird_button",
+    )
+
+    def _date(self, obj):
+        return obj.document.date
+
+    def _moneybird_button(self, obj):
+        return mark_safe(
+            f"<a class='button small' href='{obj.document.moneybird_url}' target='blank'>Go to Moneybird</a>"
+        )
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
+class SalesDocumentInline(DocumentInline):
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        qs = qs.filter(
+            ledger__kind__in=[
+                LedgerKind.VERKOOP_MARGE.value,
+                LedgerKind.VERKOOP_NIET_MARGE.value,
+            ]
+        )
+        return qs
+
+
+class PurchaseDocumentInline(DocumentInline):
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        qs = qs.filter(
+            ledger__kind__in=[
+                LedgerKind.VOORRAAD_MARGE.value,
+                LedgerKind.VOORRAAD_NIET_MARGE.value,
+                LedgerKind.DIRECTE_AFSCHRIJVING.value,
+            ]
+        )
+        return qs
+
+
+# class ListingPriceSliderFilter(SliderNumericFilter):
+#     MAX_DECIMALS = 0
+#     STEP = 50
+
+
+@admin.register(Asset)
+class AssetAdmin(admin.ModelAdmin):  # and NumericFilterModelAdmin
     """Asset admin."""
 
     model = Asset
+
     list_display = (
         "id",
-        "asset_type",
+        "category",
         "size",
+        "location",
         "collection",
         "listing_price",
-        "stock_price",
+        "stock_value",
+        "purchase_value",
+        "sales_value",
+        "is_margin",
+        "is_sold",
+        "is_amortized",
+        "ledger_amounts",
+        "moneybird_status",
+        "check_moneybird_errors",
+        # "stock_value_non_margin",
     )
-    inlines = [AttachmentInlineAdmin]
+    list_filter = (
+        "category",
+        "size",
+        "location",
+        "location__location_group",
+        "collection",
+        # ("listing_price", ListingPriceSliderFilter),
+    )
+
+    search_fields = [
+        "id",
+        "remarks",
+    ]
+
+    fieldsets = [
+        (
+            "Name",
+            {
+                "fields": [
+                    "id",
+                    "category",
+                    "size",
+                    "location",
+                    "collection",
+                ]
+            },
+        ),
+        (
+            "Financial",
+            {
+                "fields": [
+                    "listing_price",
+                    "stock_value",
+                    "purchase_value",
+                    "sales_value",
+                    "is_margin",
+                    "is_sold",
+                    "is_amortized",
+                    "ledger_amounts",
+                    "moneybird_status",
+                    "check_moneybird_errors",
+                    "local_state",
+                    "moneybird_state",
+                ]
+            },
+        ),
+        (
+            "Detail",
+            {
+                "fields": [
+                    "remarks",
+                ]
+            },
+        ),
+    ]
+
+    readonly_fields = (
+        "stock_value",
+        "purchase_value",
+        "sales_value",
+        "ledger_amounts",
+        "is_margin",
+        "is_sold",
+        "is_amortized",
+        "moneybird_status",
+        "check_moneybird_errors",
+        # "stock_value_non_margin",
+    )
+    inlines = [AttachmentInlineAdmin, DocumentInline]
+
+    def is_margin(self, obj):
+        return obj.is_margin
+
+    is_margin.boolean = True
+
+    def is_sold(self, obj):
+        return obj.is_sold
+
+    is_sold.boolean = True
+
+    def is_amortized(self, obj):
+        return obj.is_amortized
+
+    is_amortized.boolean = True
 
     def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
         """Render the change page for an Asset."""
@@ -54,10 +215,10 @@ class AssetAdmin(admin.ModelAdmin):
 
         try:
             asset = Asset.objects.get(pk=object_id)
-            related_document_ids = asset.documentline_set.values_list(
+            related_document_ids = asset.document_lines.values_list(
                 "document", flat=True
             )
-            related_documents = Document.objects.filter(
+            related_documents = JournalDocument.objects.filter(
                 pk__in=set(related_document_ids)
             )
         except ObjectDoesNotExist:
@@ -68,6 +229,7 @@ class AssetAdmin(admin.ModelAdmin):
         return super().changeform_view(request, object_id, form_url, extra_context)
 
 
+@admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
     """Collection admin."""
 
@@ -75,6 +237,7 @@ class CollectionAdmin(admin.ModelAdmin):
     list_display = ("id", "name")
 
 
+@admin.register(Attachment)
 class AttachmentAdmin(admin.ModelAdmin):
     """Attachments admin."""
 
@@ -83,6 +246,29 @@ class AttachmentAdmin(admin.ModelAdmin):
     readonly_fields = ["upload_date"]
 
 
-admin.site.register(Asset, AssetAdmin)
-admin.site.register(Collection, CollectionAdmin)
-admin.site.register(Attachment, AttachmentAdmin)
+@admin.register(AssetCategory)
+class AssetTypeAdmin(admin.ModelAdmin):
+    class Media:
+        """Necessary to use AutocompleteFilter."""
+
+
+@admin.register(AssetSize)
+class AssetSizeAdmin(admin.ModelAdmin):
+    class Media:
+        """Necessary to use AutocompleteFilter."""
+
+
+@admin.register(AssetLocation)
+class AssetLocationAdmin(admin.ModelAdmin):
+    class Media:
+        """Necessary to use AutocompleteFilter."""
+
+    formfield_overrides = {
+        models.ManyToManyField: {"widget": CheckboxSelectMultiple},
+    }
+
+
+@admin.register(AssetLocationGroup)
+class AssetLocationGroupAdmin(admin.ModelAdmin):
+    class Media:
+        """Necessary to use AutocompleteFilter."""

@@ -1,13 +1,26 @@
-"""The accounting models."""
 from django.db import models
 from django.utils.translation import gettext as _
 
-from .moneybird.get_changes import DocKind
+
+class MoneybirdResourceModel(models.Model):
+    moneybird_id = models.PositiveBigIntegerField(verbose_name=_("Id MoneyBird"))
+
+    class Meta:
+        abstract = True
+
+
+class SynchronizableMoneybirdResourceModel(MoneybirdResourceModel):
+    version = models.PositiveBigIntegerField(verbose_name=_("version"))
+
+    class Meta:
+        abstract = True
+
+
+class Contact(SynchronizableMoneybirdResourceModel):
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))
 
 
 class LedgerKind(models.TextChoices):
-    """A kind of ledger."""
-
     VOORRAAD_MARGE = "VOORRAAD_MARGE", "Voorraad Marge"
     VOORRAAD_NIET_MARGE = "VOORRAAD_NIET_MARGE", "Voorraad niet-marge"
     VOORRAAD_BIJ_VERKOOP_MARGE = (
@@ -25,13 +38,14 @@ class LedgerKind(models.TextChoices):
     BORGEN = "BORGEN", "Borgen"
 
 
-class Ledger(models.Model):
-    """A ledger."""
-
-    moneybird_id = models.PositiveBigIntegerField(
-        primary_key=True, verbose_name=_("Id MoneyBird")
+class Ledger(MoneybirdResourceModel):
+    name = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
     )
-    kind = models.CharField(
+
+    ledger_kind = models.CharField(
         max_length=100,
         choices=LedgerKind.choices,
         null=True,
@@ -40,56 +54,42 @@ class Ledger(models.Model):
     )
 
     def __str__(self):
-        """Return a human-readable string for a Ledger."""
-        if not self.kind:
+        if not self.ledger_kind:
             return str(self.moneybird_id)
-
-        return LedgerKind(self.kind).label
+        return LedgerKind(self.ledger_kind).label
 
     class Meta:
-        """Meta Class to define verbose_name."""
-
         verbose_name = "Grootboekrekening"
         verbose_name_plural = "Grootboekrekeningen"
 
 
-class Document(models.Model):
-    """Class model for Documents."""
+class DocumentKind(models.TextChoices):
+    SALES_INVOICE = "FAC", _("Sales invoice")
+    PURCHASE_INVOICE = "INK", _("Purchase invoice")
+    RECEIPT = "BON", _("Receipt")
+    GENERAL_JOURNAL_DOCUMENT = "MEM", _("General journal document")
 
-    moneybird_id = models.PositiveBigIntegerField(verbose_name=_("Id MoneyBird"))
+
+class JournalDocument(SynchronizableMoneybirdResourceModel):
+    date = models.DateField()
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))
-    kind = models.CharField(
-        max_length=2, choices=DocKind.choices, verbose_name=_("Kind")
+    document_kind = models.CharField(
+        max_length=3, choices=DocumentKind.choices, verbose_name=_("document kind")
     )
 
-    @property
-    def moneybird_url(self) -> str:
-        """Return the moneybird url."""
-        kind = DocKind(self.kind)
-        adm_id = self.moneybird_json["administration_id"]
-        doc_id = self.moneybird_json["id"]
-        return f"https://moneybird.com/{adm_id}/{kind.user_path}/{doc_id}"
-
     def __str__(self):
-        """Return Document string."""
-        return f"{str(self.kind)}_{str(self.id)}"
+        if self.document_kind == DocumentKind.SALES_INVOICE:
+            return f"FAC {self.moneybird_json['invoice_id']}"
+        else:
+            return f"{self.document_kind} {self.moneybird_json['reference']}"
 
     class Meta:
-        """
-        The meta-variables for the Document model.
-
-        As the MoneyBird API documentation does not clearly specify whether Document
-        IDs are globally unique or just unique for one Document Kind, we must assume
-        the latter.
-        """
-
-        unique_together = ("moneybird_id", "kind")
+        unique_together = ("moneybird_id", "document_kind")
         verbose_name_plural = "Documenten"
+        ordering = ("date",)
 
 
-class DocumentLine(models.Model):
-    """A line in a document."""
-
+class DocumentLine(MoneybirdResourceModel):
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))
     ledger = models.ForeignKey(
         Ledger, on_delete=models.PROTECT, verbose_name=_("Ledger")
@@ -98,20 +98,30 @@ class DocumentLine(models.Model):
         max_digits=19, decimal_places=4, verbose_name=_("Price")
     )
     document = models.ForeignKey(
-        Document, on_delete=models.CASCADE, verbose_name=_("Document")
+        JournalDocument, on_delete=models.CASCADE, verbose_name=_("Document")
     )
     asset_id_field = models.CharField(
         max_length=50, null=True, verbose_name=_("Asset Id")
     )
     asset = models.ForeignKey(
-        "inventory.Asset", null=True, on_delete=models.SET_NULL, verbose_name=_("Asset")
+        "inventory.Asset",
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_("Asset"),
+        related_name="document_lines",
     )
 
     def __str__(self):
-        """Format a DocumentLine as a human readable string."""
         return f"Line in {self.document} with asset {self.asset_id}"
 
     class Meta:
-        """Meta Class to define verbose_name."""
-
         verbose_name = "Documentregel"
+        ordering = ("document__date",)
+
+
+class Subscription(MoneybirdResourceModel):
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))
+
+
+class Product(MoneybirdResourceModel):
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"))

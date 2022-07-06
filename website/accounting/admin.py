@@ -1,25 +1,27 @@
 """Accounting admin configuration."""
 from django.contrib import admin
+from django.contrib.admin import register
 from django.utils.safestring import mark_safe
 from json2html import json2html
 
-from .models import Document
+from .models import JournalDocument, Contact
 from .models import DocumentLine
 from .models import Ledger
 
 
+@register(Ledger)
 class LedgerAdmin(admin.ModelAdmin):
     """The Django admin config for the Ledger model."""
 
     model = Ledger
-    list_display = ("kind", "moneybird_id")
+    list_display = ("ledger_kind", "moneybird_id")
 
 
 class DocumentLineAdmin(admin.StackedInline):
     """The admin view for DocumentLines."""
 
     model = DocumentLine
-    fields = ("asset_id_field", "asset", "ledger", "json_mb_html")
+    fields = ("asset_id_field", "asset", "ledger", "price", "json_mb_html")
     readonly_fields = ["json_mb_html"]
     change_form_template = "admin/accounting/document/change_form.html"
 
@@ -30,10 +32,11 @@ class DocumentLineAdmin(admin.StackedInline):
     json_mb_html.short_description = "JSON MoneyBird"
 
 
-class DocumentAdmin(admin.ModelAdmin):
+@register(JournalDocument)
+class JournalDocumentAdmin(admin.ModelAdmin):
     """The admin view for Documents."""
 
-    model = Document
+    model = JournalDocument
     inlines = (DocumentLineAdmin,)
     readonly_fields = ["json_mb_html"]
     change_form_template = "admin/accounting/document/change_form.html"
@@ -53,5 +56,8 @@ class DocumentAdmin(admin.ModelAdmin):
         return False
 
 
-admin.site.register(Ledger, LedgerAdmin)
-admin.site.register(Document, DocumentAdmin)
+@register(Contact)
+class ContactAdmin(admin.ModelAdmin):
+    """The admin view for Contacts."""
+
+    model = Contact
