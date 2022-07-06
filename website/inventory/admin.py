@@ -10,7 +10,7 @@ from django.utils.translation import gettext as _
 from .models import Asset, AssetLocation, AssetLocationGroup, AssetSize, AssetCategory
 from .models import Attachment
 from .models import Collection
-from accounting.models import JournalDocument, DocumentLine, LedgerKind
+from accounting.models import JournalDocument, JournalDocumentLine, LedgerKind
 
 
 def is_an_image_path(path: str) -> bool:
@@ -36,8 +36,8 @@ class AttachmentInlineAdmin(admin.StackedInline):
     extra = 0
 
 
-class DocumentInline(admin.TabularInline):
-    model = DocumentLine
+class JournalDocumentLineInline(admin.TabularInline):
+    model = JournalDocumentLine
     extra = 0
     can_delete = False
 
@@ -69,7 +69,7 @@ class DocumentInline(admin.TabularInline):
         return False
 
 
-class SalesDocumentInline(DocumentInline):
+class SalesDocumentInline(JournalDocumentLineInline):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         qs = qs.filter(
@@ -81,7 +81,7 @@ class SalesDocumentInline(DocumentInline):
         return qs
 
 
-class PurchaseDocumentInline(DocumentInline):
+class PurchaseDocumentInline(JournalDocumentLineInline):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         qs = qs.filter(
@@ -191,7 +191,7 @@ class AssetAdmin(admin.ModelAdmin):  # and NumericFilterModelAdmin
         "check_moneybird_errors",
         # "stock_value_non_margin",
     )
-    inlines = [AttachmentInlineAdmin, DocumentInline]
+    inlines = [AttachmentInlineAdmin, JournalDocumentLineInline]
 
     def is_margin(self, obj):
         return obj.is_margin

@@ -10,7 +10,7 @@ from accounting.models import (
     Product,
     Ledger,
     LedgerKind,
-    DocumentLine,
+    Estimate,
 )
 
 from accounting.moneybird.resource_types import (
@@ -194,6 +194,27 @@ class LedgerAccountResourceType(MoneybirdResourceType):
         kwargs = super().get_model_kwargs(data)
         kwargs["name"] = data["name"]
         kwargs["account_type"] = data["account_type"]
+        return kwargs
+
+
+class EstimateResourceType(MoneybirdResourceTypeWithDocumentLines):
+    human_readable_name = _("Estimate")
+    api_path = "estimates"
+    model = Estimate
+
+    @classmethod
+    def get_model_kwargs(cls, data):
+        kwargs = super().get_model_kwargs(data)
+        kwargs["moneybird_json"] = data
+        contact_id = MoneybirdResourceId(data["contact"]["id"])
+        contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
+        kwargs["contact"] = contact
+        return kwargs
+
+    @classmethod
+    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource):
+        kwargs = super().get_document_line_model_kwargs(line_data)
+        kwargs["moneybird_json"] = line_data
         return kwargs
 
 

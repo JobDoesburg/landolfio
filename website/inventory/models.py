@@ -8,7 +8,13 @@ from django.db.models import Sum, PROTECT
 from django.dispatch import receiver
 from django.utils.translation import gettext as _
 
-from accounting.models import DocumentKind, DocumentLine, LedgerKind, Ledger
+from accounting.models import (
+    DocumentKind,
+    JournalDocumentLine,
+    EstimateDocumentLine,
+    LedgerKind,
+    Ledger,
+)
 
 Asset_States = (
     ("Unknown", _("Unknown")),
@@ -252,7 +258,9 @@ def on_asset_save(sender, instance: Asset, **kwargs):
     # pylint: disable=unused-argument
     """Link DocumentLines to their asset upon asset creation."""
     asset_id = instance.id
-    document_lines = DocumentLine.objects.filter(asset_id_field=asset_id)
+    document_lines = JournalDocumentLine.objects.filter(
+        asset_id_field=asset_id
+    ) + EstimateDocumentLine.objects.filter(asset_id_field=asset_id)
     for document_line in document_lines:
         document_line.asset = instance
         document_line.save()
@@ -274,8 +282,21 @@ def find_asset_from_id(asset_id) -> Union[Asset, None]:
         return None
 
 
-@receiver(models.signals.pre_save, sender=DocumentLine)
-def on_document_line_save(sender, instance: DocumentLine, **kwargs):
+@receiver(models.signals.pre_save, sender=JournalDocumentLine)
+def on_document_line_save(sender, instance: JournalDocumentLine, **kwargs):
+    # pylint: disable=unused-argument
+    if instance.document.document_kind == DocumentKind.GENERAL_JOURNAL_DOCUMENT:
+        description = instance.document.moneybird_json["reference"]
+    else:
+        description = instance.moneybird_json["description"]
+    asset_id = find_asset_id_from_description(description)
+    asset_or_none = find_asset_from_id(asset_id)
+    instance.asset = asset_or_none
+    instance.asset_id_field = asset_id
+
+
+@receiver(models.signals.pre_save, sender=EstimateDocumentLine)
+def on_document_line_save(sender, instance: EstimateDocumentLine, **kwargs):
     # pylint: disable=unused-argument
     if instance.document.document_kind == DocumentKind.GENERAL_JOURNAL_DOCUMENT:
         description = instance.document.moneybird_json["reference"]

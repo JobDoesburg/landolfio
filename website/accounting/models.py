@@ -113,7 +113,7 @@ class DocumentKind(models.TextChoices):
 
 
 class JournalDocument(SynchronizableMoneybirdResourceModel):
-    date = models.DateField()
+    date = models.DateField(null=True, verbose_name=_("Date"))
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
     document_kind = models.CharField(
         max_length=3, choices=DocumentKind.choices, verbose_name=_("document kind")
@@ -128,7 +128,11 @@ class JournalDocument(SynchronizableMoneybirdResourceModel):
 
     def __str__(self):
         if self.document_kind == DocumentKind.SALES_INVOICE:
-            return f"{self.document_kind} {self.moneybird_json['invoice_id']}"
+            if self.moneybird_json["invoice_id"] is not None:
+                return f"{self.document_kind} {self.moneybird_json['invoice_id']}"
+            return (
+                f"{self.document_kind} {_('draft')} {self.moneybird_json['draft_id']}"
+            )
         else:
             return f"{self.document_kind} {self.moneybird_json['reference']}"
 
@@ -138,7 +142,7 @@ class JournalDocument(SynchronizableMoneybirdResourceModel):
         ordering = ("date",)
 
 
-class DocumentLine(MoneybirdResourceModel):
+class JournalDocumentLine(MoneybirdResourceModel):
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
     ledger = models.ForeignKey(
         Ledger, on_delete=models.PROTECT, verbose_name=_("Ledger")
@@ -161,6 +165,50 @@ class DocumentLine(MoneybirdResourceModel):
         on_delete=models.SET_NULL,
         verbose_name=_("Asset"),
         related_name="document_lines",
+    )
+
+    def __str__(self):
+        return f"Line in {self.document} with asset {self.asset_id}"
+
+    class Meta:
+        verbose_name = "Documentregel"
+        ordering = ("document__date",)
+
+
+class Estimate(SynchronizableMoneybirdResourceModel):
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
+    date = models.DateField(null=True, verbose_name=_("Date"))
+    contact = models.ForeignKey(
+        Contact,
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_("Contact"),
+        related_name="estimates",
+    )
+
+    def __str__(self):
+        if self.moneybird_json["estimate_id"] is not None:
+            return f"OFF {self.moneybird_json['estimate_id']}"
+        return f"OFF {_('draft')} {self.moneybird_json['draft_id']}"
+
+
+class EstimateDocumentLine(MoneybirdResourceModel):
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
+    document = models.ForeignKey(
+        Estimate,
+        on_delete=models.CASCADE,
+        verbose_name=_("Document"),
+        related_name="document_lines",
+    )
+    asset_id_field = models.CharField(
+        max_length=50, null=True, verbose_name=_("Asset Id")
+    )
+    asset = models.ForeignKey(
+        "inventory.Asset",
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_("Asset"),
+        related_name="estimate_document_lines",
     )
 
     def __str__(self):
