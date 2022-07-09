@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 
 from django.conf import settings
+from django.db.models.utils import resolve_callables
 from django.utils.module_loading import import_string
 
 from moneybird.administration import get_moneybird_administration
@@ -51,17 +52,22 @@ class MoneybirdResourceType:
 
     @classmethod
     def create_from_moneybird(cls, data: MoneybirdResource):
-        return cls.model._default_manager.create(
-            **cls.get_model_kwargs(data), push_to_moneybird=False
-        )
+        obj = cls.model(**cls.get_model_kwargs(data))
+        obj.save(push_to_moneybird=False)
+        return obj
 
     @classmethod
     def update_from_moneybird(cls, data: MoneybirdResource):
-        return cls.get_queryset().update_or_create(
-            moneybird_id=MoneybirdResourceId(data["id"]),
-            defaults={**cls.get_model_kwargs(data)},
-            push_to_moneybird=False,
-        )
+        try:
+            obj = cls.get_queryset().get(moneybird_id=MoneybirdResourceId(data["id"]))
+        except cls.model.DoesNotExist:
+            return cls.create_from_moneybird(data), True
+
+        for k, v in resolve_callables(cls.get_model_kwargs(data)):
+            setattr(obj, k, v)
+        obj.save(push_to_moneybird=False)
+
+        return obj, False
 
     @classmethod
     def delete_from_moneybird(cls, resource_id: MoneybirdResourceId):
@@ -104,19 +110,22 @@ class MoneybirdResourceType:
         return {}
 
     @classmethod
-    def push_to_moneybird(cls, instance):
+    def push_to_moneybird(cls, instance, data=None):
         if not cls.can_write:
             return None
 
-        administration = get_moneybird_administration()
-        instance_data = cls.serialize_for_moneybird(instance)
-        if instance_data == {} or instance_data is None:
+        if data is None:
+            data = cls.serialize_for_moneybird(instance)
+
+        if data == {} or data is None:
             return None
-        data = {cls.entity_type_name: cls.serialize_for_moneybird(instance)}
+
+        content = {cls.entity_type_name: data}
+        administration = get_moneybird_administration()
 
         if instance.moneybird_id is None:
-            return administration.post(cls.api_path, data)
-        return administration.patch(f"{cls.api_path}/{instance.moneybird_id}", data)
+            return administration.post(cls.api_path, content)
+        return administration.patch(f"{cls.api_path}/{instance.moneybird_id}", content)
 
 
 class SynchronizableMoneybirdResourceType(MoneybirdResourceType):

@@ -195,7 +195,8 @@ class ContactResourceType(SynchronizableMoneybirdResourceType):
             "company_name": instance.company_name,
             "firstname": instance.first_name,
             "lastname": instance.last_name,
-            "email": instance.email,
+            "send_invoices_to_email": instance.email,
+            "send_estimates_to_email": instance.email,
         }
 
 
