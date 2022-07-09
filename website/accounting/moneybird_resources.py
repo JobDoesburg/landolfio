@@ -45,7 +45,7 @@ class JournalDocumentResourceType(MoneybirdResourceTypeWithDocumentLines):
 
 
 class SalesInvoiceResourceType(JournalDocumentResourceType):
-    human_readable_name = _("Sales invoice")
+    entity_type = "SalesInvoice"
     api_path = "sales_invoices"
 
     @classmethod
@@ -84,7 +84,7 @@ class SalesInvoiceResourceType(JournalDocumentResourceType):
 
 
 class PurchaseInvoiceDocumentResourceType(JournalDocumentResourceType):
-    human_readable_name = _("Purchase invoice")
+    entity_type = "PurchaseInvoice"
     api_path = "documents/purchase_invoices"
 
     @classmethod
@@ -113,7 +113,7 @@ class PurchaseInvoiceDocumentResourceType(JournalDocumentResourceType):
 
 
 class ReceiptResourceType(JournalDocumentResourceType):
-    human_readable_name = _("Receipt")
+    entity_type = "Receipt"
     api_path = "documents/receipts"
 
     @classmethod
@@ -140,7 +140,7 @@ class ReceiptResourceType(JournalDocumentResourceType):
 
 
 class GeneralJournalDocumentResourceType(JournalDocumentResourceType):
-    human_readable_name = _("General journal document")
+    entity_type = "GeneralJournalDocument"
     api_path = "documents/general_journal_documents"
 
     @classmethod
@@ -170,7 +170,7 @@ class GeneralJournalDocumentResourceType(JournalDocumentResourceType):
 
 
 class ContactResourceType(SynchronizableMoneybirdResourceType):
-    human_readable_name = _("Contact")
+    entity_type = "Contact"
     api_path = "contacts"
     model = Contact
 
@@ -187,7 +187,6 @@ class ContactResourceType(SynchronizableMoneybirdResourceType):
 
 
 class ProductResourceType(MoneybirdResourceType):
-    human_readable_name = _("Product")
     api_path = "products"
     model = Product
 
@@ -199,7 +198,7 @@ class ProductResourceType(MoneybirdResourceType):
 
 
 class LedgerAccountResourceType(MoneybirdResourceType):
-    human_readable_name = _("Ledger account")
+    entity_type = "LedgerAccount"
     api_path = "ledger_accounts"
     model = Ledger
 
@@ -212,7 +211,7 @@ class LedgerAccountResourceType(MoneybirdResourceType):
 
 
 class EstimateResourceType(MoneybirdResourceTypeWithDocumentLines):
-    human_readable_name = _("Estimate")
+    entity_type = "Estimate"
     api_path = "estimates"
     model = Estimate
 
@@ -240,7 +239,7 @@ class EstimateResourceType(MoneybirdResourceTypeWithDocumentLines):
 
 
 class RecurringSalesInvoiceResourceType(MoneybirdResourceTypeWithDocumentLines):
-    human_readable_name = _("Recurring sales invoice")
+    entity_type = "RecurringSalesInvoice"
     api_path = "recurring_sales_invoices"
     model = RecurringSalesInvoice
 
@@ -275,7 +274,7 @@ class RecurringSalesInvoiceResourceType(MoneybirdResourceTypeWithDocumentLines):
 
 
 class WorkflowResourceType(MoneybirdResourceType):
-    human_readable_name = _("Workflow")
+    entity_type = "Workflow"
     api_path = "workflows"
     model = Workflow
 

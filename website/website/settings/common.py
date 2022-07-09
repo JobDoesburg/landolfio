@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
     # "admin_numeric_filter",
     "accounting",
     "inventory",
@@ -135,3 +136,4 @@ MONEYBIRD_RESOURCE_TYPES = [
     "accounting.moneybird_resources.EstimateResourceType",
     "accounting.moneybird_resources.RecurringSalesInvoiceResourceType",
 ]
+MONEYBIRD_WEBHOOK_SITE_DOMAIN = "http://localhost:8000"

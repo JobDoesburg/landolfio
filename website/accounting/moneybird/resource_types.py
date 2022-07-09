@@ -23,7 +23,7 @@ class ResourceVersionDiff:
 
 
 class MoneybirdResourceType:
-    human_readable_name = None
+    entity_type = None
     api_path = None
     synchronizable = None
     model = None
@@ -88,12 +88,18 @@ class MoneybirdResourceType:
         )
         return resources_diff
 
+    @classmethod
+    def process_webhook_event(cls, data: MoneybirdResource, event: str):
+        return cls.update_from_moneybird(data)
+
 
 class SynchronizableMoneybirdResourceType(MoneybirdResourceType):
     @classmethod
     def get_model_kwargs(cls, data):
         kwargs = super().get_model_kwargs(data)
-        kwargs["moneybird_version"] = MoneybirdResourceVersion(data["version"])
+        version = data.get("version", None)
+        if version is not None:
+            kwargs["moneybird_version"] = MoneybirdResourceVersion(version)
         return kwargs
 
     @classmethod

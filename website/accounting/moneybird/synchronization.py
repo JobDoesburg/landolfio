@@ -5,15 +5,19 @@ from typing import Generator
 from django.conf import settings
 from django.utils.module_loading import import_string
 
-from accounting.moneybird.administration import Administration, \
-    HttpsAdministration, get_moneybird_administration
+from accounting.moneybird.administration import (
+    Administration,
+    HttpsAdministration,
+    get_moneybird_administration,
+)
 from accounting.moneybird.resource_types import (
     MoneybirdResourceId,
     MoneybirdResource,
     MoneybirdResourceVersion,
     ResourceDiff,
     MoneybirdResourceType,
-    SynchronizableMoneybirdResourceType, get_moneybird_resources,
+    SynchronizableMoneybirdResourceType,
+    get_moneybird_resources,
 )
 
 MAX_REQUEST_SIZE = 100
@@ -93,16 +97,16 @@ class MoneybirdSync:
         return resources_diff
 
     def sync_resource_type(self, resource_type: MoneybirdResourceType):
-        logging.info(f"Start synchronizing {resource_type.human_readable_name}")
+        logging.info(f"Start synchronizing {resource_type.entity_type}")
         local_versions = resource_type.get_local_versions()
         if issubclass(resource_type, SynchronizableMoneybirdResourceType):
             changes = self.get_resource_diffs(resource_type, local_versions)
         else:
             resources = self.get_all_resources(resource_type)
             changes = MoneybirdResourceType.diff_resources(local_versions, resources)
-        logging.info(f"Updating {resource_type.human_readable_name} resources")
+        logging.info(f"Updating {resource_type.entity_type} resources")
         resource_type.update_resources(changes)
-        logging.info(f"Finished synchronizing {resource_type.human_readable_name}")
+        logging.info(f"Finished synchronizing {resource_type.entity_type}")
 
     def perform_sync(self, resource_types: list[MoneybirdResourceType]):
         for resource_type in resource_types:
