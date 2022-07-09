@@ -5,6 +5,7 @@ This code is largely based on moneybird-python by Jan-Jelle Kester,
 licensed under the MIT license. The source code of moneybird-python
 can be found on GitHub: https://github.com/jjkester/moneybird-python.
 """
+import json
 import logging
 from abc import ABC
 from abc import abstractmethod
@@ -119,18 +120,27 @@ class HttpsAdministration(Administration):
         self.session = _create_session_with_key(key)
         self.administration_id = administration_id
 
-    def post(self, resource_path: str, data: dict):
-        """Do a POST request on the Moneybird administration."""
-        url = _build_url(self.administration_id, resource_path)
-        logging.info(f"POST {url} with {data}")
-        response = self.session.post(url, json=data)
-        return _process_response(response)
-
     def get(self, resource_path: str):
         """Do a GET on the Moneybird administration."""
         url = _build_url(self.administration_id, resource_path)
         logging.info(f"GET {url}")
         response = self.session.get(url)
+        return _process_response(response)
+
+    def post(self, resource_path: str, data: dict):
+        """Do a POST request on the Moneybird administration."""
+        url = _build_url(self.administration_id, resource_path)
+        data = json.dumps(data)
+        logging.info(f"POST {url} with {data}")
+        response = self.session.post(url, data=data)
+        return _process_response(response)
+
+    def patch(self, resource_path: str, data: dict):
+        """Do a PATCH request on the Moneybird administration."""
+        url = _build_url(self.administration_id, resource_path)
+        data = json.dumps(data)
+        logging.info(f"PATCH {url} with {data}")
+        response = self.session.patch(url, data=data)
         return _process_response(response)
 
     def delete(self, resource_path: str):

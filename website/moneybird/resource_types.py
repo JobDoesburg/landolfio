@@ -3,6 +3,8 @@ from dataclasses import dataclass, field
 from django.conf import settings
 from django.utils.module_loading import import_string
 
+from moneybird.administration import get_moneybird_administration
+
 MoneybirdResourceId = str
 MoneybirdResourceVersion = int
 MoneybirdResource = dict
@@ -24,9 +26,11 @@ class ResourceVersionDiff:
 
 class MoneybirdResourceType:
     entity_type = None
+    entity_type_name = None
     api_path = None
     synchronizable = None
     model = None
+    can_write = True
 
     @classmethod
     def get_queryset(cls):
@@ -47,13 +51,16 @@ class MoneybirdResourceType:
 
     @classmethod
     def create_from_moneybird(cls, data: MoneybirdResource):
-        return cls.model._default_manager.create(**cls.get_model_kwargs(data))
+        return cls.model._default_manager.create(
+            **cls.get_model_kwargs(data), push_to_moneybird=False
+        )
 
     @classmethod
     def update_from_moneybird(cls, data: MoneybirdResource):
         return cls.get_queryset().update_or_create(
             moneybird_id=MoneybirdResourceId(data["id"]),
             defaults={**cls.get_model_kwargs(data)},
+            push_to_moneybird=False,
         )
 
     @classmethod
@@ -91,6 +98,25 @@ class MoneybirdResourceType:
     @classmethod
     def process_webhook_event(cls, data: MoneybirdResource, event: str):
         return cls.update_from_moneybird(data)
+
+    @classmethod
+    def serialize_for_moneybird(cls, instance):
+        return {}
+
+    @classmethod
+    def push_to_moneybird(cls, instance):
+        if not cls.can_write:
+            return None
+
+        administration = get_moneybird_administration()
+        instance_data = cls.serialize_for_moneybird(instance)
+        if instance_data == {} or instance_data is None:
+            return None
+        data = {cls.entity_type_name: cls.serialize_for_moneybird(instance)}
+
+        if instance.moneybird_id is None:
+            return administration.post(cls.api_path, data)
+        return administration.patch(f"{cls.api_path}/{instance.moneybird_id}", data)
 
 
 class SynchronizableMoneybirdResourceType(MoneybirdResourceType):
@@ -219,3 +245,15 @@ def get_moneybird_resources():
         import_string(resource_type)
         for resource_type in settings.MONEYBIRD_RESOURCE_TYPES
     ]
+
+
+def get_moneybird_resource_for_model(model):
+    for resource_type in get_moneybird_resources():
+        if resource_type.model == model:
+            return resource_type
+
+
+def get_moneybird_resource_type_for_webhook_entity(entity_type):
+    for resource_type in get_moneybird_resources():
+        if resource_type.entity_type == entity_type:
+            return resource_type

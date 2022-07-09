@@ -45,6 +45,7 @@ class JournalDocumentResourceType(MoneybirdResourceTypeWithDocumentLines):
 
 class SalesInvoiceResourceType(JournalDocumentResourceType):
     entity_type = "SalesInvoice"
+    entity_type_name = "sales_invoice"
     api_path = "sales_invoices"
 
     @classmethod
@@ -84,6 +85,7 @@ class SalesInvoiceResourceType(JournalDocumentResourceType):
 
 class PurchaseInvoiceDocumentResourceType(JournalDocumentResourceType):
     entity_type = "PurchaseInvoice"
+    entity_type_name = "purchase_invoice"
     api_path = "documents/purchase_invoices"
 
     @classmethod
@@ -113,6 +115,7 @@ class PurchaseInvoiceDocumentResourceType(JournalDocumentResourceType):
 
 class ReceiptResourceType(JournalDocumentResourceType):
     entity_type = "Receipt"
+    entity_type_name = "receipt"
     api_path = "documents/receipts"
 
     @classmethod
@@ -140,6 +143,7 @@ class ReceiptResourceType(JournalDocumentResourceType):
 
 class GeneralJournalDocumentResourceType(JournalDocumentResourceType):
     entity_type = "GeneralJournalDocument"
+    entity_type_name = "general_journal_document"
     api_path = "documents/general_journal_documents"
 
     @classmethod
@@ -170,6 +174,7 @@ class GeneralJournalDocumentResourceType(JournalDocumentResourceType):
 
 class ContactResourceType(SynchronizableMoneybirdResourceType):
     entity_type = "Contact"
+    entity_type_name = "contact"
     api_path = "contacts"
     model = Contact
 
@@ -184,9 +189,19 @@ class ContactResourceType(SynchronizableMoneybirdResourceType):
         kwargs["sepa_active"] = data["sepa_active"]
         return kwargs
 
+    @classmethod
+    def serialize_for_moneybird(cls, instance):
+        return {
+            "company_name": instance.company_name,
+            "firstname": instance.first_name,
+            "lastname": instance.last_name,
+            "email": instance.email,
+        }
+
 
 class ProductResourceType(MoneybirdResourceType):
     api_path = "products"
+    entity_type_name = "product"
     model = Product
 
     @classmethod
@@ -199,6 +214,7 @@ class ProductResourceType(MoneybirdResourceType):
 class LedgerAccountResourceType(MoneybirdResourceType):
     entity_type = "LedgerAccount"
     api_path = "ledger_accounts"
+    entity_type_name = "ledger_account"
     model = Ledger
 
     @classmethod
@@ -211,6 +227,7 @@ class LedgerAccountResourceType(MoneybirdResourceType):
 
 class EstimateResourceType(MoneybirdResourceTypeWithDocumentLines):
     entity_type = "Estimate"
+    entity_type_name = "estimate"
     api_path = "estimates"
     model = Estimate
 
@@ -240,6 +257,7 @@ class EstimateResourceType(MoneybirdResourceTypeWithDocumentLines):
 
 class RecurringSalesInvoiceResourceType(MoneybirdResourceTypeWithDocumentLines):
     entity_type = "RecurringSalesInvoice"
+    entity_type_name = "recurring_sales_invoice"
     api_path = "recurring_sales_invoices"
     model = RecurringSalesInvoice
 
@@ -276,8 +294,10 @@ class RecurringSalesInvoiceResourceType(MoneybirdResourceTypeWithDocumentLines):
 
 class WorkflowResourceType(MoneybirdResourceType):
     entity_type = "Workflow"
+    entity_type_name = "workflow"
     api_path = "workflows"
     model = Workflow
+    can_write = False
 
     @classmethod
     def get_model_kwargs(cls, data):

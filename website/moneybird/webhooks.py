@@ -6,14 +6,8 @@ from django.urls import reverse
 from moneybird.administration import get_moneybird_administration
 from moneybird.resource_types import (
     MoneybirdResource,
-    get_moneybird_resources,
+    get_moneybird_resource_type_for_webhook_entity,
 )
-
-
-def get_moneybird_resource_type_from_webhook_entity(entity_type):
-    for resource_type in get_moneybird_resources():
-        if resource_type.entity_type == entity_type:
-            return resource_type
 
 
 def process_webhook_payload(payload: MoneybirdResource) -> None:
@@ -37,7 +31,7 @@ def process_webhook_payload(payload: MoneybirdResource) -> None:
 
     entity_type = payload["entity_type"]
     entity = payload["entity"]
-    resource_type = get_moneybird_resource_type_from_webhook_entity(entity_type)
+    resource_type = get_moneybird_resource_type_for_webhook_entity(entity_type)
 
     if resource_type is None:
         logging.warning("Received webhook with unregistered entity type")
