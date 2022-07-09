@@ -13,6 +13,7 @@ from typing import Type
 from urllib.parse import urljoin
 
 import requests
+from django.conf import settings
 
 
 class Administration(ABC):
@@ -135,3 +136,11 @@ class HttpsAdministration(Administration):
         logging.info(f"POST {url}")
         response = self.session.delete(url)
         return _process_response(response)
+
+
+def get_moneybird_administration():
+    if settings.MONEYBIRD_ADMINISTRATION_ID and settings.MONEYBIRD_API_KEY:
+        return HttpsAdministration(
+            settings.MONEYBIRD_API_KEY, settings.MONEYBIRD_ADMINISTRATION_ID
+        )
+    return None

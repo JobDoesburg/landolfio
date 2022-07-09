@@ -185,8 +185,8 @@ class Asset(models.Model):
                 ledger__account_type=LedgerAccountType.EXPENSES,
                 ledger__is_purchase=True,
             )
-                .values("price")
-                .aggregate(Sum("price"))["price__sum"]
+            .values("price")
+            .aggregate(Sum("price"))["price__sum"]
         )
 
     @property
@@ -196,10 +196,9 @@ class Asset(models.Model):
                 ledger__account_type=LedgerAccountType.EXPENSES,
                 ledger__is_purchase=False,
             )
-                .values("price")
-                .aggregate(Sum("price"))["price__sum"]
+            .values("price")
+            .aggregate(Sum("price"))["price__sum"]
         )
-
 
     @property
     def total_revenue_value(self):
@@ -243,10 +242,8 @@ class Asset(models.Model):
     def purchase_value(self):
         if not self.collection.commerce:
             return None
-        return (
-            (self.total_purchase_expenses or 0)
-            + ((self.total_assets_value or 0)
-            + (self.total_direct_costs_value or 0))
+        return (self.total_purchase_expenses or 0) + (
+            (self.total_assets_value or 0) + (self.total_direct_costs_value or 0)
         )
 
     @property

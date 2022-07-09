@@ -1,5 +1,8 @@
 from dataclasses import dataclass, field
 
+from django.conf import settings
+from django.utils.module_loading import import_string
+
 MoneybirdResourceId = str
 MoneybirdResourceVersion = int
 MoneybirdResource = dict
@@ -204,3 +207,10 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
         old_lines = cls.get_local_document_line_versions(document)
         document_lines_diff = cls.diff_resources(old_lines, new_lines)
         cls.update_document_lines(document, document_lines_diff)
+
+
+def get_moneybird_resources():
+    return [
+        import_string(resource_type)
+        for resource_type in settings.MONEYBIRD_RESOURCE_TYPES
+    ]

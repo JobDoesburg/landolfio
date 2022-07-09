@@ -1,18 +1,24 @@
 import logging
+import threading
 from typing import Generator
 
-from accounting.moneybird.administration import Administration, HttpsAdministration
+from django.conf import settings
+from django.utils.module_loading import import_string
+
+from accounting.moneybird.administration import Administration, \
+    HttpsAdministration, get_moneybird_administration
 from accounting.moneybird.resource_types import (
     MoneybirdResourceId,
     MoneybirdResource,
     MoneybirdResourceVersion,
     ResourceDiff,
-    ResourceVersionDiff,
     MoneybirdResourceType,
-    SynchronizableMoneybirdResourceType,
+    SynchronizableMoneybirdResourceType, get_moneybird_resources,
 )
 
 MAX_REQUEST_SIZE = 100
+
+sync_lock = threading.Lock()
 
 
 class MoneybirdSync:
@@ -101,3 +107,19 @@ class MoneybirdSync:
     def perform_sync(self, resource_types: list[MoneybirdResourceType]):
         for resource_type in resource_types:
             self.sync_resource_type(resource_type)
+
+
+def synchronize(full_sync=False) -> None:
+    locked = sync_lock.acquire(blocking=False)
+    if locked:
+        try:
+            resource_types = get_moneybird_resources()
+            administration = get_moneybird_administration()
+            if full_sync:
+                for resource_type in resource_types:
+                    if issubclass(resource_type, SynchronizableMoneybirdResourceType):
+                        resource_type.get_queryset().update(moneybird_version=None)
+
+            MoneybirdSync(administration).perform_sync(resource_types)
+        finally:
+            sync_lock.release()
