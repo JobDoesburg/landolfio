@@ -137,3 +137,7 @@ MONEYBIRD_RESOURCE_TYPES = [
     "accounting.moneybird_resources.RecurringSalesInvoiceResourceType",
 ]
 MONEYBIRD_WEBHOOK_SITE_DOMAIN = "http://localhost:8000"
+MONEYBIRD_WEBHOOK_EVENTS = [
+    "contact",
+    "sales_invoice",
+]

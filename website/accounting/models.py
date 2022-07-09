@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext as _
 
-from accounting.moneybird.models import (
+from moneybird.models import (
     MoneybirdResourceModel,
     SynchronizableMoneybirdResourceModel,
 )
@@ -189,7 +189,11 @@ class JournalDocument(SynchronizableMoneybirdResourceModel):
 class JournalDocumentLine(MoneybirdResourceModel):
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
     ledger = models.ForeignKey(
-        Ledger, on_delete=models.PROTECT, verbose_name=_("Ledger")
+        Ledger,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,
+        verbose_name=_("Ledger"),
     )
     price = models.DecimalField(
         max_digits=19, decimal_places=2, verbose_name=_("Price")

@@ -153,7 +153,7 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
         )  # TODO: Make document_lines a property of the model
 
     @classmethod
-    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource):
+    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
         return {"moneybird_id": MoneybirdResourceId(line_data["id"])}
 
     @classmethod
@@ -161,7 +161,7 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
         cls, document, line_data: MoneybirdResource
     ):
         return cls.get_document_lines_queryset(document).create(
-            document=document, **cls.get_document_line_model_kwargs(line_data)
+            **cls.get_document_line_model_kwargs(line_data, document)
         )
 
     @classmethod
@@ -170,8 +170,7 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
     ):
         return cls.get_document_lines_queryset(document).update_or_create(
             moneybird_id=MoneybirdResourceId(line_data["id"]),
-            document=document,
-            defaults={**cls.get_document_line_model_kwargs(line_data)},
+            defaults={**cls.get_document_line_model_kwargs(line_data, document)},
         )
 
     @classmethod

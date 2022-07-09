@@ -104,6 +104,9 @@ def _process_response(response: requests.Response) -> dict:
 
         raise error(code, error_description)
 
+    if code == 204:
+        return {}
+
     return response.json()
 
 
@@ -133,7 +136,7 @@ class HttpsAdministration(Administration):
     def delete(self, resource_path: str):
         """Do a DELETE on the Moneybird administration."""
         url = _build_url(self.administration_id, resource_path)
-        logging.info(f"POST {url}")
+        logging.info(f"DELETE {url}")
         response = self.session.delete(url)
         return _process_response(response)
 

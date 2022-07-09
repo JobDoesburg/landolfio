@@ -16,7 +16,7 @@ from accounting.models import (
     LedgerAccountType,
 )
 
-from accounting.moneybird.resource_types import (
+from moneybird.resource_types import (
     MoneybirdResourceId,
     MoneybirdResource,
     MoneybirdResourceType,
@@ -35,8 +35,9 @@ class JournalDocumentResourceType(MoneybirdResourceTypeWithDocumentLines):
         return kwargs
 
     @classmethod
-    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource):
-        kwargs = super().get_document_line_model_kwargs(line_data)
+    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
+        kwargs = super().get_document_line_model_kwargs(line_data, document)
+        kwargs["document"] = document
         kwargs["moneybird_json"] = line_data
         ledger_account_id = MoneybirdResourceId(line_data["ledger_account_id"])
         ledger, _ = Ledger.objects.get_or_create(moneybird_id=ledger_account_id)
@@ -71,8 +72,8 @@ class SalesInvoiceResourceType(JournalDocumentResourceType):
         return kwargs
 
     @classmethod
-    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource):
-        kwargs = super().get_document_line_model_kwargs(line_data)
+    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
+        kwargs = super().get_document_line_model_kwargs(line_data, document)
         ledger = kwargs["ledger"]
         kwargs["price"] = line_data["total_price_excl_tax_with_discount_base"]
         if (
@@ -106,8 +107,8 @@ class PurchaseInvoiceDocumentResourceType(JournalDocumentResourceType):
         return kwargs
 
     @classmethod
-    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource):
-        kwargs = super().get_document_line_model_kwargs(line_data)
+    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
+        kwargs = super().get_document_line_model_kwargs(line_data, document)
         kwargs["price"] = line_data["total_price_excl_tax_with_discount_base"]
         return kwargs
 
@@ -133,8 +134,8 @@ class ReceiptResourceType(JournalDocumentResourceType):
         return kwargs
 
     @classmethod
-    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource):
-        kwargs = super().get_document_line_model_kwargs(line_data)
+    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
+        kwargs = super().get_document_line_model_kwargs(line_data, document)
         kwargs["price"] = line_data["total_price_excl_tax_with_discount_base"]
         return kwargs
 
@@ -163,8 +164,8 @@ class GeneralJournalDocumentResourceType(JournalDocumentResourceType):
         return data["general_journal_document_entries"]
 
     @classmethod
-    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource):
-        kwargs = super().get_document_line_model_kwargs(line_data)
+    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
+        kwargs = super().get_document_line_model_kwargs(line_data, document)
         kwargs["price"] = Decimal(line_data["debit"]) - Decimal(line_data["credit"])
         return kwargs
 
@@ -232,8 +233,9 @@ class EstimateResourceType(MoneybirdResourceTypeWithDocumentLines):
         return kwargs
 
     @classmethod
-    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource):
-        kwargs = super().get_document_line_model_kwargs(line_data)
+    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
+        kwargs = super().get_document_line_model_kwargs(line_data, document)
+        kwargs["document"] = document
         kwargs["moneybird_json"] = line_data
         return kwargs
 
@@ -267,8 +269,9 @@ class RecurringSalesInvoiceResourceType(MoneybirdResourceTypeWithDocumentLines):
         return kwargs
 
     @classmethod
-    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource):
-        kwargs = super().get_document_line_model_kwargs(line_data)
+    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
+        kwargs = super().get_document_line_model_kwargs(line_data, document)
+        kwargs["document"] = document
         kwargs["moneybird_json"] = line_data
         return kwargs
 

@@ -2,15 +2,11 @@ import logging
 import threading
 from typing import Generator
 
-from django.conf import settings
-from django.utils.module_loading import import_string
-
-from accounting.moneybird.administration import (
+from moneybird.administration import (
     Administration,
-    HttpsAdministration,
     get_moneybird_administration,
 )
-from accounting.moneybird.resource_types import (
+from moneybird.resource_types import (
     MoneybirdResourceId,
     MoneybirdResource,
     MoneybirdResourceVersion,

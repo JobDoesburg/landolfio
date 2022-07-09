@@ -3,8 +3,8 @@ import logging
 from django.conf import settings
 from django.urls import reverse
 
-from accounting.moneybird.administration import get_moneybird_administration
-from accounting.moneybird.resource_types import (
+from moneybird.administration import get_moneybird_administration
+from moneybird.resource_types import (
     MoneybirdResource,
     get_moneybird_resources,
 )
@@ -47,16 +47,16 @@ def process_webhook_payload(payload: MoneybirdResource) -> None:
 
 
 def get_webhook_receive_endpoint():
-    if not settings.MONEYBIRD_WEBHOOK_RECEIVE_ENDPOINT:
+    if not settings.MONEYBIRD_WEBHOOK_SITE_DOMAIN:
         return None
     return settings.MONEYBIRD_WEBHOOK_SITE_DOMAIN + reverse("moneybird:webhook_receive")
 
 
 def create_webhook():
-    if settings.MONEYBIRD_WEBHOOK_RECEIVE_ENDPOINT.startswith("http://") and not (
+    if settings.MONEYBIRD_WEBHOOK_SITE_DOMAIN.startswith("http://") and not (
         settings.DEBUG or settings.MONEYBIRD_WEBHOOK_ALLOW_INSECURE
     ):
-        logging.warning("MONEYBIRD_WEBHOOK_RECEIVE_ENDPOINT is not secure")
+        logging.warning("MONEYBIRD_WEBHOOK_SITE_DOMAIN is not secure")
         return None
 
     url = get_webhook_receive_endpoint()
@@ -64,7 +64,19 @@ def create_webhook():
         return
 
     events = settings.MONEYBIRD_WEBHOOK_EVENTS
-    administration = get_moneybird_administration()
-    response = administration.post("webhooks", data={"url": url, "events": events})
+    if events is None:
+        logging.info("No events to register a webhook for.")
+        return
 
-    return response["id"], response["token"]
+    administration = get_moneybird_administration()
+    return administration.post("webhooks", data={"url": url, "events": events})
+
+
+def get_webhooks():
+    administration = get_moneybird_administration()
+    return administration.get("webhooks")
+
+
+def delete_webhook(webhook_id):
+    administration = get_moneybird_administration()
+    return administration.delete(f"webhooks/{webhook_id}")

@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from accounting.services import sync_moneybird
+from moneybird.synchronization import synchronize
 
 
 class Command(BaseCommand):
@@ -14,7 +14,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        sync_moneybird(full_sync=options["full"])
+        synchronize(full_sync=options["full"])
         self.stdout.write(
             self.style.SUCCESS("Successfully synchronized with Moneybird")
         )

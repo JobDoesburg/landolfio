@@ -6,7 +6,7 @@ from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from accounting.moneybird.webhooks import process_webhook_payload
+from moneybird.webhooks import process_webhook_payload
 
 WEBHOOK_CACHE_CAPACITY = 10
 
