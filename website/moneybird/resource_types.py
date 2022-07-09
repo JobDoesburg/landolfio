@@ -135,6 +135,8 @@ class SynchronizableMoneybirdResourceType(MoneybirdResourceType):
 
 
 class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType):
+    document_lines_foreign_key = "document_lines"
+
     @classmethod
     def get_local_document_line_versions(cls, document) -> list[MoneybirdResourceId]:
         return list(
@@ -148,9 +150,7 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
 
     @classmethod
     def get_document_lines_queryset(cls, document):
-        return (
-            document.document_lines.all()
-        )  # TODO: Make document_lines a property of the model
+        return getattr(document, cls.document_lines_foreign_key).all()
 
     @classmethod
     def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
