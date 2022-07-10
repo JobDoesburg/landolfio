@@ -57,13 +57,14 @@ class MoneybirdResourceType:
         return obj
 
     @classmethod
-    def update_from_moneybird(cls, resource_data: MoneybirdResource):
-        try:
-            obj = cls.get_queryset().get(
-                moneybird_id=MoneybirdResourceId(resource_data["id"])
-            )
-        except cls.model.DoesNotExist:
-            return cls.create_from_moneybird(resource_data), True
+    def update_from_moneybird(cls, resource_data: MoneybirdResource, obj=None):
+        if obj is None:
+            try:
+                obj = cls.get_queryset().get(
+                    moneybird_id=MoneybirdResourceId(resource_data["id"])
+                )
+            except cls.model.DoesNotExist:
+                return cls.create_from_moneybird(resource_data), True
 
         obj.update_fields_from_moneybird(resource_data)
         obj.save(push_to_moneybird=False)
@@ -159,7 +160,7 @@ class MoneybirdResourceType:
         administration = get_moneybird_administration()
         data = administration.get(f"{cls.api_path}/{instance.moneybird_id}")
 
-        cls.update_from_moneybird(data)
+        cls.update_from_moneybird(data, obj=instance)
 
         instance.update_fields_from_moneybird(data)
         return data
@@ -232,11 +233,10 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
     def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
         return {"moneybird_id": MoneybirdResourceId(line_data["id"])}
 
-
     @classmethod
     def push_to_moneybird(cls, instance, data=None):
         returned_data = super().push_to_moneybird(instance, data)
-        cls.update_from_moneybird(returned_data)
+        cls.update_from_moneybird(returned_data, obj=instance)
         return returned_data
 
     @classmethod
@@ -245,7 +245,8 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
     ):
         obj = cls.document_lines_model(
             **cls.get_document_line_model_kwargs(line_data, document)
-        )
+        )  # TODO maybe here we can get the non-saved (so no id, no mb id) object and update it instead of creating a completely new one?
+
         obj.save(push_to_moneybird=False)
         return obj
 
@@ -302,8 +303,8 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
             cls.create_document_line_from_moneybird(document, line_data)
 
     @classmethod
-    def update_from_moneybird(cls, resource_data: MoneybirdResource):
-        document, _ = super().update_from_moneybird(resource_data)
+    def update_from_moneybird(cls, resource_data: MoneybirdResource, obj=None):
+        document, _ = super().update_from_moneybird(resource_data, obj)
         new_lines = cls.get_document_line_resource_data(resource_data)
         old_lines = cls.get_local_document_line_versions(document)
         document_lines_diff = cls.diff_resources(old_lines, new_lines)

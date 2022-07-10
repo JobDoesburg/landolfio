@@ -60,9 +60,6 @@ class JournalDocumentLineInline(admin.StackedInline):
     change_form_template = "admin/accounting/document/change_form.html"
     extra = 0
 
-    def has_add_permission(self, request, obj):
-        return False
-
     def json_mb_html(self, obj):  # pylint: disable = no-self-use
         """Convert JSON to HTML table."""
         return mark_safe(json2html.convert(obj.moneybird_json))
@@ -103,10 +100,6 @@ class JournalDocumentAdmin(admin.ModelAdmin):
 
     json_mb_html.short_description = "JSON MoneyBird"
 
-    def has_add_permission(self, request):
-        """Prevent all users from adding Documents."""
-        return False
-
 
 @register(Contact)
 class ContactAdmin(admin.ModelAdmin):
@@ -124,10 +117,6 @@ class ContactAdmin(admin.ModelAdmin):
     )
     list_filter = ("sepa_active",)
 
-    def has_add_permission(self, request):
-        """Prevent all users from adding Documents."""
-        return False
-
 
 class EstimateDocumentLineInline(admin.StackedInline):
     """The admin view for DocumentLines."""
@@ -137,9 +126,6 @@ class EstimateDocumentLineInline(admin.StackedInline):
     readonly_fields = ["json_mb_html"]
     change_form_template = "admin/accounting/document/change_form.html"
     extra = 0
-
-    def has_add_permission(self, request, obj):
-        return False
 
     def json_mb_html(self, obj):  # pylint: disable = no-self-use
         """Convert JSON to HTML table."""
@@ -169,10 +155,6 @@ class EstimateAdmin(admin.ModelAdmin):
 
     json_mb_html.short_description = "JSON MoneyBird"
 
-    def has_add_permission(self, request):
-        """Prevent all users from adding Documents."""
-        return False
-
 
 class RecurringSalesInvoiceDocumentLineInline(admin.StackedInline):
     """The admin view for DocumentLines."""
@@ -182,9 +164,6 @@ class RecurringSalesInvoiceDocumentLineInline(admin.StackedInline):
     readonly_fields = ["json_mb_html"]
     change_form_template = "admin/accounting/document/change_form.html"
     extra = 0
-
-    def has_add_permission(self, request, obj):
-        return False
 
     def json_mb_html(self, obj):  # pylint: disable = no-self-use
         """Convert JSON to HTML table."""
@@ -225,7 +204,3 @@ class RecurringSalesInvoiceAdmin(admin.ModelAdmin):
         return mark_safe(json2html.convert(obj.moneybird_json))
 
     json_mb_html.short_description = "JSON MoneyBird"
-
-    def has_add_permission(self, request):
-        """Prevent all users from adding Documents."""
-        return False
