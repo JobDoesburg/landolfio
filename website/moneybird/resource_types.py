@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 
 from django.conf import settings
-from django.db.models.utils import resolve_callables
 from django.utils.module_loading import import_string
 
 from moneybird.administration import get_moneybird_administration
@@ -250,10 +249,7 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
         except cls.model.DoesNotExist:
             return cls.create_document_line_from_moneybird(document, line_data), True
 
-        for k, v in resolve_callables(
-            cls.get_document_line_model_kwargs(line_data, document)
-        ):
-            setattr(obj, k, v)
+        obj.update_fields_from_moneybird(line_data)
         obj.save(push_to_moneybird=False)
 
         return obj, False
@@ -324,12 +320,11 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
         return data
 
     @classmethod
-    def push_document_line_to_moneybird(cls, document_line, document):
-        document_line_data = cls.serialize_document_line_for_moneybird(
-            document_line, document
-        )
-        data = {cls.document_lines_attributes_name: [document_line_data]}
-        returned_data = cls.push_to_moneybird(document, data)
+    def push_document_line_to_moneybird(cls, document_line, document, data=None):
+        if data is None:
+            data = cls.serialize_document_line_for_moneybird(document_line, document)
+        request_data = {cls.document_lines_attributes_name: [data]}
+        returned_data = cls.push_to_moneybird(document, request_data)
         document.save(push_to_moneybird=False)
         return returned_data
 

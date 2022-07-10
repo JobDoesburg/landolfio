@@ -4,6 +4,7 @@ from django.utils.translation import gettext as _
 from moneybird.models import (
     MoneybirdResourceModel,
     SynchronizableMoneybirdResourceModel,
+    MoneybirdDocumentLineModel,
 )
 
 
@@ -186,7 +187,7 @@ class JournalDocument(SynchronizableMoneybirdResourceModel):
         ordering = ("-date",)
 
 
-class JournalDocumentLine(MoneybirdResourceModel):
+class JournalDocumentLine(MoneybirdDocumentLineModel):
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
     ledger = models.ForeignKey(
         Ledger,
@@ -252,7 +253,7 @@ class Estimate(SynchronizableMoneybirdResourceModel):
         ordering = ("-date",)
 
 
-class EstimateDocumentLine(MoneybirdResourceModel):
+class EstimateDocumentLine(MoneybirdDocumentLineModel):
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
     document = models.ForeignKey(
         Estimate,
@@ -323,7 +324,7 @@ class RecurringSalesInvoice(SynchronizableMoneybirdResourceModel):
         ordering = ("-start_date",)
 
 
-class RecurringSalesInvoiceDocumentLine(MoneybirdResourceModel):
+class RecurringSalesInvoiceDocumentLine(MoneybirdDocumentLineModel):
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
     document = models.ForeignKey(
         RecurringSalesInvoice,
