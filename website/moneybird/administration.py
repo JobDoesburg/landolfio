@@ -76,6 +76,8 @@ def _build_url(administration_id: int, resource_path: str) -> str:
 
 
 def _process_response(response: requests.Response) -> dict:
+    logging.info(f"Response {response.status_code}: {response.json()}")
+
     good_codes = {200, 201, 204}
     bad_codes: dict[int, Type[Administration.Error]] = {
         400: Administration.Unauthorized,
