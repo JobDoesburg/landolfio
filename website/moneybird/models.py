@@ -139,13 +139,19 @@ class MoneybirdDocumentLineModel(MoneybirdResourceModel):
         return self.document_line_parent.refresh_from_moneybird()
 
     def save(self, push_to_moneybird=True, *args, **kwargs):
+        old_object = None
+        if push_to_moneybird and self.document_line_parent is not None and self.moneybird_id is not None:
+            old_object = self.__class__.objects.get(pk=self.pk)
+
         super().save(push_to_moneybird=False, *args, **kwargs)
+
         if push_to_moneybird and self.document_line_parent is not None:
             if self.moneybird_id is None:
                 self.push_to_moneybird()
             else:
-                old_object = self.__class__.objects.get(pk=self.pk)
                 self.push_diff_to_moneybird(old_object)
+            # TODO right now, our self instance has been removed and a new instance is created. Can we replace self for the newly created one? We can't find it from the query response...
+            # TODO is it possible to do this pre-save too?
 
     def delete(self, delete_on_moneybird=True, *args, **kwargs):
         super().delete(delete_on_moneybird=False, *args, **kwargs)

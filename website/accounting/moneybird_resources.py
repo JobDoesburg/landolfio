@@ -91,17 +91,18 @@ class SalesInvoiceResourceType(JournalDocumentResourceType):
     @classmethod
     def serialize_document_line_for_moneybird(cls, document_line, document):
         data = super().serialize_document_line_for_moneybird(document_line, document)
-        data["ledger_account_id"] = MoneybirdResourceId(
-            document_line.ledger.moneybird_id
-        )
         data["description"] = "test"  # TODO fix this
         data["price"] = float(document_line.price)
-        if (
-            document_line.ledger.account_type
-            and document_line.ledger.account_type
-            == LedgerAccountType.NON_CURRENT_ASSETS
-        ):
-            data["price"] = float(-1 * document_line.price)  # TODO is dit handig?
+        if document_line.ledger:
+            data["ledger_account_id"] = MoneybirdResourceId(
+                document_line.ledger.moneybird_id
+            )
+            if (
+                document_line.ledger.account_type
+                and document_line.ledger.account_type
+                == LedgerAccountType.NON_CURRENT_ASSETS
+            ):
+                data["price"] = float(-1 * document_line.price)  # TODO is dit handig?
         return data
 
     @classmethod

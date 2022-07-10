@@ -232,6 +232,13 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
     def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
         return {"moneybird_id": MoneybirdResourceId(line_data["id"])}
 
+
+    @classmethod
+    def push_to_moneybird(cls, instance, data=None):
+        returned_data = super().push_to_moneybird(instance, data)
+        cls.update_from_moneybird(returned_data)
+        return returned_data
+
     @classmethod
     def create_document_line_from_moneybird(
         cls, document, line_data: MoneybirdResource
@@ -329,7 +336,6 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
             data = cls.serialize_document_line_for_moneybird(document_line, document)
         request_data = {cls.document_lines_attributes_name: [data]}
         returned_data = cls.push_to_moneybird(document, request_data)
-        document.save(push_to_moneybird=False)
         return returned_data
 
     @classmethod
