@@ -139,7 +139,7 @@ class MoneybirdDocumentLineModel(MoneybirdResourceModel):
         return self.document_line_parent.refresh_from_moneybird()
 
     def save(self, push_to_moneybird=True, *args, **kwargs):
-        super().save(*args, **kwargs)
+        super().save(push_to_moneybird=False, *args, **kwargs)
         if push_to_moneybird and self.document_line_parent is not None:
             if self.moneybird_id is None:
                 self.push_to_moneybird()
@@ -148,7 +148,7 @@ class MoneybirdDocumentLineModel(MoneybirdResourceModel):
                 self.push_diff_to_moneybird(old_object)
 
     def delete(self, delete_on_moneybird=True, *args, **kwargs):
-        super().delete(*args, **kwargs)
+        super().delete(delete_on_moneybird=False, *args, **kwargs)
         if delete_on_moneybird and self.document_line_parent is not None:
             self.document_line_parent.moneybird_resource_type_class.delete_document_line_on_moneybird(
                 self, self.document_line_parent
@@ -163,7 +163,7 @@ class MoneybirdDocumentLineModel(MoneybirdResourceModel):
 
     def update_fields_from_moneybird(self, data):
         fields_to_update = self.moneybird_document_line_parent_resource_type_class.get_document_line_model_kwargs(
-            data
+            data, self.document_line_parent
         )
         for k, v in resolve_callables(fields_to_update):
             setattr(self, k, v)

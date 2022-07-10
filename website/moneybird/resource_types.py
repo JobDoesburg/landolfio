@@ -72,7 +72,11 @@ class MoneybirdResourceType:
 
     @classmethod
     def delete_from_moneybird(cls, resource_id: MoneybirdResourceId):
-        return cls.get_queryset().get(moneybird_id=resource_id).delete()
+        return (
+            cls.get_queryset()
+            .get(moneybird_id=resource_id)
+            .delete(delete_on_moneybird=False)
+        )
 
     @classmethod
     def update_resources(cls, diff: ResourceDiff):
@@ -261,7 +265,7 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
         return (
             cls.get_document_lines_queryset(document)
             .get(moneybird_id=resource_id)
-            .delete()
+            .delete(delete_on_moneybird=False)
         )
 
     @classmethod
@@ -330,6 +334,9 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
 
     @classmethod
     def delete_document_line_on_moneybird(cls, document_line, document):
+        if not document_line.moneybird_id:
+            return
+
         document_line_data = {
             "id": MoneybirdResourceId(document_line.moneybird_id),
             "_destroy": True,

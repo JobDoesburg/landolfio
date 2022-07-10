@@ -91,7 +91,9 @@ class SalesInvoiceResourceType(JournalDocumentResourceType):
     @classmethod
     def serialize_document_line_for_moneybird(cls, document_line, document):
         data = super().serialize_document_line_for_moneybird(document_line, document)
-        data["ledger"] = MoneybirdResourceId(document_line.ledger.moneybird_id)
+        data["ledger_account_id"] = MoneybirdResourceId(
+            document_line.ledger.moneybird_id
+        )
         data["description"] = "test"  # TODO fix this
         data["price"] = float(document_line.price)
         if (
