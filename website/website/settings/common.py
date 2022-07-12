@@ -125,14 +125,16 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Moneybird resources to syncronize
 
 MONEYBIRD_RESOURCE_TYPES = [
-    "accounting.moneybird_resources.LedgerAccountResourceType",
+    "accounting.moneybird_resources.TaxRateResourceType",
     "accounting.moneybird_resources.WorkflowResourceType",
+    "accounting.moneybird_resources.LedgerAccountResourceType",
+    "accounting.moneybird_resources.ProductResourceType",
+    "accounting.moneybird_resources.ProjectResourceType",
     "accounting.moneybird_resources.ContactResourceType",
     "accounting.moneybird_resources.SalesInvoiceResourceType",
     "accounting.moneybird_resources.PurchaseInvoiceDocumentResourceType",
     "accounting.moneybird_resources.ReceiptResourceType",
     "accounting.moneybird_resources.GeneralJournalDocumentResourceType",
-    "accounting.moneybird_resources.ProductResourceType",
     "accounting.moneybird_resources.EstimateResourceType",
     "accounting.moneybird_resources.RecurringSalesInvoiceResourceType",
 ]

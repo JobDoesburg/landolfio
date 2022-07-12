@@ -85,7 +85,7 @@ class MoneybirdResourceModel(models.Model):
     def delete_on_moneybird(self):
         if self.moneybird_resource_type_class is None:
             return
-        self.moneybird_resource_type_class.delete_from_moneybird(self)
+        self.moneybird_resource_type_class.delete_on_moneybird(self)
 
     def refresh_from_moneybird(self):
         if self.moneybird_resource_type_class is None:

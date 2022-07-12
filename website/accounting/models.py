@@ -136,6 +136,18 @@ class Workflow(MoneybirdResourceModel):
         return f"Workflow {self.moneybird_id}"
 
 
+class Product(MoneybirdResourceModel):
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
+
+
+class Project(MoneybirdResourceModel):
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
+
+
+class TaxRate(MoneybirdResourceModel):
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
+
+
 class DocumentKind(models.TextChoices):
     SALES_INVOICE = "FAC", _("Sales invoice")
     PURCHASE_INVOICE = "INK", _("Purchase invoice")
@@ -189,6 +201,12 @@ class JournalDocument(SynchronizableMoneybirdResourceModel):
 
 class JournalDocumentLine(MoneybirdDocumentLineModel):
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
+    description = models.TextField(
+        verbose_name=_("Description"), null=False, blank=False
+    )
+    amount = models.CharField(
+        verbose_name=_("Amount"), null=True, blank=True, default="1 x", max_length=10
+    )
     ledger = models.ForeignKey(
         Ledger,
         on_delete=models.SET_NULL,
@@ -196,6 +214,30 @@ class JournalDocumentLine(MoneybirdDocumentLineModel):
         blank=False,
         verbose_name=_("Ledger"),
     )
+
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,
+        verbose_name=_("Project"),
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,
+        verbose_name=_("Product"),
+    )
+
+    tax_rate = models.ForeignKey(
+        TaxRate,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,
+        verbose_name=_("Tax rate"),
+    )
+
     price = models.DecimalField(
         max_digits=19, decimal_places=2, verbose_name=_("Price")
     )
@@ -353,8 +395,4 @@ class RecurringSalesInvoiceDocumentLine(MoneybirdDocumentLineModel):
 
 
 class Subscription(MoneybirdResourceModel):
-    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
-
-
-class Product(MoneybirdResourceModel):
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)

@@ -14,6 +14,9 @@ from .models import (
     RecurringSalesInvoice,
     RecurringSalesInvoiceDocumentLine,
     Workflow,
+    Product,
+    TaxRate,
+    Project,
 )
 
 
@@ -51,11 +54,58 @@ class WorkflowAdmin(admin.ModelAdmin):
         return False
 
 
+@register(Product)
+class ProductAdmin(admin.ModelAdmin):
+    """The Django admin config for the Product model."""
+
+    model = Product
+    list_display = (
+        "__str__",
+        "moneybird_id",
+    )
+
+
+@register(Project)
+class ProjectAdmin(admin.ModelAdmin):
+    """The Django admin config for the Project model."""
+
+    model = Project
+    list_display = (
+        "__str__",
+        "moneybird_id",
+    )
+
+
+@register(TaxRate)
+class TaxRateAdmin(admin.ModelAdmin):
+    """The Django admin config for the TaxRate model."""
+
+    model = TaxRate
+    list_display = (
+        "__str__",
+        "moneybird_id",
+    )
+
+    def has_add_permission(self, request):
+        """Prevent all users from adding Documents."""
+        return False
+
+
 class JournalDocumentLineInline(admin.StackedInline):
     """The admin view for DocumentLines."""
 
     model = JournalDocumentLine
-    fields = ("asset_id_field", "asset", "ledger", "price", "json_mb_html")
+    fields = (
+        "asset_id_field",
+        "asset",
+        "description",
+        "amount",
+        "ledger",
+        "price",
+        "tax_rate",
+        "project",
+        "json_mb_html",
+    )
     readonly_fields = ["json_mb_html"]
     change_form_template = "admin/accounting/document/change_form.html"
     extra = 0

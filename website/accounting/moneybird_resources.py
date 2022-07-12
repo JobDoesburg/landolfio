@@ -17,15 +17,56 @@ from accounting.models import (
     JournalDocumentLine,
     EstimateDocumentLine,
     RecurringSalesInvoiceDocumentLine,
+    Project,
+    TaxRate,
 )
 
 from moneybird.resource_types import (
     MoneybirdResourceId,
     MoneybirdResource,
-    MoneybirdResourceType,
-    SynchronizableMoneybirdResourceType,
     MoneybirdResourceTypeWithDocumentLines,
 )
+from moneybird import resources
+
+
+def _get_workflow_from_moneybird_data(data: MoneybirdResource):
+    if not data["workflow_id"]:
+        return None
+    workflow_id = MoneybirdResourceId(data["workflow_id"])
+    workflow, _ = Workflow.objects.get_or_create(moneybird_id=workflow_id)
+    return workflow
+
+
+def _get_ledger_from_moneybird_data(data: MoneybirdResource):
+    if not data["ledger_account_id"]:
+        return None
+    ledger_account_id = MoneybirdResourceId(data["ledger_account_id"])
+    ledger, _ = Ledger.objects.get_or_create(moneybird_id=ledger_account_id)
+    return ledger
+
+
+def _get_project_from_moneybird_data(data: MoneybirdResource):
+    if not data["project_id"]:
+        return None
+    project_id = MoneybirdResourceId(data["project_id"])
+    project, _ = Project.objects.get_or_create(moneybird_id=project_id)
+    return project
+
+
+def _get_contact_from_moneybird_data(data: MoneybirdResource):
+    if not data["contact"]:
+        return None
+    contact_id = MoneybirdResourceId(data["contact"]["id"])
+    contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
+    return contact
+
+
+def _get_tax_rate_from_moneybird_data(data: MoneybirdResource):
+    if not data["tax_rate_id"]:
+        return None
+    tax_rate_id = MoneybirdResourceId(data["tax_rate_id"])
+    tax_rate, _ = TaxRate.objects.get_or_create(moneybird_id=tax_rate_id)
+    return tax_rate
 
 
 class JournalDocumentResourceType(MoneybirdResourceTypeWithDocumentLines):
@@ -44,18 +85,16 @@ class JournalDocumentResourceType(MoneybirdResourceTypeWithDocumentLines):
     def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
         kwargs = super().get_document_line_model_kwargs(line_data, document)
         kwargs["document"] = document
+        kwargs["description"] = line_data["description"]
+        kwargs["ledger"] = _get_ledger_from_moneybird_data(line_data)
+        kwargs["project"] = _get_project_from_moneybird_data(line_data)
         kwargs["moneybird_json"] = line_data
-        ledger_account_id = MoneybirdResourceId(line_data["ledger_account_id"])
-        ledger, _ = Ledger.objects.get_or_create(moneybird_id=ledger_account_id)
-        kwargs["ledger"] = ledger
         return kwargs
 
 
-class SalesInvoiceResourceType(JournalDocumentResourceType):
-    entity_type = "SalesInvoice"
-    entity_type_name = "sales_invoice"
-    api_path = "sales_invoices"
-
+class SalesInvoiceResourceType(
+    resources.SalesInvoiceResourceType, JournalDocumentResourceType
+):
     @classmethod
     def get_queryset(cls):
         return super().get_queryset().filter(document_kind=DocumentKind.SALES_INVOICE)
@@ -65,33 +104,41 @@ class SalesInvoiceResourceType(JournalDocumentResourceType):
         kwargs = super().get_model_kwargs(data)
         kwargs["document_kind"] = DocumentKind.SALES_INVOICE
         kwargs["date"] = datetime.datetime.fromisoformat(data["invoice_date"]).date()
-        if data["contact"]:
-            contact_id = MoneybirdResourceId(data["contact"]["id"])
-            contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
-            kwargs["contact"] = contact
-
-        workflow_id = MoneybirdResourceId(data["workflow_id"])
-        workflow, _ = Workflow.objects.get_or_create(moneybird_id=workflow_id)
-        kwargs["workflow"] = workflow
+        kwargs["contact"] = _get_contact_from_moneybird_data(data)
+        kwargs["workflow"] = _get_workflow_from_moneybird_data(data)
         kwargs["total_price"] = data["total_price_incl_tax_base"]
         kwargs["total_paid"] = data["total_paid"]
         kwargs["total_unpaid"] = data["total_unpaid"]
         return kwargs
 
     @classmethod
+    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
+        kwargs = super().get_document_line_model_kwargs(line_data, document)
+        kwargs["amount"] = line_data["amount"]
+        kwargs["tax_rate"] = _get_tax_rate_from_moneybird_data(line_data)
+        ledger = kwargs["ledger"]
+        kwargs["price"] = line_data["total_price_excl_tax_with_discount_base"]
+        if (
+            ledger.account_type
+            and ledger.account_type == LedgerAccountType.NON_CURRENT_ASSETS
+        ):
+            kwargs["price"] = -1 * Decimal(kwargs["price"])  # TODO is dit handig?
+        return kwargs
+
+    @classmethod
     def serialize_for_moneybird(cls, instance):
         data = super().serialize_for_moneybird(instance)
         data["invoice_date"] = instance.date.isoformat()
-        data["contact"] = instance.contact.moneybird_id if instance.contact else None
-        data["workflow_id"] = (
-            instance.workflow.moneybird_id if instance.workflow else None
-        )
+        if instance.contact:
+            data["contact"] = MoneybirdResourceId(instance.contact.moneybird_id)
+        if instance.workflow:
+            data["workflow_id"] = MoneybirdResourceId(instance.workflow.moneybird_id)
         return data
 
     @classmethod
     def serialize_document_line_for_moneybird(cls, document_line, document):
         data = super().serialize_document_line_for_moneybird(document_line, document)
-        data["description"] = "test"  # TODO fix this
+        data["description"] = document_line.description
         data["price"] = float(document_line.price)
         if document_line.ledger:
             data["ledger_account_id"] = MoneybirdResourceId(
@@ -105,24 +152,10 @@ class SalesInvoiceResourceType(JournalDocumentResourceType):
                 data["price"] = float(-1 * document_line.price)  # TODO is dit handig?
         return data
 
-    @classmethod
-    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
-        kwargs = super().get_document_line_model_kwargs(line_data, document)
-        ledger = kwargs["ledger"]
-        kwargs["price"] = line_data["total_price_excl_tax_with_discount_base"]
-        if (
-            ledger.account_type
-            and ledger.account_type == LedgerAccountType.NON_CURRENT_ASSETS
-        ):
-            kwargs["price"] = -1 * Decimal(kwargs["price"])  # TODO is dit handig?
-        return kwargs
 
-
-class PurchaseInvoiceDocumentResourceType(JournalDocumentResourceType):
-    entity_type = "PurchaseInvoice"
-    entity_type_name = "purchase_invoice"
-    api_path = "documents/purchase_invoices"
-
+class PurchaseInvoiceDocumentResourceType(
+    resources.PurchaseInvoiceDocumentResourceType, JournalDocumentResourceType
+):
     @classmethod
     def get_queryset(cls):
         return (
@@ -134,25 +167,20 @@ class PurchaseInvoiceDocumentResourceType(JournalDocumentResourceType):
         kwargs = super().get_model_kwargs(data)
         kwargs["document_kind"] = DocumentKind.PURCHASE_INVOICE
         kwargs["date"] = datetime.datetime.fromisoformat(data["date"]).date()
-        if data["contact"]:
-            contact_id = MoneybirdResourceId(data["contact"]["id"])
-            contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
-            kwargs["contact"] = contact
+        kwargs["contact"] = _get_contact_from_moneybird_data(data)
         kwargs["total_price"] = data["total_price_incl_tax_base"]
         return kwargs
 
     @classmethod
     def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
         kwargs = super().get_document_line_model_kwargs(line_data, document)
+        kwargs["amount"] = line_data["amount"]
+        kwargs["tax_rate"] = _get_tax_rate_from_moneybird_data(line_data)
         kwargs["price"] = line_data["total_price_excl_tax_with_discount_base"]
         return kwargs
 
 
-class ReceiptResourceType(JournalDocumentResourceType):
-    entity_type = "Receipt"
-    entity_type_name = "receipt"
-    api_path = "documents/receipts"
-
+class ReceiptResourceType(resources.ReceiptResourceType, JournalDocumentResourceType):
     @classmethod
     def get_queryset(cls):
         return super().get_queryset().filter(document_kind=DocumentKind.RECEIPT)
@@ -162,25 +190,22 @@ class ReceiptResourceType(JournalDocumentResourceType):
         kwargs = super().get_model_kwargs(data)
         kwargs["document_kind"] = DocumentKind.RECEIPT
         kwargs["date"] = datetime.datetime.fromisoformat(data["date"]).date()
-        if data["contact"]:
-            contact_id = MoneybirdResourceId(data["contact"]["id"])
-            contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
-            kwargs["contact"] = contact
+        kwargs["contact"] = _get_contact_from_moneybird_data(data)
         kwargs["total_price"] = data["total_price_incl_tax_base"]
         return kwargs
 
     @classmethod
     def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
         kwargs = super().get_document_line_model_kwargs(line_data, document)
+        kwargs["amount"] = line_data["amount"]
+        kwargs["tax_rate"] = _get_tax_rate_from_moneybird_data(line_data)
         kwargs["price"] = line_data["total_price_excl_tax_with_discount_base"]
         return kwargs
 
 
-class GeneralJournalDocumentResourceType(JournalDocumentResourceType):
-    entity_type = "GeneralJournalDocument"
-    entity_type_name = "general_journal_document"
-    api_path = "documents/general_journal_documents"
-
+class GeneralJournalDocumentResourceType(
+    resources.GeneralJournalDocumentResourceType, JournalDocumentResourceType
+):
     @classmethod
     def get_queryset(cls):
         return (
@@ -207,10 +232,7 @@ class GeneralJournalDocumentResourceType(JournalDocumentResourceType):
         return kwargs
 
 
-class ContactResourceType(SynchronizableMoneybirdResourceType):
-    entity_type = "Contact"
-    entity_type_name = "contact"
-    api_path = "contacts"
+class ContactResourceType(resources.ContactResourceType):
     model = Contact
 
     @classmethod
@@ -235,9 +257,7 @@ class ContactResourceType(SynchronizableMoneybirdResourceType):
         }
 
 
-class ProductResourceType(MoneybirdResourceType):
-    api_path = "products"
-    entity_type_name = "product"
+class ProductResourceType(resources.ProductResourceType):
     model = Product
 
     @classmethod
@@ -247,10 +267,17 @@ class ProductResourceType(MoneybirdResourceType):
         return kwargs
 
 
-class LedgerAccountResourceType(MoneybirdResourceType):
-    entity_type = "LedgerAccount"
-    api_path = "ledger_accounts"
-    entity_type_name = "ledger_account"
+class ProjectResourceType(resources.ProjectResourceType):
+    model = Project
+
+    @classmethod
+    def get_model_kwargs(cls, data):
+        kwargs = super().get_model_kwargs(data)
+        kwargs["moneybird_json"] = data
+        return kwargs
+
+
+class LedgerAccountResourceType(resources.LedgerAccountResourceType):
     model = Ledger
 
     @classmethod
@@ -261,10 +288,17 @@ class LedgerAccountResourceType(MoneybirdResourceType):
         return kwargs
 
 
-class EstimateResourceType(MoneybirdResourceTypeWithDocumentLines):
-    entity_type = "Estimate"
-    entity_type_name = "estimate"
-    api_path = "estimates"
+class TaxRateResourceType(resources.TaxRateResourceType):
+    model = TaxRate
+
+    @classmethod
+    def get_model_kwargs(cls, data):
+        kwargs = super().get_model_kwargs(data)
+        kwargs["moneybird_json"] = data
+        return kwargs
+
+
+class EstimateResourceType(resources.EstimateResourceType):
     model = Estimate
     document_lines_model = EstimateDocumentLine
     document_lines_foreign_key = "document_lines"
@@ -274,14 +308,8 @@ class EstimateResourceType(MoneybirdResourceTypeWithDocumentLines):
     def get_model_kwargs(cls, data):
         kwargs = super().get_model_kwargs(data)
         kwargs["moneybird_json"] = data
-        if data["contact"]:
-            contact_id = MoneybirdResourceId(data["contact"]["id"])
-            contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
-            kwargs["contact"] = contact
-
-        workflow_id = MoneybirdResourceId(data["workflow_id"])
-        workflow, _ = Workflow.objects.get_or_create(moneybird_id=workflow_id)
-        kwargs["workflow"] = workflow
+        kwargs["contact"] = _get_contact_from_moneybird_data(data)
+        kwargs["workflow"] = _get_workflow_from_moneybird_data(data)
         kwargs["total_price"] = data["total_price_incl_tax_base"]
 
         return kwargs
@@ -294,10 +322,7 @@ class EstimateResourceType(MoneybirdResourceTypeWithDocumentLines):
         return kwargs
 
 
-class RecurringSalesInvoiceResourceType(MoneybirdResourceTypeWithDocumentLines):
-    entity_type = "RecurringSalesInvoice"
-    entity_type_name = "recurring_sales_invoice"
-    api_path = "recurring_sales_invoices"
+class RecurringSalesInvoiceResourceType(resources.RecurringSalesInvoiceResourceType):
     model = RecurringSalesInvoice
     document_lines_model = RecurringSalesInvoiceDocumentLine
     document_lines_foreign_key = "document_lines"
@@ -314,14 +339,8 @@ class RecurringSalesInvoiceResourceType(MoneybirdResourceTypeWithDocumentLines):
         kwargs["invoice_date"] = data["invoice_date"]
         kwargs["last_date"] = data["last_date"]
         kwargs["moneybird_json"] = data
-        if data["contact"]:
-            contact_id = MoneybirdResourceId(data["contact"]["id"])
-            contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
-            kwargs["contact"] = contact
-
-        workflow_id = MoneybirdResourceId(data["workflow_id"])
-        workflow, _ = Workflow.objects.get_or_create(moneybird_id=workflow_id)
-        kwargs["workflow"] = workflow
+        kwargs["contact"] = _get_contact_from_moneybird_data(data)
+        kwargs["workflow"] = _get_workflow_from_moneybird_data(data)
         kwargs["total_price"] = data["total_price_incl_tax_base"]
 
         return kwargs
@@ -334,12 +353,8 @@ class RecurringSalesInvoiceResourceType(MoneybirdResourceTypeWithDocumentLines):
         return kwargs
 
 
-class WorkflowResourceType(MoneybirdResourceType):
-    entity_type = "Workflow"
-    entity_type_name = "workflow"
-    api_path = "workflows"
+class WorkflowResourceType(resources.WorkflowResourceType):
     model = Workflow
-    can_write = False
 
     @classmethod
     def get_model_kwargs(cls, data):
