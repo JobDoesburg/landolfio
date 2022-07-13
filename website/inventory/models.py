@@ -177,7 +177,7 @@ class Asset(models.Model):
             filter=Q(
                 journal_document_lines__ledger__account_type=LedgerAccountType.NON_CURRENT_ASSETS
             ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
         ),
     )
     total_margin_assets_value = AggregateProperty(
@@ -187,7 +187,7 @@ class Asset(models.Model):
                 journal_document_lines__ledger__account_type=LedgerAccountType.NON_CURRENT_ASSETS,
                 journal_document_lines__ledger__is_margin=True,
             ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_non_margin_assets_value = AggregateProperty(
@@ -197,7 +197,7 @@ class Asset(models.Model):
                 journal_document_lines__ledger__account_type=LedgerAccountType.NON_CURRENT_ASSETS,
                 journal_document_lines__ledger__is_margin=False,
             ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
 
@@ -207,7 +207,7 @@ class Asset(models.Model):
             filter=Q(
                 journal_document_lines__ledger__account_type=LedgerAccountType.DIRECT_COSTS
             ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_margin_direct_costs_value = AggregateProperty(
@@ -217,7 +217,7 @@ class Asset(models.Model):
                 journal_document_lines__ledger__account_type=LedgerAccountType.DIRECT_COSTS,
                 journal_document_lines__ledger__is_margin=True,
             ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_non_margin_direct_costs_value = AggregateProperty(
@@ -227,7 +227,7 @@ class Asset(models.Model):
                 journal_document_lines__ledger__account_type=LedgerAccountType.DIRECT_COSTS,
                 journal_document_lines__ledger__is_margin=False,
             ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
 
@@ -237,7 +237,7 @@ class Asset(models.Model):
             filter=Q(
                 journal_document_lines__ledger__account_type=LedgerAccountType.EXPENSES
             ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_purchase_expenses = AggregateProperty(
@@ -247,7 +247,7 @@ class Asset(models.Model):
                 journal_document_lines__ledger__account_type=LedgerAccountType.EXPENSES,
                 journal_document_lines__ledger__is_purchase=True,
             ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_other_expenses = AggregateProperty(
@@ -257,7 +257,7 @@ class Asset(models.Model):
                 journal_document_lines__ledger__account_type=LedgerAccountType.EXPENSES,
                 journal_document_lines__ledger__is_purchase=False,
             ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
 
@@ -267,7 +267,7 @@ class Asset(models.Model):
             filter=Q(
                 journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE
             ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_sales_revenue = AggregateProperty(
@@ -277,7 +277,7 @@ class Asset(models.Model):
                 journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
                 journal_document_lines__ledger__is_sales=True,
             ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_sales_revenue_margin = AggregateProperty(
@@ -288,7 +288,7 @@ class Asset(models.Model):
                 journal_document_lines__ledger__is_sales=True,
                 journal_document_lines__ledger__is_margin=True,
             ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_sales_revenue_non_margin = AggregateProperty(
@@ -299,7 +299,7 @@ class Asset(models.Model):
                 journal_document_lines__ledger__is_sales=True,
                 journal_document_lines__ledger__is_margin=False,
             ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_other_revenue = AggregateProperty(
@@ -309,7 +309,7 @@ class Asset(models.Model):
                 journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
                 journal_document_lines__ledger__is_sales=False,
             ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
 

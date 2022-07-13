@@ -17,6 +17,8 @@ from .models import (
     Product,
     TaxRate,
     Project,
+    Subscription,
+    DocumentStyle,
 )
 
 
@@ -251,6 +253,33 @@ class RecurringSalesInvoiceAdmin(admin.ModelAdmin):
 
     readonly_fields = ["json_mb_html"]
     change_form_template = "admin/accounting/document/change_form.html"
+
+    def json_mb_html(self, obj):  # pylint: disable = no-self-use
+        """Convert JSON to HTML table."""
+        return mark_safe(json2html.convert(obj.moneybird_json))
+
+    json_mb_html.short_description = "JSON MoneyBird"
+
+
+@register(Subscription)
+class SubscriptionAdmin(admin.ModelAdmin):
+    pass
+
+
+@register(DocumentStyle)
+class DocumentStyleAdmin(admin.ModelAdmin):
+
+    fields = ["json_mb_html"]
+    readonly_fields = ["json_mb_html"]
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
 
     def json_mb_html(self, obj):  # pylint: disable = no-self-use
         """Convert JSON to HTML table."""

@@ -2,6 +2,7 @@ from moneybird.resource_types import (
     MoneybirdResourceTypeWithDocumentLines,
     MoneybirdResourceType,
     SynchronizableMoneybirdResourceType,
+    ParametrizedMoneybirdResourceType,
 )
 
 
@@ -93,6 +94,15 @@ class TimeEntriesResourceType(MoneybirdResourceType):
     entity_type = "TimeEntry"
     entity_type_name = "time_entry"
     api_path = "time_entries"
+
+
+class SubscriptionResourceType(ParametrizedMoneybirdResourceType):
+    entity_type = "Subscription"
+    entity_type_name = "subscription"
+    api_path = "subscriptions"
+    needs_parameters = True
+    parameter_name = "contact_id"
+    parameter_resource_type = None
 
 
 class WorkflowResourceType(MoneybirdResourceType):

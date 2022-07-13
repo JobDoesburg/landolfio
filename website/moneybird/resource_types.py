@@ -38,13 +38,17 @@ class MoneybirdResourceType:
         return cls.model._default_manager.all()
 
     @classmethod
-    def get_local_versions(cls) -> list[MoneybirdResourceId]:
+    def get_moneybird_ids(cls) -> list[MoneybirdResourceId]:
         return list(
             map(
                 MoneybirdResourceId,
                 cls.get_queryset().values_list("moneybird_id", flat=True),
             )
         )
+
+    @classmethod
+    def get_local_versions(cls) -> list[MoneybirdResourceId]:
+        return cls.get_moneybird_ids()
 
     @classmethod
     def get_model_kwargs(cls, data):
@@ -352,6 +356,11 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
         returned_data = cls.push_to_moneybird(document, data)
         document.save(push_to_moneybird=False)
         return returned_data
+
+
+class ParametrizedMoneybirdResourceType(MoneybirdResourceType):
+    parameter_name = None
+    parameter_resource_type = None
 
 
 def get_moneybird_resources():

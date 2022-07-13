@@ -21,7 +21,7 @@ class Administration(ABC):
     """A MoneyBird administration."""
 
     @abstractmethod
-    def get(self, resource_path: str):
+    def get(self, resource_path: str, params: dict = None):
         """Do a GET on the Moneybird administration."""
 
     @abstractmethod
@@ -122,11 +122,11 @@ class HttpsAdministration(Administration):
         self.session = _create_session_with_key(key)
         self.administration_id = administration_id
 
-    def get(self, resource_path: str):
+    def get(self, resource_path: str, params: dict = None):
         """Do a GET on the Moneybird administration."""
         url = _build_url(self.administration_id, resource_path)
-        logging.info(f"GET {url}")
-        response = self.session.get(url)
+        logging.info(f"GET {url} {params}")
+        response = self.session.get(url, params=params)
         return _process_response(response)
 
     def post(self, resource_path: str, data: dict):

@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 from moneybird.resource_types import (
     get_moneybird_resource_for_model,
     get_moneybird_resource_for_document_lines_model,
+    MoneybirdResourceId,
 )
 
 
@@ -224,4 +225,15 @@ class SynchronizableMoneybirdResourceModel(MoneybirdResourceModel):
             if diff != {}:
                 self.moneybird_version = None
 
+            # TODO don't reset the version when receiving a new object from Moneybird
+
         return super().save(*args, **kwargs)
+
+
+def get_from_moneybird_data(model, moneybird_id: MoneybirdResourceId):
+    if not moneybird_id:
+        return None
+    obj, _ = model._default_manager.get_or_create(
+        moneybird_id=MoneybirdResourceId(moneybird_id)
+    )
+    return obj

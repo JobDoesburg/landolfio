@@ -6,26 +6,48 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('inventory', '0005_remove_asset_moneybird_state'),
+        ("inventory", "0005_remove_asset_moneybird_state"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='asset',
-            name='purchasing_value',
+            model_name="asset",
+            name="purchasing_value",
         ),
         migrations.RemoveField(
-            model_name='asset',
-            name='stock_price',
+            model_name="asset",
+            name="stock_price",
         ),
         migrations.AlterField(
-            model_name='asset',
-            name='listing_price',
-            field=models.DecimalField(blank=True, decimal_places=2, max_digits=10, null=True, verbose_name='Vraagprijs'),
+            model_name="asset",
+            name="listing_price",
+            field=models.DecimalField(
+                blank=True,
+                decimal_places=2,
+                max_digits=10,
+                null=True,
+                verbose_name="Vraagprijs",
+            ),
         ),
         migrations.AlterField(
-            model_name='asset',
-            name='local_state',
-            field=models.CharField(choices=[('Unknown', 'Onbekend'), ('N/A', 'n.v.t.'), ('Purchased', 'Gekocht'), ('Sold', 'Verkocht'), ('Sold (incomplete)', 'Verkocht (incompleet)'), ('Sold (error)', 'Verkocht (error)'), ('Rented', 'Verhuurd'), ('Rented (error)', 'Verhuurd (error)'), ('Loaned', 'Uitgeleend'), ('Amortized', 'Afgeschreven')], default='Unknown', max_length=40, verbose_name='Local state'),
+            model_name="asset",
+            name="local_state",
+            field=models.CharField(
+                choices=[
+                    ("Unknown", "Onbekend"),
+                    ("N/A", "n.v.t."),
+                    ("Purchased", "Gekocht"),
+                    ("Sold", "Verkocht"),
+                    ("Sold (incomplete)", "Verkocht (incompleet)"),
+                    ("Sold (error)", "Verkocht (error)"),
+                    ("Rented", "Verhuurd"),
+                    ("Rented (error)", "Verhuurd (error)"),
+                    ("Loaned", "Uitgeleend"),
+                    ("Amortized", "Afgeschreven"),
+                ],
+                default="Unknown",
+                max_length=40,
+                verbose_name="Local state",
+            ),
         ),
     ]

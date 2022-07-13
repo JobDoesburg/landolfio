@@ -18,7 +18,9 @@ from accounting.models import (
     RecurringSalesInvoiceDocumentLine,
     Project,
     TaxRate,
+    DocumentStyle,
 )
+from moneybird.models import get_from_moneybird_data
 
 from moneybird.resource_types import (
     MoneybirdResourceId,
@@ -29,43 +31,37 @@ from moneybird import resources
 
 
 def _get_workflow_from_moneybird_data(data: MoneybirdResource):
-    if not data["workflow_id"]:
-        return None
-    workflow_id = MoneybirdResourceId(data["workflow_id"])
-    workflow, _ = Workflow.objects.get_or_create(moneybird_id=workflow_id)
-    return workflow
+    return get_from_moneybird_data(Workflow, data["workflow_id"])
 
 
 def _get_ledger_from_moneybird_data(data: MoneybirdResource):
-    if not data["ledger_account_id"]:
-        return None
-    ledger_account_id = MoneybirdResourceId(data["ledger_account_id"])
-    ledger, _ = Ledger.objects.get_or_create(moneybird_id=ledger_account_id)
-    return ledger
+    return get_from_moneybird_data(Ledger, data["ledger_id"])
 
 
 def _get_project_from_moneybird_data(data: MoneybirdResource):
-    if not data["project_id"]:
-        return None
-    project_id = MoneybirdResourceId(data["project_id"])
-    project, _ = Project.objects.get_or_create(moneybird_id=project_id)
-    return project
+    return get_from_moneybird_data(Project, data["project_id"])
+
+
+def _get_product_from_moneybird_data(data: MoneybirdResource):
+    return get_from_moneybird_data(Product, data["product_id"])
 
 
 def _get_contact_from_moneybird_data(data: MoneybirdResource):
-    if not data["contact"]:
-        return None
-    contact_id = MoneybirdResourceId(data["contact"]["id"])
-    contact, _ = Contact.objects.get_or_create(moneybird_id=contact_id)
-    return contact
+    return get_from_moneybird_data(Contact, data["contact_id"])
 
 
 def _get_tax_rate_from_moneybird_data(data: MoneybirdResource):
-    if not data["tax_rate_id"]:
-        return None
-    tax_rate_id = MoneybirdResourceId(data["tax_rate_id"])
-    tax_rate, _ = TaxRate.objects.get_or_create(moneybird_id=tax_rate_id)
-    return tax_rate
+    return get_from_moneybird_data(TaxRate, data["tax_rate_id"])
+
+
+def _get_recurring_sales_invoice_from_moneybird_data(data: MoneybirdResource):
+    return get_from_moneybird_data(
+        RecurringSalesInvoice, data["recurring_sales_invoice_id"]
+    )
+
+
+def _get_document_style_from_moneybird_data(data: MoneybirdResource):
+    return get_from_moneybird_data(DocumentStyle, data["document_style_id"])
 
 
 class JournalDocumentResourceType(MoneybirdResourceTypeWithDocumentLines):
@@ -247,13 +243,13 @@ class ContactResourceType(resources.ContactResourceType):
 
     @classmethod
     def serialize_for_moneybird(cls, instance):
-        return {
-            "company_name": instance.company_name,
-            "firstname": instance.first_name,
-            "lastname": instance.last_name,
-            "send_invoices_to_email": instance.email,
-            "send_estimates_to_email": instance.email,
-        }
+        data = super().serialize_for_moneybird(instance)
+        data["company_name"] = instance.company_name
+        data["firstname"] = instance.first_name
+        data["lastname"] = instance.last_name
+        data["send_invoices_to_email"] = instance.email
+        data["send_estimates_to_email"] = instance.email
+        return data
 
 
 class ProductResourceType(resources.ProductResourceType):
@@ -352,25 +348,60 @@ class RecurringSalesInvoiceResourceType(resources.RecurringSalesInvoiceResourceT
         return kwargs
 
 
+class DocumentStyleResourceType(resources.DocumentStyleResourceType):
+    model = DocumentStyle
+
+    @classmethod
+    def get_model_kwargs(cls, resource_data):
+        kwargs = super().get_model_kwargs(resource_data)
+        kwargs["moneybird_json"] = resource_data
+        return kwargs
+
+
 class WorkflowResourceType(resources.WorkflowResourceType):
     model = Workflow
 
     @classmethod
-    def get_model_kwargs(cls, data):
-        kwargs = super().get_model_kwargs(data)
-        kwargs["name"] = data["name"]
+    def get_model_kwargs(cls, resource_data):
+        kwargs = super().get_model_kwargs(resource_data)
+        kwargs["name"] = resource_data["name"]
         return kwargs
 
 
-# class SubscriptionResourceType(MoneybirdResourceType):
-#     human_readable_name = _("Subscription")
-#     api_path = "subscriptions"
-#     synchronizable = False
-#     model = Subscription
-#
-#     @classmethod
-#     def get_model_kwargs(cls, resource_data):
-#         kwargs = super().get_model_kwargs(resource_data)
-#         kwargs["moneybird_json"] = resource_data
-#         return kwargs
-# TODO this can only be queried with contact id
+class SubscriptionResourceType(resources.SubscriptionResourceType):
+    model = Subscription
+    parameter_resource_type = ContactResourceType
+
+    @classmethod
+    def get_model_kwargs(cls, resource_data):
+        kwargs = super().get_model_kwargs(resource_data)
+        kwargs["moneybird_json"] = resource_data
+        kwargs["reference"] = resource_data["reference"]
+        kwargs["start_date"] = resource_data["start_date"]
+        kwargs["end_date"] = resource_data["end_date"]
+        kwargs["cancelled_at"] = resource_data["cancelled_at"]
+        kwargs["frequency"] = resource_data["frequency"]
+        kwargs["frequency_type"] = resource_data["frequency_type"]
+        # kwargs["document_style"] = _get_document_style_from_moneybird_data(resource_data) # TODO this is received via the recurring sales invoice
+        kwargs["contact"] = _get_contact_from_moneybird_data(resource_data)
+        kwargs["product"] = _get_product_from_moneybird_data(resource_data)
+        kwargs[
+            "recurring_sales_invoice"
+        ] = _get_recurring_sales_invoice_from_moneybird_data(resource_data)
+        return kwargs
+
+    @classmethod
+    def serialize_for_moneybird(cls, instance):
+        data = super().serialize_for_moneybird(instance)
+
+        data["start_date"] = instance.start_date.isoformat()
+        data["product"] = MoneybirdResourceId(instance.product.moneybird_id)
+        data["contact"] = MoneybirdResourceId(instance.contact.moneybird_id)
+        if data.end_date:
+            data["start_date"] = instance.end_date.isoformat()
+        data["reference"] = instance.reference
+        data["document_style_id"] = MoneybirdResourceId(
+            instance.document_style.moneybird_id
+        )
+        data["frequency"] = instance.frequency
+        data["frequency_type"] = instance.frequency_type

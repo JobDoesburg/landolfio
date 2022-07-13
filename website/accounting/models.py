@@ -6,6 +6,7 @@ from moneybird.models import (
     SynchronizableMoneybirdResourceModel,
     MoneybirdDocumentLineModel,
 )
+from moneybird.resource_types import MoneybirdResourceId
 
 
 class Contact(SynchronizableMoneybirdResourceModel):
@@ -107,6 +108,13 @@ class Workflow(MoneybirdResourceModel):
 
 
 class Product(MoneybirdResourceModel):
+    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
+
+    def __str__(self):
+        return self.moneybird_json["title"]
+
+
+class DocumentStyle(MoneybirdResourceModel):
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
 
     def __str__(self):
@@ -376,3 +384,59 @@ class RecurringSalesInvoiceDocumentLine(MoneybirdDocumentLineModel):
 
 class Subscription(MoneybirdResourceModel):
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
+    start_date = models.DateField(null=True, verbose_name=_("start date"))
+    end_date = models.DateField(null=True, verbose_name=_("end date"))
+    cancelled_at = models.DateField(null=True, verbose_name=_("cancelled at"))
+    reference = models.CharField(
+        verbose_name=_("Reference"), max_length=200, null=False, blank=False
+    )
+    product = models.ForeignKey(
+        Product,
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_("Product"),
+        related_name="subscription",
+    )
+    frequency = models.PositiveSmallIntegerField(
+        default=1, verbose_name=_("frequency"), null=True, blank=True
+    )
+    frequency_type = models.CharField(
+        max_length=10,
+        choices=RecurringSalesInvoiceFrequencies.choices,
+        verbose_name=_("frequency type"),
+    )
+    document_style = models.ForeignKey(
+        DocumentStyle,
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_("Document style"),
+        related_name="subscriptions",
+    )
+    contact = models.ForeignKey(
+        Contact,
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_("Contact"),
+        related_name="subscriptions",
+    )
+
+    asset_id_field = models.CharField(
+        max_length=50, null=True, verbose_name=_("Asset Id")
+    )
+    asset = models.ForeignKey(
+        "inventory.Asset",
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_("Asset"),
+        related_name="subscriptions",
+    )
+    recurring_sales_invoice = models.ForeignKey(
+        RecurringSalesInvoice,
+        null=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_("Recurring sales invoice"),
+        related_name="subscriptions",
+    )
+
+    def __str__(self):
+        return f"{self.product} {self.reference} for {self.contact}"

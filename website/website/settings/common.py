@@ -125,6 +125,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Moneybird resources to syncronize
 
 MONEYBIRD_RESOURCE_TYPES = [
+    "accounting.moneybird_resources.DocumentStyleResourceType",
     "accounting.moneybird_resources.TaxRateResourceType",
     "accounting.moneybird_resources.WorkflowResourceType",
     "accounting.moneybird_resources.LedgerAccountResourceType",
@@ -137,6 +138,7 @@ MONEYBIRD_RESOURCE_TYPES = [
     "accounting.moneybird_resources.GeneralJournalDocumentResourceType",
     "accounting.moneybird_resources.EstimateResourceType",
     "accounting.moneybird_resources.RecurringSalesInvoiceResourceType",
+    "accounting.moneybird_resources.SubscriptionResourceType",
 ]
 MONEYBIRD_WEBHOOK_SITE_DOMAIN = "http://localhost:8000"
 MONEYBIRD_WEBHOOK_EVENTS = [

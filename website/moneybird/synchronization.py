@@ -13,6 +13,7 @@ from moneybird.resource_types import (
     ResourceDiff,
     MoneybirdResourceType,
     SynchronizableMoneybirdResourceType,
+    ParametrizedMoneybirdResourceType,
     get_moneybird_resources,
 )
 
@@ -69,6 +70,17 @@ class MoneybirdSync:
         return objects
 
     def get_all_resources(self, resource_type: MoneybirdResourceType):
+        if issubclass(resource_type, ParametrizedMoneybirdResourceType):
+            parameter_resource_type = resource_type.parameter_resource_type
+            moneybird_ids = parameter_resource_type.get_moneybird_ids()
+            responses = []
+            for param_id in moneybird_ids:
+                response = self.administration.get(
+                    f"{resource_type.api_path}",
+                    params={resource_type.parameter_name: param_id},
+                )
+                responses.extend(response)
+            return responses
         return self.administration.get(f"{resource_type.api_path}")
 
     def get_resource_diffs(
