@@ -1,25 +1,34 @@
 """Asset models."""
 import re
+from decimal import Decimal
 from typing import Union
 
 from django.core.validators import validate_unicode_slug
 from django.db import models
-from django.db.models import Sum, PROTECT
+from django.db.models import Sum, PROTECT, Q, F, BooleanField, Value, When, Case
+from django.db.models.functions import Coalesce
 from django.dispatch import receiver
 from django.utils.translation import gettext as _
+from queryable_properties.managers import QueryablePropertiesManager
+from queryable_properties.properties import (
+    AggregateProperty,
+    AnnotationProperty,
+    ValueCheckProperty,
+    SubqueryExistenceCheckProperty,
+    RelatedExistenceCheckProperty,
+)
 
 from accounting.models import (
     DocumentKind,
     JournalDocumentLine,
     EstimateDocumentLine,
-    LedgerKind,
     LedgerAccountType,
-    Ledger,
     RecurringSalesInvoiceDocumentLine,
+    Ledger,
 )
 
 
-Asset_States = (
+ASSET_STATES = (
     ("Unknown", _("Unknown")),
     ("N/A", _("N/A")),
     ("Purchased", _("Purchased")),
@@ -108,6 +117,15 @@ class AssetLocation(models.Model):
         return f"{self.name} ({self.location_group})"
 
 
+class FilteredRelatedExistenceCheckProperty(RelatedExistenceCheckProperty):
+    def __init__(self, check_property, filter=None, *args, **kwargs):
+        super().__init__(check_property, *args, **kwargs)
+        self.filter = filter
+
+    def get_queryset(self, model):
+        return super().get_queryset(model).filter(self.filter)
+
+
 class Asset(models.Model):
     """Class model for Assets."""
 
@@ -123,21 +141,26 @@ class Asset(models.Model):
         Collection, on_delete=models.CASCADE, verbose_name=_("Collection")
     )
 
-    listing_price = models.FloatField(verbose_name=_("Listing price"))
-    stock_price = models.FloatField(verbose_name=_("Stock price"))
-    purchasing_value = models.FloatField(verbose_name=_("Purchasing value"))
+    listing_price = models.DecimalField(
+        verbose_name=_("Listing price"),
+        null=True,
+        blank=True,
+        max_digits=10,
+        decimal_places=2,
+    )
+
     remarks = models.TextField(
         verbose_name=_("Remarks"), max_length=1000, null=True, blank=True
     )
     local_state = models.CharField(
         max_length=40,
-        choices=Asset_States,
-        verbose_name=_("Local State"),
+        choices=ASSET_STATES,
+        verbose_name=_("Local state"),
         default="Unknown",
     )
 
     @property
-    def ledger_amounts(self):
+    def get_ledger_amounts(self):
         return dict(
             (
                 Ledger.objects.get(moneybird_id=x["ledger__moneybird_id"]),
@@ -148,156 +171,251 @@ class Asset(models.Model):
             ).annotate(Sum("price"))
         )
 
-    @property
-    def total_assets_value(self):
-        return (
-            self.journal_document_lines.filter(
-                ledger__account_type=LedgerAccountType.NON_CURRENT_ASSETS
-            )
-            .values("price")
-            .aggregate(Sum("price"))["price__sum"]
+    total_assets_value = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.NON_CURRENT_ASSETS
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+        ),
+    )
+    total_margin_assets_value = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.NON_CURRENT_ASSETS,
+                journal_document_lines__ledger__is_margin=True,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2)
         )
-
-    @property
-    def total_direct_costs_value(self):
-        return (
-            self.journal_document_lines.filter(
-                ledger__account_type=LedgerAccountType.DIRECT_COSTS
-            )
-            .values("price")
-            .aggregate(Sum("price"))["price__sum"]
+    )
+    total_non_margin_assets_value = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.NON_CURRENT_ASSETS,
+                journal_document_lines__ledger__is_margin=False,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2)
         )
+    )
 
-    @property
-    def total_expenses_value(self):
-        return (
-            self.journal_document_lines.filter(
-                ledger__account_type=LedgerAccountType.EXPENSES
-            )
-            .values("price")
-            .aggregate(Sum("price"))["price__sum"]
+    total_direct_costs_value = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.DIRECT_COSTS
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2)
         )
-
-    @property
-    def total_purchase_expenses(self):
-        return (
-            self.journal_document_lines.filter(
-                ledger__account_type=LedgerAccountType.EXPENSES,
-                ledger__is_purchase=True,
-            )
-            .values("price")
-            .aggregate(Sum("price"))["price__sum"]
+    )
+    total_margin_direct_costs_value = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.DIRECT_COSTS,
+                journal_document_lines__ledger__is_margin=True,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2)
         )
-
-    @property
-    def total_other_expenses(self):
-        return (
-            self.journal_document_lines.filter(
-                ledger__account_type=LedgerAccountType.EXPENSES,
-                ledger__is_purchase=False,
-            )
-            .values("price")
-            .aggregate(Sum("price"))["price__sum"]
+    )
+    total_non_margin_direct_costs_value = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.DIRECT_COSTS,
+                journal_document_lines__ledger__is_margin=False,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2)
         )
+    )
 
-    @property
-    def total_revenue_value(self):
-        return (
-            self.journal_document_lines.filter(
-                ledger__account_type=LedgerAccountType.REVENUE
-            )
-            .values("price")
-            .aggregate(Sum("price"))["price__sum"]
+    total_expenses_value = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.EXPENSES
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2)
         )
-
-    @property
-    def total_sales_revenue(self):
-        return (
-            self.journal_document_lines.filter(
-                ledger__account_type=LedgerAccountType.REVENUE, ledger__is_sales=True
-            )
-            .values("price")
-            .aggregate(Sum("price"))["price__sum"]
+    )
+    total_purchase_expenses = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.EXPENSES,
+                journal_document_lines__ledger__is_purchase=True,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2)
         )
-
-    @property
-    def total_other_revenue(self):
-        return (
-            self.journal_document_lines.filter(
-                ledger__account_type=LedgerAccountType.REVENUE, ledger__is_sales=False
-            )
-            .values("price")
-            .aggregate(Sum("price"))["price__sum"]
+    )
+    total_other_expenses = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.EXPENSES,
+                journal_document_lines__ledger__is_purchase=False,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2)
         )
+    )
 
-    @property
-    def stock_value(self):
-        return self.total_assets_value
-
-    @property
-    def amortization_value(self):
-        return self.total_purchase_expenses
-
-    @property
-    def purchase_value(self):
-        if not self.collection.commerce:
-            return None
-        return (self.total_purchase_expenses or 0) + (
-            (self.total_assets_value or 0) + (self.total_direct_costs_value or 0)
+    total_revenue_value = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2)
         )
-
-    @property
-    def sales_value(self):
-        return self.total_sales_revenue
-
-    def sales_profit(self):
-        return self.total_sales_revenue - self.purchase_value
-
-    @property
-    def is_sold(self):
-        return self.sales_value and self.sales_value > 0
-
-    @property
-    def is_amortized_not_at_purchase(self):
-        if not self.collection.commerce:
-            return None
-        return self.stock_value == 0
-
-    @property
-    def is_amortized_at_purchase(self):
-        return (
-            self.stock_value is None
-            and self.amortization_value
-            and self.amortization_value > 0
+    )
+    total_sales_revenue = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
+                journal_document_lines__ledger__is_sales=True,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2)
         )
+    )
+    total_sales_revenue_margin = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
+                journal_document_lines__ledger__is_sales=True,
+                journal_document_lines__ledger__is_margin=True,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+        )
+    )
+    total_sales_revenue_non_margin = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
+                journal_document_lines__ledger__is_sales=True,
+                journal_document_lines__ledger__is_margin=False,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+        )
+    )
+    total_other_revenue = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
+                journal_document_lines__ledger__is_sales=False,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2)
+        )
+    )
 
-    @property
-    def is_amortized(self):
-        if not self.collection.commerce:
-            return None
-        return not self.stock_value or self.stock_value == 0
+    is_margin = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(journal_document_lines__ledger__is_margin=True),
+    )
+    is_non_margin = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(journal_document_lines__ledger__is_margin=False),
+    )
 
-    @property
-    def is_margin(self):
-        if not self.collection.commerce:
-            return None
-        return self.journal_document_lines.filter(ledger__is_margin=True).exists()
+    is_sold = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(
+            journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
+            journal_document_lines__ledger__is_sales=True,
+        ),
+    )
+    is_sold_as_margin = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(
+            journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
+            journal_document_lines__ledger__is_sales=True,
+            journal_document_lines__ledger__is_margin=True,
+        ),
+    )
+    is_sold_as_non_margin = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(
+            journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
+            journal_document_lines__ledger__is_sales=True,
+            journal_document_lines__ledger__is_margin=False,
+        ),
+    )
 
-    @property
-    def is_non_margin(self):
-        if not self.collection.commerce:
-            return None
-        return self.journal_document_lines.filter(ledger__is_margin=False).exists()
+    is_purchased_asset = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(
+            journal_document_lines__ledger__account_type=LedgerAccountType.NON_CURRENT_ASSETS
+        ),
+    )
+    is_purchased_asset_as_margin = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(
+            journal_document_lines__ledger__account_type=LedgerAccountType.NON_CURRENT_ASSETS,
+            journal_document_lines__ledger__is_margin=True,
+        ),
+    )
+    is_purchased_asset_as_non_margin = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(
+            journal_document_lines__ledger__account_type=LedgerAccountType.NON_CURRENT_ASSETS,
+            journal_document_lines__ledger__is_margin=False,
+        ),
+    )
 
-    @property
-    def moneybird_status(self):
-        if self.is_sold:
-            return "Sold"
-        if self.is_amortized and not self.is_amortized_at_purchase:
-            return "Amortized"
-        if self.is_amortized and self.is_amortized_at_purchase:
-            return "Available or amortized"
-        return "Available"
+    is_purchased_amortized = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(
+            journal_document_lines__ledger__account_type=LedgerAccountType.EXPENSES,
+            journal_document_lines__ledger__is_purchase=True,
+        ),
+    )
+
+    purchase_value = AnnotationProperty(
+        Coalesce(F("total_assets_value"), Decimal(0))
+        + Coalesce(F("total_direct_costs_value"), Decimal(0))
+        + Coalesce(F("total_purchase_expenses"), Decimal(0))
+    )
+
+    sales_profit = AnnotationProperty(
+        Coalesce(F("total_sales_revenue"), Decimal(0))
+        - Coalesce(F("purchase_value"), Decimal(0))
+    )
+
+    total_profit = AnnotationProperty(
+        Coalesce(F("total_revenue_value"), Decimal(0))
+        - Coalesce(F("total_direct_costs_value"), Decimal(0))
+        - Coalesce(F("total_expenses_value"), Decimal(0))
+    )
+
+    coalesce_total_assets_value = AnnotationProperty(
+        Coalesce(F("total_assets_value"), Decimal(0))
+    )
+    is_amortized = ValueCheckProperty("coalesce_total_assets_value", Decimal(0))
+
+    is_commerce = AnnotationProperty(F("collection__commerce"))
+
+    objects = QueryablePropertiesManager()
+
+    moneybird_status = AnnotationProperty(
+        Case(
+            When(Q(is_commerce=False), then=Value(None)),
+            When(Q(is_sold=True), then=Value("Sold")),
+            When(
+                Q(is_amortized=True, is_purchased_amortized=False),
+                then=Value("Amortized"),
+            ),
+            When(
+                Q(is_amortized=True, is_purchased_amortized=True),
+                then=Value("Available or amortized"),
+            ),
+            default=Value("Available"),
+        )
+    )
 
     def check_moneybird_errors(self):
         if self.is_margin and self.is_non_margin:

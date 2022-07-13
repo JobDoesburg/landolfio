@@ -1,16 +1,18 @@
 """Inventory admin configuration."""
 # from admin_numeric_filter.admin import SliderNumericFilter, NumericFilterModelAdmin
+from admin_numeric_filter.admin import SliderNumericFilter, NumericFilterModelAdmin
 from django.contrib import admin
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.forms import CheckboxSelectMultiple
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from queryable_properties.admin import QueryablePropertiesAdmin
 
 from .models import Asset, AssetLocation, AssetLocationGroup, AssetSize, AssetCategory
 from .models import Attachment
 from .models import Collection
-from accounting.models import JournalDocument, JournalDocumentLine, LedgerKind
+from accounting.models import JournalDocument, JournalDocumentLine
 
 
 def is_an_image_path(path: str) -> bool:
@@ -69,38 +71,13 @@ class JournalDocumentLineInline(admin.TabularInline):
         return False
 
 
-class SalesDocumentInline(JournalDocumentLineInline):
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        qs = qs.filter(
-            ledger__kind__in=[
-                LedgerKind.VERKOOP_MARGE.value,
-                LedgerKind.VERKOOP_NIET_MARGE.value,
-            ]
-        )
-        return qs
-
-
-class PurchaseDocumentInline(JournalDocumentLineInline):
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        qs = qs.filter(
-            ledger__kind__in=[
-                LedgerKind.VOORRAAD_MARGE.value,
-                LedgerKind.VOORRAAD_NIET_MARGE.value,
-                LedgerKind.DIRECTE_AFSCHRIJVING.value,
-            ]
-        )
-        return qs
-
-
-# class ListingPriceSliderFilter(SliderNumericFilter):
-#     MAX_DECIMALS = 0
-#     STEP = 50
+class ListingPriceSliderFilter(SliderNumericFilter):
+    MAX_DECIMALS = 0
+    STEP = 50
 
 
 @admin.register(Asset)
-class AssetAdmin(admin.ModelAdmin):  # and NumericFilterModelAdmin
+class AssetAdmin(QueryablePropertiesAdmin, NumericFilterModelAdmin):
     """Asset admin."""
 
     model = Asset
@@ -112,26 +89,26 @@ class AssetAdmin(admin.ModelAdmin):  # and NumericFilterModelAdmin
         "location",
         "collection",
         "listing_price",
-        "stock_value",
-        "amortization_value",
-        "sales_value",
-        "purchase_value",
         "is_margin",
-        "is_sold",
-        "is_amortized_not_at_purchase",
-        "is_amortized_at_purchase",
+        "purchase_value",
+        "is_purchased_asset",
         "is_amortized",
-        "ledger_amounts",
         "moneybird_status",
         "check_moneybird_errors",
     )
+
     list_filter = (
         "category",
         "size",
         "location",
         "location__location_group",
         "collection",
-        # ("listing_price", ListingPriceSliderFilter),
+        "moneybird_status",
+        "is_margin",
+        "is_purchased_asset",
+        "is_purchased_amortized",
+        "is_amortized",
+        ("listing_price", ListingPriceSliderFilter),
     )
 
     search_fields = [
@@ -149,7 +126,7 @@ class AssetAdmin(admin.ModelAdmin):  # and NumericFilterModelAdmin
                     "size",
                     "location",
                     "collection",
-                ]
+                ],
             },
         ),
         (
@@ -157,20 +134,39 @@ class AssetAdmin(admin.ModelAdmin):  # and NumericFilterModelAdmin
             {
                 "fields": [
                     "listing_price",
-                    "stock_value",
-                    "amortization_value",
-                    "sales_value",
                     "purchase_value",
+                    "total_assets_value",
+                    "total_margin_assets_value",
+                    "total_non_margin_assets_value",
+                    "total_direct_costs_value",
+                    "total_margin_direct_costs_value",
+                    "total_non_margin_direct_costs_value",
+                    "total_expenses_value",
+                    "total_purchase_expenses",
+                    "total_other_expenses",
+                    "total_revenue_value",
+                    "total_sales_revenue",
+                    "total_sales_revenue_margin",
+                    "total_sales_revenue_non_margin",
+                    "total_other_revenue",
                     "is_margin",
+                    "is_non_margin",
                     "is_sold",
-                    "is_amortized_not_at_purchase",
-                    "is_amortized_at_purchase",
+                    "is_sold_as_margin",
+                    "is_sold_as_non_margin",
+                    "is_purchased_asset",
+                    "is_purchased_asset_as_margin",
+                    "is_purchased_asset_as_non_margin",
+                    "is_purchased_amortized",
+                    "sales_profit",
+                    "total_profit",
                     "is_amortized",
-                    "ledger_amounts",
+                    "is_commerce",
                     "moneybird_status",
                     "check_moneybird_errors",
                     "local_state",
-                ]
+                ],
+                "classes": ("collapse",),
             },
         ),
         (
@@ -178,51 +174,88 @@ class AssetAdmin(admin.ModelAdmin):  # and NumericFilterModelAdmin
             {
                 "fields": [
                     "remarks",
-                ]
+                ],
             },
         ),
     ]
 
     readonly_fields = (
-        "stock_value",
-        "amortization_value",
-        "sales_value",
         "purchase_value",
-        "ledger_amounts",
+        "total_assets_value",
+        "total_margin_assets_value",
+        "total_non_margin_assets_value",
+        "total_direct_costs_value",
+        "total_margin_direct_costs_value",
+        "total_non_margin_direct_costs_value",
+        "total_expenses_value",
+        "total_purchase_expenses",
+        "total_other_expenses",
+        "total_revenue_value",
+        "total_sales_revenue",
+        "total_sales_revenue_margin",
+        "total_sales_revenue_non_margin",
+        "total_other_revenue",
         "is_margin",
+        "is_non_margin",
         "is_sold",
-        "is_amortized_not_at_purchase",
-        "is_amortized_at_purchase",
+        "is_sold_as_margin",
+        "is_sold_as_non_margin",
+        "is_purchased_asset",
+        "is_purchased_asset_as_margin",
+        "is_purchased_asset_as_non_margin",
+        "is_purchased_amortized",
+        "sales_profit",
+        "total_profit",
         "is_amortized",
+        "is_commerce",
         "moneybird_status",
         "check_moneybird_errors",
     )
     inlines = [AttachmentInlineAdmin, JournalDocumentLineInline]
 
+    @admin.display(boolean=True)
     def is_margin(self, obj):
         return obj.is_margin
 
-    is_margin.boolean = True
+    @admin.display(boolean=True)
+    def is_non_margin(self, obj):
+        return obj.is_non_margin
 
+    @admin.display(boolean=True)
     def is_sold(self, obj):
         return obj.is_sold
 
-    is_sold.boolean = True
+    @admin.display(boolean=True)
+    def is_sold_as_margin(self, obj):
+        return obj.is_sold_as_margin
 
-    def is_amortized_not_at_purchase(self, obj):
-        return obj.is_amortized_not_at_purchase
+    @admin.display(boolean=True)
+    def is_sold_as_non_margin(self, obj):
+        return obj.is_sold_as_non_margin
 
-    is_amortized_not_at_purchase.boolean = True
+    @admin.display(boolean=True)
+    def is_purchased_asset(self, obj):
+        return obj.is_purchased_asset
 
-    def is_amortized_at_purchase(self, obj):
-        return obj.is_amortized_at_purchase
+    @admin.display(boolean=True)
+    def is_purchased_asset_as_margin(self, obj):
+        return obj.is_purchased_asset_as_margin
 
-    is_amortized_at_purchase.boolean = True
+    @admin.display(boolean=True)
+    def is_purchased_asset_as_non_margin(self, obj):
+        return obj.is_purchased_asset_as_non_margin
 
+    @admin.display(boolean=True)
+    def is_purchased_amortized(self, obj):
+        return obj.is_purchased_amortized
+
+    @admin.display(boolean=True)
+    def is_commerce(self, obj):
+        return obj.is_commerce
+
+    @admin.display(boolean=True)
     def is_amortized(self, obj):
         return obj.is_amortized
-
-    is_amortized.boolean = True
 
     def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
         """Render the change page for an Asset."""

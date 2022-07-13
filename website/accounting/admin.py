@@ -25,12 +25,15 @@ class LedgerAdmin(admin.ModelAdmin):
     """The Django admin config for the Ledger model."""
 
     model = Ledger
-    list_display = ("name", "moneybird_id", "account_type", "ledger_kind")
+    list_display = (
+        "name",
+        "moneybird_id",
+        "account_type",
+    )
     list_filter = ("account_type",)
 
     search_fields = (
         "name",
-        "ledger_kind",
         "moneybird_id",
     )
 

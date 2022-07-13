@@ -19,7 +19,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
-    # "admin_numeric_filter",
+    "admin_numeric_filter",
     "accounting",
     "inventory",
 ]

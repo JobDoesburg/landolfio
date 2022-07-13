@@ -9,7 +9,6 @@ from accounting.models import (
     Subscription,
     Product,
     Ledger,
-    LedgerKind,
     Estimate,
     RecurringSalesInvoice,
     Workflow,

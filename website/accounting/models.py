@@ -41,24 +41,6 @@ class Contact(SynchronizableMoneybirdResourceModel):
         return f"{self.first_name} {self.last_name}"
 
 
-class LedgerKind(models.TextChoices):
-    VOORRAAD_MARGE = "VOORRAAD_MARGE", "Voorraad Marge"
-    VOORRAAD_NIET_MARGE = "VOORRAAD_NIET_MARGE", "Voorraad niet-marge"
-    VOORRAAD_BIJ_VERKOOP_MARGE = (
-        "VOORRAAD_BIJ_VERKOOP_MARGE",
-        "Voorraadwaarde bij verkoop marge",
-    )
-    VOORRAAD_BIJ_VERKOOP_NIET_MARGE = (
-        "VOORRAAD_BIJ_VERKOOP_NIET_MARGE",
-        "Voorraadwaarde bij verkoop niet-marge",
-    )
-    VERKOOP_MARGE = "VERKOOP_MARGE", "Verkoop marge"
-    VERKOOP_NIET_MARGE = "VERKOOP_NIET_MARGE", "Verkoop niet-marge"
-    DIRECTE_AFSCHRIJVING = "DIRECTE_AFSCHRIJVING", "Directe afschrijving"
-    AFSCHRIJVINGEN = "AFSCHRIJVINGEN", "Afschrijvingen"
-    BORGEN = "BORGEN", "Borgen"
-
-
 class LedgerAccountType(models.TextChoices):
     NON_CURRENT_ASSETS = "non_current_assets", _("non current assets")
     CURRENT_ASSETS = "current_assets", _("current assets")
@@ -86,14 +68,6 @@ class Ledger(MoneybirdResourceModel):
         verbose_name=_("Account type"),
     )
 
-    ledger_kind = models.CharField(
-        max_length=100,
-        choices=LedgerKind.choices,
-        null=True,
-        unique=True,
-        verbose_name=_("Kind"),
-    )
-
     is_margin = models.BooleanField(
         default=False,
         help_text=_("All assets on this ledger account are margin assets."),
@@ -112,11 +86,7 @@ class Ledger(MoneybirdResourceModel):
         verbose_name_plural = _("Ledger accounts")
 
     def __str__(self):
-        if self.name:
-            return self.name
-        if not self.ledger_kind:
-            return str(self.moneybird_id)
-        return LedgerKind(self.ledger_kind).label
+        return self.name
 
 
 class Workflow(MoneybirdResourceModel):
@@ -139,13 +109,22 @@ class Workflow(MoneybirdResourceModel):
 class Product(MoneybirdResourceModel):
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
 
+    def __str__(self):
+        return self.moneybird_json["name"]
+
 
 class Project(MoneybirdResourceModel):
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
 
+    def __str__(self):
+        return self.moneybird_json["name"]
+
 
 class TaxRate(MoneybirdResourceModel):
     moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
+
+    def __str__(self):
+        return self.moneybird_json["name"]
 
 
 class DocumentKind(models.TextChoices):
@@ -219,14 +198,14 @@ class JournalDocumentLine(MoneybirdDocumentLineModel):
         Project,
         on_delete=models.SET_NULL,
         null=True,
-        blank=False,
+        blank=True,
         verbose_name=_("Project"),
     )
     product = models.ForeignKey(
         Product,
         on_delete=models.SET_NULL,
         null=True,
-        blank=False,
+        blank=True,
         verbose_name=_("Product"),
     )
 
@@ -248,11 +227,12 @@ class JournalDocumentLine(MoneybirdDocumentLineModel):
         related_name="document_lines",
     )
     asset_id_field = models.CharField(
-        max_length=50, null=True, verbose_name=_("Asset Id")
+        max_length=50, null=True, blank=True, verbose_name=_("Asset Id")
     )
     asset = models.ForeignKey(
         "inventory.Asset",
         null=True,
+        blank=True,
         on_delete=models.SET_NULL,
         verbose_name=_("Asset"),
         related_name="journal_document_lines",
