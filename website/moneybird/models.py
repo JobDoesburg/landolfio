@@ -1,12 +1,14 @@
+import logging
+
 from django.conf import settings
 from django.db import models
 from django.db.models.utils import resolve_callables
 from django.utils.translation import gettext as _
 
+from moneybird.administration import Administration
 from moneybird.resource_types import (
     get_moneybird_resource_for_model,
     get_moneybird_resource_for_document_lines_model,
-    MoneybirdResourceId,
 )
 
 
@@ -16,7 +18,11 @@ def auto_push_to_moneybird():
 
 class MoneybirdResourceModel(models.Model):
     moneybird_id = models.PositiveBigIntegerField(
-        verbose_name=_("Moneybird ID"), null=True, blank=True
+        verbose_name=_("Moneybird ID"),
+        null=False,
+        blank=True,
+        unique=True,
+        primary_key=True,
     )
 
     class Meta:
@@ -99,7 +105,8 @@ class MoneybirdResourceModel(models.Model):
                 self.push_to_moneybird()
             else:
                 old_object = self.get_from_db()
-                self.push_diff_to_moneybird(old_object)
+                if old_object is not None:
+                    self.push_diff_to_moneybird(old_object)
 
         return super().save(*args, **kwargs)
 
@@ -218,22 +225,32 @@ class SynchronizableMoneybirdResourceModel(MoneybirdResourceModel):
     class Meta:
         abstract = True
 
-    def save(self, *args, **kwargs):
-        if self.pk:
+    def save(self, reset_version=True, *args, **kwargs):
+        if self.pk and reset_version:
             old_object = self.__class__.objects.get(pk=self.pk)
-            diff = self._calc_moneybird_data_diff(self, old_object)
-            if diff != {}:
-                self.moneybird_version = None
-
-            # TODO don't reset the version when receiving a new object from Moneybird
-
+            if old_object.moneybird_version is not None:
+                diff = self._calc_moneybird_data_diff(self, old_object)
+                if diff != {}:
+                    self.moneybird_version = None
         return super().save(*args, **kwargs)
 
 
-def get_from_moneybird_data(model, moneybird_id: MoneybirdResourceId):
+def get_or_create_from_moneybird_data(resource_type, moneybird_id, data=None):
     if not moneybird_id:
         return None
-    obj, _ = model._default_manager.get_or_create(
-        moneybird_id=MoneybirdResourceId(moneybird_id)
-    )
+
+    try:
+        obj = resource_type.get_queryset().get(moneybird_id=moneybird_id)
+    except resource_type.model.DoesNotExist:
+        logging.info(f"Discovered a new {resource_type.entity_type_name}, creating it")
+        obj = resource_type.model(moneybird_id=moneybird_id)
+        if data is not None:
+            obj.update_fields_from_moneybird(data)
+        else:
+            try:
+                obj.refresh_from_moneybird()
+            except Administration.NotFound:
+                return None
+        obj.save(push_to_moneybird=False)
+
     return obj

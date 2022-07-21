@@ -1,9 +1,11 @@
+import logging
 from dataclasses import dataclass, field
 
 from django.conf import settings
 from django.utils.module_loading import import_string
 
 from moneybird.administration import get_moneybird_administration
+from moneybird.webhooks.events import WebhookEvent
 
 MoneybirdResourceId = str
 MoneybirdResourceVersion = int
@@ -28,10 +30,20 @@ class MoneybirdResourceType:
     entity_type = None
     entity_type_name = None
     api_path = None
-    synchronizable = None
     model = None
     can_write = True
     can_delete = True
+    can_do_full_sync = True
+    paginated = False
+    pagination_size = None
+
+    @classmethod
+    def get_all_resources_api_endpoint(cls):
+        return cls.api_path
+
+    @classmethod
+    def get_all_resources_api_endpoint_params(cls):
+        return None
 
     @classmethod
     def get_queryset(cls):
@@ -55,28 +67,40 @@ class MoneybirdResourceType:
         return {"moneybird_id": MoneybirdResourceId(data["id"])}
 
     @classmethod
-    def create_from_moneybird(cls, resource_data: MoneybirdResource):
-        obj = cls.model(**cls.get_model_kwargs(resource_data))
+    def perform_save(cls, obj):
         obj.save(push_to_moneybird=False)
+
+    @classmethod
+    def create_from_moneybird(cls, resource_data: MoneybirdResource):
+        logging.info(f"Adding {cls.entity_type_name} {resource_data['id']}")
+        obj = cls.model(**cls.get_model_kwargs(resource_data))
+        cls.perform_save(obj)
         return obj
 
     @classmethod
     def update_from_moneybird(cls, resource_data: MoneybirdResource, obj=None):
+        logging.info(f"Updating {cls.entity_type_name} {resource_data['id']}")
         if obj is None:
             try:
                 obj = cls.get_queryset().get(
                     moneybird_id=MoneybirdResourceId(resource_data["id"])
                 )
             except cls.model.DoesNotExist:
+                logging.info(
+                    f"{cls.entity_type_name} {resource_data['id']} does not exist, creating it"
+                )
                 return cls.create_from_moneybird(resource_data), True
 
-        obj.update_fields_from_moneybird(resource_data)
-        obj.save(push_to_moneybird=False)
+        if len(resource_data) > 1:
+            # If we get more data than just the id, we need to update the object with the new data
+            obj.update_fields_from_moneybird(resource_data)
+            cls.perform_save(obj)
 
         return obj, False
 
     @classmethod
     def delete_from_moneybird(cls, resource_id: MoneybirdResourceId):
+        logging.info(f"Deleting {cls.entity_type_name} {resource_id}")
         return (
             cls.get_queryset()
             .get(moneybird_id=resource_id)
@@ -84,13 +108,16 @@ class MoneybirdResourceType:
         )
 
     @classmethod
+    def queryset_delete_from_moneybird(cls, ids: list[MoneybirdResourceId]):
+        return cls.get_queryset().filter(moneybird_id__in=ids).delete()
+
+    @classmethod
     def update_resources(cls, diff: ResourceDiff):
         for resource in diff.added:
             cls.create_from_moneybird(resource)
         for resource in diff.changed:
             cls.update_from_moneybird(resource)
-        for resource_id in diff.removed:
-            cls.delete_from_moneybird(resource_id)
+        cls.queryset_delete_from_moneybird(diff.removed)
 
     @staticmethod
     def diff_resources(
@@ -112,7 +139,8 @@ class MoneybirdResourceType:
         return resources_diff
 
     @classmethod
-    def process_webhook_event(cls, data: MoneybirdResource, event: str):
+    def process_webhook_event(cls, data: MoneybirdResource, event: WebhookEvent):
+        logging.info(f"Processing {event} for {cls.entity_type_name} {data['id']}")
         return cls.update_from_moneybird(data)
 
     @classmethod
@@ -136,8 +164,12 @@ class MoneybirdResourceType:
         administration = get_moneybird_administration()
 
         if instance.moneybird_id is None:
+            logging.info(f"Creating new {cls.entity_type_name} on Moneybird")
             returned_data = administration.post(cls.api_path, content)
         else:
+            logging.info(
+                f"Updating {cls.entity_type_name} {instance.moneybird_id} on Moneybird"
+            )
             returned_data = administration.patch(
                 f"{cls.api_path}/{instance.moneybird_id}", content
             )
@@ -154,6 +186,11 @@ class MoneybirdResourceType:
             return None
 
         administration = get_moneybird_administration()
+
+        logging.info(
+            f"Deleting {cls.entity_type_name} {instance.moneybird_id} on Moneybird"
+        )
+
         return administration.delete(f"{cls.api_path}/{instance.moneybird_id}")
 
     @classmethod
@@ -162,6 +199,11 @@ class MoneybirdResourceType:
             return None
 
         administration = get_moneybird_administration()
+
+        logging.info(
+            f"Refreshing {cls.entity_type_name} {instance.moneybird_id} from Moneybird"
+        )
+
         data = administration.get(f"{cls.api_path}/{instance.moneybird_id}")
 
         cls.update_from_moneybird(data, obj=instance)
@@ -172,12 +214,20 @@ class MoneybirdResourceType:
 
 class SynchronizableMoneybirdResourceType(MoneybirdResourceType):
     @classmethod
+    def get_synchronization_api_endpoint(self):
+        return self.api_path + "/synchronization"
+
+    @classmethod
     def get_model_kwargs(cls, data):
         kwargs = super().get_model_kwargs(data)
         version = data.get("version", None)
         if version is not None:
             kwargs["moneybird_version"] = MoneybirdResourceVersion(version)
         return kwargs
+
+    @classmethod
+    def perform_save(cls, obj):
+        obj.save(push_to_moneybird=False, reset_version=False)
 
     @classmethod
     def get_local_versions(cls) -> dict[MoneybirdResourceId, MoneybirdResourceVersion]:
@@ -249,7 +299,7 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
     ):
         obj = cls.document_lines_model(
             **cls.get_document_line_model_kwargs(line_data, document)
-        )  # TODO maybe here we can get the non-saved (so no id, no mb id) object and update it instead of creating a completely new one?
+        )
 
         obj.save(push_to_moneybird=False)
         return obj
@@ -354,13 +404,8 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
         }
         data = {cls.document_lines_attributes_name: [document_line_data]}
         returned_data = cls.push_to_moneybird(document, data)
-        document.save(push_to_moneybird=False)
+        cls.perform_save(document)
         return returned_data
-
-
-class ParametrizedMoneybirdResourceType(MoneybirdResourceType):
-    parameter_name = None
-    parameter_resource_type = None
 
 
 def get_moneybird_resources():
@@ -385,7 +430,7 @@ def get_moneybird_resource_for_document_lines_model(model):
             return resource_type
 
 
-def get_moneybird_resource_type_for_webhook_entity(entity_type):
+def get_moneybird_resource_type_for_entity(entity_type):
     for resource_type in get_moneybird_resources():
         if resource_type.entity_type == entity_type:
             return resource_type

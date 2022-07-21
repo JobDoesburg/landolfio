@@ -5,6 +5,9 @@ from pathlib import Path
 from django.utils.translation import gettext_lazy
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
+from moneybird import webhooks
+from moneybird.webhooks.events import WebhookEvent
+
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 
@@ -19,9 +22,13 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
+    "django_countries",
+    "localflavor",
     "admin_numeric_filter",
+    "autocompletefilter",
     "accounting",
     "inventory",
+    "ninox_import",
 ]
 
 MIDDLEWARE = [
@@ -125,23 +132,33 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Moneybird resources to syncronize
 
 MONEYBIRD_RESOURCE_TYPES = [
-    "accounting.moneybird_resources.DocumentStyleResourceType",
-    "accounting.moneybird_resources.TaxRateResourceType",
-    "accounting.moneybird_resources.WorkflowResourceType",
-    "accounting.moneybird_resources.LedgerAccountResourceType",
-    "accounting.moneybird_resources.ProductResourceType",
-    "accounting.moneybird_resources.ProjectResourceType",
-    "accounting.moneybird_resources.ContactResourceType",
-    "accounting.moneybird_resources.SalesInvoiceResourceType",
-    "accounting.moneybird_resources.PurchaseInvoiceDocumentResourceType",
-    "accounting.moneybird_resources.ReceiptResourceType",
-    "accounting.moneybird_resources.GeneralJournalDocumentResourceType",
-    "accounting.moneybird_resources.EstimateResourceType",
-    "accounting.moneybird_resources.RecurringSalesInvoiceResourceType",
-    "accounting.moneybird_resources.SubscriptionResourceType",
+    "accounting.models.document_style.DocumentStyleResourceType",
+    "accounting.models.tax_rate.TaxRateResourceType",
+    "accounting.models.workflow.WorkflowResourceType",
+    "accounting.models.ledger_account.LedgerAccountResourceType",
+    "accounting.models.product.ProductResourceType",
+    "accounting.models.project.ProjectResourceType",
+    "accounting.models.contact.ContactResourceType",
+    "accounting.models.journal_document.SalesInvoiceResourceType",
+    "accounting.models.journal_document.PurchaseInvoiceDocumentResourceType",
+    "accounting.models.journal_document.ReceiptResourceType",
+    "accounting.models.journal_document.GeneralJournalDocumentResourceType",
+    "accounting.models.estimate.EstimateResourceType",
+    "accounting.models.recurring_sales_invoice.RecurringSalesInvoiceResourceType",
+    "accounting.models.subscription.SubscriptionResourceType",
 ]
 MONEYBIRD_WEBHOOK_SITE_DOMAIN = "http://localhost:8000"
 MONEYBIRD_WEBHOOK_EVENTS = [
-    "contact",
-    "sales_invoice",
+    WebhookEvent.CONTACT,
+    WebhookEvent.SALES_INVOICE,
+    WebhookEvent.DOCUMENT,
+    WebhookEvent.ESTIMATE,
+    WebhookEvent.RECURRING_SALES_INVOICE,
+    WebhookEvent.SUBSCRIPTION,
+    WebhookEvent.TAX_RATE,
+    WebhookEvent.WORKFLOW,
+    WebhookEvent.LEDGER_ACCOUNT,
+    WebhookEvent.PRODUCT,
+    WebhookEvent.PROJECT,
+    WebhookEvent.DOCUMENT_STYLE,
 ]

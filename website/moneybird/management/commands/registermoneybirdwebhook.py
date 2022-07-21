@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from moneybird.webhooks import create_webhook
+from moneybird.webhooks.register import create_webhook
 
 
 class Command(BaseCommand):

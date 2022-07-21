@@ -31,6 +31,11 @@ MONEYBIRD_SYNC_INTERVAL_MINUTES = int(
     os.getenv("MONEYBIRD_SYNC_INTERVAL_MINUTES", "-1")
 )
 
+NINOX_API_TOKEN = os.environ.get("NINOX_API_TOKEN")
+NINOX_TEAM_ID = os.environ.get("NINOX_TEAM_ID")
+NINOX_DATABASE_ID = os.environ.get("NINOX_DATABASE_ID")
+
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -41,6 +46,6 @@ LOGGING = {
     },
     "root": {
         "handlers": ["console"],
-        "level": "INFO",
+        "level": "DEBUG",
     },
 }

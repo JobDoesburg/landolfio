@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from moneybird.webhooks import delete_webhook
+from moneybird.webhooks.register import delete_webhook
 
 
 class Command(BaseCommand):

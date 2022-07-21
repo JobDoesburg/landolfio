@@ -13,7 +13,6 @@ from moneybird.resource_types import (
     ResourceDiff,
     MoneybirdResourceType,
     SynchronizableMoneybirdResourceType,
-    ParametrizedMoneybirdResourceType,
     get_moneybird_resources,
 )
 
@@ -36,7 +35,7 @@ class MoneybirdSync:
         self, resource_type: SynchronizableMoneybirdResourceType
     ) -> dict[MoneybirdResourceId, MoneybirdResourceVersion]:
         objects = self.administration.get(
-            f"{resource_type.api_path}/synchronization",
+            resource_type.get_synchronization_api_endpoint()
         )
         return {instance["id"]: instance["version"] for instance in objects}
 
@@ -46,77 +45,100 @@ class MoneybirdSync:
         ids: list[MoneybirdResourceId],
     ):
         assert len(ids) <= MAX_REQUEST_SIZE
-        return self.administration.post(
-            f"{resource_type.api_path}/synchronization", data={"ids": ids}
+        response = self.administration.post(
+            resource_type.get_synchronization_api_endpoint(), data={"ids": ids}
         )
+        return response
 
     def get_resources_by_id(
         self,
         resource_type: SynchronizableMoneybirdResourceType,
         ids: list[MoneybirdResourceId],
-    ) -> list[MoneybirdResource]:
+    ):
+        """Get an iterator over all resources of a given type."""
         if len(ids) == 0:
             return []
-
-        objects = []
-
         for id_chunk in self.__chunks(ids, MAX_REQUEST_SIZE):
             try:
-                objects.extend(
-                    self._get_resources_by_id_paginated(resource_type, id_chunk)
-                )
+                response = self._get_resources_by_id_paginated(resource_type, id_chunk)
+                yield from response
             except Administration.Throttled:
+                logging.warning("Throttled, stopping sync")
                 break
-        return objects
+
+    def get_all_resources_paginated(self, resource_type: MoneybirdResourceType):
+        params = resource_type.get_all_resources_api_endpoint_params()
+        if params is None:
+            params = {}
+        params["page"] = 1
+
+        resources = []
+
+        while True:
+            response = self.administration.get(
+                resource_type.get_all_resources_api_endpoint(),
+                params=params,
+            )
+            resources.extend(response)
+
+            if len(response) < resource_type.pagination_size:
+                return resources
+
+            params["page"] += 1
 
     def get_all_resources(self, resource_type: MoneybirdResourceType):
-        if issubclass(resource_type, ParametrizedMoneybirdResourceType):
-            parameter_resource_type = resource_type.parameter_resource_type
-            moneybird_ids = parameter_resource_type.get_moneybird_ids()
-            responses = []
-            for param_id in moneybird_ids:
-                response = self.administration.get(
-                    f"{resource_type.api_path}",
-                    params={resource_type.parameter_name: param_id},
-                )
-                responses.extend(response)
-            return responses
-        return self.administration.get(f"{resource_type.api_path}")
+        if resource_type.paginated:
+            return self.get_all_resources_paginated(resource_type)
+        return self.administration.get(
+            resource_type.get_all_resources_api_endpoint(),
+            params=resource_type.get_all_resources_api_endpoint_params(),
+        )
 
-    def get_resource_diffs(
-        self,
-        resource: SynchronizableMoneybirdResourceType,
-        local_versions: dict[MoneybirdResourceId, MoneybirdResourceVersion],
-    ) -> ResourceDiff:
-        remote_versions = self.get_resource_versions(resource)
+    def sync_using_synchronization_endpoint_efficient(
+        self, resource_type: SynchronizableMoneybirdResourceType
+    ):
+        local_versions = resource_type.get_local_versions()
+        remote_versions = self.get_resource_versions(resource_type)
         resources_to_sync = SynchronizableMoneybirdResourceType.diff_resource_versions(
             local_versions, remote_versions
         )
 
-        resources_diff = ResourceDiff()
-        resources_diff.added = self.get_resources_by_id(
-            resource, resources_to_sync.added
-        )
-        resources_diff.changed = self.get_resources_by_id(
-            resource, resources_to_sync.changed
-        )
-        resources_diff.removed = resources_to_sync.removed
+        resource_type.queryset_delete_from_moneybird(resources_to_sync.removed)
 
-        return resources_diff
+        new_resources = self.get_resources_by_id(resource_type, resources_to_sync.added)
+        for resource in new_resources:
+            resource_type.create_from_moneybird(resource)
+
+        updated_resources = self.get_resources_by_id(
+            resource_type, resources_to_sync.changed
+        )
+        for resource in updated_resources:
+            resource_type.update_from_moneybird(resource)
+
+    def sync_naive(self, resource_type: MoneybirdResourceType):
+        local_versions = resource_type.get_local_versions()
+        resources = self.get_all_resources(resource_type)
+        changes = MoneybirdResourceType.diff_resources(local_versions, resources)
+        logging.info(f"Updating {resource_type.__name__} resources with changes")
+        resource_type.update_resources(changes)
 
     def sync_resource_type(self, resource_type: MoneybirdResourceType):
-        logging.info(f"Start synchronizing {resource_type.entity_type}")
-        local_versions = resource_type.get_local_versions()
+        """Perform a full sync of a resource type."""
+        if not resource_type.can_do_full_sync:
+            logging.info(f"{resource_type.__name__} cannot be fully synchronized")
+            return None
+
+        logging.info(f"Start fetching {resource_type.__name__} from Moneybird")
+
         if issubclass(resource_type, SynchronizableMoneybirdResourceType):
-            changes = self.get_resource_diffs(resource_type, local_versions)
+            self.sync_using_synchronization_endpoint_efficient(resource_type)
         else:
-            resources = self.get_all_resources(resource_type)
-            changes = MoneybirdResourceType.diff_resources(local_versions, resources)
-        logging.info(f"Updating {resource_type.entity_type} resources")
-        resource_type.update_resources(changes)
-        logging.info(f"Finished synchronizing {resource_type.entity_type}")
+            self.sync_naive(resource_type)
+
+        logging.info(f"Finished synchronizing {resource_type.__name__}")
 
     def perform_sync(self, resource_types: list[MoneybirdResourceType]):
+        """Perform a full sync of a list of resources."""
         for resource_type in resource_types:
             self.sync_resource_type(resource_type)
 

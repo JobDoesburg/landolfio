@@ -1,0 +1,355 @@
+from decimal import Decimal
+
+from django.db import models
+from django.db.models import PROTECT, Sum, Q, F, Value, When, Case
+from django.db.models.functions import Coalesce
+from django.utils.translation import gettext_lazy as _
+from queryable_properties.managers import QueryablePropertiesManager
+from queryable_properties.properties import (
+    RelatedExistenceCheckProperty,
+    AggregateProperty,
+    AnnotationProperty,
+    ValueCheckProperty,
+)
+
+from accounting.models.ledger_account import LedgerAccountType, LedgerAccount
+from accounting.models.estimate import EstimateStateChoices
+from inventory.models.category import AssetCategory, AssetSize
+from inventory.models.collection import Collection
+from inventory.models.location import AssetLocation
+from inventory.models.status import AssetStates
+
+
+class FilteredRelatedExistenceCheckProperty(RelatedExistenceCheckProperty):
+    def __init__(self, check_property, filter=None, *args, **kwargs):
+        super().__init__(check_property, *args, **kwargs)
+        self.filter = filter
+
+    def get_queryset(self, model):
+        return super().get_queryset(model).filter(self.filter)
+
+
+class Asset(models.Model):
+    """Class model for Assets."""
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    id = models.CharField(verbose_name=_("ID"), max_length=200, primary_key=True)
+    category = models.ForeignKey(
+        AssetCategory, null=True, blank=False, on_delete=PROTECT
+    )
+    size = models.ForeignKey(AssetSize, null=True, blank=True, on_delete=PROTECT)
+    location = models.ForeignKey(
+        AssetLocation, null=True, blank=True, on_delete=PROTECT
+    )
+    collection = models.ForeignKey(
+        Collection, on_delete=models.CASCADE, verbose_name=_("Collection")
+    )
+
+    listing_price = models.DecimalField(
+        verbose_name=_("Listing price"),
+        null=True,
+        blank=True,
+        max_digits=10,
+        decimal_places=2,
+    )
+
+    remarks = models.TextField(
+        verbose_name=_("Remarks"), max_length=1000, null=True, blank=True
+    )
+    local_status = models.CharField(
+        max_length=40,
+        choices=AssetStates.choices,
+        verbose_name=_("Local status"),
+        default="Unknown",
+    )
+
+    @property
+    def get_ledger_amounts(self):
+        return dict(
+            (
+                LedgerAccount.objects.get(moneybird_id=x["ledger__moneybird_id"]),
+                x["price__sum"],
+            )
+            for x in self.journal_document_lines.values(
+                "ledger__moneybird_id"
+            ).annotate(Sum("price"))
+        )
+
+    total_assets_value = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.CURRENT_ASSETS
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
+        ),
+    )
+    total_margin_assets_value = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.CURRENT_ASSETS,
+                journal_document_lines__ledger__is_margin=True,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
+        )
+    )
+    total_non_margin_assets_value = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.CURRENT_ASSETS,
+                journal_document_lines__ledger__is_margin=False,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
+        )
+    )
+
+    total_direct_costs_value = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.DIRECT_COSTS
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
+        )
+    )
+    total_margin_direct_costs_value = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.DIRECT_COSTS,
+                journal_document_lines__ledger__is_margin=True,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
+        )
+    )
+    total_non_margin_direct_costs_value = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.DIRECT_COSTS,
+                journal_document_lines__ledger__is_margin=False,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
+        )
+    )
+
+    total_expenses_value = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.EXPENSES
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
+        )
+    )
+    total_purchase_expenses = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.EXPENSES,
+                journal_document_lines__ledger__is_purchase=True,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
+        )
+    )
+    total_other_expenses = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.EXPENSES,
+                journal_document_lines__ledger__is_purchase=False,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
+        )
+    )
+
+    total_revenue_value = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
+        )
+    )
+    total_sales_revenue = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
+                journal_document_lines__ledger__is_sales=True,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
+        )
+    )
+    total_sales_revenue_margin = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
+                journal_document_lines__ledger__is_sales=True,
+                journal_document_lines__ledger__is_margin=True,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
+        )
+    )
+    total_sales_revenue_non_margin = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
+                journal_document_lines__ledger__is_sales=True,
+                journal_document_lines__ledger__is_margin=False,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
+        )
+    )
+    total_other_revenue = AggregateProperty(
+        Sum(
+            "journal_document_lines__price",
+            filter=Q(
+                journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
+                journal_document_lines__ledger__is_sales=False,
+            ),
+            output_field=models.DecimalField(max_digits=10, decimal_places=2),
+        )
+    )
+
+    is_margin = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(journal_document_lines__ledger__is_margin=True),
+    )
+    is_non_margin = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(journal_document_lines__ledger__is_margin=False),
+    )
+
+    is_sold = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(
+            journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
+            journal_document_lines__ledger__is_sales=True,
+        ),
+    )
+    is_sold_as_margin = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(
+            journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
+            journal_document_lines__ledger__is_sales=True,
+            journal_document_lines__ledger__is_margin=True,
+        ),
+    )
+    is_sold_as_non_margin = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(
+            journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
+            journal_document_lines__ledger__is_sales=True,
+            journal_document_lines__ledger__is_margin=False,
+        ),
+    )
+
+    is_purchased_asset = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(
+            journal_document_lines__ledger__account_type=LedgerAccountType.CURRENT_ASSETS
+        ),
+    )
+    is_purchased_asset_as_margin = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(
+            journal_document_lines__ledger__account_type=LedgerAccountType.CURRENT_ASSETS,
+            journal_document_lines__ledger__is_margin=True,
+        ),
+    )
+    is_purchased_asset_as_non_margin = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(
+            journal_document_lines__ledger__account_type=LedgerAccountType.CURRENT_ASSETS,
+            journal_document_lines__ledger__is_margin=False,
+        ),
+    )
+
+    is_purchased_amortized = FilteredRelatedExistenceCheckProperty(
+        "journal_document_lines",
+        filter=Q(
+            journal_document_lines__ledger__account_type=LedgerAccountType.EXPENSES,
+            journal_document_lines__ledger__is_purchase=True,
+        ),
+    )
+
+    purchase_value = AnnotationProperty(
+        Coalesce(F("total_assets_value"), Decimal(0))
+        + Coalesce(F("total_direct_costs_value"), Decimal(0))
+        + Coalesce(F("total_purchase_expenses"), Decimal(0))
+    )
+
+    sales_profit = AnnotationProperty(
+        Coalesce(F("total_sales_revenue"), Decimal(0))
+        - Coalesce(F("purchase_value"), Decimal(0))
+    )
+
+    total_profit = AnnotationProperty(
+        Coalesce(F("total_revenue_value"), Decimal(0))
+        - Coalesce(F("total_direct_costs_value"), Decimal(0))
+        - Coalesce(F("total_expenses_value"), Decimal(0))
+    )
+
+    coalesce_total_assets_value = AnnotationProperty(
+        Coalesce(F("total_assets_value"), Decimal(0))
+    )
+    is_amortized = ValueCheckProperty("coalesce_total_assets_value", Decimal(0))
+
+    is_commerce = AnnotationProperty(F("collection__commerce"))
+
+    is_rented = FilteredRelatedExistenceCheckProperty(
+        "recurring_sales_invoice_document_lines",
+        filter=Q(
+            recurring_sales_invoice_document_lines__document__active=True,
+            # recurring_sales_invoice_document_lines__document__workflow=False, # TODO filter by workflow for rent or loan
+        ),
+    )
+
+    has_rental_agreement = FilteredRelatedExistenceCheckProperty(
+        "estimate_document_lines",
+        filter=Q(
+            estimate_document_lines__document__state__in=[
+                EstimateStateChoices.OPEN,
+                EstimateStateChoices.LATE,
+                EstimateStateChoices.ACCEPTED,
+            ],
+            # recurring_sales_invoice_document_lines__document__workflow=False, # TODO filter by workflow for rent or loan
+        ),
+    )
+
+    objects = QueryablePropertiesManager()
+
+    moneybird_status = AnnotationProperty(
+        Case(
+            When(Q(is_commerce=False), then=Value(None)),
+            When(Q(is_sold=True), then=Value("Sold")),
+            When(Q(is_rented=True), then=Value("Rented")),
+            When(
+                Q(is_amortized=True, is_purchased_amortized=False),
+                then=Value("Amortized"),
+            ),
+            When(
+                Q(is_amortized=True, is_purchased_amortized=True),
+                then=Value("Available or amortized"),
+            ),
+            default=Value("Available"),
+        )
+    )
+
+    def check_moneybird_errors(self):
+        if self.is_margin and self.is_non_margin:
+            return "Margin asset on non-margin ledgers"
+
+    def __str__(self):
+        return f"{self.category.name_singular} {self.id} ({self.size})"
+
+    class Meta:
+        ordering = ["created_at", "id"]
+        verbose_name = _("asset")
+        verbose_name_plural = _("assets")

@@ -20,6 +20,11 @@ from django.conf import settings
 class Administration(ABC):
     """A MoneyBird administration."""
 
+    administration_id = None
+
+    def __init__(self, administration_id: int):
+        self.administration_id = administration_id
+
     @abstractmethod
     def get(self, resource_path: str, params: dict = None):
         """Do a GET on the Moneybird administration."""
@@ -27,6 +32,14 @@ class Administration(ABC):
     @abstractmethod
     def post(self, resource_path: str, data: dict):
         """Do a POST request on the Moneybird administration."""
+
+    @abstractmethod
+    def patch(self, resource_path: str, data: dict):
+        """Do a PATCH request on the Moneybird administration."""
+
+    @abstractmethod
+    def delete(self, resource_path: str):
+        """Do a DELETE request on the Moneybird administration."""
 
     class InvalidResourcePath(Exception):
         """The given resource path is invalid."""
@@ -57,60 +70,80 @@ class Administration(ABC):
     class ServerError(Error):
         """An error happened on the server."""
 
+    @abstractmethod
+    def _create_session(self) -> requests.Session:
+        """Create a new session."""
 
-def _create_session_with_key(key: str) -> requests.Session:
-    session = requests.Session()
-    session.headers.update({"Authorization": f"Bearer {key}"})
-    return session
+    def _build_url(self, resource_path: str) -> str:
+        if resource_path.startswith("/"):
+            raise Administration.InvalidResourcePath(
+                "The resource path must not start with a slash."
+            )
 
+        api_base_url = "https://moneybird.com/api/v2/"
+        url_parts = [
+            api_base_url,
+            f"{self.administration_id}/",
+            f"{resource_path}.json",
+        ]
+        return reduce(urljoin, url_parts)
 
-def _build_url(administration_id: int, resource_path: str) -> str:
-    if resource_path.startswith("/"):
-        raise Administration.InvalidResourcePath(
-            "The resource path must not start with a slash."
-        )
+    def _process_response(self, response: requests.Response) -> dict:
+        logging.debug(f"Response {response.status_code}: {response.text}")
 
-    api_base_url = "https://moneybird.com/api/v2/"
-    url_parts = [api_base_url, f"{administration_id}/", f"{resource_path}.json"]
-    return reduce(urljoin, url_parts)
+        good_codes = {200, 201, 204}
+        bad_codes: dict[int, Type[Administration.Error]] = {
+            400: Administration.Unauthorized,
+            401: Administration.Unauthorized,
+            403: Administration.Throttled,
+            404: Administration.NotFound,
+            406: Administration.NotFound,
+            422: Administration.InvalidData,
+            429: Administration.Throttled,
+            500: Administration.ServerError,
+        }
 
+        code = response.status_code
 
-def _process_response(response: requests.Response) -> dict:
-    logging.info(f"Response {response.status_code}: {response.text}")
+        # pylint: disable=consider-iterating-dictionary
+        code_is_known: bool = code in good_codes | bad_codes.keys()
 
-    good_codes = {200, 201, 204}
-    bad_codes: dict[int, Type[Administration.Error]] = {
-        400: Administration.Unauthorized,
-        401: Administration.Unauthorized,
-        403: Administration.Throttled,
-        404: Administration.NotFound,
-        406: Administration.NotFound,
-        422: Administration.InvalidData,
-        429: Administration.Throttled,
-        500: Administration.ServerError,
-    }
+        if not code_is_known:
+            logging.warning(f"Unknown response code {code}")
+            raise Administration.Error(
+                code, "API response contained unknown status code"
+            )
 
-    code = response.status_code
+        if code in bad_codes:
+            error = bad_codes[
+                code
+            ]  # TODO if throttled, parse Retry-After, RateLimit-Limit, RateLimit-Remaining and RateLimit-Reset headers and respect them
 
-    # pylint: disable=consider-iterating-dictionary
-    code_is_known: bool = code in good_codes | bad_codes.keys()
+            if error == Administration.Throttled:
+                self.throttled_retry_after = response.headers.get("Retry-After")
+                self.throttled_rate_limit_limit = response.headers.get(
+                    "RateLimit-Limit"
+                )
+                self.throttled_rate_limit_remaining = response.headers.get(
+                    "RateLimit-Remaining"
+                )
+                self.throttled_rate_limit_reset = response.headers.get(
+                    "RateLimit-Reset"
+                )
 
-    if not code_is_known:
-        raise Administration.Error(code, "API response contained unknown status code")
+            try:
+                error_description = response.json()["error"]
+            except (AttributeError, TypeError, KeyError, ValueError):
+                error_description = None
 
-    if code in bad_codes:
-        error = bad_codes[code]
-        try:
-            error_description = response.json()["error"]
-        except (AttributeError, TypeError, KeyError, ValueError):
-            error_description = None
+            logging.warning(f"API error {code}: {error_description}")
 
-        raise error(code, error_description)
+            raise error(code, error_description)
 
-    if code == 204:
-        return {}
+        if code == 204:
+            return {}
 
-    return response.json()
+        return response.json()
 
 
 class HttpsAdministration(Administration):
@@ -118,39 +151,44 @@ class HttpsAdministration(Administration):
 
     def __init__(self, key, administration_id: int):
         """Create a new MoneyBird administration connection."""
-        super().__init__()
-        self.session = _create_session_with_key(key)
-        self.administration_id = administration_id
+        super().__init__(administration_id)
+        self.key = key
+        self.session = self._create_session()
+
+    def _create_session(self) -> requests.Session:
+        session = requests.Session()
+        session.headers.update({"Authorization": f"Bearer {self.key}"})
+        return session
 
     def get(self, resource_path: str, params: dict = None):
         """Do a GET on the Moneybird administration."""
-        url = _build_url(self.administration_id, resource_path)
-        logging.info(f"GET {url} {params}")
+        url = self._build_url(resource_path)
+        logging.debug(f"GET {url} {params}")
         response = self.session.get(url, params=params)
-        return _process_response(response)
+        return self._process_response(response)
 
     def post(self, resource_path: str, data: dict):
         """Do a POST request on the Moneybird administration."""
-        url = _build_url(self.administration_id, resource_path)
+        url = self._build_url(resource_path)
         data = json.dumps(data)
-        logging.info(f"POST {url} with {data}")
+        logging.debug(f"POST {url} with {data}")
         response = self.session.post(url, data=data)
-        return _process_response(response)
+        return self._process_response(response)
 
     def patch(self, resource_path: str, data: dict):
         """Do a PATCH request on the Moneybird administration."""
-        url = _build_url(self.administration_id, resource_path)
+        url = self._build_url(resource_path)
         data = json.dumps(data)
-        logging.info(f"PATCH {url} with {data}")
+        logging.debug(f"PATCH {url} with {data}")
         response = self.session.patch(url, data=data)
-        return _process_response(response)
+        return self._process_response(response)
 
     def delete(self, resource_path: str):
         """Do a DELETE on the Moneybird administration."""
-        url = _build_url(self.administration_id, resource_path)
-        logging.info(f"DELETE {url}")
+        url = self._build_url(resource_path)
+        logging.debug(f"DELETE {url}")
         response = self.session.delete(url)
-        return _process_response(response)
+        return self._process_response(response)
 
 
 def get_moneybird_administration():

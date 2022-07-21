@@ -1,8 +1,10 @@
+from moneybird.models import get_or_create_from_moneybird_data
 from moneybird.resource_types import (
     MoneybirdResourceTypeWithDocumentLines,
     MoneybirdResourceType,
     SynchronizableMoneybirdResourceType,
-    ParametrizedMoneybirdResourceType,
+    MoneybirdResource,
+    get_moneybird_resource_type_for_entity,
 )
 
 
@@ -59,8 +61,19 @@ class RecurringSalesInvoiceResourceType(MoneybirdResourceTypeWithDocumentLines):
     document_lines_resource_data_name = "details"
     document_lines_attributes_name = "details_attributes"
 
+    @classmethod
+    def create_from_moneybird(cls, resource_data: MoneybirdResource):
+        obj = super().create_from_moneybird(resource_data)
+        subscription = resource_data.get("subscription", None)
+        if subscription:
+            resource_type = get_moneybird_resource_type_for_entity("Subscription")
+            get_or_create_from_moneybird_data(
+                resource_type, subscription["id"], subscription
+            )
+        return obj
 
-class ContactResourceType(MoneybirdResourceType):
+
+class ContactResourceType(SynchronizableMoneybirdResourceType):
     entity_type = "Contact"
     entity_type_name = "contact"
     api_path = "contacts"
@@ -70,12 +83,24 @@ class ProductResourceType(MoneybirdResourceType):
     entity_type = "Product"
     entity_type_name = "product"
     api_path = "products"
+    paginated = True
+    pagination_size = 10
 
 
 class ProjectResourceType(MoneybirdResourceType):
     entity_type = "Project"
     entity_type_name = "project"
     api_path = "projects"
+    paginated = True
+    pagination_size = 25
+
+    @classmethod
+    def get_all_resources_api_endpoint_params(cls):
+        params = super().get_all_resources_api_endpoint_params()
+        if params is None:
+            params = {}
+        params["state"] = "all"
+        return params
 
 
 class LedgerAccountResourceType(MoneybirdResourceType):
@@ -96,13 +121,11 @@ class TimeEntriesResourceType(MoneybirdResourceType):
     api_path = "time_entries"
 
 
-class SubscriptionResourceType(ParametrizedMoneybirdResourceType):
+class SubscriptionResourceType(MoneybirdResourceType):
     entity_type = "Subscription"
     entity_type_name = "subscription"
     api_path = "subscriptions"
-    needs_parameters = True
-    parameter_name = "contact_id"
-    parameter_resource_type = None
+    can_do_full_sync = False
 
 
 class WorkflowResourceType(MoneybirdResourceType):
@@ -171,6 +194,6 @@ class AdministrationsResourceType(MoneybirdResourceType):
     # TODO this has a different endpoint than the other resources
 
 
-# TODO subscriptions, contact people, mandates, is per contact
+# TODO contact people, mandates, is per contact
 # TODO financial mutations
 # TODO external sales invoice, heeft geen synchronization endpoint, wel document lines
