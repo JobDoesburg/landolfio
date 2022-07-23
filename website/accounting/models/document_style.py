@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext as _
 
 from moneybird import resources
 from moneybird.models import (
@@ -11,6 +12,10 @@ class DocumentStyle(MoneybirdResourceModel):
         max_length=100,
     )
     default = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = _("Document style")
+        verbose_name_plural = _("Document styles")
 
     def __str__(self):
         return self.name

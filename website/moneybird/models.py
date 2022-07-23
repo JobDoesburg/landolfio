@@ -20,7 +20,6 @@ class MoneybirdResourceModel(models.Model):
         null=False,
         blank=True,
         unique=True,
-        primary_key=True,
     )
 
     class Meta:

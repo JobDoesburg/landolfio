@@ -1,15 +1,14 @@
 """Asset models."""
 import logging
 import re
-from decimal import Decimal
 from functools import lru_cache
-from typing import Union, List, Any
+from typing import Union
 
 from django.db import models
 from django.dispatch import receiver
 
 from accounting.models.estimate import EstimateDocumentLine
-from accounting.models.journal_document import JournalDocumentLine, DocumentKind
+from accounting.models.journal_document import JournalDocumentLine
 from accounting.models.recurring_sales_invoice import RecurringSalesInvoiceDocumentLine
 from inventory.models.asset import Asset
 
@@ -71,15 +70,15 @@ def find_asset_from_id(asset_id) -> Union[Asset, None]:
 
 def find_asset_in_document_lines(document_line):
     description = document_line.description
-    if (
-        isinstance(document_line, JournalDocumentLine)
-        and document_line.document.document_kind
-        == DocumentKind.GENERAL_JOURNAL_DOCUMENT
-    ):
-        if description is None:
-            description = document_line.document.reference
-        else:
-            description += " " + document_line.document.reference
+    # if (
+    #     isinstance(document_line, JournalDocumentLine)
+    #     and document_line.document.document_kind
+    #     == DocumentKind.GENERAL_JOURNAL_DOCUMENT
+    # ):
+    #     if description is None:
+    #         description = document_line.document.reference
+    #     else:
+    #         description += " " + document_line.document.reference
 
     asset_id = find_asset_id_from_description(description)
     asset_or_none = find_asset_from_id(asset_id)

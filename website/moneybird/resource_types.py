@@ -132,15 +132,20 @@ class MoneybirdResourceType:
                     obj.refresh_from_moneybird()
                 except Administration.NotFound:
                     return None
-            obj.save(push_to_moneybird=False)
+                except Administration.InvalidData:
+                    return None
+        obj.save(push_to_moneybird=False)
 
         return obj
 
     @classmethod
     def create_from_moneybird(cls, resource_data: MoneybirdResource):
         logging.info(f"Adding {cls.entity_type_name} {resource_data['id']}")
-        obj = cls.model(**cls.get_model_kwargs(resource_data))
-        cls.perform_save(obj)
+        try:
+            obj = cls.model.objects.get(moneybird_id=resource_data["id"])
+        except cls.model.DoesNotExist:
+            obj = cls.model(**cls.get_model_kwargs(resource_data))
+            cls.perform_save(obj)
         return obj
 
     @classmethod
@@ -398,15 +403,18 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
         cls.update_from_moneybird(returned_data, obj=instance)
         return returned_data
 
+
     @classmethod
     def create_document_line_from_moneybird(
         cls, document, line_data: MoneybirdResource
     ):
-        obj = cls.document_lines_model(
-            **cls.get_document_line_model_kwargs(line_data, document)
-        )
-
-        obj.save(push_to_moneybird=False)
+        try:
+            obj = cls.document_lines_model.objects.get(moneybird_id=line_data["id"])
+        except cls.document_lines_model.DoesNotExist:
+            obj = cls.document_lines_model(
+                **cls.get_document_line_model_kwargs(line_data, document)
+            )
+            obj.save(push_to_moneybird=False)
         return obj
 
     @classmethod
@@ -469,10 +477,12 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
 
         diff[
             "id"
-        ] = document_line.moneybird_id  # For document lines, the id must always be set
+        ] = MoneybirdResourceId(document_line.moneybird_id)  # For document lines, the id must always be set
 
-        data = cls.push_to_moneybird(document_line, diff)
-        return data
+        data = {cls.document_lines_attributes_name: [diff]}
+
+        returned_data = cls.push_to_moneybird(document_line.document_line_parent, data)
+        return returned_data
 
     @classmethod
     def delete_document_line_on_moneybird(cls, document_line, document):

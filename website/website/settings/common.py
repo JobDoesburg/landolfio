@@ -140,12 +140,12 @@ MONEYBIRD_RESOURCE_TYPES = [
     "accounting.models.product.ProductResourceType",
     "accounting.models.project.ProjectResourceType",
     "accounting.models.contact.ContactResourceType",
-    "accounting.models.journal_document.SalesInvoiceResourceType",
-    "accounting.models.journal_document.PurchaseInvoiceDocumentResourceType",
-    "accounting.models.journal_document.ReceiptResourceType",
-    "accounting.models.journal_document.GeneralJournalDocumentResourceType",
-    "accounting.models.estimate.EstimateResourceType",
+    "accounting.models.purchase_document.PurchaseInvoiceDocumentResourceType",
+    "accounting.models.purchase_document.ReceiptResourceType",
+    "accounting.models.sales_invoice.SalesInvoiceResourceType",
+    "accounting.models.general_journal_document.GeneralJournalDocumentResourceType",
     "accounting.models.recurring_sales_invoice.RecurringSalesInvoiceResourceType",
+    "accounting.models.estimate.EstimateResourceType",
     "accounting.models.subscription.SubscriptionResourceType",
 ]
 MONEYBIRD_WEBHOOK_SITE_DOMAIN = "http://localhost:8000"
