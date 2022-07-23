@@ -10,7 +10,6 @@ from accounting.models.workflow import Workflow, WorkflowTypes, WorkflowResource
 from moneybird import resources
 from moneybird.models import (
     SynchronizableMoneybirdResourceModel,
-    get_or_create_from_moneybird_data,
 )
 
 
@@ -192,16 +191,22 @@ class ContactResourceType(resources.ContactResourceType):
         kwargs["sepa_iban_account_name"] = resource_data["sepa_iban_account_name"]
         kwargs["sepa_bic"] = resource_data["sepa_bic"]
         kwargs["sepa_mandate_id"] = resource_data["sepa_mandate_id"]
-        kwargs["sepa_mandate_date"] = datetime.datetime.fromisoformat(
-            resource_data["sepa_mandate_date"]
-        ).date() if resource_data["sepa_mandate_date"] else None
+        kwargs["sepa_mandate_date"] = (
+            datetime.datetime.fromisoformat(resource_data["sepa_mandate_date"]).date()
+            if resource_data["sepa_mandate_date"]
+            else None
+        )
         kwargs["sepa_sequence_type"] = resource_data["sepa_sequence_type"]
         kwargs["tax_number_valid"] = resource_data["tax_number_valid"] or False
-        kwargs["invoice_workflow"] = get_or_create_from_moneybird_data(
-            WorkflowResourceType, resource_data["invoice_workflow_id"]
+        kwargs[
+            "invoice_workflow"
+        ] = WorkflowResourceType.get_or_create_from_moneybird_data(
+            resource_data["invoice_workflow_id"]
         )
-        kwargs["estimate_workflow"] = get_or_create_from_moneybird_data(
-            WorkflowResourceType, resource_data["estimate_workflow_id"]
+        kwargs[
+            "estimate_workflow"
+        ] = WorkflowResourceType.get_or_create_from_moneybird_data(
+            resource_data["estimate_workflow_id"]
         )
         kwargs["sales_invoices_url"] = resource_data["sales_invoices_url"]
         return kwargs

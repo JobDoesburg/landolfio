@@ -18,7 +18,6 @@ from moneybird import resources
 from moneybird.models import (
     SynchronizableMoneybirdResourceModel,
     MoneybirdDocumentLineModel,
-    get_or_create_from_moneybird_data,
 )
 from moneybird.resource_types import (
     MoneybirdResourceTypeWithDocumentLines,
@@ -166,11 +165,11 @@ class JournalDocumentResourceType(MoneybirdResourceTypeWithDocumentLines):
         kwargs = super().get_document_line_model_kwargs(line_data, document)
         kwargs["document"] = document
         kwargs["description"] = line_data["description"]
-        kwargs["ledger"] = get_or_create_from_moneybird_data(
-            LedgerAccountResourceType, line_data["ledger_account_id"]
+        kwargs["ledger"] = LedgerAccountResourceType.get_or_create_from_moneybird_data(
+            line_data["ledger_account_id"]
         )
-        kwargs["project"] = get_or_create_from_moneybird_data(
-            ProjectResourceType, line_data["project_id"]
+        kwargs["project"] = ProjectResourceType.get_or_create_from_moneybird_data(
+            line_data["project_id"]
         )
         kwargs["moneybird_json"] = line_data
         return kwargs
@@ -188,11 +187,11 @@ class SalesInvoiceResourceType(
         kwargs = super().get_model_kwargs(data)
         kwargs["document_kind"] = DocumentKind.SALES_INVOICE
         # kwargs["date"] = datetime.datetime.fromisoformat(data["invoice_date"]).date()
-        kwargs["contact"] = get_or_create_from_moneybird_data(
-            ContactResourceType, data["contact_id"]
+        kwargs["contact"] = ContactResourceType.get_or_create_from_moneybird_data(
+            data["contact_id"]
         )
-        kwargs["workflow"] = get_or_create_from_moneybird_data(
-            WorkflowResourceType, data["workflow_id"]
+        kwargs["workflow"] = WorkflowResourceType.get_or_create_from_moneybird_data(
+            data["workflow_id"]
         )
         kwargs["total_price"] = data["total_price_incl_tax_base"]
         kwargs["total_paid"] = data["total_paid"]
@@ -203,8 +202,8 @@ class SalesInvoiceResourceType(
     def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
         kwargs = super().get_document_line_model_kwargs(line_data, document)
         kwargs["amount"] = line_data["amount"]
-        kwargs["tax_rate"] = get_or_create_from_moneybird_data(
-            TaxRateResourceType, line_data["tax_rate_id"]
+        kwargs["tax_rate"] = TaxRateResourceType.get_or_create_from_moneybird_data(
+            line_data["tax_rate_id"]
         )
         ledger = kwargs["ledger"]
         kwargs["price"] = line_data["total_price_excl_tax_with_discount_base"]
@@ -259,8 +258,8 @@ class PurchaseInvoiceDocumentResourceType(
         kwargs = super().get_model_kwargs(data)
         kwargs["document_kind"] = DocumentKind.PURCHASE_INVOICE
         kwargs["date"] = datetime.datetime.fromisoformat(data["date"]).date()
-        kwargs["contact"] = get_or_create_from_moneybird_data(
-            ContactResourceType, data["contact_id"]
+        kwargs["contact"] = ContactResourceType.get_or_create_from_moneybird_data(
+            data["contact_id"]
         )
         kwargs["total_price"] = data["total_price_incl_tax_base"]
         return kwargs
@@ -269,8 +268,8 @@ class PurchaseInvoiceDocumentResourceType(
     def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
         kwargs = super().get_document_line_model_kwargs(line_data, document)
         kwargs["amount"] = line_data["amount"]
-        kwargs["tax_rate"] = get_or_create_from_moneybird_data(
-            TaxRateResourceType, line_data["tax_rate_id"]
+        kwargs["tax_rate"] = TaxRateResourceType.get_or_create_from_moneybird_data(
+            line_data["tax_rate_id"]
         )
         kwargs["price"] = line_data["total_price_excl_tax_with_discount_base"]
         return kwargs
@@ -286,8 +285,8 @@ class ReceiptResourceType(resources.ReceiptResourceType, JournalDocumentResource
         kwargs = super().get_model_kwargs(data)
         kwargs["document_kind"] = DocumentKind.RECEIPT
         kwargs["date"] = datetime.datetime.fromisoformat(data["date"]).date()
-        kwargs["contact"] = get_or_create_from_moneybird_data(
-            ContactResourceType, data["contact_id"]
+        kwargs["contact"] = ContactResourceType.get_or_create_from_moneybird_data(
+            data["contact_id"]
         )
         kwargs["total_price"] = data["total_price_incl_tax_base"]
         return kwargs
@@ -296,8 +295,8 @@ class ReceiptResourceType(resources.ReceiptResourceType, JournalDocumentResource
     def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
         kwargs = super().get_document_line_model_kwargs(line_data, document)
         kwargs["amount"] = line_data["amount"]
-        kwargs["tax_rate"] = get_or_create_from_moneybird_data(
-            TaxRateResourceType, line_data["tax_rate_id"]
+        kwargs["tax_rate"] = TaxRateResourceType.get_or_create_from_moneybird_data(
+            line_data["tax_rate_id"]
         )
         kwargs["price"] = line_data["total_price_excl_tax_with_discount_base"]
         return kwargs

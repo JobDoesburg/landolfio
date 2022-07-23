@@ -1,4 +1,3 @@
-from moneybird.models import get_or_create_from_moneybird_data
 from moneybird.resource_types import (
     MoneybirdResourceTypeWithDocumentLines,
     MoneybirdResourceType,
@@ -67,8 +66,8 @@ class RecurringSalesInvoiceResourceType(MoneybirdResourceTypeWithDocumentLines):
         subscription = resource_data.get("subscription", None)
         if subscription:
             resource_type = get_moneybird_resource_type_for_entity("Subscription")
-            get_or_create_from_moneybird_data(
-                resource_type, subscription["id"], subscription
+            resource_type.get_or_create_from_moneybird_data(
+                subscription["id"], subscription
             )
         return obj
 
@@ -77,6 +76,8 @@ class ContactResourceType(SynchronizableMoneybirdResourceType):
     entity_type = "Contact"
     entity_type_name = "contact"
     api_path = "contacts"
+
+    # TODO request moneybird payments mandate data
 
 
 class ProductResourceType(MoneybirdResourceType):

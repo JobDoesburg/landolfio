@@ -17,9 +17,7 @@ class ContactAdmin(MoneybirdResourceModelAdmin):
         "city",
         "sepa_active",
     )
-    list_filter = (
-        "sepa_active",
-    )
+    list_filter = ("sepa_active",)
 
     search_fields = (
         "company_name",
@@ -55,11 +53,12 @@ class ContactAdmin(MoneybirdResourceModelAdmin):
         "estimate_workflow",
     )
 
-
     @staticmethod
     def _email(instance):
         return mark_safe(f"<a href='mailto:{instance.email}'>{instance.email}</a>")
 
     @staticmethod
     def _sales_invoice_url(instance):
-        return mark_safe(f"<a href='{instance.sales_invoices_url}' target='_blank'>{instance.sales_invoices_url}</a>")
+        return mark_safe(
+            f"<a href='{instance.sales_invoices_url}' target='_blank'>{instance.sales_invoices_url}</a>"
+        )

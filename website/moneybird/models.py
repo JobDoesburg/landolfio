@@ -1,14 +1,12 @@
-import logging
-
 from django.conf import settings
 from django.db import models
 from django.db.models.utils import resolve_callables
 from django.utils.translation import gettext as _
 
-from moneybird.administration import Administration
 from moneybird.resource_types import (
     get_moneybird_resource_for_model,
     get_moneybird_resource_for_document_lines_model,
+    MoneybirdResourceType,
 )
 
 
@@ -43,51 +41,20 @@ class MoneybirdResourceModel(models.Model):
             return None
         return self.__class__.objects.get(pk=self.pk)
 
-    def get_document_line_ids(self):
-        if not self.moneybird_resource_type_class:
-            return None
-        if not self.moneybird_resource_type_class.document_line_foreign_key:
-            return None
-        return set(
-            getattr(
-                self,
-                self.moneybird_resource_type_class.document_line_foreign_key,
-            ).values_list("pk", flat=True)
-        )
-
-    @staticmethod
-    def _calc_moneybird_data_diff(new_instance, old_instance):
-        new_data = new_instance.serialize_for_moneybird()
-        old_data = old_instance.serialize_for_moneybird()
-
-        diff = {}
-        for key, value in new_data.items():
-            if key not in old_data or value != old_data[key]:
-                diff[key] = value
-
-        return diff
-
     def update_fields_from_moneybird(self, data):
         fields_to_update = self.moneybird_resource_type_class.get_model_kwargs(data)
         for k, v in resolve_callables(fields_to_update):
             setattr(self, k, v)
 
-    def push_diff_to_moneybird(self, instance):
+    def push_diff_to_moneybird(self, old_instance):
         if self.moneybird_resource_type_class is None:
             return
-
-        diff = self._calc_moneybird_data_diff(self, instance)
-        if diff == {}:
-            return
-        self.push_to_moneybird(diff)
+        self.moneybird_resource_type_class.push_diff_to_moneybird(self, old_instance)
 
     def push_to_moneybird(self, data=None):
         if self.moneybird_resource_type_class is None:
             return
-        if data is None:
-            self.moneybird_resource_type_class.push_to_moneybird(self)
-        else:
-            self.moneybird_resource_type_class.push_to_moneybird(self, data)
+        self.moneybird_resource_type_class.push_to_moneybird(self, data)
 
     def delete_on_moneybird(self):
         if self.moneybird_resource_type_class is None:
@@ -142,43 +109,16 @@ class MoneybirdDocumentLineModel(MoneybirdResourceModel):
     def push_diff_to_moneybird(self, instance):
         if self.document_line_parent is None:
             return None
-
-        diff = self._calc_moneybird_data_diff(self, instance)
-        if diff == {}:
-            return
-
-        diff["id"] = self.moneybird_id  # For document lines, the id must always be set
-
-        self.push_to_moneybird(diff)
-
-    def _push_to_moneybird(self, data=None):
-        if data is None:
-            self.moneybird_document_line_parent_resource_type_class.push_document_line_to_moneybird(
-                self, self.document_line_parent
-            )
-        else:
-            self.moneybird_document_line_parent_resource_type_class.push_document_line_to_moneybird(
-                self, self.document_line_parent, data
-            )
+        return self.moneybird_document_line_parent_resource_type_class.push_document_line_diff_to_moneybird(
+            self, instance
+        )
 
     def push_to_moneybird(self, data=None):
         if self.document_line_parent is None:
             return None
-
-        if not self.moneybird_id:
-            old_parent = self.document_line_parent.get_from_db()
-            old_ids = old_parent.get_document_line_ids()
-
-            self._push_to_moneybird(data)
-
-            current_ids = self.document_line_parent.get_document_line_ids()
-            new_ids = current_ids - old_ids
-            if len(new_ids) == 1:
-                self.pk = new_ids.pop()
-        else:
-            self._push_to_moneybird(data)
-
-        self.refresh_from_db()
+        return self.moneybird_document_line_parent_resource_type_class.push_document_line_to_moneybird(
+            self, self.document_line_parent, data
+        )
 
     def refresh_from_moneybird(self):
         if self.document_line_parent is None:
@@ -229,28 +169,7 @@ class SynchronizableMoneybirdResourceModel(MoneybirdResourceModel):
         if self.pk and reset_version:
             old_object = self.__class__.objects.get(pk=self.pk)
             if old_object.moneybird_version is not None:
-                diff = self._calc_moneybird_data_diff(self, old_object)
+                diff = MoneybirdResourceType.calc_moneybird_data_diff(self, old_object)
                 if diff != {}:
                     self.moneybird_version = None
         return super().save(*args, **kwargs)
-
-
-def get_or_create_from_moneybird_data(resource_type, moneybird_id, data=None):
-    if not moneybird_id:
-        return None
-
-    try:
-        obj = resource_type.get_queryset().get(moneybird_id=moneybird_id)
-    except resource_type.model.DoesNotExist:
-        logging.info(f"Discovered a new {resource_type.entity_type_name}, creating it")
-        obj = resource_type.model(moneybird_id=moneybird_id)
-        if data is not None:
-            obj.update_fields_from_moneybird(data)
-        else:
-            try:
-                obj.refresh_from_moneybird()
-            except Administration.NotFound:
-                return None
-        obj.save(push_to_moneybird=False)
-
-    return obj

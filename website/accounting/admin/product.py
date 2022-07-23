@@ -8,7 +8,10 @@ from moneybird.admin import MoneybirdResourceModelAdmin
 
 @register(Product)
 class ProductAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
-    ordering = ("description", "title",)
+    ordering = (
+        "description",
+        "title",
+    )
     autocomplete_fields = (
         "tax_rate",
         "ledger_account",

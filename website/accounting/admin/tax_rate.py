@@ -6,7 +6,10 @@ from moneybird.admin import MoneybirdResourceModelAdmin
 
 @register(TaxRate)
 class TaxRateAdmin(MoneybirdResourceModelAdmin):
-    ordering = ("-active", "name",)
+    ordering = (
+        "-active",
+        "name",
+    )
     list_display = (
         "name",
         "type",

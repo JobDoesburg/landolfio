@@ -6,7 +6,6 @@ from accounting.models.tax_rate import TaxRateResourceType, TaxRateTypes
 from moneybird import resources
 from moneybird.models import (
     MoneybirdResourceModel,
-    get_or_create_from_moneybird_data,
 )
 
 
@@ -78,11 +77,13 @@ class ProductResourceType(resources.ProductResourceType):
         kwargs["price"] = resource_data["price"]
         kwargs["frequency"] = resource_data["frequency"]
         kwargs["frequency_type"] = resource_data["frequency_type"]
-        kwargs["tax_rate"] = get_or_create_from_moneybird_data(
-            TaxRateResourceType, resource_data["tax_rate_id"]
+        kwargs["tax_rate"] = TaxRateResourceType.get_or_create_from_moneybird_data(
+            resource_data["tax_rate_id"]
         )
-        kwargs["ledger_account"] = get_or_create_from_moneybird_data(
-            LedgerAccountResourceType, resource_data["ledger_account_id"]
+        kwargs[
+            "ledger_account"
+        ] = LedgerAccountResourceType.get_or_create_from_moneybird_data(
+            resource_data["ledger_account_id"]
         )
         return kwargs
 

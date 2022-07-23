@@ -74,7 +74,6 @@ class JournalDocumentAdmin(admin.ModelAdmin):
     json_mb_html.short_description = "JSON MoneyBird"
 
 
-
 class EstimateDocumentLineInline(admin.StackedInline):
     """The admin view for DocumentLines."""
 

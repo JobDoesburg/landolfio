@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "localflavor",
     "admin_numeric_filter",
     "autocompletefilter",
+    "moneybird",
     "accounting",
     "inventory",
     "ninox_import",

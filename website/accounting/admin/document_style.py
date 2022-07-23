@@ -7,7 +7,10 @@ from moneybird.admin import MoneybirdResourceModelAdmin
 
 @register(DocumentStyle)
 class DocumentStyleAdmin(MoneybirdResourceModelAdmin):
-    ordering = ("-default", "name",)
+    ordering = (
+        "-default",
+        "name",
+    )
     list_display = (
         "name",
         "default",

@@ -6,7 +6,10 @@ from moneybird.admin import MoneybirdResourceModelAdmin
 
 @register(Project)
 class ProjectAdmin(MoneybirdResourceModelAdmin):
-    ordering = ("-active", "name",)
+    ordering = (
+        "-active",
+        "name",
+    )
     list_display = (
         "name",
         "active",

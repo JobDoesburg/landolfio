@@ -7,7 +7,6 @@ from moneybird import resources
 from moneybird.models import (
     SynchronizableMoneybirdResourceModel,
     MoneybirdDocumentLineModel,
-    get_or_create_from_moneybird_data,
 )
 from moneybird.resource_types import MoneybirdResourceId, MoneybirdResource
 
@@ -97,11 +96,11 @@ class EstimateResourceType(resources.EstimateResourceType):
     def get_model_kwargs(cls, data):
         kwargs = super().get_model_kwargs(data)
         kwargs["moneybird_json"] = data
-        kwargs["contact"] = get_or_create_from_moneybird_data(
-            ContactResourceType, data["contact_id"]
+        kwargs["contact"] = ContactResourceType.get_or_create_from_moneybird_data(
+            data["contact_id"]
         )
-        kwargs["workflow"] = get_or_create_from_moneybird_data(
-            WorkflowResourceType, data["workflow_id"]
+        kwargs["workflow"] = WorkflowResourceType.get_or_create_from_moneybird_data(
+            data["workflow_id"]
         )
         kwargs["total_price"] = data["total_price_incl_tax_base"]
 

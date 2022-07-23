@@ -4,7 +4,6 @@ from django.utils.translation import gettext as _
 from moneybird import resources
 from moneybird.models import (
     MoneybirdResourceModel,
-    get_or_create_from_moneybird_data,
 )
 
 
@@ -64,8 +63,8 @@ class LedgerAccountResourceType(resources.LedgerAccountResourceType):
         kwargs = super().get_model_kwargs(data)
         kwargs["name"] = data["name"]
         kwargs["account_type"] = data["account_type"]
-        kwargs["parent"] = get_or_create_from_moneybird_data(
-            LedgerAccountResourceType, data["parent_id"]
+        kwargs["parent"] = LedgerAccountResourceType.get_or_create_from_moneybird_data(
+            data["parent_id"]
         )
         return kwargs
 

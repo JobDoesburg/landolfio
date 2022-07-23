@@ -12,7 +12,6 @@ from accounting.models.recurring_sales_invoice import (
 from moneybird import resources
 from moneybird.models import (
     MoneybirdResourceModel,
-    get_or_create_from_moneybird_data,
 )
 from moneybird.resource_types import MoneybirdResourceId
 
@@ -96,14 +95,15 @@ class SubscriptionResourceType(resources.SubscriptionResourceType):
         kwargs["frequency"] = resource_data["frequency"]
         kwargs["frequency_type"] = resource_data["frequency_type"]
         # kwargs["document_style"] = _get_document_style_from_moneybird_data(resource_data) # TODO this is received via the recurring sales invoice
-        kwargs["contact"] = get_or_create_from_moneybird_data(
-            ContactResourceType, resource_data["contact_id"]
+        kwargs["contact"] = ContactResourceType.get_or_create_from_moneybird_data(
+            resource_data["contact_id"]
         )
-        kwargs["product"] = get_or_create_from_moneybird_data(
-            ProductResourceType, resource_data["product_id"]
+        kwargs["product"] = ProductResourceType.get_or_create_from_moneybird_data(
+            resource_data["product_id"]
         )
-        kwargs["recurring_sales_invoice"] = get_or_create_from_moneybird_data(
-            RecurringSalesInvoiceResourceType,
+        kwargs[
+            "recurring_sales_invoice"
+        ] = RecurringSalesInvoiceResourceType.get_or_create_from_moneybird_data(
             resource_data["recurring_sales_invoice_id"],
         )
         return kwargs

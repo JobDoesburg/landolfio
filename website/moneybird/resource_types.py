@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from django.conf import settings
 from django.utils.module_loading import import_string
 
-from moneybird.administration import get_moneybird_administration
+from moneybird.administration import get_moneybird_administration, Administration
 from moneybird.webhooks.events import WebhookEvent
 
 MoneybirdResourceId = str
@@ -37,6 +37,37 @@ class MoneybirdResourceType:
     paginated = False
     pagination_size = None
 
+    @staticmethod
+    def diff_resources(
+        old: list[MoneybirdResourceId], new: list[MoneybirdResource]
+    ) -> ResourceDiff:
+        resources_diff = ResourceDiff()
+        resources_diff.added = list(
+            filter(lambda resource: resource["id"] not in old, new)
+        )
+        resources_diff.changed = list(
+            filter(lambda resource: resource["id"] in old, new)
+        )  # We can only consider every resource has changed if it is in the new list
+        resources_diff.removed = list(
+            filter(
+                lambda resource: resource not in list(r["id"] for r in new),
+                old,
+            )
+        )
+        return resources_diff
+
+    @staticmethod
+    def calc_moneybird_data_diff(new_instance, old_instance):
+        new_data = new_instance.serialize_for_moneybird()
+        old_data = old_instance.serialize_for_moneybird()
+
+        diff = {}
+        for key, value in new_data.items():
+            if key not in old_data or value != old_data[key]:
+                diff[key] = value
+
+        return diff
+
     @classmethod
     def get_all_resources_api_endpoint(cls):
         return cls.api_path
@@ -47,7 +78,7 @@ class MoneybirdResourceType:
 
     @classmethod
     def get_queryset(cls):
-        return cls.model._default_manager.all()
+        return cls.model.objects.all()
 
     @classmethod
     def get_moneybird_ids(cls) -> list[MoneybirdResourceId]:
@@ -69,6 +100,41 @@ class MoneybirdResourceType:
     @classmethod
     def perform_save(cls, obj):
         obj.save(push_to_moneybird=False)
+
+    @classmethod
+    def update_resources(cls, diff: ResourceDiff):
+        for resource in diff.added:
+            cls.create_from_moneybird(resource)
+        for resource in diff.changed:
+            cls.update_from_moneybird(resource)
+        cls.queryset_delete_from_moneybird(diff.removed)
+
+    @classmethod
+    def serialize_for_moneybird(cls, instance):
+        return {
+            "id": MoneybirdResourceId(instance.moneybird_id),
+        }
+
+    @classmethod
+    def get_or_create_from_moneybird_data(cls, resource_id, data=None):
+        if not resource_id:
+            return None
+
+        try:
+            obj = cls.get_queryset().get(moneybird_id=resource_id)
+        except cls.model.DoesNotExist:
+            logging.info(f"Discovered a new {cls.entity_type_name}, creating it")
+            obj = cls.model(moneybird_id=resource_id)
+            if data is not None:
+                obj.update_fields_from_moneybird(data)
+            else:
+                try:
+                    obj.refresh_from_moneybird()
+                except Administration.NotFound:
+                    return None
+            obj.save(push_to_moneybird=False)
+
+        return obj
 
     @classmethod
     def create_from_moneybird(cls, resource_data: MoneybirdResource):
@@ -112,42 +178,9 @@ class MoneybirdResourceType:
         return cls.get_queryset().filter(moneybird_id__in=ids).delete()
 
     @classmethod
-    def update_resources(cls, diff: ResourceDiff):
-        for resource in diff.added:
-            cls.create_from_moneybird(resource)
-        for resource in diff.changed:
-            cls.update_from_moneybird(resource)
-        cls.queryset_delete_from_moneybird(diff.removed)
-
-    @staticmethod
-    def diff_resources(
-        old: list[MoneybirdResourceId], new: list[MoneybirdResource]
-    ) -> ResourceDiff:
-        resources_diff = ResourceDiff()
-        resources_diff.added = list(
-            filter(lambda resource: resource["id"] not in old, new)
-        )
-        resources_diff.changed = list(
-            filter(lambda resource: resource["id"] in old, new)
-        )  # We can only consider every resource has changed if it is in the new list
-        resources_diff.removed = list(
-            filter(
-                lambda resource: resource not in list(r["id"] for r in new),
-                old,
-            )
-        )
-        return resources_diff
-
-    @classmethod
     def process_webhook_event(cls, data: MoneybirdResource, event: WebhookEvent):
         logging.info(f"Processing {event} for {cls.entity_type_name} {data['id']}")
         return cls.update_from_moneybird(data)
-
-    @classmethod
-    def serialize_for_moneybird(cls, instance):
-        return {
-            "id": MoneybirdResourceId(instance.moneybird_id),
-        }
 
     @classmethod
     def push_to_moneybird(cls, instance, data=None):
@@ -177,6 +210,15 @@ class MoneybirdResourceType:
         instance.update_fields_from_moneybird(returned_data)
 
         return returned_data
+
+    @classmethod
+    def push_diff_to_moneybird(cls, instance, old_instance):
+        diff = MoneybirdResourceType.calc_moneybird_data_diff(instance, old_instance)
+        if diff == {}:
+            return
+
+        data = cls.push_to_moneybird(instance, diff)
+        return data
 
     @classmethod
     def delete_on_moneybird(cls, instance):
@@ -213,34 +255,6 @@ class MoneybirdResourceType:
 
 
 class SynchronizableMoneybirdResourceType(MoneybirdResourceType):
-    @classmethod
-    def get_synchronization_api_endpoint(self):
-        return self.api_path + "/synchronization"
-
-    @classmethod
-    def get_model_kwargs(cls, data):
-        kwargs = super().get_model_kwargs(data)
-        version = data.get("version", None)
-        if version is not None:
-            kwargs["moneybird_version"] = MoneybirdResourceVersion(version)
-        return kwargs
-
-    @classmethod
-    def perform_save(cls, obj):
-        obj.save(push_to_moneybird=False, reset_version=False)
-
-    @classmethod
-    def get_local_versions(cls) -> dict[MoneybirdResourceId, MoneybirdResourceVersion]:
-        return dict(
-            map(
-                lambda x: (
-                    MoneybirdResourceId(x[0]),
-                    MoneybirdResourceVersion(x[1] or 0),
-                ),
-                cls.get_queryset().values_list("moneybird_id", "moneybird_version"),
-            )
-        )
-
     @staticmethod
     def diff_resource_versions(
         old: dict[MoneybirdResourceId, MoneybirdResourceVersion],
@@ -260,6 +274,34 @@ class SynchronizableMoneybirdResourceType(MoneybirdResourceType):
 
         return diff
 
+    @classmethod
+    def get_synchronization_api_endpoint(cls):
+        return cls.api_path + "/synchronization"
+
+    @classmethod
+    def get_local_versions(cls) -> dict[MoneybirdResourceId, MoneybirdResourceVersion]:
+        return dict(
+            map(
+                lambda x: (
+                    MoneybirdResourceId(x[0]),
+                    MoneybirdResourceVersion(x[1] or 0),
+                ),
+                cls.get_queryset().values_list("moneybird_id", "moneybird_version"),
+            )
+        )
+
+    @classmethod
+    def get_model_kwargs(cls, data):
+        kwargs = super().get_model_kwargs(data)
+        version = data.get("version", None)
+        if version is not None:
+            kwargs["moneybird_version"] = MoneybirdResourceVersion(version)
+        return kwargs
+
+    @classmethod
+    def perform_save(cls, obj):
+        obj.save(push_to_moneybird=False, reset_version=False)
+
 
 class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType):
     document_lines_model = None
@@ -267,6 +309,14 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
     document_foreign_key = "document"
     document_lines_resource_data_name = "details"
     document_lines_attributes_name = "details_attributes"
+
+    @classmethod
+    def get_document_line_ids(cls, document) -> list[MoneybirdResourceId]:
+        return (
+            cls.get_document_lines_queryset(document)
+            .exclude(moneybird_id__isnull=True)
+            .values_list("moneybird_id", flat=True)
+        )
 
     @classmethod
     def get_local_document_line_versions(cls, document) -> list[MoneybirdResourceId]:
@@ -286,6 +336,61 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
     @classmethod
     def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
         return {"moneybird_id": MoneybirdResourceId(line_data["id"])}
+
+    @classmethod
+    def get_document_line_resource_data(
+        cls, data: MoneybirdResource
+    ) -> list[MoneybirdResource]:
+        return data[cls.document_lines_resource_data_name]
+
+    @classmethod
+    def serialize_for_moneybird(cls, instance):
+        data = super().serialize_for_moneybird(instance)
+        data.update(cls.serialize_document_lines_for_moneybird(instance))
+        return data
+
+    @classmethod
+    def serialize_document_line_for_moneybird(cls, document_line, document):
+        if document_line.moneybird_id:
+            return {"id": MoneybirdResourceId(document_line.moneybird_id)}
+        return {}
+
+    @classmethod
+    def serialize_document_lines_for_moneybird(cls, instance):
+        return {
+            cls.document_lines_attributes_name: list(
+                cls.serialize_document_line_for_moneybird(line, instance)
+                for line in cls.get_document_lines_queryset(instance)
+            )
+        }
+
+    @classmethod
+    def update_document_lines(cls, document, document_lines_diff: ResourceDiff):
+        for document_line in document_lines_diff.added:
+            cls.create_document_line_from_moneybird(document, document_line)
+        for document_line in document_lines_diff.changed:
+            cls.update_document_line_from_moneybird(document, document_line)
+        for document_line_id in document_lines_diff.removed:
+            cls.delete_document_line_from_moneybird(document, document_line_id)
+
+        cls.get_document_lines_queryset(document).filter(
+            moneybird_id__isnull=True
+        ).delete()
+
+    @classmethod
+    def create_from_moneybird(cls, resource_data: MoneybirdResource):
+        document = super().create_from_moneybird(resource_data)
+        document_lines = cls.get_document_line_resource_data(resource_data)
+        for line_data in document_lines:
+            cls.create_document_line_from_moneybird(document, line_data)
+
+    @classmethod
+    def update_from_moneybird(cls, resource_data: MoneybirdResource, obj=None):
+        document, _ = super().update_from_moneybird(resource_data, obj)
+        new_lines = cls.get_document_line_resource_data(resource_data)
+        old_lines = cls.get_local_document_line_versions(document)
+        document_lines_diff = cls.diff_resources(old_lines, new_lines)
+        cls.update_document_lines(document, document_lines_diff)
 
     @classmethod
     def push_to_moneybird(cls, instance, data=None):
@@ -331,67 +436,43 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
         )
 
     @classmethod
-    def update_document_lines(cls, document, document_lines_diff: ResourceDiff):
-        for document_line in document_lines_diff.added:
-            cls.create_document_line_from_moneybird(document, document_line)
-        for document_line in document_lines_diff.changed:
-            cls.update_document_line_from_moneybird(document, document_line)
-        for document_line_id in document_lines_diff.removed:
-            cls.delete_document_line_from_moneybird(document, document_line_id)
-
-        cls.get_document_lines_queryset(document).filter(
-            moneybird_id__isnull=True
-        ).delete()
-
-    @classmethod
-    def get_document_line_resource_data(
-        cls, data: MoneybirdResource
-    ) -> list[MoneybirdResource]:
-        return data[cls.document_lines_resource_data_name]
-
-    @classmethod
-    def create_from_moneybird(cls, resource_data: MoneybirdResource):
-        document = super().create_from_moneybird(resource_data)
-        document_lines = cls.get_document_line_resource_data(resource_data)
-        for line_data in document_lines:
-            cls.create_document_line_from_moneybird(document, line_data)
-
-    @classmethod
-    def update_from_moneybird(cls, resource_data: MoneybirdResource, obj=None):
-        document, _ = super().update_from_moneybird(resource_data, obj)
-        new_lines = cls.get_document_line_resource_data(resource_data)
-        old_lines = cls.get_local_document_line_versions(document)
-        document_lines_diff = cls.diff_resources(old_lines, new_lines)
-        cls.update_document_lines(document, document_lines_diff)
-
-    @classmethod
-    def serialize_document_line_for_moneybird(cls, document_line, document):
-        if document_line.moneybird_id:
-            return {"id": MoneybirdResourceId(document_line.moneybird_id)}
-        return {}
-
-    @classmethod
-    def serialize_document_lines_for_moneybird(cls, instance):
-        return {
-            cls.document_lines_attributes_name: list(
-                cls.serialize_document_line_for_moneybird(line, instance)
-                for line in cls.get_document_lines_queryset(instance)
-            )
-        }
-
-    @classmethod
-    def serialize_for_moneybird(cls, instance):
-        data = super().serialize_for_moneybird(instance)
-        data.update(cls.serialize_document_lines_for_moneybird(instance))
-        return data
-
-    @classmethod
     def push_document_line_to_moneybird(cls, document_line, document, data=None):
         if data is None:
             data = cls.serialize_document_line_for_moneybird(document_line, document)
         request_data = {cls.document_lines_attributes_name: [data]}
-        returned_data = cls.push_to_moneybird(document, request_data)
+
+        if not document_line.moneybird_id:
+            old_parent = document.get_from_db()
+            old_ids = set(cls.get_document_line_ids(old_parent))
+
+            returned_data = cls.push_to_moneybird(document, request_data)
+
+            current_ids = set(cls.get_document_line_ids(document))
+            new_ids = current_ids - old_ids
+            if len(new_ids) == 1:
+                document_line.pk = new_ids.pop()
+
+        else:
+            returned_data = cls.push_to_moneybird(document, request_data)
+
+        document_line.refresh_from_db(returned_data)
+
         return returned_data
+
+    @classmethod
+    def push_document_line_diff_to_moneybird(cls, document_line, old_instance):
+        diff = MoneybirdResourceType.calc_moneybird_data_diff(
+            document_line, old_instance
+        )
+        if diff == {}:
+            return
+
+        diff[
+            "id"
+        ] = document_line.moneybird_id  # For document lines, the id must always be set
+
+        data = cls.push_to_moneybird(document_line, diff)
+        return data
 
     @classmethod
     def delete_document_line_on_moneybird(cls, document_line, document):
