@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import PROTECT
 from django.db.models.functions import datetime
@@ -149,6 +150,53 @@ class Contact(SynchronizableMoneybirdResourceModel):
         related_name="estimate_workflow_contacts",
     )
     sales_invoices_url = models.URLField(blank=True, null=True)
+
+    def clean(self):
+        super().clean()
+        errors = {}
+
+        if not any([self.company_name, self.first_name, self.last_name]):
+            errors.update(
+                {
+                    "company_name": _(
+                        "Contact must either have a company name, or first and last name."
+                    )
+                }
+            )
+            errors.update(
+                {
+                    "first_name": _(
+                        "Contact must either have a company name, or first and last name."
+                    )
+                }
+            )
+            errors.update(
+                {
+                    "last_name": _(
+                        "Contact must either have a company name, or first and last name."
+                    )
+                }
+            )
+
+        sepa_fields = [
+            "sepa_iban",
+            "sepa_iban_account_name",
+            "sepa_bic",
+            "sepa_mandate_id",
+            "sepa_mandate_date",
+            "sepa_sequence_type",
+        ]
+        if self.sepa_active and not all(
+            [getattr(self, field, None) for field in sepa_fields]
+        ):
+            for field in sepa_fields:
+                if getattr(self, field, None) is None:
+                    errors.update(
+                        {field: _("Fill in all SEPA fields if SEPA mandate is active.")}
+                    )
+
+        if errors:
+            raise ValidationError(errors)
 
     def __str__(self):
         if self.company_name:

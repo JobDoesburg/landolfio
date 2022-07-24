@@ -47,13 +47,22 @@ class Product(MoneybirdResourceModel):
     )
     tax_rate = models.ForeignKey(
         "TaxRate",
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,
         limit_choices_to={"active": True, "type": TaxRateTypes.SALES_INVOICE},
     )
     ledger_account = models.ForeignKey(
         "LedgerAccount",
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,
+        verbose_name=_("ledger account"),
     )
+
+    class Meta:
+        verbose_name = _("Product")
+        verbose_name_plural = _("Products")
 
     def __str__(self):
         if self.identifier:

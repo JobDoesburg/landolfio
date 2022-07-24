@@ -3,15 +3,14 @@ from autocompletefilter.filters import AutocompleteListFilter
 from django.contrib import admin
 from django.contrib.admin import register
 
-from accounting.models import SalesInvoice
-from accounting.models.sales_invoice import SalesInvoiceDocumentLine
+from accounting.models.estimate import Estimate, EstimateDocumentLine
 from moneybird.admin import MoneybirdResourceModelAdmin
 
 
-class SalesInvoiceDocumentLineInline(admin.StackedInline):
+class EstimateDocumentLineInline(admin.StackedInline):
     """The admin view for DocumentLines."""
 
-    model = SalesInvoiceDocumentLine
+    model = EstimateDocumentLine
     fields = (
         "amount",
         "amount_decimal",
@@ -32,15 +31,14 @@ class SalesInvoiceDocumentLineInline(admin.StackedInline):
     min_num = 1
 
 
-@register(SalesInvoice)
-class SalesInvoiceAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
+@register(Estimate)
+class EstimateAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
     list_display = (
         "__str__",
         "reference",
         "contact",
         "workflow",
         "total_price",
-        "total_unpaid",
         "state",
     )
     list_filter = (
@@ -48,13 +46,12 @@ class SalesInvoiceAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
         ("workflow", AutocompleteListFilter),
         ("contact", AutocompleteListFilter),
     )
-    date_hierarchy = "invoice_date"
+    date_hierarchy = "estimate_date"
 
     search_fields = (
-        "invoice_id",
+        "estimate_id",
         "reference",
         "draft_id",
-        "payment_reference",
         "contact__company_name",
         "contact__first_name",
         "contact__last_name",
@@ -62,24 +59,20 @@ class SalesInvoiceAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
     )
 
     readonly_fields = (
-        "invoice_id",
+        "estimate_id",
         "draft_id",
         "url",
-        "payment_url",
-        "payment_reference",
         "public_view_code",
-        "paid_at",
-        "paused",
         "sent_at",
-        "total_paid",
-        "total_unpaid",
-        "total_price",
-        "recurring_sales_invoice",
-        "original_sales_invoice",
+        "accepted_at",
+        "rejected_at",
+        "archived_at",
+        "original_estimate",
         "state",
+        "total_price",
     )
     autocomplete_fields = (
         "contact",
         "workflow",
     )
-    inlines = (SalesInvoiceDocumentLineInline,)
+    inlines = (EstimateDocumentLineInline,)

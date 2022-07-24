@@ -47,6 +47,8 @@ class ContactAdmin(MoneybirdResourceModelAdmin):
     readonly_fields = (
         "tax_number_valid",
         "sales_invoices_url",
+        "email",
+        "attention",
     )
     autocomplete_fields = (
         "invoice_workflow",

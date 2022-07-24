@@ -212,7 +212,10 @@ class MoneybirdResourceType:
                 f"{cls.api_path}/{instance.moneybird_id}", content
             )
 
-        instance.update_fields_from_moneybird(returned_data)
+        if not returned_data or returned_data == {}:
+            returned_data = cls.get_from_moneybird(instance)
+        else:
+            instance.update_fields_from_moneybird(returned_data)
 
         return returned_data
 
@@ -391,6 +394,9 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
 
     @classmethod
     def update_from_moneybird(cls, resource_data: MoneybirdResource, obj=None):
+        if not resource_data:
+            return
+
         document, _ = super().update_from_moneybird(resource_data, obj)
         new_lines = cls.get_document_line_resource_data(resource_data)
         old_lines = cls.get_local_document_line_versions(document)
@@ -402,7 +408,6 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
         returned_data = super().push_to_moneybird(instance, data)
         cls.update_from_moneybird(returned_data, obj=instance)
         return returned_data
-
 
     @classmethod
     def create_document_line_from_moneybird(
@@ -447,7 +452,13 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
     def push_document_line_to_moneybird(cls, document_line, document, data=None):
         if data is None:
             data = cls.serialize_document_line_for_moneybird(document_line, document)
-        request_data = {cls.document_lines_attributes_name: [data]}
+
+        if not document.moneybird_id:
+            document_data = cls.serialize_for_moneybird(document)
+            request_data = document_data
+            request_data[cls.document_lines_attributes_name] = [data]
+        else:
+            request_data = {cls.document_lines_attributes_name: [data]}
 
         if not document_line.moneybird_id:
             old_parent = document.get_from_db()
@@ -462,8 +473,7 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
 
         else:
             returned_data = cls.push_to_moneybird(document, request_data)
-
-        document_line.refresh_from_db(returned_data)
+            document_line.refresh_from_db()
 
         return returned_data
 
@@ -475,13 +485,16 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
         if diff == {}:
             return
 
-        diff[
-            "id"
-        ] = MoneybirdResourceId(document_line.moneybird_id)  # For document lines, the id must always be set
+        diff["id"] = MoneybirdResourceId(
+            document_line.moneybird_id
+        )  # For document lines, the id must always be set
 
         data = {cls.document_lines_attributes_name: [diff]}
 
         returned_data = cls.push_to_moneybird(document_line.document_line_parent, data)
+
+        document_line.refresh_from_db()
+
         return returned_data
 
     @classmethod

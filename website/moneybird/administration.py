@@ -10,7 +10,7 @@ import logging
 from abc import ABC
 from abc import abstractmethod
 from functools import reduce
-from typing import Type
+from typing import Type, Union
 from urllib.parse import urljoin
 
 import requests
@@ -88,7 +88,7 @@ class Administration(ABC):
         ]
         return reduce(urljoin, url_parts)
 
-    def _process_response(self, response: requests.Response) -> dict:
+    def _process_response(self, response: requests.Response) -> Union[dict, None]:
         logging.debug(f"Response {response.status_code}: {response.text}")
 
         good_codes = {200, 201, 204}
@@ -141,6 +141,9 @@ class Administration(ABC):
             raise error(code, error_description)
 
         if code == 204:
+            return {}
+
+        if response.text == "200":
             return {}
 
         return response.json()

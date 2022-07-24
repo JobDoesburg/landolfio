@@ -128,6 +128,8 @@ class MoneybirdSync:
             logging.info(f"{resource_type.__name__} cannot be fully synchronized")
             return None
 
+        resource_type.get_queryset().filter(moneybird_id__isnull=True).delete()
+
         logging.info(f"Start fetching {resource_type.__name__} from Moneybird")
 
         if issubclass(resource_type, SynchronizableMoneybirdResourceType):

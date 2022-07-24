@@ -18,7 +18,11 @@ from moneybird.resource_types import (
 class JournalDocumentLine(MoneybirdDocumentLineModel):
     description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
     total_amount = models.DecimalField(
-        max_digits=19, decimal_places=2, verbose_name=_("Total amount")
+        max_digits=19,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name=_("Total amount"),
     )
     ledger_account = models.ForeignKey(
         LedgerAccount,
@@ -73,3 +77,12 @@ class JournalDocumentResourceType(MoneybirdResourceTypeWithDocumentLines):
             line_data["project_id"]
         )
         return kwargs
+
+    @classmethod
+    def serialize_document_line_for_moneybird(cls, document_line, document):
+        data = super().serialize_document_line_for_moneybird(document_line, document)
+        data["description"] = document_line.description
+        data["ledger_account_id"] = document_line.ledger_account.moneybird_id
+        if document_line.project:
+            data["project_id"] = document_line.project.moneybird_id
+        return data

@@ -3,15 +3,14 @@ from autocompletefilter.filters import AutocompleteListFilter
 from django.contrib import admin
 from django.contrib.admin import register
 
-from accounting.models import SalesInvoice
-from accounting.models.sales_invoice import SalesInvoiceDocumentLine
+from accounting.models import RecurringSalesInvoice, RecurringSalesInvoiceDocumentLine
 from moneybird.admin import MoneybirdResourceModelAdmin
 
 
-class SalesInvoiceDocumentLineInline(admin.StackedInline):
+class RecurringSalesInvoiceDocumentLineInline(admin.StackedInline):
     """The admin view for DocumentLines."""
 
-    model = SalesInvoiceDocumentLine
+    model = RecurringSalesInvoiceDocumentLine
     fields = (
         "amount",
         "amount_decimal",
@@ -32,29 +31,32 @@ class SalesInvoiceDocumentLineInline(admin.StackedInline):
     min_num = 1
 
 
-@register(SalesInvoice)
-class SalesInvoiceAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
+@register(RecurringSalesInvoice)
+class RecurringSalesInvoiceAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
     list_display = (
-        "__str__",
-        "reference",
         "contact",
-        "workflow",
+        "reference",
+        "frequency",
+        "frequency_type",
         "total_price",
-        "total_unpaid",
-        "state",
+        "start_date",
+        "invoice_date",
+        "last_date",
+        "auto_send",
+        "workflow",
+        "active",
     )
     list_filter = (
-        "state",
         ("workflow", AutocompleteListFilter),
         ("contact", AutocompleteListFilter),
+        "frequency_type",
+        "auto_send",
+        "invoice_date",
     )
-    date_hierarchy = "invoice_date"
+    date_hierarchy = "start_date"
 
     search_fields = (
-        "invoice_id",
         "reference",
-        "draft_id",
-        "payment_reference",
         "contact__company_name",
         "contact__first_name",
         "contact__last_name",
@@ -62,24 +64,13 @@ class SalesInvoiceAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
     )
 
     readonly_fields = (
-        "invoice_id",
-        "draft_id",
-        "url",
-        "payment_url",
-        "payment_reference",
-        "public_view_code",
-        "paid_at",
-        "paused",
-        "sent_at",
-        "total_paid",
-        "total_unpaid",
         "total_price",
-        "recurring_sales_invoice",
-        "original_sales_invoice",
-        "state",
+        "start_date",
+        "last_date",
+        "active",
     )
     autocomplete_fields = (
         "contact",
         "workflow",
     )
-    inlines = (SalesInvoiceDocumentLineInline,)
+    inlines = (RecurringSalesInvoiceDocumentLineInline,)

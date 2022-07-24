@@ -113,8 +113,11 @@ class GeneralJournalDocumentResourceType(
     @classmethod
     def serialize_document_line_for_moneybird(cls, document_line, document):
         data = super().serialize_document_line_for_moneybird(document_line, document)
-        data["debit"] = str(document_line.debit)
-        data["credit"] = str(document_line.credit)
-        data["contact_id"] = document_line.contact.moneybird_id
+        if document_line.debit:
+            data["debit"] = float(document_line.debit)
+        if document_line.credit:
+            data["credit"] = float(document_line.credit)
+        if document_line.contact:
+            data["contact_id"] = document_line.contact.moneybird_id
         data["row_order"] = document_line.row_order
         return data

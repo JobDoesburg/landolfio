@@ -17,7 +17,6 @@ from moneybird.resource_types import MoneybirdResourceId
 
 
 class Subscription(MoneybirdResourceModel):
-    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
     start_date = models.DateField(null=True, verbose_name=_("start date"))
     end_date = models.DateField(null=True, verbose_name=_("end date"))
     cancelled_at = models.DateField(null=True, verbose_name=_("cancelled at"))
@@ -38,13 +37,6 @@ class Subscription(MoneybirdResourceModel):
         max_length=10,
         choices=RecurringSalesInvoiceFrequencies.choices,
         verbose_name=_("frequency type"),
-    )
-    document_style = models.ForeignKey(
-        DocumentStyle,
-        null=True,
-        on_delete=models.SET_NULL,
-        verbose_name=_("Document style"),
-        related_name="subscriptions",
     )
     contact = models.ForeignKey(
         Contact,
@@ -87,14 +79,12 @@ class SubscriptionResourceType(resources.SubscriptionResourceType):
     @classmethod
     def get_model_kwargs(cls, resource_data):
         kwargs = super().get_model_kwargs(resource_data)
-        kwargs["moneybird_json"] = resource_data
         kwargs["reference"] = resource_data["reference"]
         kwargs["start_date"] = resource_data["start_date"]
         kwargs["end_date"] = resource_data["end_date"]
         kwargs["cancelled_at"] = resource_data["cancelled_at"]
         kwargs["frequency"] = resource_data["frequency"]
         kwargs["frequency_type"] = resource_data["frequency_type"]
-        # kwargs["document_style"] = _get_document_style_from_moneybird_data(resource_data) # TODO this is received via the recurring sales invoice
         kwargs["contact"] = ContactResourceType.get_or_create_from_moneybird_data(
             resource_data["contact_id"]
         )
@@ -111,15 +101,12 @@ class SubscriptionResourceType(resources.SubscriptionResourceType):
     @classmethod
     def serialize_for_moneybird(cls, instance):
         data = super().serialize_for_moneybird(instance)
-
         data["start_date"] = instance.start_date.isoformat()
         data["product"] = MoneybirdResourceId(instance.product.moneybird_id)
         data["contact"] = MoneybirdResourceId(instance.contact.moneybird_id)
         if data.end_date:
             data["start_date"] = instance.end_date.isoformat()
         data["reference"] = instance.reference
-        data["document_style_id"] = MoneybirdResourceId(
-            instance.document_style.moneybird_id
-        )
+        data["document_style_id"] = DocumentStyle.objects.get(default=True).moneybird_id
         data["frequency"] = instance.frequency
         data["frequency_type"] = instance.frequency_type

@@ -4,7 +4,11 @@ from django.contrib import admin
 from django.contrib.admin import register
 
 from accounting.models import GeneralJournalDocument, GeneralJournalDocumentLine
-from moneybird.admin import MoneybirdResourceModelAdmin
+from moneybird.admin import (
+    MoneybirdResourceModelAdmin,
+    MoneybirdResourceModelForm,
+    MoneybirdResourceModelFormSet,
+)
 
 
 class GeneralJournalDocumentLineInline(admin.StackedInline):
@@ -25,6 +29,11 @@ class GeneralJournalDocumentLineInline(admin.StackedInline):
     readonly_fields = ["total_amount"]
     extra = 0
     autocomplete_fields = ["ledger_account", "project", "asset"]
+    min_num = 2
+    #
+    # form = MoneybirdResourceModelForm
+    # formset = MoneybirdResourceModelFormSet
+    # TODO fix this
 
 
 @register(GeneralJournalDocument)

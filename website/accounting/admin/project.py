@@ -13,7 +13,6 @@ class ProjectAdmin(MoneybirdResourceModelAdmin):
     list_display = (
         "name",
         "active",
-        "moneybird_id",
     )
     list_filter = ("active",)
 

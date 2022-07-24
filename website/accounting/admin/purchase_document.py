@@ -28,6 +28,7 @@ class PurchaseDocumentLineInline(admin.StackedInline):
     readonly_fields = ["amount_decimal", "total_amount"]
     extra = 0
     autocomplete_fields = ["ledger_account", "tax_rate", "project", "asset"]
+    min_num = 1
 
 
 @register(PurchaseDocument)

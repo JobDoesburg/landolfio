@@ -39,6 +39,7 @@ class SalesInvoice(SynchronizableMoneybirdResourceModel):
     contact = models.ForeignKey(
         Contact,
         null=True,
+        blank=False,
         on_delete=models.SET_NULL,
         verbose_name=_("Contact"),
         related_name="sales_invoices",
@@ -121,7 +122,9 @@ class SalesInvoice(SynchronizableMoneybirdResourceModel):
     )
     url = models.URLField(null=True, verbose_name=_("url"))
     payment_url = models.URLField(null=True, verbose_name=_("payment url"))
-    prices_are_incl_tax = models.BooleanField(default=True, verbose_name=_("prices are incl. tax"))
+    prices_are_incl_tax = models.BooleanField(
+        default=True, verbose_name=_("prices are incl. tax")
+    )
 
     def __str__(self):
         if self.draft_id:
@@ -131,7 +134,7 @@ class SalesInvoice(SynchronizableMoneybirdResourceModel):
     class Meta:
         verbose_name = _("Sales invoice")
         verbose_name_plural = _("Sales invoices")
-        ordering = ("-invoice_date",)
+        ordering = ("-draft_id", "-invoice_id")
 
 
 class SalesInvoiceDocumentLine(JournalDocumentLine):
@@ -168,7 +171,9 @@ class SalesInvoiceDocumentLine(JournalDocumentLine):
         blank=False,
         verbose_name=_("Tax rate"),
     )
-    row_order = models.PositiveSmallIntegerField(null=True, verbose_name=_("row order"))
+    row_order = models.PositiveSmallIntegerField(
+        null=True, blank=True, verbose_name=_("row order")
+    )
 
     def __str__(self):
         return f"{self.amount} {self.description} in {self.document}"
@@ -285,6 +290,7 @@ class SalesInvoiceResourceType(
     @classmethod
     def serialize_document_line_for_moneybird(cls, document_line, document):
         data = super().serialize_document_line_for_moneybird(document_line, document)
+        data["amount"] = document_line.amount
         data["description"] = document_line.description
         data["row_order"] = document_line.row_order
         data["price"] = float(document_line.price)

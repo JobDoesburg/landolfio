@@ -1,8 +1,20 @@
+import datetime
+from decimal import Decimal
+
 from django.db import models
 from django.utils.translation import gettext as _
 
+from accounting.models.ledger_account import (
+    LedgerAccount,
+    LedgerAccountType,
+    LedgerAccountResourceType,
+)
+from accounting.models.product import Product, ProductResourceType
+from accounting.models.tax_rate import TaxRate, TaxRateResourceType, TaxRateTypes
+from accounting.models.project import Project, ProjectResourceType
+from accounting.models.document_style import DocumentStyle, DocumentStyleResourceType
 from accounting.models.contact import Contact, ContactResourceType
-from accounting.models.workflow import Workflow, WorkflowResourceType
+from accounting.models.workflow import Workflow, WorkflowResourceType, WorkflowTypes
 from moneybird import resources
 from moneybird.models import (
     SynchronizableMoneybirdResourceModel,
@@ -20,33 +32,63 @@ class RecurringSalesInvoiceFrequencies(models.TextChoices):
 
 
 class RecurringSalesInvoice(SynchronizableMoneybirdResourceModel):
-    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
+    active = models.BooleanField(verbose_name=_("Active"), default=True)
+
     contact = models.ForeignKey(
         Contact,
         null=True,
+        blank=False,
         on_delete=models.SET_NULL,
         verbose_name=_("Contact"),
         related_name="recurring_sales_invoices",
     )
-    auto_send = models.BooleanField(verbose_name=_("Auto send"))
-    active = models.BooleanField(verbose_name=_("Active"))
-    frequency = models.CharField(
+    workflow = models.ForeignKey(
+        Workflow,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        limit_choices_to={"active": True, "type": WorkflowTypes.INVOICE_WORKFLOW},
+        verbose_name=_("Workflow"),
+    )
+    reference = models.CharField(
+        max_length=255, null=True, blank=True, verbose_name=_("reference")
+    )
+
+    frequency_type = models.CharField(
         max_length=10,
         choices=RecurringSalesInvoiceFrequencies.choices,
-        verbose_name=_("frequency"),
+        verbose_name=_("frequency type"),
     )
+    frequency = models.PositiveSmallIntegerField()
+    first_due_interval = models.PositiveSmallIntegerField(
+        null=True, blank=True, verbose_name=_("first due interval")
+    )
+
+    auto_send = models.BooleanField(default=True, verbose_name=_("Auto send"))
+
     start_date = models.DateField(null=True, verbose_name=_("start date"))
-    invoice_date = models.DateField(null=True, verbose_name=_("invoice date"))
-    last_date = models.DateField(null=True, verbose_name=_("last date"))
-    workflow = models.ForeignKey(
-        Workflow, null=True, on_delete=models.SET_NULL, verbose_name=_("Workflow")
+    invoice_date = models.DateField(
+        null=True, blank=True, verbose_name=_("invoice date")
     )
+    last_date = models.DateField(null=True, verbose_name=_("last date"))
+
+    discount = models.DecimalField(
+        max_digits=4,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name=_("discount"),
+    )
+    prices_are_incl_tax = models.BooleanField(
+        default=True, verbose_name=_("prices are incl. tax")
+    )
+
     total_price = models.DecimalField(
         max_digits=19, decimal_places=2, verbose_name=_("total price"), null=True
     )
 
     def __str__(self):
-        return f"PER {self.contact} every {self.frequency} since {self.start_date}"
+        return f"Recurring sales invoice for {self.contact} every {self.frequency} {self.frequency_type} since {self.start_date}"
 
     class Meta:
         verbose_name = _("Recurring sales invoice")
@@ -55,34 +97,88 @@ class RecurringSalesInvoice(SynchronizableMoneybirdResourceModel):
 
 
 class RecurringSalesInvoiceDocumentLine(MoneybirdDocumentLineModel):
-    moneybird_json = models.JSONField(verbose_name=_("JSON MoneyBird"), null=True)
+    description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
+    total_amount = models.DecimalField(
+        max_digits=19,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name=_("Total amount"),
+    )
+    ledger_account = models.ForeignKey(
+        LedgerAccount,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,
+        verbose_name=_("Ledger account"),
+    )
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_("Project"),
+    )
+
+    asset_id_field = models.CharField(
+        max_length=50, null=True, blank=True, verbose_name=_("Asset Id")
+    )
+    asset = models.ForeignKey(
+        "inventory.Asset",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        verbose_name=_("Asset"),
+        related_name="recurring_sales_invoice_lines",
+    )
+    amount = models.CharField(
+        verbose_name=_("Amount"), null=True, blank=True, default="1 x", max_length=10
+    )
+    amount_decimal = models.DecimalField(
+        null=True,
+        max_digits=19,
+        decimal_places=2,
+        blank=True,
+        verbose_name=_("Amount (decimal)"),
+    )
+    price = models.DecimalField(
+        max_digits=19, decimal_places=2, verbose_name=_("price")
+    )
     document = models.ForeignKey(
         RecurringSalesInvoice,
         on_delete=models.CASCADE,
         verbose_name=_("Document"),
         related_name="document_lines",
     )
-    description = models.TextField(
-        verbose_name=_("Description"), null=False, blank=False
-    )
-    asset_id_field = models.CharField(
-        max_length=50, null=True, verbose_name=_("Asset Id")
-    )
-    asset = models.ForeignKey(
-        "inventory.Asset",
-        null=True,
+    product = models.ForeignKey(
+        Product,
         on_delete=models.SET_NULL,
-        verbose_name=_("Asset"),
-        related_name="recurring_sales_invoice_document_lines",
+        null=True,
+        blank=True,
+        verbose_name=_("Product"),
+    )
+    tax_rate = models.ForeignKey(
+        TaxRate,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,
+        verbose_name=_("Tax rate"),
+        limit_choices_to={"active": True, "type": TaxRateTypes.SALES_INVOICE},
+    )
+    row_order = models.PositiveSmallIntegerField(
+        null=True, blank=True, verbose_name=_("row order")
     )
 
     def __str__(self):
-        return f"Line in {self.document} with asset {self.asset_id}"
+        return f"{self.amount} {self.description} in {self.document}"
 
     class Meta:
         verbose_name = _("Recurring sales invoice document line")
         verbose_name_plural = _("Recurring sales invoice document lines")
-        ordering = ("-document__start_date",)
+        ordering = (
+            "-document__start_date",
+            "row_order",
+        )
 
 
 class RecurringSalesInvoiceResourceType(resources.RecurringSalesInvoiceResourceType):
@@ -94,44 +190,107 @@ class RecurringSalesInvoiceResourceType(resources.RecurringSalesInvoiceResourceT
     @classmethod
     def get_model_kwargs(cls, data):
         kwargs = super().get_model_kwargs(data)
-        kwargs["moneybird_json"] = data
-        kwargs["auto_send"] = data["auto_send"]
         kwargs["active"] = data["active"]
-        kwargs["frequency"] = data["frequency_type"]
-        kwargs["start_date"] = data["start_date"]
-        kwargs["invoice_date"] = data["invoice_date"]
-        kwargs["last_date"] = data["last_date"]
-        kwargs["moneybird_json"] = data
         kwargs["contact"] = ContactResourceType.get_or_create_from_moneybird_data(
             data["contact_id"]
         )
         kwargs["workflow"] = WorkflowResourceType.get_or_create_from_moneybird_data(
             data["workflow_id"]
         )
+        kwargs["reference"] = data["reference"]
+        kwargs["frequency_type"] = RecurringSalesInvoiceFrequencies(
+            data["frequency_type"]
+        )
+        kwargs["frequency"] = data["frequency"]
+        kwargs["first_due_interval"] = data["first_due_interval"]
+        kwargs["auto_send"] = data["auto_send"]
+        kwargs["start_date"] = datetime.datetime.fromisoformat(
+            data["start_date"]
+        ).date()
+        kwargs["invoice_date"] = datetime.datetime.fromisoformat(
+            data["invoice_date"]
+        ).date()
+        if data["last_date"]:
+            kwargs["last_date"] = datetime.datetime.fromisoformat(
+                data["last_date"]
+            ).date()
+        kwargs["discount"] = data["discount"]
+        kwargs["prices_are_incl_tax"] = data["prices_are_incl_tax"]
         kwargs["total_price"] = data["total_price_incl_tax_base"]
-
         return kwargs
 
     @classmethod
     def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
         kwargs = super().get_document_line_model_kwargs(line_data, document)
         kwargs["document"] = document
-        kwargs["moneybird_json"] = line_data
         kwargs["description"] = line_data["description"]
+        kwargs[
+            "ledger_account"
+        ] = LedgerAccountResourceType.get_or_create_from_moneybird_data(
+            line_data["ledger_account_id"]
+        )
+        kwargs["project"] = ProjectResourceType.get_or_create_from_moneybird_data(
+            line_data["project_id"]
+        )
+        kwargs["amount"] = line_data["amount"]
+        kwargs["amount_decimal"] = line_data["amount_decimal"]
+        kwargs["row_order"] = line_data["row_order"]
+        kwargs["price"] = line_data["price"]
+        kwargs["tax_rate"] = TaxRateResourceType.get_or_create_from_moneybird_data(
+            line_data["tax_rate_id"]
+        )
+        kwargs["product"] = ProductResourceType.get_or_create_from_moneybird_data(
+            line_data["product_id"]
+        )
+        kwargs["total_amount"] = line_data["total_price_excl_tax_with_discount_base"]
+        ledger_account = kwargs["ledger_account"]
+        if (
+            ledger_account
+            and ledger_account.account_type
+            and ledger_account.account_type == LedgerAccountType.NON_CURRENT_ASSETS
+        ):
+            kwargs["total_amount"] = -1 * Decimal(
+                kwargs["total_amount"]
+            )  # TODO is dit handig?
         return kwargs
 
     @classmethod
     def serialize_for_moneybird(cls, instance):
         data = super().serialize_for_moneybird(instance)
         if instance.contact:
-            data["contact"] = MoneybirdResourceId(instance.contact.moneybird_id)
+            data["contact_id"] = MoneybirdResourceId(instance.contact.moneybird_id)
         if instance.workflow:
             data["workflow_id"] = MoneybirdResourceId(instance.workflow.moneybird_id)
+        data["reference"] = instance.reference or ""
+        data["discount"] = instance.discount
+        data["prices_are_incl_tax"] = instance.prices_are_incl_tax
+        data["first_due_interval"] = instance.first_due_interval
+        data["frequency_type"] = instance.frequency_type
+        data["frequency"] = instance.frequency
+        data["auto_send"] = instance.auto_send
+        data["mergeable"] = True
+        if instance.invoice_date:
+            data["invoice_date"] = instance.invoice_date.isoformat()
         return data
 
     @classmethod
     def serialize_document_line_for_moneybird(cls, document_line, document):
         data = super().serialize_document_line_for_moneybird(document_line, document)
         data["description"] = document_line.description
-        # data["price"] = float(document_line.price)
+        data["ledger_account_id"] = document_line.ledger_account.moneybird_id
+        if document_line.project:
+            data["project_id"] = document_line.project.moneybird_id
+        data["amount"] = document_line.amount
+        data["row_order"] = document_line.row_order
+        data["price"] = float(document_line.price)
+        if document_line.ledger_account:
+            data["ledger_account_id"] = MoneybirdResourceId(
+                document_line.ledger_account.moneybird_id
+            )
+            if (
+                document_line.ledger_account.account_type
+                and document_line.ledger_account.account_type
+                == LedgerAccountType.NON_CURRENT_ASSETS
+            ):
+                data["price"] = float(-1 * document_line.price)  # TODO is dit handig?
         return data

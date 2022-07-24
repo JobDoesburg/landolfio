@@ -17,7 +17,7 @@ def auto_push_to_moneybird():
 class MoneybirdResourceModel(models.Model):
     moneybird_id = models.PositiveBigIntegerField(
         verbose_name=_("Moneybird ID"),
-        null=False,
+        null=True,
         blank=True,
         unique=True,
     )
@@ -41,6 +41,9 @@ class MoneybirdResourceModel(models.Model):
         return self.__class__.objects.get(pk=self.pk)
 
     def update_fields_from_moneybird(self, data):
+        if not data:
+            return
+
         fields_to_update = self.moneybird_resource_type_class.get_model_kwargs(data)
         for k, v in resolve_callables(fields_to_update):
             setattr(self, k, v)
@@ -128,12 +131,10 @@ class MoneybirdDocumentLineModel(MoneybirdResourceModel):
         if push_to_moneybird and self.document_line_parent is not None:
             if self.moneybird_id is None:
                 self.push_to_moneybird()  # This will actually save the document line upon receiving the new data from Moneybird
+                return  # TODO Maybe we should remove this line?
             else:
                 old_object = self.get_from_db()
                 self.push_diff_to_moneybird(old_object)
-
-            return
-
         return super().save(push_to_moneybird=False, *args, **kwargs)
 
     def delete(self, delete_on_moneybird=auto_push_to_moneybird(), *args, **kwargs):

@@ -14,6 +14,5 @@ class DocumentStyleAdmin(MoneybirdResourceModelAdmin):
     list_display = (
         "name",
         "default",
-        "moneybird_id",
     )
     search_fields = ("name",)

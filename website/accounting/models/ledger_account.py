@@ -22,7 +22,7 @@ class LedgerAccountType(models.TextChoices):
 
 class LedgerAccount(MoneybirdResourceModel):
 
-    parent = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True)
+    parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
 
     name = models.CharField(
         max_length=100,

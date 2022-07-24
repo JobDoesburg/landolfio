@@ -16,8 +16,7 @@ from accounting.models.recurring_sales_invoice import (
     RecurringSalesInvoice,
     RecurringSalesInvoiceResourceType,
 )
-from accounting.models.tax_rate import TaxRateResourceType, TaxRate, \
-    TaxRateTypes
+from accounting.models.tax_rate import TaxRateResourceType, TaxRate, TaxRateTypes
 from accounting.models.workflow import Workflow, WorkflowResourceType, WorkflowTypes
 from moneybird import resources
 from moneybird.models import (
@@ -67,10 +66,12 @@ class PurchaseDocument(SynchronizableMoneybirdResourceModel):
     date = models.DateField(null=True, blank=True, verbose_name=_("date"))
     due_date = models.DateField(null=True, blank=True, verbose_name=_("due date"))
     reference = models.CharField(
-        max_length=255, null=True, blank=True, verbose_name=_("reference")
+        max_length=255, null=True, blank=False, verbose_name=_("reference")
     )
     paid_at = models.DateField(null=True, verbose_name=_("paid at"))
-    prices_are_incl_tax = models.BooleanField(default=True, verbose_name=_("prices are incl. tax"))
+    prices_are_incl_tax = models.BooleanField(
+        default=True, verbose_name=_("prices are incl. tax")
+    )
 
     def __str__(self):
         return f"{self.document_kind} {self.reference}"
@@ -109,7 +110,9 @@ class PurchaseDocumentLine(JournalDocumentLine):
         verbose_name=_("Tax rate"),
         limit_choices_to={"active": True, "type": TaxRateTypes.PURCHASE_INVOICE},
     )
-    row_order = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name=_("row order"))
+    row_order = models.PositiveSmallIntegerField(
+        null=True, blank=True, verbose_name=_("row order")
+    )
 
     def __str__(self):
         return f"{self.amount} {self.description} in {self.document}"
@@ -195,16 +198,18 @@ class PurchaseInvoiceDocumentResourceType(
     @classmethod
     def serialize_document_line_for_moneybird(cls, document_line, document):
         data = super().serialize_document_line_for_moneybird(document_line, document)
+        data["amount"] = document_line.amount
         data["description"] = document_line.description
         data["row_order"] = document_line.row_order
         data["price"] = float(document_line.price)
-        if document_line.ledger:
+        data["tax_rate_id"] = document_line.tax_rate.moneybird_id
+        if document_line.ledger_account:
             data["ledger_account_id"] = MoneybirdResourceId(
-                document_line.ledger.moneybird_id
+                document_line.ledger_account.moneybird_id
             )
             if (
-                document_line.ledger.account_type
-                and document_line.ledger.account_type
+                document_line.ledger_account.account_type
+                and document_line.ledger_account.account_type
                 == LedgerAccountType.NON_CURRENT_ASSETS
             ):
                 data["price"] = float(-1 * document_line.price)  # TODO is dit handig?
