@@ -17,6 +17,7 @@ class SubscriptionAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
         "start_date",
         "end_date",
         "cancelled_at",
+        "view_on_moneybird",
     )
     list_filter = (("contact", AutocompleteListFilter), "end_date", "cancelled_at")
     date_hierarchy = "start_date"

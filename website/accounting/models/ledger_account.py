@@ -73,5 +73,6 @@ class LedgerAccountResourceType(resources.LedgerAccountResourceType):
         data = super().serialize_for_moneybird(instance)
         data["name"] = instance.name
         data["account_type"] = instance.account_type
-        data["parent_id"] = instance.parent.moneybird_id
+        if instance.parent:
+            data["parent_id"] = instance.parent.moneybird_id
         return data

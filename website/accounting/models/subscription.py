@@ -45,17 +45,6 @@ class Subscription(MoneybirdResourceModel):
         verbose_name=_("Contact"),
         related_name="subscriptions",
     )
-
-    asset_id_field = models.CharField(
-        max_length=50, null=True, verbose_name=_("Asset Id")
-    )
-    asset = models.ForeignKey(
-        "inventory.Asset",
-        null=True,
-        on_delete=models.SET_NULL,
-        verbose_name=_("Asset"),
-        related_name="subscriptions",
-    )
     recurring_sales_invoice = models.ForeignKey(
         RecurringSalesInvoice,
         null=True,

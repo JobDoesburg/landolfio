@@ -85,6 +85,12 @@ class MoneybirdResourceModel(models.Model):
 
         return super().delete(*args, **kwargs)
 
+    @property
+    def moneybird_url(self):
+        if self.moneybird_resource_type_class is None:
+            return
+        return self.moneybird_resource_type_class.view_on_moneybird_url(self)
+
 
 class MoneybirdDocumentLineModel(MoneybirdResourceModel):
     class Meta:
@@ -155,6 +161,12 @@ class MoneybirdDocumentLineModel(MoneybirdResourceModel):
         )
         for k, v in resolve_callables(fields_to_update):
             setattr(self, k, v)
+
+    @property
+    def moneybird_url(self):
+        if self.document_line_parent is None:
+            return None
+        return self.document_line_parent.moneybird_url
 
 
 class SynchronizableMoneybirdResourceModel(MoneybirdResourceModel):

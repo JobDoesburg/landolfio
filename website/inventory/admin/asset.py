@@ -1,20 +1,16 @@
-"""Inventory admin configuration."""
 from admin_numeric_filter.admin import SliderNumericFilter, NumericFilterModelAdmin
 from autocompletefilter.admin import AutocompleteFilterMixin
 from autocompletefilter.filters import AutocompleteListFilter
 from django.contrib import admin
-from django.db import models
-from django.forms import CheckboxSelectMultiple
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from queryable_properties.admin import QueryablePropertiesAdmin
 
-from accounting.models.journal_document import JournalDocumentLine
-from inventory.models.asset import Asset
+from inventory.models.asset import (
+    Asset,
+    AssetOnJournalDocumentLine,
+)
 from inventory.models.attachment import Attachment
-from inventory.models.category import AssetCategory, AssetSize
-from inventory.models.collection import Collection
-from inventory.models.location import AssetLocation, AssetLocationGroup
 
 
 def is_an_image_path(path: str) -> bool:
@@ -41,36 +37,57 @@ class AttachmentInlineAdmin(admin.StackedInline):
 
 
 class JournalDocumentLineInline(admin.TabularInline):
-    model = JournalDocumentLine
+    model = AssetOnJournalDocumentLine
     extra = 0
     can_delete = False
+    show_change_link = True
 
     fields = [
         "_date",
-        "document",
-        "price",
-        "ledger",
-        "_moneybird_button",
+        "_description",
+        "_contact",
+        "_ledger_account",
+        "value",
+        "view_on_moneybird",
     ]
 
     readonly_fields = (
         "_date",
-        "_moneybird_button",
+        "_description",
+        "_contact",
+        "_ledger_account",
+        "value",
+        "view_on_moneybird",
     )
 
+    @admin.display
     def _date(self, obj):
-        return obj.document.date
+        return obj.document_line.document.date
 
-    def _moneybird_button(self, obj):
+    @admin.display
+    def _description(self, obj):
+        return obj.document_line.description
+
+    @admin.display
+    def _contact(self, obj):
+        return obj.document_line.document.contact
+
+    @admin.display
+    def _ledger_account(self, obj):
+        return obj.document_line.ledger_account
+
+    @admin.display(description="View on Moneybird")
+    def view_on_moneybird(self, obj):
+        url = obj.document_line.document.moneybird_url
+        if url is None:
+            return None
         return mark_safe(
-            f"<a class='button small' href='{obj.document.moneybird_url}' target='blank'>Go to Moneybird</a>"
+            f'<a class="button small" href="{url}" target="_blank" style="white-space: nowrap;">View on Moneybird</a>'
         )
 
     def has_add_permission(self, request, obj):
         return False
 
-    def has_change_permission(self, request, obj=None):
-        return False
 
 
 class ListingPriceSliderFilter(SliderNumericFilter):
@@ -311,47 +328,3 @@ class AssetAdmin(
     )
     def is_amortized(self, obj):
         return obj.is_amortized
-
-
-@admin.register(Collection)
-class CollectionAdmin(admin.ModelAdmin):
-    """Collection admin."""
-
-    search_fields = ["name"]
-    ordering = ["id"]
-
-
-@admin.register(Attachment)
-class AttachmentAdmin(admin.ModelAdmin):
-    """Attachments admin."""
-
-    model = Attachment
-    list_display = ("asset", "attachment", "upload_date", "remarks")
-    readonly_fields = ["upload_date"]
-
-
-@admin.register(AssetCategory)
-class AssetCategoryAdmin(admin.ModelAdmin):
-    search_fields = ["name"]
-
-
-@admin.register(AssetSize)
-class AssetSizeAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        models.ManyToManyField: {"widget": CheckboxSelectMultiple},
-    }
-    search_fields = ["name"]
-
-
-@admin.register(AssetLocation)
-class AssetLocationAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        models.ManyToManyField: {"widget": CheckboxSelectMultiple},
-    }
-
-    search_fields = ["name"]
-
-
-@admin.register(AssetLocationGroup)
-class AssetLocationGroupAdmin(admin.ModelAdmin):
-    search_fields = ["name"]

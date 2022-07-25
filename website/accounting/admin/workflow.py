@@ -11,6 +11,7 @@ class WorkflowAdmin(MoneybirdResourceModelAdmin):
         "name",
         "type",
         "active",
+        "view_on_moneybird",
     )
     list_filter = ("type", "active")
     search_fields = (

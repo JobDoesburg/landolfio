@@ -148,18 +148,6 @@ class EstimateDocumentLine(MoneybirdDocumentLineModel):
         blank=True,
         verbose_name=_("Project"),
     )
-
-    asset_id_field = models.CharField(
-        max_length=50, null=True, blank=True, verbose_name=_("Asset Id")
-    )
-    asset = models.ForeignKey(
-        "inventory.Asset",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        verbose_name=_("Asset"),
-        related_name="estimate_lines",
-    )
     amount = models.CharField(
         verbose_name=_("Amount"), null=True, blank=True, default="1 x", max_length=10
     )

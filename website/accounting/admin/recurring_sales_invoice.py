@@ -22,8 +22,6 @@ class RecurringSalesInvoiceDocumentLineInline(admin.StackedInline):
         "project",
         "row_order",
         "total_amount",
-        "asset_id_field",
-        "asset",
     )
     readonly_fields = ["amount_decimal", "total_amount"]
     extra = 0
@@ -45,6 +43,7 @@ class RecurringSalesInvoiceAdmin(AutocompleteFilterMixin, MoneybirdResourceModel
         "auto_send",
         "workflow",
         "active",
+        "view_on_moneybird",
     )
     list_filter = (
         ("workflow", AutocompleteListFilter),

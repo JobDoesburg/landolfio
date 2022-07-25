@@ -1,16 +1,19 @@
-"""Asset models."""
 import logging
 import re
+from decimal import Decimal
 from functools import lru_cache
 from typing import Union
 
 from django.db import models
 from django.dispatch import receiver
 
-from accounting.models.estimate import EstimateDocumentLine
+from accounting.models import (
+    SalesInvoiceDocumentLine,
+    PurchaseDocumentLine,
+    GeneralJournalDocumentLine,
+)
 from accounting.models.journal_document import JournalDocumentLine
-from accounting.models.recurring_sales_invoice import RecurringSalesInvoiceDocumentLine
-from inventory.models.asset import Asset
+from inventory.models.asset import Asset, AssetOnJournalDocumentLine
 
 
 @lru_cache(maxsize=None)
@@ -20,33 +23,12 @@ def get_asset_ids():
 
 @lru_cache(maxsize=None)
 def get_split_regex_pattern():
-    delimiters = " ", ",", ":", ";", ".", "\n", "-", "\t", "\r"
+    delimiters = " ", ",", ":", ";", ".", "\n", "-", "\t", "\r", "[", "]", "(", ")"
     return "|".join(map(re.escape, delimiters))
 
 
 def split_description(description: str) -> list[str]:
     return re.split(get_split_regex_pattern(), description)
-
-
-def find_existing_asset_from_description(description: str) -> Union[Asset, None]:
-    if description is None:
-        return None
-
-    asset_ids = get_asset_ids()
-    words = set(split_description(description))
-    matches = words.intersection(asset_ids)
-    if len(matches) == 0:
-        return None
-    if len(matches) == 1:
-        asset = find_asset_from_id(matches.pop())
-        logging.info(f"Detected asset {asset} in '{description}'")
-        return asset
-    if len(matches) > 1:
-        asset = find_asset_from_id(matches.pop())
-        logging.warning(
-            f"Multiple assets found for description '{description}', choosing {asset}"
-        )  # TODO link to all assets
-        return asset
 
 
 def find_asset_id_from_description(description: str) -> Union[str, None]:
@@ -68,68 +50,92 @@ def find_asset_from_id(asset_id) -> Union[Asset, None]:
         return None
 
 
-def find_asset_in_document_lines(document_line):
-    description = document_line.description
-    # if (
-    #     isinstance(document_line, JournalDocumentLine)
-    #     and document_line.document.document_kind
-    #     == DocumentKind.GENERAL_JOURNAL_DOCUMENT
-    # ):
-    #     if description is None:
-    #         description = document_line.document.reference
-    #     else:
-    #         description += " " + document_line.document.reference
+def find_existing_asset_from_description(
+    description: str,
+) -> Union[list[Asset], Asset, None]:
+    if description is None:
+        return None
 
-    asset_id = find_asset_id_from_description(description)
-    asset_or_none = find_asset_from_id(asset_id)
-    document_line.asset = asset_or_none
-    document_line.asset_id_field = asset_id
+    asset_ids = get_asset_ids()
+    words = set(split_description(description))
+    matches = words.intersection(asset_ids)
 
-    if asset_or_none is None:
-        asset = find_existing_asset_from_description(description)
+    assets = []
+    for match in matches:
+        asset = find_asset_from_id(match)
         if asset:
-            document_line.asset = asset
-            document_line.asset_id_field = asset.id
+            logging.info(f"Detected asset {asset} in '{description}'")
+            assets.append(asset)
+    return assets
 
 
-def link_asset_to_document_lines(document_lines, asset):
-    for document_line in document_lines:
-        document_line.asset = asset
-        document_line.save()
-
-
-@receiver(models.signals.post_save, sender=Asset)
-def on_asset_save(sender, instance: Asset, **kwargs):
-    # pylint: disable=unused-argument
-    """Link DocumentLines to their asset upon asset creation."""
-    asset_id = instance.id
-    link_asset_to_document_lines(
-        JournalDocumentLine.objects.filter(asset_id_field=asset_id), instance
-    )
-    link_asset_to_document_lines(
-        EstimateDocumentLine.objects.filter(asset_id_field=asset_id), instance
-    )
-    link_asset_to_document_lines(
-        RecurringSalesInvoiceDocumentLine.objects.filter(asset_id_field=asset_id),
-        instance,
+def link_asset_to_document_line(document_line, asset, value):
+    return AssetOnJournalDocumentLine.objects.update_or_create(
+        asset=asset, document_line=document_line, defaults={"value": value}
     )
 
 
-@receiver(models.signals.pre_save, sender=JournalDocumentLine)
+def link_assets_to_document_line(document_line, assets):
+    total_value = document_line.total_amount
+    value = Decimal(round(document_line.total_amount / len(assets), 2))
+    # TODO override behaviour for specific asset types (cellos en stokken)
+
+    for index, asset in enumerate(assets):
+        if index == len(assets) - 1:
+            asset_value = total_value - value * (len(assets) - 1)
+        else:
+            asset_value = value
+        link_asset_to_document_line(document_line, asset, asset_value)
+
+
+def get_document_line_description(document_line):
+    description = document_line.description
+    if isinstance(document_line, GeneralJournalDocumentLine):
+        if description is None:
+            description = document_line.document.reference
+        else:
+            description += " " + document_line.document.reference
+    return description
+
+
+def find_assets_in_document_line(document_line):
+    description = get_document_line_description(document_line)
+
+    assets = find_existing_asset_from_description(description)
+
+    if assets is None or len(assets) == 0:
+        return
+    if len(assets) == 1:
+        link_asset_to_document_line(
+            document_line, assets[0], document_line.total_amount
+        )
+    else:
+        link_assets_to_document_line(document_line, assets)
+
+    AssetOnJournalDocumentLine.objects.filter(document_line=document_line).exclude(
+        asset__in=assets
+    ).delete()
+
+
+@receiver(models.signals.post_save, sender=SalesInvoiceDocumentLine)
 def on_document_line_save(sender, instance: JournalDocumentLine, **kwargs):
     # pylint: disable=unused-argument
-    find_asset_in_document_lines(instance)
+    find_assets_in_document_line(instance)
 
 
-@receiver(models.signals.pre_save, sender=EstimateDocumentLine)
-def on_document_line_save(sender, instance: EstimateDocumentLine, **kwargs):
+@receiver(models.signals.post_save, sender=PurchaseDocumentLine)
+def on_document_line_save(sender, instance: JournalDocumentLine, **kwargs):
     # pylint: disable=unused-argument
-    find_asset_in_document_lines(instance)
+    find_assets_in_document_line(instance)
 
 
-@receiver(models.signals.pre_save, sender=RecurringSalesInvoiceDocumentLine)
-def on_document_line_save(
-    sender, instance: RecurringSalesInvoiceDocumentLine, **kwargs
-):
+@receiver(models.signals.post_save, sender=GeneralJournalDocumentLine)
+def on_document_line_save(sender, instance: JournalDocumentLine, **kwargs):
     # pylint: disable=unused-argument
-    find_asset_in_document_lines(instance)
+    find_assets_in_document_line(instance)
+
+
+# TODO recurring sales invoice document lines
+# TODO estimate document lines
+# TODO subscription document lines
+# TODO after creating new asset, link it to all existing document lines

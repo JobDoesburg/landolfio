@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from django.db import models
-from django.db.models import PROTECT, Sum, Q, F, Value, When, Case
+from django.db.models import PROTECT, Sum, Q, F, Value, When, Case, Count
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from queryable_properties.managers import QueryablePropertiesManager
@@ -12,8 +12,18 @@ from queryable_properties.properties import (
     ValueCheckProperty,
 )
 
+from accounting.models import (
+    JournalDocumentLine,
+    Subscription,
+    RecurringSalesInvoice,
+    RecurringSalesInvoiceDocumentLine,
+)
 from accounting.models.ledger_account import LedgerAccountType, LedgerAccount
-from accounting.models.estimate import EstimateStateChoices
+from accounting.models.estimate import (
+    EstimateStateChoices,
+    Estimate,
+    EstimateDocumentLine,
+)
 from inventory.models.category import AssetCategory, AssetSize
 from inventory.models.collection import Collection
 from inventory.models.location import AssetLocation
@@ -27,6 +37,82 @@ class FilteredRelatedExistenceCheckProperty(RelatedExistenceCheckProperty):
 
     def get_queryset(self, model):
         return super().get_queryset(model).filter(self.filter)
+
+
+class AssetOnJournalDocumentLine(models.Model):
+    asset = models.ForeignKey(
+        "Asset", on_delete=models.CASCADE, related_name="journal_document_line_assets"
+    )
+    document_line = models.ForeignKey(
+        JournalDocumentLine, on_delete=models.CASCADE, related_name="assets"
+    )
+    value = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        unique_together = [
+            ("asset", "document_line"),
+        ]
+
+    def __str__(self):
+        return f"{self.asset} on {self.document_line} for {self.value}"
+
+
+class AssetOnEstimateDocumentLine(models.Model):
+    asset = models.ForeignKey(
+        "Asset", on_delete=models.CASCADE, related_name="estimate_document_line_assets"
+    )
+    document_line = models.ForeignKey(
+        EstimateDocumentLine, on_delete=models.CASCADE, related_name="assets"
+    )
+    value = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        unique_together = [
+            ("asset", "document_line"),
+        ]
+
+    def __str__(self):
+        return f"{self.asset} on {self.document_line} for {self.value}"
+
+
+class AssetOnRecurringSalesInvoiceDocumentLine(models.Model):
+    asset = models.ForeignKey(
+        "Asset",
+        on_delete=models.CASCADE,
+        related_name="recurring_sales_invoice_document_line_assets",
+    )
+    document_line = models.ForeignKey(
+        RecurringSalesInvoiceDocumentLine,
+        on_delete=models.CASCADE,
+        related_name="assets",
+    )
+    value = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        unique_together = [
+            ("asset", "document_line"),
+        ]
+
+    def __str__(self):
+        return f"{self.asset} on {self.document_line} for {self.value}"
+
+
+class AssetSubscription(models.Model):
+    asset = models.ForeignKey(
+        "Asset", on_delete=models.CASCADE, related_name="asset_subscriptions"
+    )
+    subscription = models.ForeignKey(
+        Subscription, on_delete=models.CASCADE, related_name="assets"
+    )
+    value = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        unique_together = [
+            ("asset", "subscription"),
+        ]
+
+    def __str__(self):
+        return f"{self.asset} on {self.subscription} for {self.value}"
 
 
 class Asset(models.Model):
@@ -63,43 +149,57 @@ class Asset(models.Model):
         default="Unknown",
     )
 
+    journal_document_lines = models.ManyToManyField(
+        JournalDocumentLine,
+        through=AssetOnJournalDocumentLine,
+    )
+    estimate_document_lines = models.ManyToManyField(
+        EstimateDocumentLine, through=AssetOnEstimateDocumentLine
+    )
+    recurring_sales_invoice_document_lines = models.ManyToManyField(
+        RecurringSalesInvoiceDocumentLine,
+        through=AssetOnRecurringSalesInvoiceDocumentLine,
+    )
+
     @property
     def get_ledger_amounts(self):
         return dict(
             (
-                LedgerAccount.objects.get(moneybird_id=x["ledger__moneybird_id"]),
-                x["price__sum"],
+                LedgerAccount.objects.get(
+                    moneybird_id=x["ledger_account__moneybird_id"]
+                ),
+                x["value__sum"],
             )
             for x in self.journal_document_lines.values(
-                "ledger__moneybird_id"
-            ).annotate(Sum("price"))
+                "document_line__ledger_account__moneybird_id"
+            ).annotate(Sum("value"))
         )
 
     total_assets_value = AggregateProperty(
         Sum(
-            "journal_document_lines__price",
+            "journal_document_line_assets__value",
             filter=Q(
-                journal_document_lines__ledger__account_type=LedgerAccountType.CURRENT_ASSETS
+                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.CURRENT_ASSETS
             ),
             output_field=models.DecimalField(max_digits=10, decimal_places=2),
         ),
     )
     total_margin_assets_value = AggregateProperty(
         Sum(
-            "journal_document_lines__price",
+            "journal_document_line_assets__value",
             filter=Q(
-                journal_document_lines__ledger__account_type=LedgerAccountType.CURRENT_ASSETS,
-                journal_document_lines__ledger__is_margin=True,
+                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.CURRENT_ASSETS,
+                journal_document_line_assets__document_line__ledger_account__is_margin=True,
             ),
             output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_non_margin_assets_value = AggregateProperty(
         Sum(
-            "journal_document_lines__price",
+            "journal_document_line_assets__value",
             filter=Q(
-                journal_document_lines__ledger__account_type=LedgerAccountType.CURRENT_ASSETS,
-                journal_document_lines__ledger__is_margin=False,
+                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.CURRENT_ASSETS,
+                journal_document_line_assets__document_line__ledger_account__is_margin=False,
             ),
             output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
@@ -107,29 +207,29 @@ class Asset(models.Model):
 
     total_direct_costs_value = AggregateProperty(
         Sum(
-            "journal_document_lines__price",
+            "journal_document_line_assets__value",
             filter=Q(
-                journal_document_lines__ledger__account_type=LedgerAccountType.DIRECT_COSTS
+                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.DIRECT_COSTS
             ),
             output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_margin_direct_costs_value = AggregateProperty(
         Sum(
-            "journal_document_lines__price",
+            "journal_document_line_assets__value",
             filter=Q(
-                journal_document_lines__ledger__account_type=LedgerAccountType.DIRECT_COSTS,
-                journal_document_lines__ledger__is_margin=True,
+                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.DIRECT_COSTS,
+                journal_document_line_assets__document_line__ledger_account__is_margin=True,
             ),
             output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_non_margin_direct_costs_value = AggregateProperty(
         Sum(
-            "journal_document_lines__price",
+            "journal_document_line_assets__value",
             filter=Q(
-                journal_document_lines__ledger__account_type=LedgerAccountType.DIRECT_COSTS,
-                journal_document_lines__ledger__is_margin=False,
+                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.DIRECT_COSTS,
+                journal_document_line_assets__document_line__ledger_account__is_margin=False,
             ),
             output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
@@ -137,29 +237,29 @@ class Asset(models.Model):
 
     total_expenses_value = AggregateProperty(
         Sum(
-            "journal_document_lines__price",
+            "journal_document_line_assets__value",
             filter=Q(
-                journal_document_lines__ledger__account_type=LedgerAccountType.EXPENSES
+                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.EXPENSES
             ),
             output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_purchase_expenses = AggregateProperty(
         Sum(
-            "journal_document_lines__price",
+            "journal_document_line_assets__value",
             filter=Q(
-                journal_document_lines__ledger__account_type=LedgerAccountType.EXPENSES,
-                journal_document_lines__ledger__is_purchase=True,
+                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.EXPENSES,
+                journal_document_line_assets__document_line__ledger_account__is_purchase=True,
             ),
             output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_other_expenses = AggregateProperty(
         Sum(
-            "journal_document_lines__price",
+            "journal_document_line_assets__value",
             filter=Q(
-                journal_document_lines__ledger__account_type=LedgerAccountType.EXPENSES,
-                journal_document_lines__ledger__is_purchase=False,
+                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.EXPENSES,
+                journal_document_line_assets__document_line__ledger_account__is_purchase=False,
             ),
             output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
@@ -167,51 +267,51 @@ class Asset(models.Model):
 
     total_revenue_value = AggregateProperty(
         Sum(
-            "journal_document_lines__price",
+            "journal_document_line_assets__value",
             filter=Q(
-                journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE
+                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE
             ),
             output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_sales_revenue = AggregateProperty(
         Sum(
-            "journal_document_lines__price",
+            "journal_document_line_assets__value",
             filter=Q(
-                journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
-                journal_document_lines__ledger__is_sales=True,
+                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
+                journal_document_line_assets__document_line__ledger_account__is_sales=True,
             ),
             output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_sales_revenue_margin = AggregateProperty(
         Sum(
-            "journal_document_lines__price",
+            "journal_document_line_assets__value",
             filter=Q(
-                journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
-                journal_document_lines__ledger__is_sales=True,
-                journal_document_lines__ledger__is_margin=True,
+                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
+                journal_document_line_assets__document_line__ledger_account__is_sales=True,
+                journal_document_line_assets__document_line__ledger_account__is_margin=True,
             ),
             output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_sales_revenue_non_margin = AggregateProperty(
         Sum(
-            "journal_document_lines__price",
+            "journal_document_line_assets__value",
             filter=Q(
-                journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
-                journal_document_lines__ledger__is_sales=True,
-                journal_document_lines__ledger__is_margin=False,
+                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
+                journal_document_line_assets__document_line__ledger_account__is_sales=True,
+                journal_document_line_assets__document_line__ledger_account__is_margin=False,
             ),
             output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
     )
     total_other_revenue = AggregateProperty(
         Sum(
-            "journal_document_lines__price",
+            "journal_document_line_assets__value",
             filter=Q(
-                journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
-                journal_document_lines__ledger__is_sales=False,
+                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
+                journal_document_line_assets__document_line__ledger_account__is_sales=False,
             ),
             output_field=models.DecimalField(max_digits=10, decimal_places=2),
         )
@@ -219,63 +319,67 @@ class Asset(models.Model):
 
     is_margin = FilteredRelatedExistenceCheckProperty(
         "journal_document_lines",
-        filter=Q(journal_document_lines__ledger__is_margin=True),
+        filter=Q(
+            journal_document_line_assets__document_line__ledger_account__is_margin=True
+        ),
     )
     is_non_margin = FilteredRelatedExistenceCheckProperty(
         "journal_document_lines",
-        filter=Q(journal_document_lines__ledger__is_margin=False),
+        filter=Q(
+            journal_document_line_assets__document_line__ledger_account__is_margin=False
+        ),
     )
 
     is_sold = FilteredRelatedExistenceCheckProperty(
         "journal_document_lines",
         filter=Q(
-            journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
-            journal_document_lines__ledger__is_sales=True,
+            journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
+            journal_document_line_assets__document_line__ledger_account__is_sales=True,
         ),
     )
     is_sold_as_margin = FilteredRelatedExistenceCheckProperty(
         "journal_document_lines",
         filter=Q(
-            journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
-            journal_document_lines__ledger__is_sales=True,
-            journal_document_lines__ledger__is_margin=True,
+            journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
+            journal_document_line_assets__document_line__ledger_account__is_sales=True,
+            journal_document_line_assets__document_line__ledger_account__is_margin=True,
         ),
     )
     is_sold_as_non_margin = FilteredRelatedExistenceCheckProperty(
         "journal_document_lines",
         filter=Q(
-            journal_document_lines__ledger__account_type=LedgerAccountType.REVENUE,
-            journal_document_lines__ledger__is_sales=True,
-            journal_document_lines__ledger__is_margin=False,
+            journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
+            journal_document_line_assets__document_line__ledger_account__is_sales=True,
+            journal_document_line_assets__document_line__ledger_account__is_margin=False,
         ),
     )
 
     is_purchased_asset = FilteredRelatedExistenceCheckProperty(
         "journal_document_lines",
         filter=Q(
-            journal_document_lines__ledger__account_type=LedgerAccountType.CURRENT_ASSETS
+            journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.CURRENT_ASSETS
         ),
     )
     is_purchased_asset_as_margin = FilteredRelatedExistenceCheckProperty(
         "journal_document_lines",
         filter=Q(
-            journal_document_lines__ledger__account_type=LedgerAccountType.CURRENT_ASSETS,
-            journal_document_lines__ledger__is_margin=True,
+            journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.CURRENT_ASSETS,
+            journal_document_line_assets__document_line__ledger_account__is_margin=True,
         ),
     )
     is_purchased_asset_as_non_margin = FilteredRelatedExistenceCheckProperty(
         "journal_document_lines",
         filter=Q(
-            journal_document_lines__ledger__account_type=LedgerAccountType.CURRENT_ASSETS,
-            journal_document_lines__ledger__is_margin=False,
+            journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.CURRENT_ASSETS,
+            journal_document_line_assets__document_line__ledger_account__is_margin=False,
         ),
     )
 
     is_purchased_amortized = FilteredRelatedExistenceCheckProperty(
         "journal_document_lines",
         filter=Q(
-            journal_document_lines__ledger__account_type=LedgerAccountType.EXPENSES,
-            journal_document_lines__ledger__is_purchase=True,
+            journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.EXPENSES,
+            journal_document_line_assets__document_line__ledger_account__is_purchase=True,
         ),
     )
 

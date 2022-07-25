@@ -23,8 +23,6 @@ class SalesInvoiceDocumentLineInline(admin.StackedInline):
         "project",
         "row_order",
         "total_amount",
-        "asset_id_field",
-        "asset",
     )
     readonly_fields = ["amount_decimal", "total_amount"]
     extra = 0
@@ -42,6 +40,7 @@ class SalesInvoiceAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
         "total_price",
         "total_unpaid",
         "state",
+        "view_on_moneybird",
     )
     list_filter = (
         "state",

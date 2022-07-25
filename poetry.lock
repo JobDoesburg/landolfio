@@ -239,6 +239,17 @@ django = ">=2.2"
 python-stdnum = ">=1.6"
 
 [[package]]
+name = "django-model-utils"
+version = "4.2.0"
+description = "Django model mixins and utilities"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+Django = ">=2.0.1"
+
+[[package]]
 name = "django-queryable-properties"
 version = "1.8.2"
 description = "Write Django model properties that can be used in database queries."
@@ -626,7 +637,7 @@ production = ["psycopg2"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "3ba78e0b4a00a11f582e02b2ae4a86403f95577470c6a4b953a149cae81376e2"
+content-hash = "8d3c3027dd5113551b17e85c0e33cb921c87db2faf3e10591ec8526f5ea9ef33"
 
 [metadata.files]
 asgiref = [
@@ -710,6 +721,10 @@ django-coverage-plugin = [
 django-localflavor = [
     {file = "django-localflavor-3.1.tar.gz", hash = "sha256:ac2fa377bbcba4cae95e97077d9e77c7f22b3d93e4845e2e133ba7e664043a44"},
     {file = "django_localflavor-3.1-py3-none-any.whl", hash = "sha256:6593865dc671333b3edc88e729e6d384d00b6db7891ef5d3a65db831a40050d2"},
+]
+django-model-utils = [
+    {file = "django-model-utils-4.2.0.tar.gz", hash = "sha256:e7a95e102f9c9653427eadab980d5d59e1dea972913b9c9e01ac37f86bba0ddf"},
+    {file = "django_model_utils-4.2.0-py3-none-any.whl", hash = "sha256:a768a25c80514e0ad4e4a6f9c02c44498985f36c5dfdea47b5b1e8cf994beba6"},
 ]
 django-queryable-properties = [
     {file = "django-queryable-properties-1.8.2.tar.gz", hash = "sha256:b34f38147f7656f55c54940b04eb6e489b889cba91c828383035c2f449fc6828"},

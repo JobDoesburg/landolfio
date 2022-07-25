@@ -1,8 +1,15 @@
 from django.contrib import admin
 from django import forms
+from django.utils.safestring import mark_safe
 
-from moneybird.models import SynchronizableMoneybirdResourceModel
-from moneybird.resource_types import get_moneybird_resource_for_model
+from moneybird.models import (
+    SynchronizableMoneybirdResourceModel,
+    MoneybirdDocumentLineModel,
+)
+from moneybird.resource_types import (
+    get_moneybird_resource_for_model,
+    get_moneybird_resource_for_document_lines_model,
+)
 
 
 class MoneybirdResourceModelForm(forms.ModelForm):
@@ -35,35 +42,54 @@ class MoneybirdResourceModelAdmin(admin.ModelAdmin):
         super().__init__(*args, **kwargs)
         self.obj = None
 
+    @property
+    def moneybird_resource_type_class(self):
+        if issubclass(self.model, MoneybirdDocumentLineModel):
+            return get_moneybird_resource_for_document_lines_model(self.model)
+        return get_moneybird_resource_for_model(self.model)
+
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = ("moneybird_id",)
         if issubclass(self.model, SynchronizableMoneybirdResourceModel):
             readonly_fields += ("moneybird_version",)
-        return super().get_readonly_fields(request, obj) + readonly_fields
+        return tuple(super().get_readonly_fields(request, obj)) + readonly_fields
 
     def has_delete_permission(self, request, obj=None):
-        if not get_moneybird_resource_for_model(self.model).can_delete:
+        resource_type = self.moneybird_resource_type_class
+        if resource_type and not resource_type.can_delete:
             return False
         return super().has_delete_permission(request, obj)
 
     def has_add_permission(self, request):
-        if not get_moneybird_resource_for_model(self.model).can_write:
+        resource_type = self.moneybird_resource_type_class
+        if resource_type and not resource_type.can_write:
             return False
         return super().has_delete_permission(request)
 
     def has_change_permission(self, request, obj=None):
-        if not get_moneybird_resource_for_model(self.model).can_write:
+        resource_type = self.moneybird_resource_type_class
+        if resource_type and not resource_type.can_write:
             return False
         return super().has_change_permission(request, obj)
 
-    def save_model(self, request, obj, form, change):
-        self.obj = obj
-        obj.save(push_to_moneybird=False)
+    @admin.display(description="View on Moneybird")
+    def view_on_moneybird(self, obj):
+        url = obj.moneybird_url
+        if url is None:
+            return None
+        return mark_safe(
+            f'<a class="button small" href="{url}" target="_blank" style="white-space: nowrap;">View on Moneybird</a>'
+        )
 
-    def save_related(self, request, form, formsets, change):
-        super().save_related(request, form, formsets, change)
-        self.obj.save(push_to_moneybird=True)
 
-        # TODO save_formset should get the push_to_moneybird argument and pass it through the formset.save() method so instances are not directly pushed
+# def save_model(self, request, obj, form, change):
+#     self.obj = obj
+#     obj.save(push_to_moneybird=False)
+#
+# def save_related(self, request, form, formsets, change):
+#     super().save_related(request, form, formsets, change)
+#     self.obj.save(push_to_moneybird=True)
 
-    # TODO delete action should not call bulk delete but delete the objects individually
+# TODO save_formset should get the push_to_moneybird argument and pass it through the formset.save() method so instances are not directly pushed
+
+# TODO delete action should not call bulk delete but delete the objects individually

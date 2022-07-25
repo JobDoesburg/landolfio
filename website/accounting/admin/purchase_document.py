@@ -22,8 +22,6 @@ class PurchaseDocumentLineInline(admin.StackedInline):
         "project",
         "row_order",
         "total_amount",
-        "asset_id_field",
-        "asset",
     )
     readonly_fields = ["amount_decimal", "total_amount"]
     extra = 0
@@ -39,6 +37,7 @@ class PurchaseDocumentAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin
         "contact",
         "total_price",
         "state",
+        "view_on_moneybird",
     )
     list_filter = (
         "state",

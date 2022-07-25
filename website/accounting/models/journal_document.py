@@ -39,17 +39,15 @@ class JournalDocumentLine(MoneybirdDocumentLineModel):
         verbose_name=_("Project"),
     )
 
-    asset_id_field = models.CharField(
-        max_length=50, null=True, blank=True, verbose_name=_("Asset Id")
-    )
-    asset = models.ForeignKey(
-        "inventory.Asset",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        verbose_name=_("Asset"),
-        related_name="journal_document_lines",
-    )
+    @property
+    def document(self):
+        if self.purchasedocumentline:
+            return self.purchasedocumentline.document
+        if self.salesinvoicedocumentline:
+            return self.salesinvoicedocumentline.document
+        if self.generaljournaldocumentline:
+            return self.generaljournaldocumentline.document
+
 
     def __str__(self):
         return f"Document line {self.moneybird_id}"

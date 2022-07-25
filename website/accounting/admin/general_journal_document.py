@@ -23,8 +23,6 @@ class GeneralJournalDocumentLineInline(admin.StackedInline):
         "project",
         "description",
         "row_order",
-        "asset_id_field",
-        "asset",
     )
     readonly_fields = ["total_amount"]
     extra = 0
@@ -42,6 +40,7 @@ class GeneralJournalDocumentAdmin(AutocompleteFilterMixin, MoneybirdResourceMode
     list_display = (
         "__str__",
         "date",
+        "view_on_moneybird",
     )
     date_hierarchy = "date"
     list_filter = (("document_lines__ledger_account", AutocompleteListFilter),)

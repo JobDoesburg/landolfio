@@ -30,6 +30,7 @@ class MoneybirdResourceType:
     entity_type = None
     entity_type_name = None
     api_path = None
+    public_path = None
     model = None
     can_write = True
     can_delete = True
@@ -260,6 +261,14 @@ class MoneybirdResourceType:
 
         instance.update_fields_from_moneybird(data)
         return data
+
+    @classmethod
+    def view_on_moneybird_url(cls, obj):
+        if not cls.public_path:
+            return None
+        if not obj.moneybird_id:
+            return None
+        return f"https://moneybird.com/{settings.MONEYBIRD_ADMINISTRATION_ID}/{cls.public_path}/{obj.moneybird_id}"
 
 
 class SynchronizableMoneybirdResourceType(MoneybirdResourceType):
