@@ -14,7 +14,7 @@ python manage.py collectstatic --no-input
 python manage.py migrate --no-input
 
 uwsgi --chdir=/landolfio/src/ \
-    --module=config.wsgi:application \
+    --module=website.wsgi:application \
     --master --pidfile=/tmp/project-master.pid \
     --socket=:8000 \
     --processes=5 \

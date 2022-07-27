@@ -61,10 +61,10 @@ services:
     expose:
       - 8000
     environment:
-      - VIRTUAL_HOST="landolfio.vofdoesburg.nl"
-      - VIRTUAL_PORT='8000'
-      - VIRTUAL_PROTO='uwsgi'
-      - LETSENCRYPT_HOST='landolfio.vofdoesburg.nl'
+      - VIRTUAL_HOST=landolfio.vofdoesburg.nl
+      - VIRTUAL_PORT=8000
+      - VIRTUAL_PROTO=uwsgi
+      - LETSENCRYPT_HOST=landolfio.vofdoesburg.nl
       - LANDOLFIO_SECRET_KEY
       - LANDOLFIO_ALLOWED_HOSTS
       - POSTGRES_DB
