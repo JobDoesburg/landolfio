@@ -27,6 +27,12 @@ DATABASES = {
     }
 }
 
+STATIC_ROOT = "/landolfio/static/"
+STATIC_URL = "/static/"
+
+MEDIA_ROOT = "/landolfio/media/"
+MEDIA_URL = "/media/"
+
 # We do this in our reverse proxy, no need to do it here
 SECURE_SSL_REDIRECT = False
 
