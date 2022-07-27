@@ -16,6 +16,7 @@ RUN mkdir --parents /landolfio/media/
 RUN chmod +x /landolfio/entrypoint.sh
 
 RUN curl -sSL https://install.python-poetry.org | python && \
+        export PATH="/root/.local/bin:$PATH" && \
         poetry config --no-interaction --no-ansi virtualenvs.create false && \
         poetry install --no-interaction --no-ansi --no-dev --extras "production"
 
