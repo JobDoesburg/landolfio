@@ -25,14 +25,6 @@ DATABASES = {
     }
 }
 
-MONEYBIRD_ADMINISTRATION_ID = int(os.getenv("MONEYBIRD_ADMINISTRATION_ID", "0"))
-MONEYBIRD_API_KEY = os.getenv("MONEYBIRD_API_KEY", "")
-
-NINOX_API_TOKEN = os.environ.get("NINOX_API_TOKEN")
-NINOX_TEAM_ID = os.environ.get("NINOX_TEAM_ID")
-NINOX_DATABASE_ID = os.environ.get("NINOX_DATABASE_ID")
-
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -46,3 +38,5 @@ LOGGING = {
         "level": "DEBUG",
     },
 }
+
+MONEYBIRD_WEBHOOK_SITE_DOMAIN = "http://localhost:8000"

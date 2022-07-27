@@ -43,6 +43,4 @@ CSRF_COOKIE_SECURE = True
 # see: https://docs.djangoproject.com/en/4.0/ref/settings/#csrf-trusted-origins
 CSRF_TRUSTED_ORIGINS = ["https://" + host for host in ALLOWED_HOSTS]
 
-MONEYBIRD_ADMINISTRATION_ID = int(os.environ.get("MONEYBIRD_ADMINISTRATION_ID"))
-MONEYBIRD_API_KEY = os.environ.get("MONEYBIRD_API_KEY")
 MONEYBIRD_WEBHOOK_SITE_DOMAIN = "https://" + ALLOWED_HOSTS[0]

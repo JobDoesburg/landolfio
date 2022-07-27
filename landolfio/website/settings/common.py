@@ -131,7 +131,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # Moneybird resources to syncronize
-
+MONEYBIRD_ADMINISTRATION_ID = int(os.environ.get("MONEYBIRD_ADMINISTRATION_ID"))
+MONEYBIRD_API_KEY = os.environ.get("MONEYBIRD_API_KEY")
 MONEYBIRD_RESOURCE_TYPES = [
     "accounting.models.document_style.DocumentStyleResourceType",
     "accounting.models.tax_rate.TaxRateResourceType",
@@ -164,3 +165,7 @@ MONEYBIRD_WEBHOOK_EVENTS = [
 ]
 MONEYBIRD_AUTO_PUSH = True
 MONEYBIRD_FETCH_BEFORE_PUSH = True
+
+NINOX_API_TOKEN = os.environ.get("NINOX_API_TOKEN")
+NINOX_TEAM_ID = os.environ.get("NINOX_TEAM_ID")
+NINOX_DATABASE_ID = os.environ.get("NINOX_DATABASE_ID")
