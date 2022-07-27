@@ -170,21 +170,14 @@ bcrypt = ["bcrypt"]
 
 [[package]]
 name = "django-admin-numeric-filter"
-version = "0.1.7"
+version = "0.1.6"
 description = "Numeric filters for Django admin"
 category = "main"
 optional = false
 python-versions = "*"
-develop = false
 
 [package.dependencies]
 django = "*"
-
-[package.source]
-type = "git"
-url = "git@github.com:lukasvinclav/django-admin-numeric-filter.git"
-reference = "master"
-resolved_reference = "83853dfcc8d354c7aea8020a075bbd83dc8ca171"
 
 [[package]]
 name = "django-autocompletefilter"
@@ -637,7 +630,7 @@ production = ["psycopg2"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "8d3c3027dd5113551b17e85c0e33cb921c87db2faf3e10591ec8526f5ea9ef33"
+content-hash = "5a762a45654c95e71161ed1c6a5aff8fb45866f62805ba45995e1c112ecd81a6"
 
 [metadata.files]
 asgiref = [
@@ -708,7 +701,9 @@ django = [
     {file = "Django-4.0.6-py3-none-any.whl", hash = "sha256:ca54ebedfcbc60d191391efbf02ba68fb52165b8bf6ccd6fe71f098cac1fe59e"},
     {file = "Django-4.0.6.tar.gz", hash = "sha256:a67a793ff6827fd373555537dca0da293a63a316fe34cb7f367f898ccca3c3ae"},
 ]
-django-admin-numeric-filter = []
+django-admin-numeric-filter = [
+    {file = "django-admin-numeric-filter-0.1.6.tar.gz", hash = "sha256:0f2e42e5040567ecc6dea2bd5f2439e2c00d3fb72c1180f51b1e1762e60d9abb"},
+]
 django-autocompletefilter = [
     {file = "django-autocompletefilter-0.0.8.tar.gz", hash = "sha256:706dd00abdc189fb93f2907d29f7c60ced4b553a2e2d06fc77b5d1fc10761f0d"},
     {file = "django_autocompletefilter-0.0.8-py2.py3-none-any.whl", hash = "sha256:81ee44a78b42c51f34aaa2abcde36ff51ff8fbdef9a10aad19ff60c850397975"},

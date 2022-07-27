@@ -1,4 +1,4 @@
-from admin_numeric_filter.admin import SliderNumericFilter, NumericFilterModelAdmin
+# from admin_numeric_filter.admin import SliderNumericFilter, NumericFilterModelAdmin
 from autocompletefilter.admin import AutocompleteFilterMixin
 from autocompletefilter.filters import AutocompleteListFilter
 from django.contrib import admin
@@ -89,15 +89,13 @@ class JournalDocumentLineInline(admin.TabularInline):
         return False
 
 
-class ListingPriceSliderFilter(SliderNumericFilter):
-    MAX_DECIMALS = 0
-    STEP = 50
+# class ListingPriceSliderFilter(SliderNumericFilter):
+#     MAX_DECIMALS = 0
+#     STEP = 50
 
 
 @admin.register(Asset)
-class AssetAdmin(
-    AutocompleteFilterMixin, QueryablePropertiesAdmin, NumericFilterModelAdmin
-):
+class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     """Asset admin."""
 
     list_display = (
@@ -135,7 +133,7 @@ class AssetAdmin(
         "is_purchased_asset",
         "is_purchased_amortized",
         "is_amortized",
-        ("listing_price", ListingPriceSliderFilter),
+        # ("listing_price", ListingPriceSliderFilter),
     )
 
     search_fields = [
