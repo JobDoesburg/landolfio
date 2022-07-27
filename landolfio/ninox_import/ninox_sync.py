@@ -3,13 +3,11 @@ import logging
 import bleach
 import requests
 from django.core.exceptions import ValidationError
-from django.core.files.base import ContentFile
 from django.db import IntegrityError
 from requests import HTTPError
 from requests.auth import AuthBase
 
 from django.conf import settings
-from django.utils import timezone
 
 from inventory.models.asset import Asset
 from inventory.models.category import AssetCategory, AssetSize
