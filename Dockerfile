@@ -1,23 +1,26 @@
-FROM python:3.10 AS base
+FROM python:3.10
+ENV PYTHONUNBUFFERED 1
+ENV PATH /root/.poetry/bin:${PATH}
+ENV DJANGO_SETTINGS_MODULE website.settings.production
 
-WORKDIR /usr/src/app
+ENTRYPOINT ["/landolfio/entrypoint.sh"]
 
-FROM base AS requirements-builder
+WORKDIR /landolfio/src/
+COPY entrypoint.sh /landolfio/entrypoint.sh
+COPY poetry.lock pyproject.toml /landolfio/src/
 
-RUN pip install poetry==1.1.8
-COPY pyproject.toml .
-COPY poetry.lock .
-RUN poetry export --extras production -f requirements.txt -o requirements.txt
+RUN mkdir --parents /landolfio/src/
+RUN mkdir --parents /landolfio/log/
+RUN mkdir --parents /landolfio/static/
+RUN mkdir --parents /landolfio/media/
+RUN chmod +x /landolfio/entrypoint.sh
 
-FROM base AS final
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python && \
+        poetry config --no-interaction --no-ansi virtualenvs.create false && \
+        poetry install --no-interaction --no-ansi --no-dev --extras "production"
 
-COPY --from=requirements-builder /usr/src/app/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY landolfio /landolfio/src/
 
-ADD website website
-
-WORKDIR /usr/src/app/website
-
-RUN ./manage.py collectstatic --noinput --settings=website.settings.development
-
-CMD [ "sh", "-c", "./manage.py migrate --settings=website.settings.production && gunicorn website.wsgi --bind=0.0.0.0:80 --env DJANGO_SETTINGS_MODULE=website.settings.production" ]
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --yes --quiet --no-install-recommends iputils-ping && \
+    rm --recursive --force /var/lib/apt/lists/*

@@ -148,7 +148,6 @@ MONEYBIRD_RESOURCE_TYPES = [
     "accounting.models.general_journal_document.GeneralJournalDocumentResourceType",
     "accounting.models.subscription.SubscriptionResourceType",
 ]
-MONEYBIRD_WEBHOOK_SITE_DOMAIN = "http://localhost:8000"
 MONEYBIRD_WEBHOOK_EVENTS = [
     WebhookEvent.CONTACT,
     WebhookEvent.SALES_INVOICE,
@@ -165,4 +164,3 @@ MONEYBIRD_WEBHOOK_EVENTS = [
 ]
 MONEYBIRD_AUTO_PUSH = True
 MONEYBIRD_FETCH_BEFORE_PUSH = True
-# TODO fix default values

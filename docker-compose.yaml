@@ -1,6 +1,42 @@
-version: "3.1"
+version: "3"
 
 services:
+  nginx:
+    container_name: nginx
+    image: jwilder/nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./nginx/html/:/usr/share/nginx/html/
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./nginx/certs/:/etc/nginx/certs/:ro
+      - ./nginx/vhost.d/:/etc/nginx/vhost.d/
+      - ./nginx/dhparam/:/etc/nginx/dhparam/
+      - ./media/:/landolfio/media/
+      - ./static/:/landolfio/static/
+      - ./landolfio.nginx.conf:/etc/nginx/vhost.d/landolfio.vofdoesburg.nl
+    environment:
+      ENABLE_IPV6: 'true'
+
+  letsencrypt:
+    image: jrcs/letsencrypt-nginx-proxy-companion
+    restart: unless-stopped
+    depends_on:
+      - nginx
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./nginx/html/:/usr/share/nginx/html/
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./nginx/vhost.d/:/etc/nginx/vhost.d/
+      - ./nginx/dhparam/:/etc/nginx/dhparam/
+      - ./nginx/certs/:/etc/nginx/certs/
+    environment:
+      NGINX_PROXY_CONTAINER: 'nginx'
+      DEFAULT_EMAIL: 'notifications-landolfio@good-job.nl'
+
   database:
     image: postgres
     restart: unless-stopped
@@ -11,10 +47,24 @@ services:
     volumes:
       - "postgres_data:/var/lib/postgresql/data/"
 
-  website:
+  web:
     build: .
     restart: unless-stopped
+    depends_on:
+      - nginx
+      - letsencrypt
+      - database
+    volumes:
+      - ./static/:/landolfio/static/
+      - ./media/:/landolfio/media/
+      - ./log/:/landolfio/log/
+    expose:
+      - '8000'
     environment:
+      - VIRTUAL_HOST="landolfio.vofdoesburg.nl"
+      - VIRTUAL_PORT='8000'
+      - VIRTUAL_PROTO='uwsgi'
+      - LETSENCRYPT_HOST='landolfio.vofdoesburg.nl'
       - LANDOLFIO_SECRET_KEY
       - LANDOLFIO_ALLOWED_HOSTS
       - POSTGRES_DB
@@ -25,28 +75,3 @@ services:
       - MONEYBIRD_ADMINISTRATION_ID
       - MONEYBIRD_API_KEY
       - MONEYBIRD_SYNC_INTERVAL_MINUTES
-    volumes:
-      - "static:/usr/src/app/website/static"
-      - "media:/usr/src/app/website/media"
-    depends_on:
-      - database
-
-  reverse-proxy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    volumes:
-      - "./Caddyfile:/etc/caddy/Caddyfile"
-      - "static:/website/static:ro"
-      - "media:/website/media:ro"
-    ports:
-      - "80:80"
-      - "443:443"
-    depends_on:
-      - website
-    environment:
-      - LANDOLFIO_ALLOWED_HOSTS
-
-volumes:
-  postgres_data:
-  static:
-  media:
