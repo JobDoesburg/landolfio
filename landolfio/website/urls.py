@@ -32,6 +32,6 @@ urlpatterns = (
         path("api/accounting/", include("accounting.api.urls")),
         re_path(r"^media/", views.protected_ask_reverse_proxy),
         # Always redirect to the admin interface as a fallback
-        path("/", RedirectView.as_view(url="/admin/")),
+        re_path(r"^.*", RedirectView.as_view(url="/admin/")),
     ]
 )
