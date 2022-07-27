@@ -15,7 +15,7 @@ RUN mkdir --parents /landolfio/static/
 RUN mkdir --parents /landolfio/media/
 RUN chmod +x /landolfio/entrypoint.sh
 
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python && \
+RUN curl -sSL https://install.python-poetry.org | python && \
         poetry config --no-interaction --no-ansi virtualenvs.create false && \
         poetry install --no-interaction --no-ansi --no-dev --extras "production"
 
