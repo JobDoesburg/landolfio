@@ -45,7 +45,7 @@ services:
       - POSTGRES_DB
       - POSTGRES_PASSWORD
     volumes:
-      - "postgres_data:/var/lib/postgresql/data/"
+      - ./postgres_data/:/var/lib/postgresql/data/
 
   web:
     build: .
@@ -59,7 +59,7 @@ services:
       - ./media/:/landolfio/media/
       - ./log/:/landolfio/log/
     expose:
-      - '8000'
+      - 8000
     environment:
       - VIRTUAL_HOST="landolfio.vofdoesburg.nl"
       - VIRTUAL_PORT='8000'
