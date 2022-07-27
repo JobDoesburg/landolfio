@@ -15,6 +15,7 @@ class TaxRateAdmin(MoneybirdResourceModelAdmin):
         "type",
         "active",
         "view_on_moneybird",
+        "_synced_with_moneybird",
     )
     list_filter = (
         "type",

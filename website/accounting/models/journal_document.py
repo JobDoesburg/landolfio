@@ -1,5 +1,19 @@
 from django.db import models
+from django.db.models import Case, When, Q, F
 from django.utils.translation import gettext as _
+from model_utils.managers import (
+    InheritanceManagerMixin,
+    InheritanceQuerySet,
+    InheritanceQuerySetMixin,
+)
+
+from queryable_properties.managers import (
+    QueryablePropertiesManager,
+    QueryablePropertiesQuerySetMixin,
+    QueryablePropertiesQuerySet,
+)
+
+from queryable_properties.properties import AnnotationProperty
 
 from accounting.models.ledger_account import (
     LedgerAccount,
@@ -15,7 +29,19 @@ from moneybird.resource_types import (
 )
 
 
+class JournalDocumentLineQueryset(
+    InheritanceQuerySetMixin, QueryablePropertiesQuerySet
+):
+    pass
+
+
+class JournalDocumentLineManager(InheritanceManagerMixin, QueryablePropertiesManager):
+    _queryset_class = JournalDocumentLineQueryset
+
+
 class JournalDocumentLine(MoneybirdDocumentLineModel):
+    objects = JournalDocumentLineManager()
+
     description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
     total_amount = models.DecimalField(
         max_digits=19,
@@ -39,15 +65,24 @@ class JournalDocumentLine(MoneybirdDocumentLineModel):
         verbose_name=_("Project"),
     )
 
-    @property
-    def document(self):
-        if self.purchasedocumentline:
-            return self.purchasedocumentline.document
-        if self.salesinvoicedocumentline:
-            return self.salesinvoicedocumentline.document
-        if self.generaljournaldocumentline:
-            return self.generaljournaldocumentline.document
+    date = AnnotationProperty(F("document__date"))
 
+    document = AnnotationProperty(
+        Case(
+            When(
+                Q(purchasedocumentline__isnull=False),
+                then=F("purchasedocumentline__document"),
+            ),
+            When(
+                Q(salesinvoicedocumentline__isnull=False),
+                then=F("salesinvoicedocumentline__document"),
+            ),
+            When(
+                Q(generaljournaldocumentline__isnull=False),
+                then=F("generaljournaldocumentline__document"),
+            ),
+        )
+    )
 
     def __str__(self):
         return f"Document line {self.moneybird_id}"

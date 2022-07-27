@@ -1,4 +1,4 @@
-from django.conf import settings
+from moneybird.settings import settings
 
 from moneybird.resource_types import (
     MoneybirdResourceTypeWithDocumentLines,
@@ -253,6 +253,7 @@ class AdministrationsResourceType(MoneybirdResourceType):
     # TODO this has a different endpoint than the other resources
 
 
-# TODO contact people, mandates, is per contact
+# TODO contact people for contact
 # TODO financial mutations
-# TODO external sales invoice, heeft geen synchronization endpoint, wel document lines
+# TODO external sales invoice, no synchronization endpoint, with document lines
+# TODO send invoice

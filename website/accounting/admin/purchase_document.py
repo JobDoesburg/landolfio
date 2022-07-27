@@ -5,10 +5,13 @@ from django.contrib.admin import register
 
 from accounting.models import SalesInvoice, PurchaseDocument, PurchaseDocumentLine
 from accounting.models.sales_invoice import SalesInvoiceDocumentLine
-from moneybird.admin import MoneybirdResourceModelAdmin
+from moneybird.admin import (
+    MoneybirdResourceModelAdmin,
+    MoneybirdResourceModelAdminMixin,
+)
 
 
-class PurchaseDocumentLineInline(admin.StackedInline):
+class PurchaseDocumentLineInline(MoneybirdResourceModelAdminMixin, admin.StackedInline):
     """The admin view for DocumentLines."""
 
     model = PurchaseDocumentLine
@@ -38,6 +41,7 @@ class PurchaseDocumentAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin
         "total_price",
         "state",
         "view_on_moneybird",
+        "_synced_with_moneybird",
     )
     list_filter = (
         "state",

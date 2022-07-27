@@ -32,6 +32,10 @@ class TaxRate(MoneybirdResourceModel):
             return f"{self.name} ({self.type})"
         return f"{self.type} tax rate {self.moneybird_id}"
 
+    class Meta:
+        verbose_name = _("Tax rate")
+        verbose_name_plural = _("Tax rates")
+
 
 class TaxRateResourceType(resources.TaxRateResourceType):
     model = TaxRate

@@ -139,9 +139,22 @@ class MoneybirdSync:
 
         logging.info(f"Finished synchronizing {resource_type.__name__}")
 
+    def push_unsynced(self, resource_type: MoneybirdResourceType):
+        """Push all unsynced moneybird resources."""
+        for resource in resource_type.get_queryset().filter(
+            _synced_with_moneybird=False
+        ):
+            try:
+                resource.push_to_moneybird()
+            except Exception as e:
+                logging.error(f"Failed to push {resource_type.__name__} {resource.id}")
+                logging.error(e)
+                resource.refresh_from_moneybird()
+
     def perform_sync(self, resource_types: list[MoneybirdResourceType]):
         """Perform a full sync of a list of resources."""
         for resource_type in resource_types:
+            self.push_unsynced(resource_type)
             self.sync_resource_type(resource_type)
 
 

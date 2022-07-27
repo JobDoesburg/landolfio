@@ -2,13 +2,19 @@ from autocompletefilter.admin import AutocompleteFilterMixin
 from autocompletefilter.filters import AutocompleteListFilter
 from django.contrib import admin
 from django.contrib.admin import register
+from django.http import HttpResponseRedirect
 
 from accounting.models import SalesInvoice
 from accounting.models.sales_invoice import SalesInvoiceDocumentLine
-from moneybird.admin import MoneybirdResourceModelAdmin
+from moneybird.admin import (
+    MoneybirdResourceModelAdmin,
+    MoneybirdResourceModelAdminMixin,
+)
 
 
-class SalesInvoiceDocumentLineInline(admin.StackedInline):
+class SalesInvoiceDocumentLineInline(
+    MoneybirdResourceModelAdminMixin, admin.StackedInline
+):
     """The admin view for DocumentLines."""
 
     model = SalesInvoiceDocumentLine
@@ -41,13 +47,14 @@ class SalesInvoiceAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
         "total_unpaid",
         "state",
         "view_on_moneybird",
+        "_synced_with_moneybird",
     )
     list_filter = (
         "state",
         ("workflow", AutocompleteListFilter),
         ("contact", AutocompleteListFilter),
     )
-    date_hierarchy = "invoice_date"
+    date_hierarchy = "date"
 
     search_fields = (
         "invoice_id",
@@ -82,3 +89,19 @@ class SalesInvoiceAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
         "workflow",
     )
     inlines = (SalesInvoiceDocumentLineInline,)
+
+    def send_invoice(self, request, obj):
+        obj.send_invoice()
+        self.message_user(request, "This villain is now unique")
+        return HttpResponseRedirect(".")
+
+    def get_moneybird_actions(self, request, obj=None):
+        actions = super().get_moneybird_actions(request, obj)
+        actions.append(
+            {
+                "label": "Send invoice",
+                "func": self.send_invoice,
+                "post_parameter": "_moneybird_send_invoice",
+            }
+        )
+        return actions

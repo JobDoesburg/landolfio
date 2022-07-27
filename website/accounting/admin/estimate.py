@@ -4,10 +4,13 @@ from django.contrib import admin
 from django.contrib.admin import register
 
 from accounting.models.estimate import Estimate, EstimateDocumentLine
-from moneybird.admin import MoneybirdResourceModelAdmin
+from moneybird.admin import (
+    MoneybirdResourceModelAdmin,
+    MoneybirdResourceModelAdminMixin,
+)
 
 
-class EstimateDocumentLineInline(admin.StackedInline):
+class EstimateDocumentLineInline(MoneybirdResourceModelAdminMixin, admin.StackedInline):
     """The admin view for DocumentLines."""
 
     model = EstimateDocumentLine
@@ -39,6 +42,7 @@ class EstimateAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
         "total_price",
         "state",
         "view_on_moneybird",
+        "_synced_with_moneybird",
     )
     list_filter = (
         "state",

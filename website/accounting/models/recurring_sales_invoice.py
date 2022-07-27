@@ -250,7 +250,8 @@ class RecurringSalesInvoiceResourceType(resources.RecurringSalesInvoiceResourceT
         if instance.workflow:
             data["workflow_id"] = MoneybirdResourceId(instance.workflow.moneybird_id)
         data["reference"] = instance.reference or ""
-        data["discount"] = instance.discount
+        if instance.discount:
+            data["discount"] = float(instance.discount)
         data["prices_are_incl_tax"] = instance.prices_are_incl_tax
         data["first_due_interval"] = instance.first_due_interval
         data["frequency_type"] = instance.frequency_type

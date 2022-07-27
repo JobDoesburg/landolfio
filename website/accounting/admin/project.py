@@ -14,6 +14,7 @@ class ProjectAdmin(MoneybirdResourceModelAdmin):
         "name",
         "active",
         "view_on_moneybird",
+        "_synced_with_moneybird",
     )
     list_filter = ("active",)
 

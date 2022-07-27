@@ -14,7 +14,8 @@ from typing import Type, Union
 from urllib.parse import urljoin
 
 import requests
-from django.conf import settings
+
+from moneybird.settings import settings
 
 
 class Administration(ABC):
@@ -91,6 +92,9 @@ class Administration(ABC):
     def _process_response(self, response: requests.Response) -> Union[dict, None]:
         logging.debug(f"Response {response.status_code}: {response.text}")
 
+        if response.next:
+            logging.debug(f"Received paginated response: {response.next}")
+
         good_codes = {200, 201, 204}
         bad_codes: dict[int, Type[Administration.Error]] = {
             400: Administration.Unauthorized,
@@ -115,26 +119,16 @@ class Administration(ABC):
             )
 
         if code in bad_codes:
-            error = bad_codes[
-                code
-            ]  # TODO if throttled, parse Retry-After, RateLimit-Limit, RateLimit-Remaining and RateLimit-Reset headers and respect them
-
+            error = bad_codes[code]
             if error == Administration.Throttled:
-                self.throttled_retry_after = response.headers.get("Retry-After")
-                self.throttled_rate_limit_limit = response.headers.get(
-                    "RateLimit-Limit"
-                )
-                self.throttled_rate_limit_remaining = response.headers.get(
-                    "RateLimit-Remaining"
-                )
-                self.throttled_rate_limit_reset = response.headers.get(
-                    "RateLimit-Reset"
-                )
-
-            try:
-                error_description = response.json()["error"]
-            except (AttributeError, TypeError, KeyError, ValueError):
-                error_description = None
+                throttled_retry_after = response.headers.get("Retry-After")
+                throttled_rate_limit_reset = response.headers.get("RateLimit-Reset")
+                error_description = f"Retry after {throttled_retry_after}, reset at {throttled_rate_limit_reset}"
+            else:
+                try:
+                    error_description = response.json()["error"]
+                except (AttributeError, TypeError, KeyError, ValueError):
+                    error_description = None
 
             logging.warning(f"API error {code}: {error_description}")
 

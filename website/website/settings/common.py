@@ -140,12 +140,12 @@ MONEYBIRD_RESOURCE_TYPES = [
     "accounting.models.product.ProductResourceType",
     "accounting.models.project.ProjectResourceType",
     "accounting.models.contact.ContactResourceType",
-    "accounting.models.purchase_document.PurchaseInvoiceDocumentResourceType",
-    "accounting.models.purchase_document.ReceiptResourceType",
-    "accounting.models.sales_invoice.SalesInvoiceResourceType",
-    "accounting.models.general_journal_document.GeneralJournalDocumentResourceType",
     "accounting.models.recurring_sales_invoice.RecurringSalesInvoiceResourceType",
     "accounting.models.estimate.EstimateResourceType",
+    "accounting.models.sales_invoice.SalesInvoiceResourceType",
+    "accounting.models.purchase_document.PurchaseInvoiceDocumentResourceType",
+    "accounting.models.purchase_document.ReceiptResourceType",
+    "accounting.models.general_journal_document.GeneralJournalDocumentResourceType",
     "accounting.models.subscription.SubscriptionResourceType",
 ]
 MONEYBIRD_WEBHOOK_SITE_DOMAIN = "http://localhost:8000"
@@ -163,3 +163,6 @@ MONEYBIRD_WEBHOOK_EVENTS = [
     WebhookEvent.PROJECT,
     WebhookEvent.DOCUMENT_STYLE,
 ]
+MONEYBIRD_AUTO_PUSH = True
+MONEYBIRD_FETCH_BEFORE_PUSH = True
+# TODO fix default values

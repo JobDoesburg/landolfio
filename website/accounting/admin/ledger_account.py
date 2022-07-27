@@ -14,6 +14,7 @@ class LedgerAccountAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
         "account_type",
         "parent",
         "view_on_moneybird",
+        "_synced_with_moneybird",
     )
     list_filter = (
         "account_type",

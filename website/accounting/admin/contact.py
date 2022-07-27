@@ -17,6 +17,7 @@ class ContactAdmin(MoneybirdResourceModelAdmin):
         "city",
         "sepa_active",
         "view_on_moneybird",
+        "_synced_with_moneybird",
     )
     list_filter = ("sepa_active",)
 

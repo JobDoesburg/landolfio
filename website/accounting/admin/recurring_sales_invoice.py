@@ -4,10 +4,15 @@ from django.contrib import admin
 from django.contrib.admin import register
 
 from accounting.models import RecurringSalesInvoice, RecurringSalesInvoiceDocumentLine
-from moneybird.admin import MoneybirdResourceModelAdmin
+from moneybird.admin import (
+    MoneybirdResourceModelAdmin,
+    MoneybirdResourceModelAdminMixin,
+)
 
 
-class RecurringSalesInvoiceDocumentLineInline(admin.StackedInline):
+class RecurringSalesInvoiceDocumentLineInline(
+    MoneybirdResourceModelAdminMixin, admin.StackedInline
+):
     """The admin view for DocumentLines."""
 
     model = RecurringSalesInvoiceDocumentLine
@@ -44,6 +49,7 @@ class RecurringSalesInvoiceAdmin(AutocompleteFilterMixin, MoneybirdResourceModel
         "workflow",
         "active",
         "view_on_moneybird",
+        "_synced_with_moneybird",
     )
     list_filter = (
         ("workflow", AutocompleteListFilter),

@@ -76,8 +76,8 @@ def link_asset_to_document_line(document_line, asset, value):
 
 
 def link_assets_to_document_line(document_line, assets):
-    total_value = document_line.total_amount
-    value = Decimal(round(document_line.total_amount / len(assets), 2))
+    total_value = Decimal(document_line.total_amount)
+    value = Decimal(round(total_value / len(assets), 2))
     # TODO override behaviour for specific asset types (cellos en stokken)
 
     for index, asset in enumerate(assets):

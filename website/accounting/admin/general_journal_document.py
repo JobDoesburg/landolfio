@@ -6,12 +6,13 @@ from django.contrib.admin import register
 from accounting.models import GeneralJournalDocument, GeneralJournalDocumentLine
 from moneybird.admin import (
     MoneybirdResourceModelAdmin,
-    MoneybirdResourceModelForm,
-    MoneybirdResourceModelFormSet,
+    MoneybirdResourceModelAdminMixin,
 )
 
 
-class GeneralJournalDocumentLineInline(admin.StackedInline):
+class GeneralJournalDocumentLineInline(
+    MoneybirdResourceModelAdminMixin, admin.StackedInline
+):
     """The admin view for DocumentLines."""
 
     model = GeneralJournalDocumentLine
@@ -28,10 +29,6 @@ class GeneralJournalDocumentLineInline(admin.StackedInline):
     extra = 0
     autocomplete_fields = ["ledger_account", "project", "asset"]
     min_num = 2
-    #
-    # form = MoneybirdResourceModelForm
-    # formset = MoneybirdResourceModelFormSet
-    # TODO fix this
 
 
 @register(GeneralJournalDocument)
@@ -41,6 +38,7 @@ class GeneralJournalDocumentAdmin(AutocompleteFilterMixin, MoneybirdResourceMode
         "__str__",
         "date",
         "view_on_moneybird",
+        "_synced_with_moneybird",
     )
     date_hierarchy = "date"
     list_filter = (("document_lines__ledger_account", AutocompleteListFilter),)

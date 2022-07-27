@@ -135,7 +135,7 @@ class Contact(SynchronizableMoneybirdResourceModel):
     )
     invoice_workflow = models.ForeignKey(
         Workflow,
-        on_delete=PROTECT,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         limit_choices_to={"active": True, "type": WorkflowTypes.INVOICE_WORKFLOW},
@@ -143,7 +143,7 @@ class Contact(SynchronizableMoneybirdResourceModel):
     )
     estimate_workflow = models.ForeignKey(
         Workflow,
-        on_delete=PROTECT,
+        on_delete=models.SET_NULL,
         null=True,
         blank=True,
         limit_choices_to={"active": True, "type": WorkflowTypes.ESTIMATE_WORKFLOW},
@@ -262,31 +262,31 @@ class ContactResourceType(resources.ContactResourceType):
     @classmethod
     def serialize_for_moneybird(cls, instance):
         data = super().serialize_for_moneybird(instance)
-        data["company_name"] = instance.company_name
-        data["firstname"] = instance.first_name
-        data["lastname"] = instance.last_name
-        data["address1"] = instance.address_1
-        data["address2"] = instance.address_2
-        data["zipcode"] = instance.zip_code
-        data["city"] = instance.city
+        data["company_name"] = instance.company_name or ""
+        data["firstname"] = instance.first_name or ""
+        data["lastname"] = instance.last_name or ""
+        data["address1"] = instance.address_1 or ""
+        data["address2"] = instance.address_2 or ""
+        data["zipcode"] = instance.zip_code or ""
+        data["city"] = instance.city or ""
         data["country"] = instance.country.code
-        data["phone"] = instance.phone
-        data["customer_id"] = instance.customer_id
-        data["tax_number"] = instance.tax_number
-        data["chamber_of_commerce"] = instance.chamber_of_commerce
-        data["bank_account"] = instance.bank_account
-        data["attention"] = instance.attention  # ???
+        data["phone"] = instance.phone or ""
+        data["customer_id"] = instance.customer_id or ""
+        data["tax_number"] = instance.tax_number or ""
+        data["chamber_of_commerce"] = instance.chamber_of_commerce or ""
+        data["bank_account"] = instance.bank_account or ""
+        data["attention"] = instance.attention or ""  # ???
 
         data["email_ubl"] = instance.email_ubl
-        data["send_invoices_to_attention"] = instance.send_invoices_to_attention
+        data["send_invoices_to_attention"] = instance.send_invoices_to_attention or ""
         data["send_invoices_to_email"] = instance.send_invoices_to_email
-        data["send_estimates_to_attention"] = instance.send_estimates_to_attention
+        data["send_estimates_to_attention"] = instance.send_estimates_to_attention or ""
         data["send_estimates_to_email"] = instance.send_estimates_to_email
         data["sepa_active"] = instance.sepa_active
-        data["sepa_iban"] = instance.sepa_iban
-        data["sepa_iban_account_name"] = instance.sepa_iban_account_name
-        data["sepa_bic"] = instance.sepa_bic
-        data["sepa_mandate_id"] = instance.sepa_mandate_id
+        data["sepa_iban"] = instance.sepa_iban or ""
+        data["sepa_iban_account_name"] = instance.sepa_iban_account_name or ""
+        data["sepa_bic"] = instance.sepa_bic or ""
+        data["sepa_mandate_id"] = instance.sepa_mandate_id or ""
         data["sepa_mandate_date"] = (
             instance.sepa_mandate_date.isoformat()
             if instance.sepa_mandate_date

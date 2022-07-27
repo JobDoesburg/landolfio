@@ -11,15 +11,11 @@ from requests.auth import AuthBase
 from django.conf import settings
 from django.utils import timezone
 
-from inventory.models import (
-    AssetLocationGroup,
-    AssetLocation,
-    AssetCategory,
-    Asset,
-    AssetSize,
-    AssetStates,
-    Collection,
-)
+from inventory.models.asset import Asset
+from inventory.models.category import AssetCategory, AssetSize
+from inventory.models.collection import Collection
+from inventory.models.location import AssetLocationGroup, AssetLocation
+from inventory.models.status import AssetStates
 
 
 class TokenAuthentication(AuthBase):

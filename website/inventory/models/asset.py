@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from django.db import models
-from django.db.models import PROTECT, Sum, Q, F, Value, When, Case, Count
+from django.db.models import PROTECT, Sum, Q, F, Value, When, Case
 from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from queryable_properties.managers import QueryablePropertiesManager
@@ -14,15 +14,17 @@ from queryable_properties.properties import (
 
 from accounting.models import (
     JournalDocumentLine,
-    Subscription,
-    RecurringSalesInvoice,
     RecurringSalesInvoiceDocumentLine,
 )
 from accounting.models.ledger_account import LedgerAccountType, LedgerAccount
 from accounting.models.estimate import (
     EstimateStateChoices,
-    Estimate,
     EstimateDocumentLine,
+)
+from inventory.models.asset_on_document_line import (
+    AssetOnJournalDocumentLine,
+    AssetOnEstimateDocumentLine,
+    AssetOnRecurringSalesInvoiceDocumentLine,
 )
 from inventory.models.category import AssetCategory, AssetSize
 from inventory.models.collection import Collection
@@ -37,82 +39,6 @@ class FilteredRelatedExistenceCheckProperty(RelatedExistenceCheckProperty):
 
     def get_queryset(self, model):
         return super().get_queryset(model).filter(self.filter)
-
-
-class AssetOnJournalDocumentLine(models.Model):
-    asset = models.ForeignKey(
-        "Asset", on_delete=models.CASCADE, related_name="journal_document_line_assets"
-    )
-    document_line = models.ForeignKey(
-        JournalDocumentLine, on_delete=models.CASCADE, related_name="assets"
-    )
-    value = models.DecimalField(max_digits=10, decimal_places=2)
-
-    class Meta:
-        unique_together = [
-            ("asset", "document_line"),
-        ]
-
-    def __str__(self):
-        return f"{self.asset} on {self.document_line} for {self.value}"
-
-
-class AssetOnEstimateDocumentLine(models.Model):
-    asset = models.ForeignKey(
-        "Asset", on_delete=models.CASCADE, related_name="estimate_document_line_assets"
-    )
-    document_line = models.ForeignKey(
-        EstimateDocumentLine, on_delete=models.CASCADE, related_name="assets"
-    )
-    value = models.DecimalField(max_digits=10, decimal_places=2)
-
-    class Meta:
-        unique_together = [
-            ("asset", "document_line"),
-        ]
-
-    def __str__(self):
-        return f"{self.asset} on {self.document_line} for {self.value}"
-
-
-class AssetOnRecurringSalesInvoiceDocumentLine(models.Model):
-    asset = models.ForeignKey(
-        "Asset",
-        on_delete=models.CASCADE,
-        related_name="recurring_sales_invoice_document_line_assets",
-    )
-    document_line = models.ForeignKey(
-        RecurringSalesInvoiceDocumentLine,
-        on_delete=models.CASCADE,
-        related_name="assets",
-    )
-    value = models.DecimalField(max_digits=10, decimal_places=2)
-
-    class Meta:
-        unique_together = [
-            ("asset", "document_line"),
-        ]
-
-    def __str__(self):
-        return f"{self.asset} on {self.document_line} for {self.value}"
-
-
-class AssetSubscription(models.Model):
-    asset = models.ForeignKey(
-        "Asset", on_delete=models.CASCADE, related_name="asset_subscriptions"
-    )
-    subscription = models.ForeignKey(
-        Subscription, on_delete=models.CASCADE, related_name="assets"
-    )
-    value = models.DecimalField(max_digits=10, decimal_places=2)
-
-    class Meta:
-        unique_together = [
-            ("asset", "subscription"),
-        ]
-
-    def __str__(self):
-        return f"{self.asset} on {self.subscription} for {self.value}"
 
 
 class Asset(models.Model):

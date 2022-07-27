@@ -25,6 +25,7 @@ class ProductAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
         "tax_rate",
         "ledger_account",
         "view_on_moneybird",
+        "_synced_with_moneybird",
     )
     list_filter = (
         ("tax_rate", AutocompleteListFilter),

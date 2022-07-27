@@ -81,9 +81,7 @@ class SalesInvoice(SynchronizableMoneybirdResourceModel):
         default=SalesInvoiceStates.DRAFT,
         verbose_name=_("state"),
     )
-    invoice_date = models.DateField(
-        null=True, blank=True, verbose_name=_("invoice date")
-    )
+    date = models.DateField(null=True, blank=True, verbose_name=_("invoice date"))
     due_date = models.DateField(null=True, blank=True, verbose_name=_("due date"))
     payment_conditions = models.TextField(
         null=True, blank=True, verbose_name=_("payment conditions")
@@ -181,7 +179,7 @@ class SalesInvoiceDocumentLine(JournalDocumentLine):
     class Meta:
         verbose_name = _("Sales invoice document line")
         verbose_name_plural = _("Sales invoice document lines")
-        ordering = ("-document__invoice_date", "row_order")
+        ordering = ("-document__date", "row_order")
 
 
 class SalesInvoiceResourceType(
@@ -217,7 +215,7 @@ class SalesInvoiceResourceType(
         kwargs["invoice_id"] = data["invoice_id"]
         kwargs["draft_id"] = data["draft_id"]
         if data["invoice_date"]:
-            kwargs["invoice_date"] = datetime.datetime.fromisoformat(
+            kwargs["date"] = datetime.datetime.fromisoformat(
                 data["invoice_date"]
             ).date()
         kwargs["due_date"] = datetime.datetime.fromisoformat(data["due_date"]).date()
@@ -278,11 +276,12 @@ class SalesInvoiceResourceType(
             )
         if instance.due_date:
             data["due_date"] = instance.due_date.isoformat()
-        if instance.invoice_date:
-            data["invoice_date"] = instance.invoice_date.isoformat()
+        if instance.date:
+            data["invoice_date"] = instance.date.isoformat()
         data["payment_conditions"] = instance.payment_conditions
         data["reference"] = instance.reference or ""
-        data["discount"] = instance.discount
+        if instance.discount:
+            data["discount"] = float(instance.discount)
         data["paused"] = instance.paused
         data["prices_are_incl_tax"] = instance.prices_are_incl_tax
         return data

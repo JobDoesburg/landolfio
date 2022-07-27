@@ -89,7 +89,6 @@ class JournalDocumentLineInline(admin.TabularInline):
         return False
 
 
-
 class ListingPriceSliderFilter(SliderNumericFilter):
     MAX_DECIMALS = 0
     STEP = 50
