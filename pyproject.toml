@@ -37,6 +37,7 @@ django-countries = "^7.3.2"
 django-localflavor = "^3.1"
 django-model-utils = "^4.2.0"
 uWSGI = {version = "^2.0.19", optional = true}
+sentry-sdk = "^1.9.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.1.0"

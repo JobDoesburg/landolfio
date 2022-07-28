@@ -77,3 +77,4 @@ services:
       - NINOX_API_TOKEN
       - NINOX_TEAM_ID
       - NINOX_DATABASE_ID
+      - SENTRY_DSN

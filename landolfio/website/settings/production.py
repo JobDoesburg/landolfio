@@ -8,6 +8,20 @@ import os
 
 from .common import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
+SENTRY_DSN = os.environ.get("SENTRY_DSN", None)
+
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        environment="production",
+        traces_sample_rate=1.0,
+        send_default_pii=True
+    )
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get("LANDOLFIO_SECRET_KEY")
 
