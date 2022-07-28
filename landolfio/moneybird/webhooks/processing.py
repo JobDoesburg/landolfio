@@ -9,6 +9,10 @@ from moneybird.webhooks.events import WebhookEvent
 
 
 def process_webhook_payload(payload: MoneybirdResource) -> None:
+    if payload["action"] == "test_webhook":
+        logging.info(f"Received test webhook from Moneybird: {payload}")
+        return
+
     if payload["webhook_id"] != settings.MONEYBIRD_WEBHOOK_ID:
         logging.warning("Received webhook with wrong id")
         raise ValueError("Received webhook with wrong id")
