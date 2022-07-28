@@ -77,7 +77,7 @@ class Contact(SynchronizableMoneybirdResourceModel):
         blank=True,
     )
     chamber_of_commerce = models.CharField(
-        max_length=8,
+        max_length=50,
         null=True,
         blank=True,
     )
