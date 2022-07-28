@@ -8,7 +8,7 @@ from accounting.models import (
     SalesInvoiceDocumentLine,
     PurchaseDocumentLine,
     GeneralJournalDocumentLine,
-    RecurringSalesInvoiceDocumentLine,
+    RecurringSalesInvoiceDocumentLine, JournalDocumentLine,
 )
 from accounting.models.estimate import EstimateDocumentLine
 from inventory.models.asset import Asset
@@ -59,8 +59,9 @@ def find_existing_asset_from_description(
 
 
 def link_asset_to_document_line(document_line, asset, value):
+    document_line = JournalDocumentLine(document_line)
     return AssetOnJournalDocumentLine.objects.update_or_create(
-        asset_id=asset.id, document_line_id=document_line.id, defaults={"value": value}
+        asset=asset, document_line=document_line, defaults={"value": value}
     )
 
 
