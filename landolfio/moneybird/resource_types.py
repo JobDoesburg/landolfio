@@ -408,7 +408,7 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
                 )
         for local_line in local_data:
             if local_line.get("id", None) is None:
-                diff.append(local_data)
+                diff.append(local_line)
             else:
                 remote_line = cls.get_line_with_id(remote_data, local_line["id"])
                 line_diff = super().get_remote_data_diff(remote_line, local_line)

@@ -45,12 +45,6 @@ class NinoxImporter:
     database_id = settings.NINOX_DATABASE_ID
 
     ninox_table_to_asset_category = {
-        "Altviolen": AssetCategory.objects.get_or_create(
-            name="Altviolen", name_singular="Altviool"
-        ),
-        "Altvioolstokken": AssetCategory.objects.get_or_create(
-            name="Altvioolstokken", name_singular="Altvioolstok"
-        ),
         "Cello's": AssetCategory.objects.get_or_create(
             name="Cello's", name_singular="Cello"
         ),
@@ -62,6 +56,12 @@ class NinoxImporter:
         ),
         "Vioolstokken": AssetCategory.objects.get_or_create(
             name="Vioolstokken", name_singular="Vioolstok"
+        ),
+        "Altviolen": AssetCategory.objects.get_or_create(
+            name="Altviolen", name_singular="Altviool"
+        ),
+        "Altvioolstokken": AssetCategory.objects.get_or_create(
+            name="Altvioolstokken", name_singular="Altvioolstok"
         ),
         "Contrabassen": AssetCategory.objects.get_or_create(
             name="Contrabassen", name_singular="Contrabas"
@@ -91,13 +91,25 @@ class NinoxImporter:
         "Nog niet geleverd": AssetStates.TO_BE_DELIVERED,
     }
 
+    ninox_collection_to_collection = {
+        "Zakelijk": Collection.objects.get_or_create(name="Zakelijk", commerce=True)[0],
+        "Prive": Collection.objects.get_or_create(name="Prive")[0],
+        "Consignatie": Collection.objects.get_or_create(name="Consignatie")[0],
+        "Zakelijk (S)": Collection.objects.get_or_create(
+            name="Zakelijk (S)", commerce=True
+        )[0],
+    }
+
     ninox_location_to_asset_location = {
+        "Boven": get_or_create_location("Opslag", "-"),
         "Boven - Keuken": get_or_create_location("Boven", "Keuken"),
         "Boven - Vleugelkamer": get_or_create_location("Boven", "Vleugelkamer"),
         "Boven - Hal": get_or_create_location("Boven", "Hal"),
+        "Boven - Hal trap": get_or_create_location("Boven", "Hal trap"),
         "Boven - Studeerkamer": get_or_create_location("Boven", "Studeerkamer"),
+        "Boven - Kleine kamer": get_or_create_location("Boven", "Kleine kamer"),
+        "Boven - Badkamer": get_or_create_location("Boven", "Badkamer"),
         "Beneden - Schouw": get_or_create_location("Beneden", "Schouw"),
-        "Beneden - Stokkentafel": get_or_create_location("Beneden", "Stokkentafel"),
         "Beneden - Muur schouw": get_or_create_location("Beneden", "Muur schouw"),
         "Beneden - Muur schouw 1": get_or_create_location("Beneden", "Muur schouw"),
         "Beneden - Muur schouw 2": get_or_create_location("Beneden", "Muur schouw"),
@@ -224,6 +236,16 @@ class NinoxImporter:
             size = None
 
         try:
+            collection = self.ninox_collection_to_collection[
+                record["fields"]["Collectie"]
+            ]
+        except KeyError:
+            self._logger.error(
+                f"Could not match collection for {asset.category} asset {asset.id}"
+            )
+            collection = self.ninox_collection_to_collection["Zakelijk"]
+
+        try:
             location, _ = self.ninox_location_to_asset_location[
                 record["fields"]["Locatie"]
             ]
@@ -250,6 +272,7 @@ class NinoxImporter:
         asset.retail_value = retail_value
         asset.location = location
         asset.local_status = status
+        asset.collection = collection
 
         try:
             remarks = record["fields"]["Notities"]

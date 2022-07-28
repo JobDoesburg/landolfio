@@ -131,7 +131,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # Moneybird resources to syncronize
-MONEYBIRD_ADMINISTRATION_ID = int(os.environ.get("MONEYBIRD_ADMINISTRATION_ID"))
+MONEYBIRD_ADMINISTRATION_ID = int(os.environ.get("MONEYBIRD_ADMINISTRATION_ID", 0))
 MONEYBIRD_API_KEY = os.environ.get("MONEYBIRD_API_KEY")
 MONEYBIRD_RESOURCE_TYPES = [
     "accounting.models.document_style.DocumentStyleResourceType",

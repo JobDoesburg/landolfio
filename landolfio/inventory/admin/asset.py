@@ -325,3 +325,9 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     )
     def is_amortized(self, obj):
         return obj.is_amortized
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly_fields = super().get_readonly_fields(request, obj)
+        if obj:
+            readonly_fields += ("id",)
+        return readonly_fields

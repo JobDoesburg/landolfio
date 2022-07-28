@@ -5,25 +5,15 @@ from django.db import models
 from django.utils.translation import gettext as _
 
 from accounting.models.contact import Contact, ContactResourceType
-from accounting.models.document_style import DocumentStyle, DocumentStyleResourceType
 from accounting.models.journal_document import (
     JournalDocumentLine,
     JournalDocumentResourceType,
 )
-from accounting.models.ledger_account import LedgerAccountType
-from accounting.models.product import Product, ProductResourceType
-from accounting.models.project import Project, ProjectResourceType
-from accounting.models.recurring_sales_invoice import (
-    RecurringSalesInvoice,
-    RecurringSalesInvoiceResourceType,
-)
-from accounting.models.tax_rate import TaxRateResourceType, TaxRate
-from accounting.models.workflow import Workflow, WorkflowResourceType, WorkflowTypes
 from moneybird import resources
 from moneybird.models import (
     SynchronizableMoneybirdResourceModel,
 )
-from moneybird.resource_types import MoneybirdResource, MoneybirdResourceId
+from moneybird.resource_types import MoneybirdResource
 
 
 class GeneralJournalDocument(SynchronizableMoneybirdResourceModel):

@@ -122,14 +122,12 @@ class MoneybirdResourceModelAdminMixin:
         return []
 
     def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
+        context = extra_context or {}
         if object_id:
             obj = self.get_object(request, object_id)
-        else:
-            obj = None
-        context = extra_context or {}
-        context["moneybird_actions"] = self.get_moneybird_actions(request, obj)
+            context["moneybird_actions"] = self.get_moneybird_actions(request, obj)
         return super().changeform_view(
-            request, object_id=None, form_url="", extra_context=context
+            request, object_id=object_id, form_url="", extra_context=context
         )
 
     def response_change(self, request, obj):
