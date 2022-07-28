@@ -78,3 +78,4 @@ services:
       - NINOX_TEAM_ID
       - NINOX_DATABASE_ID
       - SENTRY_DSN
+      - DJANGO_LOG_LEVEL

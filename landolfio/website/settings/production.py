@@ -58,3 +58,31 @@ CSRF_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = ["https://" + host for host in ALLOWED_HOSTS]
 
 MONEYBIRD_WEBHOOK_SITE_DOMAIN = "https://" + ALLOWED_HOSTS[0]
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} ({levelname}) {name}: {message}',
+            'style': '{',
+        },
+    },
+    "handlers": {
+        "console": {
+            'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO'),
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'level': os.environ.get('DJANGO_LOG_LEVEL', 'INFO'),
+            'class': 'logging.FileHandler',
+            'formatter': 'verbose',
+            'filename': '/landolfio/log/django.log',
+        },
+    },
+    "root": {
+        'handlers': ['console', 'file'],
+        'level': os.environ.get('DJANGO_LOG_LEVEL', 'ERROR'),
+    },
+}
