@@ -109,7 +109,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
         "purchase_value",
         "is_purchased_asset",
         "is_amortized",
-        "moneybird_status",
+        # "moneybird_status",
         "local_status",
         # "check_moneybird_errors",
         "total_assets_value",
