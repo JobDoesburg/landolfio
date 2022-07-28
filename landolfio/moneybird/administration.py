@@ -97,11 +97,11 @@ class Administration(ABC):
 
         good_codes = {200, 201, 204}
         bad_codes: dict[int, Type[Administration.Error]] = {
-            400: Administration.Unauthorized,
+            400: Administration.InvalidData,
             401: Administration.Unauthorized,
-            403: Administration.Throttled,
+            403: Administration.Unauthorized,
             404: Administration.NotFound,
-            406: Administration.NotFound,
+            406: Administration.InvalidData,
             422: Administration.InvalidData,
             429: Administration.Throttled,
             500: Administration.ServerError,
