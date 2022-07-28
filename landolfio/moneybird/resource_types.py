@@ -281,7 +281,12 @@ class MoneybirdResourceType:
             f"Deleting {cls.entity_type_name} {instance.moneybird_id} on Moneybird"
         )
 
-        return administration.delete(f"{cls.api_path}/{instance.moneybird_id}")
+        try:
+            administration.delete(f"{cls.api_path}/{instance.moneybird_id}")
+        except administration.NotFound:
+            logging.info(
+                f"{cls.entity_type_name} {instance.moneybird_id} not found on Moneybird, was already deleted."
+            )
 
     @classmethod
     def get_from_moneybird(cls, instance):
