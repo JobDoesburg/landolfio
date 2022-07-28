@@ -50,9 +50,6 @@ class JournalDocumentLineAdmin(
     def assets(self, obj):
         return ", ".join(obj.assets.values_list("asset", flat=True))
 
-    def has_delete_permission(self, request, obj=None):
-        return False
-
     def has_add_permission(self, request, obj=None):
         return False
 
