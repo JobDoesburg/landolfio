@@ -103,6 +103,12 @@ class MoneybirdResourceModelAdminMixin:
                     request, _("Error pushing to Moneybird: %s") % e, messages.ERROR
                 )
 
+    def delete_model(self, request, obj):
+        if settings.MONEYBIRD_AUTO_PUSH:
+            obj.delete(delete_on_moneybird=True)
+        else:
+            return super().delete_model(request, obj)
+
     def get_actions(self, request):
         actions = super().get_actions(request)
         if self.has_change_permission(request):
