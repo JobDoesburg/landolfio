@@ -191,8 +191,15 @@ class MoneybirdResourceType:
         return cls.get_queryset().filter(moneybird_id__in=ids).delete()
 
     @classmethod
-    def process_webhook_event(cls, data: MoneybirdResource, event: WebhookEvent):
-        logging.info(f"Processing {event} for {cls.entity_type_name} {data['id'] if data else ''}")
+    def process_webhook_event(
+        cls,
+        resource_id: MoneybirdResourceId,
+        data: MoneybirdResource,
+        event: WebhookEvent,
+    ):
+        logging.info(f"Processing {event} for {cls.entity_type_name} {resource_id}")
+        if not data:
+            return cls.delete_from_moneybird(resource_id)
         return cls.update_from_moneybird(data)
 
     @classmethod
