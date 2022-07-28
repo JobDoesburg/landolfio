@@ -31,10 +31,6 @@ def process_webhook_payload(payload: MoneybirdResource) -> None:
         logging.warning("Received webhook with invalid event")
         raise ValueError("Received webhook with invalid event")
 
-    if event not in settings.MONEYBIRD_WEBHOOK_EVENTS:
-        logging.warning("Received webhook with unknown event")
-        raise ValueError("Received webhook with unknown event")
-
     entity_type = payload["entity_type"]
     entity = payload["entity"]
     resource_type = get_moneybird_resource_type_for_entity(entity_type)
