@@ -8,7 +8,7 @@ from django.views.decorators.http import require_POST
 
 from moneybird.webhooks.processing import process_webhook_payload
 
-WEBHOOK_CACHE_CAPACITY = 10
+WEBHOOK_CACHE_CAPACITY = 100
 
 
 class WebhookCache:

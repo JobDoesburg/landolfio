@@ -1,9 +1,9 @@
 import logging
 
-from django.conf import settings
 from django.urls import reverse
 
 from moneybird.administration import get_moneybird_administration
+from moneybird.settings import settings
 
 
 def get_webhook_receive_endpoint():
