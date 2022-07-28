@@ -192,7 +192,7 @@ class MoneybirdResourceType:
 
     @classmethod
     def process_webhook_event(cls, data: MoneybirdResource, event: WebhookEvent):
-        logging.info(f"Processing {event} for {cls.entity_type_name} {data['id']}")
+        logging.info(f"Processing {event} for {cls.entity_type_name} {data['id'] if data else ''}")
         return cls.update_from_moneybird(data)
 
     @classmethod
