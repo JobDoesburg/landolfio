@@ -6,63 +6,69 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounting', '0008_alter_project_options_alter_taxrate_options_and_more'),
+        ("accounting", "0008_alter_project_options_alter_taxrate_options_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='contact',
-            name='attention',
+            model_name="contact",
+            name="attention",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='contact',
-            name='city',
+            model_name="contact",
+            name="city",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='contact',
-            name='company_name',
-            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='company name'),
+            model_name="contact",
+            name="company_name",
+            field=models.CharField(
+                blank=True, max_length=255, null=True, verbose_name="company name"
+            ),
         ),
         migrations.AlterField(
-            model_name='contact',
-            name='customer_id',
+            model_name="contact",
+            name="customer_id",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='contact',
-            name='first_name',
-            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='voornaam'),
+            model_name="contact",
+            name="first_name",
+            field=models.CharField(
+                blank=True, max_length=255, null=True, verbose_name="voornaam"
+            ),
         ),
         migrations.AlterField(
-            model_name='contact',
-            name='last_name',
-            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='achternaam'),
+            model_name="contact",
+            name="last_name",
+            field=models.CharField(
+                blank=True, max_length=255, null=True, verbose_name="achternaam"
+            ),
         ),
         migrations.AlterField(
-            model_name='contact',
-            name='phone',
+            model_name="contact",
+            name="phone",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='contact',
-            name='send_estimates_to_attention',
+            model_name="contact",
+            name="send_estimates_to_attention",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='contact',
-            name='send_invoices_to_attention',
+            model_name="contact",
+            name="send_invoices_to_attention",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='contact',
-            name='sepa_iban_account_name',
+            model_name="contact",
+            name="sepa_iban_account_name",
             field=models.CharField(blank=True, max_length=255, null=True),
         ),
         migrations.AlterField(
-            model_name='contact',
-            name='sepa_mandate_id',
+            model_name="contact",
+            name="sepa_mandate_id",
             field=models.CharField(blank=True, max_length=50, null=True),
         ),
     ]

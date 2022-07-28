@@ -8,11 +8,16 @@ from accounting.models import (
     SalesInvoiceDocumentLine,
     PurchaseDocumentLine,
     GeneralJournalDocumentLine,
-    RecurringSalesInvoiceDocumentLine, JournalDocumentLine,
+    RecurringSalesInvoiceDocumentLine,
+    JournalDocumentLine,
 )
 from accounting.models.estimate import EstimateDocumentLine
 from inventory.models.asset import Asset
-from inventory.models.asset_on_document_line import AssetOnJournalDocumentLine
+from inventory.models.asset_on_document_line import (
+    AssetOnJournalDocumentLine,
+    AssetOnEstimateDocumentLine,
+    AssetOnRecurringSalesInvoiceDocumentLine,
+)
 
 
 @lru_cache(maxsize=None)
@@ -59,13 +64,18 @@ def find_existing_asset_from_description(
 
 
 def link_asset_to_document_line(document_line, asset, value):
-    print(document_line)
-    print(document_line.id)
-    print(document_line.journaldocumentline)
-    print(document_line.journaldocumentline.id)
-    return AssetOnJournalDocumentLine.objects.update_or_create(
-        asset=asset, document_line=document_line, defaults={"value": value}
-    )
+    if isinstance(document_line, JournalDocumentLine):
+        AssetOnJournalDocumentLine.objects.update_or_create(
+            document_line=document_line, asset=asset, defaults={"value": value}
+        )
+    elif isinstance(document_line, EstimateDocumentLine):
+        AssetOnEstimateDocumentLine.objects.update_or_create(
+            document_line=document_line, asset=asset, defaults={"value": value}
+        )
+    elif isinstance(document_line, RecurringSalesInvoiceDocumentLine):
+        AssetOnRecurringSalesInvoiceDocumentLine.objects.update_or_create(
+            document_line=document_line, asset=asset, defaults={"value": value}
+        )
 
 
 def link_assets_to_document_line(document_line, assets):
