@@ -155,16 +155,34 @@ MONEYBIRD_WEBHOOK_EVENTS = [
     WebhookEvent.DOCUMENT,
     WebhookEvent.ESTIMATE,
     WebhookEvent.RECURRING_SALES_INVOICE,
-    WebhookEvent.SUBSCRIPTION,
-    WebhookEvent.TAX_RATE,
+    WebhookEvent.SUBSCRIPTION_CANCELLED,
+    WebhookEvent.SUBSCRIPTION_CREATED,
+    WebhookEvent.SUBSCRIPTION_UPDATED,
+    WebhookEvent.SUBSCRIPTION_EDITED,
+    WebhookEvent.SUBSCRIPTION_DESTROYED,
+    WebhookEvent.TAX_RATE_UPDATED,
+    WebhookEvent.TAX_RATE_CREATED,
+    WebhookEvent.TAX_RATE_DEACTIVATED,
+    WebhookEvent.TAX_RATE_DESTROYED,
+    WebhookEvent.TAX_RATE_ACTIVATED,
     WebhookEvent.WORKFLOW,
     WebhookEvent.LEDGER_ACCOUNT,
-    WebhookEvent.PRODUCT,
-    WebhookEvent.PROJECT,
-    WebhookEvent.DOCUMENT_STYLE,
+    WebhookEvent.PRODUCT_UPDATED,
+    WebhookEvent.PRODUCT_CREATED,
+    WebhookEvent.PRODUCT_DEACTIVATED,
+    WebhookEvent.PRODUCT_DESTROYED,
+    WebhookEvent.PRODUCT_ACTIVATED,
+    WebhookEvent.PROJECT_UPDATED,
+    WebhookEvent.PROJECT_CREATED,
+    WebhookEvent.PROJECT_ARCHIVED,
+    WebhookEvent.PROJECT_DESTROYED,
+    WebhookEvent.PROJECT_ACTIVATED,
+    WebhookEvent.DOCUMENT_STYLE_CREATED,
+    WebhookEvent.DOCUMENT_STYLE_UPDATED,
+    WebhookEvent.DOCUMENT_STYLE_DESTROYED,
 ]
 MONEYBIRD_AUTO_PUSH = True
-MONEYBIRD_FETCH_BEFORE_PUSH = True
+MONEYBIRD_FETCH_BEFORE_PUSH = False
 
 NINOX_API_TOKEN = os.environ.get("NINOX_API_TOKEN")
 NINOX_TEAM_ID = os.environ.get("NINOX_TEAM_ID")
