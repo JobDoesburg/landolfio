@@ -180,11 +180,14 @@ class MoneybirdResourceType:
     @classmethod
     def delete_from_moneybird(cls, resource_id: MoneybirdResourceId):
         logging.info(f"Deleting {cls.entity_type_name} {resource_id}")
-        return (
-            cls.get_queryset()
-            .get(moneybird_id=resource_id)
-            .delete(delete_on_moneybird=False, received_from_moneybird=True)
-        )
+        try:
+            cls.get_queryset().get(moneybird_id=resource_id).delete(
+                delete_on_moneybird=False, received_from_moneybird=True
+            )
+        except cls.model.DoesNotExist:
+            logging.info(
+                f"{cls.entity_type_name} {resource_id} does not exist, probably already deleted"
+            )
 
     @classmethod
     def queryset_delete_from_moneybird(cls, ids: list[MoneybirdResourceId]):
