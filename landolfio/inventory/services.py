@@ -63,19 +63,21 @@ def find_existing_asset_from_description(
     return assets
 
 
-def link_asset_to_document_line(document_line, asset, value):
+def get_asset_on_document_line_class(document_line):
     if isinstance(document_line, JournalDocumentLine):
-        AssetOnJournalDocumentLine.objects.update_or_create(
-            document_line=document_line, asset=asset, defaults={"value": value}
-        )
+        return AssetOnJournalDocumentLine
     elif isinstance(document_line, EstimateDocumentLine):
-        AssetOnEstimateDocumentLine.objects.update_or_create(
-            document_line=document_line, asset=asset, defaults={"value": value}
-        )
+        return AssetOnEstimateDocumentLine
     elif isinstance(document_line, RecurringSalesInvoiceDocumentLine):
-        AssetOnRecurringSalesInvoiceDocumentLine.objects.update_or_create(
-            document_line=document_line, asset=asset, defaults={"value": value}
-        )
+        return AssetOnRecurringSalesInvoiceDocumentLine
+    else:
+        raise Exception(f"Unknown document line type {document_line}")
+
+
+def link_asset_to_document_line(document_line, asset, value):
+    get_asset_on_document_line_class(document_line).objects.update_or_create(
+        document_line=document_line, asset=asset, defaults={"value": value}
+    )
 
 
 def link_assets_to_document_line(document_line, assets):
@@ -118,9 +120,9 @@ def find_assets_in_document_line(document_line):
     else:
         link_assets_to_document_line(document_line, assets)
 
-    AssetOnJournalDocumentLine.objects.filter(document_line=document_line).exclude(
-        asset__in=assets
-    ).delete()
+    get_asset_on_document_line_class(document_line).objects.filter(
+        document_line=document_line
+    ).exclude(asset__in=assets).delete()
 
 
 def _relink_document_lines_to_asset(model, asset):
