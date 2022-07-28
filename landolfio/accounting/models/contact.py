@@ -51,7 +51,7 @@ class Contact(SynchronizableMoneybirdResourceModel):
         blank=True,
     )
     zip_code = models.CharField(
-        max_length=10,
+        max_length=50,
         null=True,
         blank=True,
     )
@@ -72,7 +72,7 @@ class Contact(SynchronizableMoneybirdResourceModel):
         blank=True,
     )
     tax_number = models.CharField(
-        max_length=14,
+        max_length=50,
         null=True,
         blank=True,
     )
