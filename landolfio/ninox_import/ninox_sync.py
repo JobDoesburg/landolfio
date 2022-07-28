@@ -93,8 +93,8 @@ class NinoxImporter:
 
     ninox_collection_to_collection = {
         "Zakelijk": Collection.objects.get_or_create(name="Zakelijk", commerce=True)[0],
-        "Prive": Collection.objects.get_or_create(name="Prive")[0],
-        "Consignatie": Collection.objects.get_or_create(name="Consignatie")[0],
+        "Prive": Collection.objects.get_or_create(name="Prive", commerce=False)[0],
+        "Consignatie": Collection.objects.get_or_create(name="Consignatie", commerce=False)[0],
         "Zakelijk (S)": Collection.objects.get_or_create(
             name="Zakelijk (S)", commerce=True
         )[0],
