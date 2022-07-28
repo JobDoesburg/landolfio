@@ -60,7 +60,7 @@ def find_existing_asset_from_description(
 
 def link_asset_to_document_line(document_line, asset, value):
     return AssetOnJournalDocumentLine.objects.update_or_create(
-        asset=asset, document_line=document_line, defaults={"value": value}
+        asset_id=asset.id, document_line_id=document_line.id, defaults={"value": value}
     )
 
 
