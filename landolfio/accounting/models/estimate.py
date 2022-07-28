@@ -149,7 +149,7 @@ class EstimateDocumentLine(MoneybirdDocumentLineModel):
         verbose_name=_("Project"),
     )
     amount = models.CharField(
-        verbose_name=_("Amount"), null=True, blank=True, default="1 x", max_length=10
+        verbose_name=_("Amount"), null=True, blank=True, default="1 x", max_length=255
     )
     amount_decimal = models.DecimalField(
         null=True,
