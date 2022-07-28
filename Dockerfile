@@ -10,8 +10,6 @@ RUN curl -sSL https://install.python-poetry.org | python && \
         poetry config --no-interaction --no-ansi virtualenvs.create false && \
         poetry install --no-interaction --no-ansi --no-dev --extras "production"
 
-COPY landolfio /landolfio/src/
-
 RUN mkdir --parents /landolfio/src/
 RUN mkdir --parents /landolfio/log/
 RUN mkdir --parents /landolfio/static/
@@ -19,5 +17,7 @@ RUN mkdir --parents /landolfio/media/
 
 COPY entrypoint.sh /landolfio/entrypoint.sh
 RUN chmod +x /landolfio/entrypoint.sh
+
+COPY landolfio /landolfio/src/
 
 ENTRYPOINT ["/landolfio/entrypoint.sh"]
