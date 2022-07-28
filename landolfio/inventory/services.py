@@ -81,7 +81,7 @@ def link_asset_to_document_line(document_line, asset, value):
 
 
 def link_assets_to_document_line(document_line, assets):
-    if document_line.total_value is None:
+    if document_line.total_amount is None:
         total_value = Decimal(0)
     else:
         total_value = Decimal(document_line.total_amount)
