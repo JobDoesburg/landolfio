@@ -14,6 +14,7 @@ from typing import Type, Union
 from urllib.parse import urljoin
 
 import requests
+from django.utils import timezone
 
 from moneybird.settings import settings
 
@@ -122,8 +123,7 @@ class Administration(ABC):
             error = bad_codes[code]
             if error == Administration.Throttled:
                 throttled_retry_after = response.headers.get("Retry-After")
-                throttled_rate_limit_reset = response.headers.get("RateLimit-Reset")
-                error_description = f"Retry after {throttled_retry_after}, reset at {throttled_rate_limit_reset}"
+                error_description = f"Retry after {timezone.datetime.fromtimestamp(float(throttled_retry_after)):'%Y-%m-%d %H:%M:%S'}"
             else:
                 try:
                     error_description = response.json()["error"]
