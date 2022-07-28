@@ -126,7 +126,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
         ("size", AutocompleteListFilter),
         ("collection", AutocompleteListFilter),
         "local_status",
-        "moneybird_status",
+        # "moneybird_status",
         ("location", AutocompleteListFilter),
         ("location__location_group", AutocompleteListFilter),
         "is_margin",
@@ -152,7 +152,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
                     "location",
                     "collection",
                     "local_status",
-                    "moneybird_status",
+                    # "moneybird_status",
                     "check_moneybird_errors",
                     "listing_price",
                 ],
@@ -233,7 +233,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
         "is_purchased_amortized",
         "is_amortized",
         "is_commerce",
-        "moneybird_status",
+        # "moneybird_status",
         "check_moneybird_errors",
     )
     inlines = [AttachmentInlineAdmin, JournalDocumentLineInline]
