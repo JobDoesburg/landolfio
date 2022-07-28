@@ -19,7 +19,7 @@ if SENTRY_DSN:
         integrations=[DjangoIntegration()],
         environment="production",
         traces_sample_rate=1.0,
-        send_default_pii=True
+        send_default_pii=True,
     )
 
 # SECURITY WARNING: keep the secret key used in production secret!

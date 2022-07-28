@@ -118,8 +118,10 @@ class SalesInvoice(SynchronizableMoneybirdResourceModel):
     total_unpaid = models.DecimalField(
         max_digits=10, decimal_places=2, null=True, verbose_name=_("total unpaid")
     )
-    url = models.URLField(null=True, verbose_name=_("url"))
-    payment_url = models.URLField(null=True, verbose_name=_("payment url"))
+    url = models.URLField(null=True, max_length=2048, verbose_name=_("url"))
+    payment_url = models.URLField(
+        null=True, max_length=2048, verbose_name=_("payment url")
+    )
     prices_are_incl_tax = models.BooleanField(
         default=True, verbose_name=_("prices are incl. tax")
     )

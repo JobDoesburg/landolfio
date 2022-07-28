@@ -107,7 +107,7 @@ class Estimate(SynchronizableMoneybirdResourceModel):
     public_view_code = models.CharField(
         max_length=10, null=True, verbose_name=_("public view code")
     )
-    url = models.URLField(null=True, verbose_name=_("url"))
+    url = models.URLField(null=True, max_length=2048, verbose_name=_("url"))
     pre_text = models.TextField(null=True, blank=True, verbose_name=_("pre text"))
     post_text = models.TextField(null=True, blank=True, verbose_name=_("post text"))
     prices_are_incl_tax = models.BooleanField(

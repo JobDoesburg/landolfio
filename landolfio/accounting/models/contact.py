@@ -149,7 +149,7 @@ class Contact(SynchronizableMoneybirdResourceModel):
         limit_choices_to={"active": True, "type": WorkflowTypes.ESTIMATE_WORKFLOW},
         related_name="estimate_workflow_contacts",
     )
-    sales_invoices_url = models.URLField(blank=True, null=True)
+    sales_invoices_url = models.URLField(blank=True, max_length=2048, null=True)
 
     def clean(self):
         super().clean()

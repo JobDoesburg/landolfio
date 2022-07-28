@@ -21,7 +21,7 @@ class Subscription(MoneybirdResourceModel):
     end_date = models.DateField(null=True, verbose_name=_("end date"))
     cancelled_at = models.DateField(null=True, verbose_name=_("cancelled at"))
     reference = models.CharField(
-        verbose_name=_("Reference"), max_length=200, null=False, blank=False
+        verbose_name=_("Reference"), max_length=255, null=False, blank=False
     )
     product = models.ForeignKey(
         Product,
