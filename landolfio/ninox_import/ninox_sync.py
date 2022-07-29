@@ -195,7 +195,7 @@ class NinoxImporter:
             url = f"{url}/{filename}"
 
         if not record_id and not filename:
-            return f"{url}?perPage=500"
+            return f"{url}?perPage=2000"
 
         return url
 
