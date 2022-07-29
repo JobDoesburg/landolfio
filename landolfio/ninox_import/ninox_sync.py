@@ -300,7 +300,7 @@ class NinoxImporter:
         )
         for attachment in record_attachments:
             filename = attachment["name"]
-            if Attachment.objects.filter(asset=asset, attachment=filename):
+            if Attachment.objects.filter(asset=asset, attachment__endswith=filename):
                 self._logger.info(
                     f"File {filename} for {asset} was already saved, skipping."
                 )
