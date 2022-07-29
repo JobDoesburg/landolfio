@@ -6,23 +6,23 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounting', '0013_alter_estimatedocumentline_amount_and_more'),
+        ("accounting", "0013_alter_estimatedocumentline_amount_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='workflow',
-            name='is_direct_debit',
+            model_name="workflow",
+            name="is_direct_debit",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='workflow',
-            name='is_loan',
+            model_name="workflow",
+            name="is_loan",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='workflow',
-            name='is_rental',
+            model_name="workflow",
+            name="is_rental",
             field=models.BooleanField(default=False),
         ),
     ]

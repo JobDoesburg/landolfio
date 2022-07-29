@@ -7,17 +7,22 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('inventory', '0003_remark'),
+        ("inventory", "0003_remark"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='asset',
-            name='remarks',
+            model_name="asset",
+            name="remarks",
         ),
         migrations.AlterField(
-            model_name='remark',
-            name='asset',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='remarks', to='inventory.asset', verbose_name='Asset'),
+            model_name="remark",
+            name="asset",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="remarks",
+                to="inventory.asset",
+                verbose_name="Asset",
+            ),
         ),
     ]
