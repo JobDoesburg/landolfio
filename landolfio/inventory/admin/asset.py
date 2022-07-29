@@ -11,6 +11,7 @@ from inventory.models.asset import (
     AssetOnJournalDocumentLine,
 )
 from inventory.models.attachment import Attachment
+from inventory.models.remarks import Remark
 
 
 def is_an_image_path(path: str) -> bool:
@@ -34,6 +35,18 @@ class AttachmentInlineAdmin(admin.StackedInline):
     model = Attachment
     readonly_fields = ["show_image", "upload_date"]
     extra = 0
+
+
+class RemarkInline(admin.StackedInline):
+    """Attachment inline admin."""
+
+    model = Remark
+    fields = ["date", "remark"]
+    readonly_fields = ["date"]
+    extra = 1
+
+    def has_change_permission(self, request, obj=None):
+        return False
 
 
 class JournalDocumentLineInline(admin.TabularInline):
@@ -194,14 +207,6 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
                 "classes": ("collapse",),
             },
         ),
-        (
-            "Detail",
-            {
-                "fields": [
-                    "remarks",
-                ],
-            },
-        ),
     ]
 
     readonly_fields = (
@@ -236,7 +241,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
         # "moneybird_status",
         "check_moneybird_errors",
     )
-    inlines = [AttachmentInlineAdmin, JournalDocumentLineInline]
+    inlines = [RemarkInline, AttachmentInlineAdmin, JournalDocumentLineInline]
 
     @admin.display(
         boolean=True,

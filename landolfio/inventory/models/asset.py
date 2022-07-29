@@ -64,10 +64,6 @@ class Asset(models.Model):
         max_digits=10,
         decimal_places=2,
     )
-
-    remarks = models.TextField(
-        verbose_name=_("Remarks"), max_length=1000, null=True, blank=True
-    )
     local_status = models.CharField(
         max_length=40,
         choices=AssetStates.choices,

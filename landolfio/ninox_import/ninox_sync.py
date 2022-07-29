@@ -3,6 +3,7 @@ import logging
 import bleach
 import requests
 from django.core.exceptions import ValidationError
+from django.core.files.base import ContentFile
 from django.db import IntegrityError
 from requests import HTTPError
 from requests.auth import AuthBase
@@ -10,9 +11,11 @@ from requests.auth import AuthBase
 from django.conf import settings
 
 from inventory.models.asset import Asset
+from inventory.models.attachment import Attachment
 from inventory.models.category import AssetCategory, AssetSize
 from inventory.models.collection import Collection
 from inventory.models.location import AssetLocationGroup, AssetLocation
+from inventory.models.remarks import Remark
 from inventory.models.status import AssetStates
 
 
@@ -183,13 +186,16 @@ class NinoxImporter:
         if self.database_id:
             url = f"{url}/{self.database_id}/tables"
         if table_id:
-            url = f"{url}/{table_id}/records?perPage=500"
+            url = f"{url}/{table_id}/records"
         if record_id:
             url = f"{url}/{record_id}"
             if fetch_files or filename:
                 url = f"{url}/files"
         if filename:
             url = f"{url}/{filename}"
+
+        if not record_id and not filename:
+            return f"{url}?perPage=500"
 
         return url
 
@@ -258,9 +264,9 @@ class NinoxImporter:
             location = None
 
         try:
-            retail_value = record["fields"]["Waarde"]
+            listing_price = record["fields"]["Waarde"]
         except KeyError:
-            retail_value = None
+            listing_price = None
 
         try:
             status = self.ninox_status_to_asset_status[record["fields"]["Status"]][0]
@@ -271,7 +277,7 @@ class NinoxImporter:
             status = None
 
         asset.size = size
-        asset.retail_value = retail_value
+        asset.listing_price = listing_price
         asset.location = location
         asset.local_status = status
         asset.collection = collection
@@ -279,50 +285,51 @@ class NinoxImporter:
         try:
             remarks = record["fields"]["Notities"]
             remarks = bleach.clean(remarks, tags=[], attributes={}, strip=True)
-            asset.remarks = remarks
+            Remark.objects.get_or_create(asset=asset, remark=remarks)
         except KeyError:
             pass
 
-        # TODO collectie
         # TODO detail velden
         asset.save()
 
-    # def update_asset_media(self, asset, record, table_id):
-    #     record_attachments = self.get(
-    #         self.get_ninox_endpoint_url(table_id=table_id, record_id=record["id"], fetch_files=True)
-    #     )
-    #     initial_media_set = None
-    #     for attachment in record_attachments:
-    #         filename = attachment["name"]
-    #         if MediaItem.objects.filter(set__asset=asset, media__endswith=filename):  # TODO better match
-    #             self._logger.info(f"File {filename} for {asset} was already saved, skipping.")
-    #             return
-    #
-    #         if not initial_media_set:
-    #             initial_media_set = MediaSet.objects.filter(asset=asset).first()
-    #             if not initial_media_set:
-    #                 initial_media_set = MediaSet(asset=asset, date=timezone.now())
-    #                 initial_media_set.save()
-    #         try:
-    #             file = self.get(
-    #                 self.get_ninox_endpoint_url(table_id=table_id, record_id=record["id"], filename=filename),
-    #                 stream=True,
-    #             )
-    #             self._logger.info(f"Saving file {filename} for {asset}.")
-    #
-    #             if file:
-    #                 media = MediaItem(set_id=initial_media_set.id)
-    #                 media.media.save(filename, ContentFile(file.content), save=True)
-    #         except Exception as err:
-    #             self._logger.error(f"Some error occured: {err}")
+    def update_asset_media(self, asset, record, table_id):
+        record_attachments = self.get(
+            self.get_ninox_endpoint_url(
+                table_id=table_id, record_id=record["id"], fetch_files=True
+            )
+        )
+        for attachment in record_attachments:
+            filename = attachment["name"]
+            if Attachment.objects.filter(asset=asset, attachment=filename):
+                self._logger.info(
+                    f"File {filename} for {asset} was already saved, skipping."
+                )
+                return
+
+            try:
+                file = self.get(
+                    self.get_ninox_endpoint_url(
+                        table_id=table_id, record_id=record["id"], filename=filename
+                    ),
+                    stream=True,
+                )
+                self._logger.info(f"Saving file {filename} for {asset}.")
+
+                if file:
+                    attachment = Attachment(asset=asset)
+                    attachment.attachment.save(
+                        filename, ContentFile(file.content), save=True
+                    )
+            except Exception as err:
+                self._logger.error(f"Some error occured: {err}")
 
     def sync_ninox_record(self, record, category, table_id, with_media=True):
         asset, created, status = self.create_asset(record, category)
 
         if asset:
             self.update_asset_details(asset, record)
-            # if with_media:
-            #     self.update_asset_media(asset, record, table_id)
+            if with_media:
+                self.update_asset_media(asset, record, table_id)
 
     def full_sync(self, with_media=True):
         tables = self.get(self.get_ninox_endpoint_url())
