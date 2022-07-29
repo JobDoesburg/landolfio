@@ -2,7 +2,9 @@ import datetime
 from decimal import Decimal
 
 from django.db import models
+from django.db.models import F
 from django.utils.translation import gettext as _
+from queryable_properties.properties import AnnotationProperty
 
 from accounting.models import (
     DocumentStyle,
@@ -185,6 +187,8 @@ class EstimateDocumentLine(MoneybirdDocumentLineModel):
     row_order = models.PositiveSmallIntegerField(
         null=True, blank=True, verbose_name=_("row order")
     )
+
+    date = AnnotationProperty(F("document__estimate_date"))
 
     def __str__(self):
         return f"{self.amount} {self.description} in {self.document}"

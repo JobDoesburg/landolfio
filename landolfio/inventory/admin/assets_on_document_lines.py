@@ -54,65 +54,75 @@ class JournalDocumentLineAdmin(
         return False
 
 
-# class AssetOnEstimateDocumentLineInline(admin.TabularInline):
-#     model = AssetOnEstimateDocumentLine
-#     extra = 0
-#     autocomplete_fields = ["asset"]
-#
-#
-# @admin.register(EstimateDocumentLine)
-# class EstimateDocumentLineAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
-#     list_display = (
-#         "description",
-#         "total_amount",
-#         "assets",
-#     )
-#     readonly_fields = ["assets"]
-#     inlines = [AssetOnEstimateDocumentLineInline]
-#     list_filter = [
-#         ("ledger_account", AutocompleteListFilter),
-#         ("asset__category", AutocompleteListFilter),
-#     ]
-#
-#     @admin.display
-#     def assets(self, obj):
-#         return ", ".join(obj.assets.values_list("asset", flat=True))
-#
-#     def has_delete_permission(self, request, obj=None):
-#         return False
-#
-#     def has_add_permission(self, request, obj=None):
-#         return False
-#
-#
-# class AssetOnRecurringSalesInvoiceDocumentLineInline(admin.TabularInline):
-#     model = AssetOnRecurringSalesInvoiceDocumentLine
-#     extra = 0
-#     autocomplete_fields = ["asset"]
-#
-#
-# @admin.register(RecurringSalesInvoiceDocumentLine)
-# class RecurringSalesInvoiceDocumentLineAdmin(
-#     AutocompleteFilterMixin, MoneybirdResourceModelAdmin
-# ):
-#     list_display = (
-#         "description",
-#         "total_amount",
-#         "assets",
-#     )
-#     readonly_fields = ["assets"]
-#     inlines = [AssetOnRecurringSalesInvoiceDocumentLineInline]
-#     list_filter = [
-#         ("ledger_account", AutocompleteListFilter),
-#         ("asset__category", AutocompleteListFilter),
-#     ]
-#
-#     @admin.display
-#     def assets(self, obj):
-#         return ", ".join(obj.assets.values_list("asset", flat=True))
-#
-#     def has_delete_permission(self, request, obj=None):
-#         return False
-#
-#     def has_add_permission(self, request, obj=None):
-#         return False
+class AssetOnEstimateDocumentLineInline(admin.TabularInline):
+    model = AssetOnEstimateDocumentLine
+    extra = 0
+    autocomplete_fields = ["asset"]
+
+
+@admin.register(EstimateDocumentLine)
+class EstimateDocumentLineAdmin(
+    AutocompleteFilterMixin, QueryablePropertiesAdmin, MoneybirdResourceModelAdmin
+):
+    list_display = (
+        "description",
+        "document",
+        "date",
+        "assets",
+        "total_amount",
+        "ledger_account",
+    )
+    list_display_links = ["description", "document", "date"]
+    search_fields = ["description", "assets__id"]
+    readonly_fields = ["assets"]
+    inlines = [AssetOnEstimateDocumentLineInline]
+    list_filter = [
+        ("assets__asset", AutocompleteListFilter),
+        ("assets__asset__category", AutocompleteListFilter),
+        ("document__workflow", AutocompleteListFilter),
+    ]
+
+    @admin.display
+    def assets(self, obj):
+        return ", ".join(obj.assets.values_list("asset", flat=True))
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+class AssetOnRecurringSalesInvoiceDocumentLineInline(admin.TabularInline):
+    model = AssetOnRecurringSalesInvoiceDocumentLine
+    extra = 0
+    autocomplete_fields = ["asset"]
+
+
+@admin.register(RecurringSalesInvoiceDocumentLine)
+class RecurringSalesInvoiceDocumentLineAdmin(
+    AutocompleteFilterMixin, QueryablePropertiesAdmin, MoneybirdResourceModelAdmin
+):
+    list_display = (
+        "description",
+        "document",
+        "date",
+        "assets",
+        "total_amount",
+        "ledger_account",
+    )
+    list_display_links = ["description", "document", "date"]
+    search_fields = ["description", "assets__id"]
+    readonly_fields = ["assets"]
+    inlines = [AssetOnRecurringSalesInvoiceDocumentLineInline]
+    list_filter = [
+        ("assets__asset", AutocompleteListFilter),
+        ("assets__asset__category", AutocompleteListFilter),
+        ("document__workflow", AutocompleteListFilter),
+        ("ledger_account", AutocompleteListFilter),
+        "ledger_account__account_type",
+    ]
+
+    @admin.display
+    def assets(self, obj):
+        return ", ".join(obj.assets.values_list("asset", flat=True))
+
+    def has_add_permission(self, request, obj=None):
+        return False

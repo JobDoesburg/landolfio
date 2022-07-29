@@ -194,6 +194,10 @@ class MoneybirdResourceType:
         return cls.get_queryset().filter(moneybird_id__in=ids).delete()
 
     @classmethod
+    def queryset_delete(cls, queryset):
+        return queryset.update({"_delete_from_moneybird": True})
+
+    @classmethod
     def process_webhook_event(
         cls,
         resource_id: MoneybirdResourceId,

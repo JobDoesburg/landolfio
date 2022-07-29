@@ -203,7 +203,7 @@ class NinoxImporter:
         try:
             asset_number = record["fields"]["Nummer"]
         except KeyError:
-            self._logger.error(
+            self._logger.warning(
                 f"Found a {category} asset without number, skipping: {record}"
             )
             return None, None, None
@@ -211,7 +211,7 @@ class NinoxImporter:
         try:
             status = self.ninox_status_to_asset_status[record["fields"]["Status"]]
         except KeyError:
-            self._logger.error(
+            self._logger.warning(
                 f"Could not match status for {category} asset {asset_number}, skipping: {record}"
             )
             return None, None, None
@@ -223,7 +223,7 @@ class NinoxImporter:
                 collection=Collection.objects.filter(commerce=True).first(),
             )
         except (IntegrityError, ValidationError):
-            self._logger.error(
+            self._logger.warning(
                 f"Could not synchronize {category} {asset_number}, does it have a valid (globally unique and a Unicode-slug) asset number?"
             )
             return None, None, None
@@ -248,7 +248,7 @@ class NinoxImporter:
                 record["fields"]["Collectie"]
             ]
         except KeyError:
-            self._logger.error(
+            self._logger.warning(
                 f"Could not match collection for {asset.category} asset {asset.id}"
             )
             collection = self.ninox_collection_to_collection["Zakelijk"]
@@ -258,7 +258,7 @@ class NinoxImporter:
                 record["fields"]["Locatie"]
             ]
         except KeyError:
-            self._logger.error(
+            self._logger.warning(
                 f"Could not match location for {asset.category} asset {asset.id}"
             )
             location = None
@@ -271,7 +271,7 @@ class NinoxImporter:
         try:
             status = self.ninox_status_to_asset_status[record["fields"]["Status"]][0]
         except KeyError:
-            self._logger.error(
+            self._logger.warning(
                 f"Could not match status for {asset.category} asset {asset.id}"
             )
             status = None
@@ -321,7 +321,7 @@ class NinoxImporter:
                         filename, ContentFile(file.content), save=True
                     )
             except Exception as err:
-                self._logger.error(f"Some error occured: {err}")
+                self._logger.warning(f"Some error occured: {err}")
 
     def sync_ninox_record(self, record, category, table_id, with_media=True):
         asset, created, status = self.create_asset(record, category)

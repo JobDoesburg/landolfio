@@ -8,6 +8,7 @@ from moneybird.admin import (
     MoneybirdResourceModelAdmin,
     MoneybirdResourceModelAdminMixin,
 )
+from website.multi_select_filter import MultiSelectFieldListFilter
 
 
 class EstimateDocumentLineInline(MoneybirdResourceModelAdminMixin, admin.StackedInline):
@@ -45,7 +46,7 @@ class EstimateAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
         "_synced_with_moneybird",
     )
     list_filter = (
-        "state",
+        ("state", MultiSelectFieldListFilter),
         ("workflow", AutocompleteListFilter),
         ("contact", AutocompleteListFilter),
     )

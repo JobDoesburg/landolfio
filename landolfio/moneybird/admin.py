@@ -109,6 +109,14 @@ class MoneybirdResourceModelAdminMixin:
         else:
             return super().delete_model(request, obj)
 
+    def delete_queryset(self, request, queryset):
+        """Given a queryset, delete it from the database."""
+        if settings.MONEYBIRD_AUTO_PUSH:
+            for obj in queryset:
+                obj.delete(delete_on_moneybird=True)
+        else:
+            self.moneybird_resource_type.queryset_delete(queryset)
+
     def get_actions(self, request):
         actions = super().get_actions(request)
         if self.has_change_permission(request):

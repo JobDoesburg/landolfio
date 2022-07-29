@@ -333,7 +333,6 @@ class Asset(models.Model):
         "recurring_sales_invoice_document_lines",
         filter=Q(
             recurring_sales_invoice_document_lines__document__active=True,
-            # recurring_sales_invoice_document_lines__document__workflow=False, # TODO filter by workflow for rent or loan
         ),
     )
 
@@ -345,7 +344,19 @@ class Asset(models.Model):
                 EstimateStateChoices.LATE,
                 EstimateStateChoices.ACCEPTED,
             ],
-            # recurring_sales_invoice_document_lines__document__workflow=False, # TODO filter by workflow for rent or loan
+            estimate_document_lines__document__workflow__is_rental=True,
+        ),
+    )
+
+    has_loan_agreement = FilteredRelatedExistenceCheckProperty(
+        "estimate_document_lines",
+        filter=Q(
+            estimate_document_lines__document__state__in=[
+                EstimateStateChoices.OPEN,
+                EstimateStateChoices.LATE,
+                EstimateStateChoices.ACCEPTED,
+            ],
+            estimate_document_lines__document__workflow__is_loan=True,
         ),
     )
 

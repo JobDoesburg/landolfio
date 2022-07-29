@@ -9,9 +9,12 @@ from queryable_properties.admin import QueryablePropertiesAdmin
 from inventory.models.asset import (
     Asset,
     AssetOnJournalDocumentLine,
+    AssetOnEstimateDocumentLine,
+    AssetOnRecurringSalesInvoiceDocumentLine,
 )
 from inventory.models.attachment import Attachment
 from inventory.models.remarks import Remark
+from website.multi_select_filter import MultiSelectFieldListFilter
 
 
 def is_an_image_path(path: str) -> bool:
@@ -102,6 +105,14 @@ class JournalDocumentLineInline(admin.TabularInline):
         return False
 
 
+class EstimateDocumentLineInline(JournalDocumentLineInline):
+    model = AssetOnEstimateDocumentLine
+
+
+class RecurringSalesDocumentLineInline(JournalDocumentLineInline):
+    model = AssetOnRecurringSalesInvoiceDocumentLine
+
+
 # class ListingPriceSliderFilter(SliderNumericFilter):
 #     MAX_DECIMALS = 0
 #     STEP = 50
@@ -138,7 +149,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
         ("category", AutocompleteListFilter),
         ("size", AutocompleteListFilter),
         ("collection", AutocompleteListFilter),
-        "local_status",
+        ("local_status", MultiSelectFieldListFilter),
         # "moneybird_status",
         ("location", AutocompleteListFilter),
         ("location__location_group", AutocompleteListFilter),
@@ -146,12 +157,15 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
         "is_purchased_asset",
         "is_purchased_amortized",
         "is_amortized",
+        "has_rental_agreement",
+        "has_loan_agreement",
+        "is_rented",
         # ("listing_price", ListingPriceSliderFilter),
     )
 
     search_fields = [
         "id",
-        "remarks",
+        "remarks__remark",
     ]
 
     fieldsets = [
@@ -203,6 +217,9 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
                     "is_purchased_amortized",
                     "is_amortized",
                     "is_commerce",
+                    "has_rental_agreement",
+                    "has_loan_agreement",
+                    "is_rented",
                 ],
                 "classes": ("collapse",),
             },
@@ -238,10 +255,19 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
         "is_purchased_amortized",
         "is_amortized",
         "is_commerce",
+        "has_rental_agreement",
+        "has_loan_agreement",
+        "is_rented",
         # "moneybird_status",
         "check_moneybird_errors",
     )
-    inlines = [RemarkInline, AttachmentInlineAdmin, JournalDocumentLineInline]
+    inlines = [
+        RemarkInline,
+        AttachmentInlineAdmin,
+        JournalDocumentLineInline,
+        EstimateDocumentLineInline,
+        RecurringSalesDocumentLineInline,
+    ]
 
     @admin.display(
         boolean=True,
@@ -330,6 +356,30 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     )
     def is_amortized(self, obj):
         return obj.is_amortized
+
+    @admin.display(
+        boolean=True,
+        ordering="is_rented",
+        description="rented",
+    )
+    def is_rented(self, obj):
+        return obj.is_rented
+
+    @admin.display(
+        boolean=True,
+        ordering="has_rental_agreement",
+        description="has rental agreement",
+    )
+    def has_rental_agreement(self, obj):
+        return obj.has_rental_agreement
+
+    @admin.display(
+        boolean=True,
+        ordering="has_loan_agreement",
+        description="has loan agreement",
+    )
+    def has_loan_agreement(self, obj):
+        return obj.has_loan_agreement
 
     def get_readonly_fields(self, request, obj=None):
         readonly_fields = super().get_readonly_fields(request, obj)

@@ -7,7 +7,9 @@ from django.utils.translation import gettext_lazy as _
 class Remark(models.Model):
     """Class model for Attachments."""
 
-    asset = models.ForeignKey(Asset, on_delete=models.CASCADE, verbose_name=_("Asset"))
+    asset = models.ForeignKey(
+        Asset, on_delete=models.CASCADE, related_name="remarks", verbose_name=_("Asset")
+    )
     remark = models.TextField(verbose_name=_("Remark"))
     date = models.DateField(auto_now_add=True, verbose_name=_("date"))
 

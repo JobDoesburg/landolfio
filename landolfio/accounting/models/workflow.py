@@ -26,6 +26,10 @@ class Workflow(MoneybirdResourceModel):
 
     active = models.BooleanField(default=True)
 
+    is_rental = models.BooleanField(default=False)
+    is_loan = models.BooleanField(default=False)
+    is_direct_debit = models.BooleanField(default=False)
+
     class Meta:
         verbose_name = _("Workflow")
         verbose_name_plural = _("Workflows")
