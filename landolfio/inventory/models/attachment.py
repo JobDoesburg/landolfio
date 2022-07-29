@@ -17,7 +17,6 @@ class Attachment(models.Model):
         upload_to=attachments_directory_path, verbose_name=_("Attachment")
     )
     upload_date = models.DateField(auto_now_add=True, verbose_name=_("Upload date"))
-    remarks = models.TextField(verbose_name=_("Remarks"), max_length=1000, blank=True)
 
     def __str__(self):
         """Return Attachment string."""

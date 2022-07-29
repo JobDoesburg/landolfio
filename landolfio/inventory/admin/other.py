@@ -20,7 +20,12 @@ class AttachmentAdmin(admin.ModelAdmin):
     """Attachments admin."""
 
     model = Attachment
-    list_display = ("asset", "attachment", "upload_date", "remarks")
+    list_display = (
+        "asset",
+        "attachment",
+        "upload_date",
+    )
+    date_hierarchy = "upload_date"
     readonly_fields = ["upload_date"]
 
 
