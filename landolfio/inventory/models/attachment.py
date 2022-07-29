@@ -26,3 +26,23 @@ class Attachment(models.Model):
         """Meta Class to define verbose_name."""
 
         verbose_name = "Bijlage"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.attachment:
+            self._orig_image = self.attachment.name
+        else:
+            self._orig_image = None
+
+    def delete(self, using=None, keep_parents=False):
+        if self.attachment.name:
+            self.attachment.delete()
+        return super().delete(using, keep_parents)
+
+    def save(self, **kwargs):
+        super().save(**kwargs)
+        storage = self.attachment.storage
+
+        if self._orig_image and self._orig_image != self.attachment.name:
+            storage.delete(self._orig_image)
+            self._orig_image = None
