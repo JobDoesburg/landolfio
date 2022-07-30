@@ -38,6 +38,7 @@ class EstimateStates(models.TextChoices):
     REJECTED = "rejected", _("rejected")
     BILLED = "billed", _("billed")
     ARCHIVED = "archived", _("archived")
+    SCHEDULED = "scheduled", _("scheduled")
 
 
 class Estimate(SynchronizableMoneybirdResourceModel):
@@ -213,7 +214,7 @@ class EstimateResourceType(resources.EstimateResourceType):
         )
         if data["draft_id"]:
             kwargs["draft_id"] = data["draft_id"]
-        if data["estimate_id"]:
+        if data.get("estimate_id"):
             kwargs["estimate_id"] = data["estimate_id"]
         kwargs["workflow"] = WorkflowResourceType.get_or_create_from_moneybird_data(
             data["workflow_id"]
@@ -223,41 +224,44 @@ class EstimateResourceType(resources.EstimateResourceType):
         ] = DocumentStyleResourceType.get_or_create_from_moneybird_data(
             data["document_style_id"]
         )
-        kwargs[
-            "original_estimate"
-        ] = EstimateResourceType.get_or_create_from_moneybird_data(
-            data["original_estimate_id"]
-        )
+        if data.get("original_estimate_id"):
+            kwargs[
+                "original_estimate"
+            ] = EstimateResourceType.get_or_create_from_moneybird_data(
+                data["original_estimate_id"]
+            )
         kwargs["state"] = EstimateStates(data["state"])
         kwargs["total_price"] = data["total_price_incl_tax_base"]
-        if data["estimate_date"]:
+        if data.get("estimate_date"):
             kwargs["estimate_date"] = datetime.datetime.fromisoformat(
                 data["estimate_date"]
             ).date()
-        if data["due_date"]:
+        if data.get("due_date"):
             kwargs["due_date"] = datetime.datetime.fromisoformat(
                 data["due_date"]
             ).date()
         kwargs["reference"] = data["reference"]
         kwargs["discount"] = data["discount"]
-        if data["sent_at"]:
+        if data.get("sent_at"):
             kwargs["sent_at"] = datetime.datetime.fromisoformat(data["sent_at"]).date()
-        if data["accepted_at"]:
+        if data.get("accepted_at"):
             kwargs["accepted_at"] = datetime.datetime.fromisoformat(
                 data["accepted_at"]
             ).date()
-        if data["rejected_at"]:
+        if data.get("rejected_at"):
             kwargs["rejected_at"] = datetime.datetime.fromisoformat(
                 data["rejected_at"]
             ).date()
-        if data["archived_at"]:
+        if data.get("archived_at"):
             kwargs["archived_at"] = datetime.datetime.fromisoformat(
                 data["archived_at"]
             ).date()
         kwargs["public_view_code"] = data["public_view_code"]
         kwargs["url"] = data["url"]
-        kwargs["pre_text"] = data["pre_text"]
-        kwargs["post_text"] = data["post_text"]
+        if data.get("pre_text"):
+            kwargs["pre_text"] = data["pre_text"]
+        if data.get("post_text"):
+            kwargs["post_text"] = data["post_text"]
         kwargs["prices_are_incl_tax"] = data["prices_are_incl_tax"]
         return kwargs
 

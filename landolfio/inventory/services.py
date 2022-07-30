@@ -85,12 +85,16 @@ def link_assets_to_document_line(document_line, assets):
         total_value = Decimal(0)
     else:
         total_value = Decimal(document_line.total_amount)
-    value = Decimal(round(total_value / len(assets), 2)) # TODO this should be math.ceil
+    value = Decimal(
+        round(total_value / len(assets), 2)
+    )  # TODO this should be math.ceil
     # TODO override behaviour for specific asset types (cellos en stokken)
 
     for index, asset in enumerate(assets):
         if index == len(assets) - 1:
-            asset_value = total_value - value * (len(assets) - 1) # TODO this may not be negative
+            asset_value = total_value - value * (
+                len(assets) - 1
+            )  # TODO this may not be negative
         else:
             asset_value = value
         link_asset_to_document_line(document_line, asset, asset_value)

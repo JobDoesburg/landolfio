@@ -40,6 +40,8 @@ def process_webhook_payload(payload: MoneybirdResource) -> None:
         logging.warning("Received webhook with unregistered entity type")
         raise ValueError("Received webhook with unregistered entity type")
 
-    logging.info(f"Received webhook {event} for {entity_type} {entity_id}: {entity_data}")
+    logging.info(
+        f"Received webhook {event} for {entity_type} {entity_id}: {entity_data}"
+    )
 
     return resource_type.process_webhook_event(entity_id, entity_data, event)
