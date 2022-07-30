@@ -18,7 +18,7 @@ from accounting.models import (
 )
 from accounting.models.ledger_account import LedgerAccountType, LedgerAccount
 from accounting.models.estimate import (
-    EstimateStateChoices,
+    EstimateStates,
     EstimateDocumentLine,
 )
 from inventory.models.asset_on_document_line import (
@@ -340,9 +340,9 @@ class Asset(models.Model):
         "estimate_document_lines",
         filter=Q(
             estimate_document_lines__document__state__in=[
-                EstimateStateChoices.OPEN,
-                EstimateStateChoices.LATE,
-                EstimateStateChoices.ACCEPTED,
+                EstimateStates.OPEN,
+                EstimateStates.LATE,
+                EstimateStates.ACCEPTED,
             ],
             estimate_document_lines__document__workflow__is_rental=True,
         ),
@@ -352,9 +352,9 @@ class Asset(models.Model):
         "estimate_document_lines",
         filter=Q(
             estimate_document_lines__document__state__in=[
-                EstimateStateChoices.OPEN,
-                EstimateStateChoices.LATE,
-                EstimateStateChoices.ACCEPTED,
+                EstimateStates.OPEN,
+                EstimateStates.LATE,
+                EstimateStates.ACCEPTED,
             ],
             estimate_document_lines__document__workflow__is_loan=True,
         ),

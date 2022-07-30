@@ -230,7 +230,7 @@ class SalesInvoiceResourceType(
         if data["paid_at"]:
             kwargs["paid_at"] = datetime.datetime.fromisoformat(data["paid_at"]).date()
         kwargs["sent_at"] = data["sent_at"]
-        kwargs["state"] = data["state"]
+        kwargs["state"] = SalesInvoiceStates(data["state"])
         kwargs["public_view_code"] = data["public_view_code"]
         kwargs["total_paid"] = data["total_paid"]
         kwargs["total_unpaid"] = data["total_unpaid"]

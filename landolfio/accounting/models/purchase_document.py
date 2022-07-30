@@ -153,7 +153,7 @@ class PurchaseInvoiceDocumentResourceType(
         kwargs["reference"] = data["reference"]
         if data["paid_at"]:
             kwargs["paid_at"] = datetime.datetime.fromisoformat(data["paid_at"]).date()
-        kwargs["state"] = data["state"]
+        kwargs["state"] = PurchaseDocumentStates(data["state"])
         kwargs["prices_are_incl_tax"] = data["prices_are_incl_tax"]
         return kwargs
 

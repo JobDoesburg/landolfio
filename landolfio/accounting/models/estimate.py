@@ -30,7 +30,7 @@ from moneybird.models import (
 from moneybird.resource_types import MoneybirdResourceId, MoneybirdResource
 
 
-class EstimateStateChoices(models.TextChoices):
+class EstimateStates(models.TextChoices):
     DRAFT = "draft", _("draft")
     OPEN = "open", _("open")
     LATE = "late", _("late")
@@ -72,9 +72,9 @@ class Estimate(SynchronizableMoneybirdResourceModel):
     )
     state = models.CharField(
         max_length=10,
-        choices=EstimateStateChoices.choices,
+        choices=EstimateStates.choices,
         verbose_name=_("State"),
-        default=EstimateStateChoices.DRAFT,
+        default=EstimateStates.DRAFT,
     )
 
     total_price = models.DecimalField(
@@ -211,8 +211,8 @@ class EstimateResourceType(resources.EstimateResourceType):
         kwargs["contact"] = ContactResourceType.get_or_create_from_moneybird_data(
             data["contact_id"]
         )
-        kwargs["estimate_id"] = data["estimate_id"]
-        kwargs["draft_id"] = data["draft_id"]
+        kwargs["estimate_id"] = data["estimate_id"] or ""
+        kwargs["draft_id"] = data["draft_id"] or ""
         kwargs["workflow"] = WorkflowResourceType.get_or_create_from_moneybird_data(
             data["workflow_id"]
         )
@@ -226,7 +226,7 @@ class EstimateResourceType(resources.EstimateResourceType):
         ] = EstimateResourceType.get_or_create_from_moneybird_data(
             data["original_estimate_id"]
         )
-        kwargs["state"] = data["state"]
+        kwargs["state"] = EstimateStates(data["state"])
         kwargs["total_price"] = data["total_price_incl_tax_base"]
         if data["estimate_date"]:
             kwargs["estimate_date"] = datetime.datetime.fromisoformat(
