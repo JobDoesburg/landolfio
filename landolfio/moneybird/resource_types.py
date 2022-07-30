@@ -502,6 +502,7 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
         document_lines = cls.get_document_line_resource_data(resource_data)
         for line_data in document_lines:
             cls.create_document_line_from_moneybird(document, line_data)
+        return document
 
     @classmethod
     def update_from_moneybird(cls, resource_data: MoneybirdResource, obj=None):

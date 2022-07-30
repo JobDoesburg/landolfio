@@ -211,8 +211,10 @@ class EstimateResourceType(resources.EstimateResourceType):
         kwargs["contact"] = ContactResourceType.get_or_create_from_moneybird_data(
             data["contact_id"]
         )
-        kwargs["estimate_id"] = data["estimate_id"] or ""
-        kwargs["draft_id"] = data["draft_id"] or ""
+        if data["draft_id"]:
+            kwargs["draft_id"] = data["draft_id"]
+        if data["estimate_id"]:
+            kwargs["estimate_id"] = data["estimate_id"]
         kwargs["workflow"] = WorkflowResourceType.get_or_create_from_moneybird_data(
             data["workflow_id"]
         )
