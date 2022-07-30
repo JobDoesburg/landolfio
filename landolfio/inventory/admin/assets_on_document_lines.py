@@ -37,6 +37,7 @@ class JournalDocumentLineAdmin(
     readonly_fields = ["assets"]
     inlines = [AssetOnJournalDocumentLineInline]
     list_filter = [
+        ("assets", admin.EmptyFieldListFilter),
         ("assets__asset", AutocompleteListFilter),
         ("assets__asset__category", AutocompleteListFilter),
         ("ledger_account", AutocompleteListFilter),
@@ -77,6 +78,7 @@ class EstimateDocumentLineAdmin(
     readonly_fields = ["assets"]
     inlines = [AssetOnEstimateDocumentLineInline]
     list_filter = [
+        ("assets", admin.EmptyFieldListFilter),
         ("assets__asset", AutocompleteListFilter),
         ("assets__asset__category", AutocompleteListFilter),
         ("document__workflow", AutocompleteListFilter),
@@ -113,6 +115,7 @@ class RecurringSalesInvoiceDocumentLineAdmin(
     readonly_fields = ["assets"]
     inlines = [AssetOnRecurringSalesInvoiceDocumentLineInline]
     list_filter = [
+        ("assets", admin.EmptyFieldListFilter),
         ("assets__asset", AutocompleteListFilter),
         ("assets__asset__category", AutocompleteListFilter),
         ("document__workflow", AutocompleteListFilter),
