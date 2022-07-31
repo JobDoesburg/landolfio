@@ -1,4 +1,10 @@
 # from admin_numeric_filter.admin import SliderNumericFilter, NumericFilterModelAdmin
+from django.contrib.admin.views.decorators import staff_member_required
+from django.utils.decorators import method_decorator
+from django.views.generic import DetailView
+from django.urls import path, reverse
+from django.utils.html import format_html
+
 from autocompletefilter.admin import AutocompleteFilterMixin
 from autocompletefilter.filters import AutocompleteListFilter
 from django.contrib import admin
@@ -17,6 +23,7 @@ from inventory.models.asset import (
     AssetOnEstimateDocumentLine,
     AssetOnRecurringSalesInvoiceDocumentLine,
 )
+from inventory.models.category import AssetCategory
 from inventory.models.attachment import Attachment
 from inventory.models.remarks import Remark
 from website.multi_select_filter import MultiSelectFieldListFilter
@@ -219,7 +226,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     """Asset admin."""
 
     list_display = (
-        "id",
+        "asset_view_link",
         "category",
         "size",
         "location",
@@ -485,3 +492,96 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
         if obj:
             readonly_fields += ("id",)
         return readonly_fields
+
+    @admin.display(
+        ordering="pk",
+        description="Asset",
+    )
+    def asset_view_link(self, obj):
+        return format_html(
+            '<a href="{link}">{title}</a>',
+            link=reverse("admin:view_asset", kwargs={"id": obj.id}),
+            title=obj.id,
+        )
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                "view/<path:id>/",
+                self.admin_site.admin_view(
+                    ViewAssetView.as_view(
+                        extra_context={
+                            "site_title": self.admin_site.site_title,
+                            "site_header": self.admin_site.site_header,
+                            "site_url": self.admin_site.site_url,
+                            "has_permission": True,
+                            "is_popup": False,
+                        },
+                    )
+                ),
+                name="view_asset",
+            ),
+            path(
+                "category/<path:id>/",
+                self.admin_site.admin_view(
+                    AssetCategoryView.as_view(
+                        extra_context={
+                            "site_title": self.admin_site.site_title,
+                            "site_header": self.admin_site.site_header,
+                            "site_url": self.admin_site.site_url,
+                            "has_permission": True,
+                            "is_popup": False,
+                        },
+                    )
+                ),
+                name="view_asset_category",
+            ),
+        ]
+        return custom_urls + urls
+
+
+@method_decorator(staff_member_required, name="dispatch")
+class ViewAssetView(DetailView):
+
+    template_name = "admin/view_asset.html"
+    model = Asset
+    context_object_name = "asset"
+    pk_url_kwarg = "id"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_popup"] = False
+        context["is_nav_sidebar_enabled"] = True
+        context["assets"] = Asset.objects.filter(category=self.object.category).all()
+        context["asset_sizes"] = (
+            Asset.objects.filter(category=self.object.category)
+            .values_list("size__name", flat=True)
+            .distinct()
+            .order_by()
+        )
+        context["categories"] = AssetCategory.objects.all()
+        return context
+
+
+@method_decorator(staff_member_required, name="dispatch")
+class AssetCategoryView(DetailView):
+    template_name = "admin/view_asset_category.html"
+    model = AssetCategory
+    context_object_name = "asset_category"
+    pk_url_kwarg = "id"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["is_popup"] = False
+        context["is_nav_sidebar_enabled"] = True
+        context["assets"] = Asset.objects.filter(category=self.object).all()
+        context["asset_sizes"] = (
+            Asset.objects.filter(category=self.object)
+            .values_list("size__name", flat=True)
+            .distinct()
+            .order_by()
+        )
+        context["categories"] = AssetCategory.objects.all()
+        context["asset"] = None
+        return context

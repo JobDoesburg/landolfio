@@ -69,8 +69,8 @@ class NinoxImporter:
         "Contrabassen": AssetCategory.objects.get_or_create(
             name="Contrabassen", name_singular="Contrabas"
         ),
-        "Contrabassstokken": AssetCategory.objects.get_or_create(
-            name="Contrabassstokken", name_singular="Contrabassstok"
+        "Contrabasstokken": AssetCategory.objects.get_or_create(
+            name="Contrabasstokken", name_singular="Contrabasstok"
         ),
         "Gamba's": AssetCategory.objects.get_or_create(
             name="Gamba's", name_singular="Gamba"
@@ -101,8 +101,44 @@ class NinoxImporter:
             name="Consignatie", commerce=False
         )[0],
         "Zakelijk (S)": Collection.objects.get_or_create(
-            name="Zakelijk (S)", commerce=True
+            name="Schreeven", commerce=True
         )[0],
+        "Algemene registratie": Collection.objects.get_or_create(
+            name="Overig", commerce=False
+        )[0],
+    }
+
+    ninox_category_to_category = {
+        "Cello": AssetCategory.objects.get_or_create(
+            name="Cello's", name_singular="Cello"
+        ),
+        "Cellostok": AssetCategory.objects.get_or_create(
+            name="Cellostokken", name_singular="Cellostok"
+        ),
+        "Viool": AssetCategory.objects.get_or_create(
+            name="Violen", name_singular="Viool"
+        ),
+        "Vioolstok": AssetCategory.objects.get_or_create(
+            name="Vioolstokken", name_singular="Vioolstok"
+        ),
+        "Altviool": AssetCategory.objects.get_or_create(
+            name="Altviolen", name_singular="Altviool"
+        ),
+        "Altvioolstok": AssetCategory.objects.get_or_create(
+            name="Altvioolstokken", name_singular="Altvioolstok"
+        ),
+        "Contrabas": AssetCategory.objects.get_or_create(
+            name="Contrabassen", name_singular="Contrabas"
+        ),
+        "Contrabasstok": AssetCategory.objects.get_or_create(
+            name="Contrabasstokken", name_singular="Contrabasstok"
+        ),
+        "Gamba": AssetCategory.objects.get_or_create(
+            name="Gamba's", name_singular="Gamba"
+        ),
+        "Gambastok": AssetCategory.objects.get_or_create(
+            name="Gambastokken", name_singular="Gambastok"
+        ),
     }
 
     ninox_location_to_asset_location = {
@@ -269,7 +305,7 @@ class NinoxImporter:
             listing_price = None
 
         try:
-            status = self.ninox_status_to_asset_status[record["fields"]["Status"]][0]
+            status = self.ninox_status_to_asset_status[record["fields"]["Status"]]
         except KeyError:
             self._logger.warning(
                 f"Could not match status for {asset.category} asset {asset.id}"
@@ -324,7 +360,7 @@ class NinoxImporter:
                         filename, ContentFile(file.content), save=True
                     )
             except Exception as err:
-                self._logger.warning(f"Some error occured: {err}")
+                self._logger.warning(f"Some error occurred: {err}")
 
     def sync_ninox_record(self, record, category, table_id, with_media=True):
         asset, created, status = self.create_asset(record, category)
@@ -334,10 +370,71 @@ class NinoxImporter:
             if with_media:
                 self.update_asset_media(asset, record, table_id)
 
+    def sync_instrument_registrations(self, record, table_id, with_media=True):
+        try:
+            nummer = record["fields"]["Nummer"]
+        except KeyError:
+            logging.warning(f"Found an instrument without number, skipping: {record}")
+            return
+        try:
+            collection = self.ninox_collection_to_collection[
+                record["fields"]["Soort registratie"]
+            ]
+        except KeyError:
+            collection = self.ninox_collection_to_collection["Algemene registratie"]
+
+        try:
+            size, _ = AssetSize.objects.get_or_create(name=record["fields"]["Maat"])
+        except KeyError:
+            size = None
+
+        try:
+            category, _ = self.ninox_category_to_category[record["fields"]["Type"]]
+        except KeyError:
+            logging.warning(
+                f"Could not match category for instrument {record['fields']['Nummer']}"
+            )
+            return
+
+        try:
+            listing_price = record["fields"]["Min. verkoopprijs"]
+        except KeyError:
+            listing_price = None
+
+        asset, _ = Asset.objects.update_or_create(
+            id=nummer,
+            category=category,
+            defaults={
+                "collection": collection,
+                "size": size,
+                "listing_price": listing_price,
+            },
+        )
+
+        try:
+            remarks = record["fields"]["Notities"]
+            remarks = bleach.clean(remarks, tags=[], attributes={}, strip=True)
+            Remark.objects.get_or_create(asset=asset, remark=remarks)
+        except KeyError:
+            pass
+
+        if with_media:
+            self.update_asset_media(asset, record, table_id)
+
     def full_sync(self, with_media=True):
         tables = self.get(self.get_ninox_endpoint_url())
         for table in tables:
             if not table["name"] in self.ninox_table_to_asset_category:
+                if table["name"] == "Instrumentenregistraties":
+                    records = self.get(
+                        self.get_ninox_endpoint_url(table_id=table["id"])
+                    )
+                    for record in records:
+                        self.sync_instrument_registrations(
+                            record, table["id"], with_media
+                        )
+                continue
+            else:
                 continue
 
             category, _ = self.ninox_table_to_asset_category[table["name"]]

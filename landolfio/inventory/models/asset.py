@@ -1,8 +1,19 @@
 from decimal import Decimal
 
 from django.db import models
-from django.db.models import PROTECT, Sum, Q, F, Value, When, Case
-from django.db.models.functions import Coalesce
+from django.db.models import (
+    PROTECT,
+    Sum,
+    Q,
+    F,
+    Value,
+    When,
+    Case,
+    Count,
+    Func,
+    Expression,
+)
+from django.db.models.functions import Coalesce, FirstValue, Concat
 from django.utils.translation import gettext_lazy as _
 from queryable_properties.managers import QueryablePropertiesManager
 from queryable_properties.properties import (
@@ -10,16 +21,19 @@ from queryable_properties.properties import (
     AggregateProperty,
     AnnotationProperty,
     ValueCheckProperty,
+    SubqueryFieldProperty,
 )
 
 from accounting.models import (
     JournalDocumentLine,
     RecurringSalesInvoiceDocumentLine,
+    Contact,
 )
 from accounting.models.ledger_account import LedgerAccountType, LedgerAccount
 from accounting.models.estimate import (
     EstimateStates,
     EstimateDocumentLine,
+    Estimate,
 )
 from inventory.models.asset_on_document_line import (
     AssetOnJournalDocumentLine,

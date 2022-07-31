@@ -12,9 +12,15 @@ def attachments_directory_path(instance, filename):
 class Attachment(models.Model):
     """Class model for Attachments."""
 
-    asset = models.ForeignKey(Asset, on_delete=models.CASCADE, verbose_name=_("Asset"))
+    asset = models.ForeignKey(
+        Asset,
+        on_delete=models.CASCADE,
+        verbose_name=_("Asset"),
+        related_name="attachments",
+    )
     attachment = models.FileField(
-        upload_to=attachments_directory_path, verbose_name=_("Attachment")
+        upload_to=attachments_directory_path,
+        verbose_name=_("Attachment"),
     )
     upload_date = models.DateField(auto_now_add=True, verbose_name=_("Upload date"))
 

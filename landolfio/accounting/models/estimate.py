@@ -332,9 +332,12 @@ class EstimateResourceType(resources.EstimateResourceType):
     def serialize_document_line_for_moneybird(cls, document_line, document):
         data = super().serialize_document_line_for_moneybird(document_line, document)
         data["description"] = document_line.description
-        data["ledger_account_id"] = document_line.ledger_account.moneybird_id
-        if document_line.project:
+        if document_line.ledger_account and document_line.ledger_account.moneybird_id:
+            data["ledger_account_id"] = document_line.ledger_account.moneybird_id
+
+        if document_line.project and document_line.project.moneybird_id:
             data["project_id"] = document_line.project.moneybird_id
+
         data["amount"] = document_line.amount
         data["row_order"] = document_line.row_order
         data["price"] = float(document_line.price)

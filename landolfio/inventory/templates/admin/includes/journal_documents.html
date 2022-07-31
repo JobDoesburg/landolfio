@@ -1,0 +1,11 @@
+<div class="module">
+    <h2>Journal documents</h2>
+    <ul>
+        {% for journal_document_line in asset.journal_document_line_assets.all %}
+            <li>
+                {{ journal_document_line.date|default_if_none:"" }} {{ journal_document_line.contact }} ({{ journal_document_line.document_line.document.state }}):<br>
+                {{ journal_document_line.description }}. {{ journal_document_line.value }}
+            </li>
+        {% endfor %}
+    </ul>
+</div>

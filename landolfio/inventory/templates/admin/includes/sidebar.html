@@ -1,0 +1,51 @@
+{% load static %}
+
+<style>
+    .img {
+        float: right;
+    }
+
+    #content-related .module h2 {
+        background: var(--primary);
+    }
+    #content-related .module h2 a {
+        float: right;
+        background: var(--body-bg);
+    }
+    #content-related .module h2 a:hover, #content-related .module h2 a:active {
+        background: var(--button-hover-bg);
+    }
+    #content-related h3 {
+        margin: .8em 0 0;
+    }
+    .sidebar-icon {
+        vertical-align: middle;
+    }
+</style>
+
+<div class="module">
+    <h2 style="margin-bottom: 6px;">{{ asset.id }}<a class="button small" href="{% url 'admin:inventory_asset_change' asset.pk %}">Edit</a></h2>
+    <ul>
+        <li>Category: {{ asset.category }}</li>
+        <li>Size: {{ asset.size }}</li>
+        <li>Collection: {{ asset.collection }}</li>
+        <li>Location: {{ asset.location }}</li>
+        <li>Listing price: {{ asset.listing_price }}</li>
+    </ul>
+    <br>
+    <ul>
+        <li>Margin: <img src="{% if asset.is_margin %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
+        <li>Amortized: <img src="{% if asset.amortized %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
+        <li>Has rental agreement: <img src="{% if asset.has_rental_agreement %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
+        <li>Has loan agreement: <img src="{% if asset.has_loan_agreement %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
+        <li>Is rented: <img src="{% if asset.is_rented %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
+        <li>Is sold: <img src="{% if asset.sold %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
+    </ul>
+    <br>
+    <ul>
+        <li>Purchase value: {{ asset.purchase_value|default_if_none:"" }} </li>
+        <li>Assets value: {{ asset.total_assets_value|default_if_none:"" }} </li>
+        <li>Total expenses: {{ asset.total_expenses_value|default_if_none:"" }} </li>
+        <li>Total revenue: {{ asset.total_revenue_value|default_if_none:"" }} </li>
+    </ul>
+</div>

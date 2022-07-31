@@ -1,0 +1,11 @@
+<div class="module">
+    <h2>Remarks</h2>
+    <ul>
+        {% for remark in asset.remarks.all %}
+            <li>
+                {{ remark.date }}:<br>
+                {{ remark.remark }}
+            </li>
+        {% endfor %}
+    </ul>
+</div>

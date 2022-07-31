@@ -1,0 +1,41 @@
+{% load static %}
+{% load i18n %}
+<style>
+    @media (max-width: 767px) {
+        #nav-sidebar, #toggle-nav-sidebar {
+            display: unset;
+            width: 100%;
+        }
+    }
+</style>
+<button class="sticky toggle-nav-sidebar" id="toggle-nav-sidebar" aria-label="{% translate 'Toggle navigation' %}"></button>
+<nav class="sticky" id="nav-sidebar">
+    <input class="sticky" type="search" id="nav-filter"
+           placeholder="{% translate 'Start typing to filter…' %}"
+           aria-label="{% translate 'Filter navigation items' %}">
+    {% for size in asset_sizes %}
+        <div class="module">
+            <table>
+                <caption>
+                    <span class="section" title="{{ size }}">{{ size|default_if_none:"-" }}</span>
+                </caption>
+                {% for asset in assets %}
+                    {% if asset.size.name == size %}
+                        <tr class="asset-{{ asset.id }}">
+                            <th scope="row">
+                                <a href="{% url 'admin:view_asset' asset.pk %}">{{ asset.id }}</a>
+                            </th>
+{#                            <td>#}
+{#                                <span style="background: var(--button-bg)">{{ asset.local_status }}</span>#}
+{#                            </td>#}
+                            <td>
+                                <span style="float: right">{{ asset.location|default_if_none:"-" }}</span>
+                            </td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </table>
+        </div>
+    {% endfor %}
+</nav>
+

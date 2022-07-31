@@ -1,0 +1,51 @@
+{% extends 'admin/index.html' %}
+{% load static i18n %}
+
+{% block branding %}
+    <h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"
+    />
+{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "admin/includes/breadcrumbs.html" %}
+{% endblock %}
+
+{% block nav-sidebar %}
+    {{ block.super }}
+    {% include 'admin/includes/nav-sidebar.html' %}
+{% endblock %}
+
+{% block content_title %}<h1>{{ asset }}</h1>{% endblock %}
+{% block title %}{{ asset }}{% endblock %}
+
+{% block content %}
+    <div id="content-main">
+        {% include "admin/includes/photos.html" %}
+        {% include "admin/includes/remarks.html" %}
+        {% include "admin/includes/estimates.html" %}
+        {% include "admin/includes/journal_documents.html" %}
+    </div>
+{% endblock %}
+
+{% block sidebar %}
+    <div id="content-related">
+    {% include "admin/includes/sidebar.html" %}
+    </div>
+{% endblock %}
+
+{% block footer %}
+    {{ block.super }}
+{% endblock %}
