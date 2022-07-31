@@ -30,6 +30,7 @@ class SalesInvoiceStates(models.TextChoices):
     OPEN = "open", _("open")
     SCHEDULED = "scheduled", _("scheduled")
     PENDING_PAYMENT = "pending_payment", _("pending payment")
+    REMINDED = "reminded", _("reminded")
     LATE = "late", _("late")
     PAID = "paid", _("paid")
     UNCOLLECTIBLE = "uncollectible", _("uncollectible")
