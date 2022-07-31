@@ -125,7 +125,7 @@ class MoneybirdResourceType:
             return None
 
         try:
-            obj = cls.get_queryset().get(moneybird_id=resource_id)
+            obj = cls.get_queryset().get(moneybird_id=MoneybirdResourceId(resource_id))
         except cls.model.DoesNotExist:
             logging.info(f"Discovered a new {cls.entity_type_name}, creating it")
             obj = cls.model(moneybird_id=resource_id)
@@ -150,7 +150,9 @@ class MoneybirdResourceType:
     def create_from_moneybird(cls, resource_data: MoneybirdResource):
         logging.info(f"Adding {cls.entity_type_name} {resource_data['id']}")
         try:
-            obj = cls.model.objects.get(moneybird_id=resource_data["id"])
+            obj = cls.model.objects.get(
+                moneybird_id=MoneybirdResourceId(resource_data["id"])
+            )
         except cls.model.DoesNotExist:
             obj = cls.create_instance_from_moneybird(resource_data)
             cls.perform_save(obj)
@@ -181,9 +183,9 @@ class MoneybirdResourceType:
     def delete_from_moneybird(cls, resource_id: MoneybirdResourceId):
         logging.info(f"Deleting {cls.entity_type_name} {resource_id}")
         try:
-            cls.get_queryset().get(moneybird_id=resource_id).delete(
-                delete_on_moneybird=False, received_from_moneybird=True
-            )
+            cls.get_queryset().get(
+                moneybird_id=MoneybirdResourceId(resource_id)
+            ).delete(delete_on_moneybird=False, received_from_moneybird=True)
         except cls.model.DoesNotExist:
             logging.info(
                 f"{cls.entity_type_name} {resource_id} does not exist, probably already deleted"
@@ -532,7 +534,9 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
         cls, document, line_data: MoneybirdResource
     ):
         try:
-            obj = cls.document_lines_model.objects.get(moneybird_id=line_data["id"])
+            obj = cls.document_lines_model.objects.get(
+                moneybird_id=MoneybirdResourceId(line_data["id"])
+            )
         except cls.document_lines_model.DoesNotExist:
             obj = cls.create_document_line_instance_from_moneybird(document, line_data)
             cls.perform_save(obj)
@@ -560,7 +564,7 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
     ):
         return (
             cls.get_document_lines_queryset(document)
-            .get(moneybird_id=resource_id)
+            .get(moneybird_id=MoneybirdResourceId(resource_id))
             .delete(delete_on_moneybird=False, received_from_moneybird=True)
         )
 
