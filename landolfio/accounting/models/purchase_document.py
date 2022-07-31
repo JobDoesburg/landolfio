@@ -217,7 +217,7 @@ class PurchaseInvoiceDocumentResourceType(
         return data
 
 
-class ReceiptResourceType(PurchaseInvoiceDocumentResourceType):
+class ReceiptResourceType(PurchaseInvoiceDocumentResourceType, resources.ReceiptResourceType):
     @classmethod
     def get_queryset(cls):
         return super().get_queryset().filter(document_kind=PurchaseDocumentKind.RECEIPT)
