@@ -14,22 +14,22 @@ def process_webhook_payload(payload: MoneybirdResource) -> None:
         return
 
     if payload["webhook_id"] != settings.MONEYBIRD_WEBHOOK_ID:
-        logging.warning("Received webhook with wrong id")
-        raise ValueError("Received webhook with wrong id")
+        logging.error("Received webhook with wrong id")
+        return
 
     if payload["webhook_token"] != settings.MONEYBIRD_WEBHOOK_TOKEN:
-        logging.warning("Received webhook with wrong token")
-        raise ValueError("Received webhook with wrong token")
+        logging.error("Received webhook with wrong token")
+        return
 
     if int(payload["administration_id"]) != settings.MONEYBIRD_ADMINISTRATION_ID:
-        logging.warning("Received webhook for wrong administration")
-        raise ValueError("Received webhook for wrong administration")
+        logging.error("Received webhook for wrong administration")
+        return
 
     try:
         event = WebhookEvent(payload["action"])
     except ValueError:
-        logging.warning("Received webhook with invalid event")
-        raise ValueError("Received webhook with invalid event")
+        logging.error("Received webhook with invalid event")
+        return
 
     entity_type = payload["entity_type"]
     entity_id = payload["entity_id"]
@@ -38,7 +38,7 @@ def process_webhook_payload(payload: MoneybirdResource) -> None:
 
     if resource_type is None:
         logging.warning("Received webhook with unregistered entity type")
-        raise ValueError("Received webhook with unregistered entity type")
+        return
 
     logging.info(
         f"Received webhook {event} for {entity_type} {entity_id}: {entity_data}"

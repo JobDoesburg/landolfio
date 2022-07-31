@@ -509,7 +509,7 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
         if not resource_data:
             return
 
-        document, _ = super().update_from_moneybird(resource_data, obj)
+        document, created = super().update_from_moneybird(resource_data, obj)
         if document is None:
             logging.warning("No document created for %s", resource_data)
             return
@@ -517,6 +517,7 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
         old_lines = cls.get_local_document_line_versions(document)
         document_lines_diff = cls.diff_resources(old_lines, new_lines)
         cls.update_document_lines(document, document_lines_diff)
+        return document, created
 
     @classmethod
     def create_document_line_instance_from_moneybird(
