@@ -421,11 +421,14 @@ class NinoxImporter:
         if with_media:
             self.update_asset_media(asset, record, table_id)
 
-    def full_sync(self, with_media=True):
+    def full_sync(self, with_media=True, with_instrument_registrations=False):
         tables = self.get(self.get_ninox_endpoint_url())
         for table in tables:
             if not table["name"] in self.ninox_table_to_asset_category:
-                if table["name"] == "Instrumentenregistraties":
+                if (
+                    table["name"] == "Instrumentenregistraties"
+                    and with_instrument_registrations
+                ):
                     records = self.get(
                         self.get_ninox_endpoint_url(table_id=table["id"])
                     )
@@ -433,8 +436,6 @@ class NinoxImporter:
                         self.sync_instrument_registrations(
                             record, table["id"], with_media
                         )
-                continue
-            else:
                 continue
 
             category, _ = self.ninox_table_to_asset_category[table["name"]]
