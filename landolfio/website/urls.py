@@ -16,6 +16,7 @@ Including another URLconf
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.template.defaulttags import url
 from django.urls import include
 from django.urls import path
 from django.urls import re_path
@@ -30,6 +31,7 @@ urlpatterns = (
         path("admin/", admin.site.urls),
         path("moneybird/", include("moneybird.webhooks.urls")),
         path("api/accounting/", include("accounting.api.urls")),
+        path("fp/", include("django_drf_filepond.urls")),
         re_path(r"^media/", views.protected_ask_reverse_proxy),
         # Always redirect to the admin interface as a fallback
         re_path(r"^.*", RedirectView.as_view(url="/admin/")),

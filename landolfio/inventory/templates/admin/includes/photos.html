@@ -11,6 +11,9 @@
                     "close",
                 ],
             },
+            Thumbs: {
+                autoStart: false,
+            },
             l10n: {
                 CLOSE: "Sluit",
                 NEXT: "Next",
@@ -32,6 +35,7 @@
         height: 400px;
         color: #fff;
         font-size: 3em;
+        overflow-y: hidden;
     }
     .carousel__slide img {
         background: white;
@@ -61,6 +65,9 @@
                 <img data-lazy-src="{{ photo.attachment.url }}" href="{{ photo.attachment.url }}" data-fancybox="gallery" data-caption="{{ photo.upload_date}} · {{ photo.attachment.name }}" alt="{{ photo.attachment.name }}"/>
             </div>
         {% endfor %}
+        <div class="carousel__slide">
+            {% include "admin/includes/file_upload.html" %}
+        </div>
     </div>
 </div>
 

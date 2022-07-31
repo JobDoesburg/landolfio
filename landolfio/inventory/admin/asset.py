@@ -1,7 +1,4 @@
 # from admin_numeric_filter.admin import SliderNumericFilter, NumericFilterModelAdmin
-from django.contrib.admin.views.decorators import staff_member_required
-from django.utils.decorators import method_decorator
-from django.views.generic import DetailView
 from django.urls import path, reverse
 from django.utils.html import format_html
 
@@ -13,7 +10,6 @@ from django.utils.translation import gettext as _
 from queryable_properties.admin import (
     QueryablePropertiesAdmin,
     QueryablePropertiesAdminMixin,
-    QueryablePropertiesTabularInline,
 )
 
 from accounting.models.ledger_account import LedgerAccountType
@@ -23,9 +19,10 @@ from inventory.models.asset import (
     AssetOnEstimateDocumentLine,
     AssetOnRecurringSalesInvoiceDocumentLine,
 )
-from inventory.models.category import AssetCategory
 from inventory.models.attachment import Attachment
 from inventory.models.remarks import Remark
+from inventory.views import ViewAssetView, AssetCategoryView
+
 from website.multi_select_filter import MultiSelectFieldListFilter
 
 
@@ -539,49 +536,3 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
             ),
         ]
         return custom_urls + urls
-
-
-@method_decorator(staff_member_required, name="dispatch")
-class ViewAssetView(DetailView):
-
-    template_name = "admin/view_asset.html"
-    model = Asset
-    context_object_name = "asset"
-    pk_url_kwarg = "id"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["is_popup"] = False
-        context["is_nav_sidebar_enabled"] = True
-        context["assets"] = Asset.objects.filter(category=self.object.category).all()
-        context["asset_sizes"] = (
-            Asset.objects.filter(category=self.object.category)
-            .values_list("size__name", flat=True)
-            .distinct()
-            .order_by()
-        )
-        context["categories"] = AssetCategory.objects.all()
-        return context
-
-
-@method_decorator(staff_member_required, name="dispatch")
-class AssetCategoryView(DetailView):
-    template_name = "admin/view_asset_category.html"
-    model = AssetCategory
-    context_object_name = "asset_category"
-    pk_url_kwarg = "id"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["is_popup"] = False
-        context["is_nav_sidebar_enabled"] = True
-        context["assets"] = Asset.objects.filter(category=self.object).all()
-        context["asset_sizes"] = (
-            Asset.objects.filter(category=self.object)
-            .values_list("size__name", flat=True)
-            .distinct()
-            .order_by()
-        )
-        context["categories"] = AssetCategory.objects.all()
-        context["asset"] = None
-        return context

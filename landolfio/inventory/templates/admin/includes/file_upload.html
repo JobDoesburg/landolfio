@@ -1,0 +1,65 @@
+<style>
+    .file-upload {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        align-items: center;
+        justify-content: stretch;
+        overflow-y: scroll;
+    }
+    .file-upload form {
+        width: 100%;
+        min-height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: stretch;
+    }
+    .file-upload form input[type=submit] {
+        margin-top: 10px;
+        align-self: center;
+    }
+    .file-upload .filepond--panel-root {
+        background-color: var(--darkened-bg);
+    }
+
+
+</style>
+<div class="file-upload">
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+    <form method="post">
+        {% csrf_token %}
+        <div class="filepond">
+            <input type="file"
+               class="filepond"
+               name="filepond"
+               multiple
+               data-allow-reorder="true"
+               data-max-file-size="200MB"
+               data-max-files="20">
+        </div>
+
+        <input type="submit" value="Submit">
+    </form>
+    <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+    <script>
+        FilePond.parse(document.body);
+        FilePond.setOptions({
+            dropOnPage: true,
+            allowMultiple: true,
+            allowReorder: true,
+            allowPaste: true,
+            allowBrowse: true,
+            allowDrop: true,
+            server: {
+                headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                url: '/fp',
+                process: '/process/',
+                patch: '/patch/',
+                revert: '/revert/',
+                fetch: '/fetch/?target=',
+                load: '/load/'
+            }
+        });
+    </script>
+</div>

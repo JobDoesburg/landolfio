@@ -241,6 +241,22 @@ coverage = "*"
 six = ">=1.4.0"
 
 [[package]]
+name = "django-drf-filepond"
+version = "0.4.1"
+description = "Filepond server app for Django REST Framework"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+Django = {version = ">=2.2.25", markers = "python_version >= \"3.6\""}
+django-storages = {version = ">=1.9.1", markers = "python_version >= \"3.5\""}
+djangorestframework = {version = ">=3.11.2", markers = "python_version >= \"3.5\""}
+requests = ">=2.20.1"
+shortuuid = {version = ">=0.5.0", markers = "python_version >= \"3.5\""}
+six = ">=1.14.0"
+
+[[package]]
 name = "django-localflavor"
 version = "3.1"
 description = "Country-specific Django helpers"
@@ -293,6 +309,18 @@ dropbox = ["dropbox (>=7.2.1)"]
 google = ["google-cloud-storage (>=1.27.0)"]
 libcloud = ["apache-libcloud"]
 sftp = ["paramiko"]
+
+[[package]]
+name = "djangorestframework"
+version = "3.13.1"
+description = "Web APIs for Django, made easy."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+django = ">=2.2"
+pytz = "*"
 
 [[package]]
 name = "filelock"
@@ -535,6 +563,14 @@ soap-alt = ["suds"]
 soap-fallback = ["pysimplesoap"]
 
 [[package]]
+name = "pytz"
+version = "2022.1"
+description = "World timezone definitions, modern and historical"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "pyyaml"
 version = "6.0"
 description = "YAML parser and emitter for Python"
@@ -605,6 +641,14 @@ sanic = ["sanic (>=0.8)"]
 sqlalchemy = ["sqlalchemy (>=1.2)"]
 starlette = ["starlette (>=0.19.1)"]
 tornado = ["tornado (>=5)"]
+
+[[package]]
+name = "shortuuid"
+version = "1.0.9"
+description = "A generator library for concise, unambiguous and URL-safe UUIDs."
+category = "main"
+optional = false
+python-versions = ">=3.5"
 
 [[package]]
 name = "six"
@@ -742,7 +786,7 @@ production = ["psycopg2", "uWSGI"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "aabbd8fcb02ec1620e2730e39cbc342f6a68484691b6cc82c5db6f21597d2158"
+content-hash = "4550254b122faab36b519c12e5b6b22eec4e91135027f3bb010ca3df4df55d0f"
 
 [metadata.files]
 asgiref = [
@@ -821,6 +865,10 @@ django-coverage-plugin = [
     {file = "django_coverage_plugin-2.0.3-py3-none-any.whl", hash = "sha256:fd888f2ff41e3410a004d799b198cf8b19694d692a2d2264e8c944b9321bedc3"},
     {file = "django_coverage_plugin-2.0.3.tar.gz", hash = "sha256:e73231e3bfddb2ac836fd43cb0e6ec2ab3a97457b1d9ca2468085e506beb7935"},
 ]
+django-drf-filepond = [
+    {file = "django-drf-filepond-0.4.1.tar.gz", hash = "sha256:a32c46fd54982d88aeb4f3825973a194eb9d5d01b031c53bfe2770fc98895873"},
+    {file = "django_drf_filepond-0.4.1-py2.py3-none-any.whl", hash = "sha256:e91303795d5d2f3cbb96cc28a5a6a70b5322eaa54ed7b1997ba6a7cb3a4aa609"},
+]
 django-localflavor = [
     {file = "django-localflavor-3.1.tar.gz", hash = "sha256:ac2fa377bbcba4cae95e97077d9e77c7f22b3d93e4845e2e133ba7e664043a44"},
     {file = "django_localflavor-3.1-py3-none-any.whl", hash = "sha256:6593865dc671333b3edc88e729e6d384d00b6db7891ef5d3a65db831a40050d2"},
@@ -836,6 +884,10 @@ django-queryable-properties = [
 django-storages = [
     {file = "django-storages-1.12.3.tar.gz", hash = "sha256:a475edb2f0f04c4f7e548919a751ecd50117270833956ed5bd585c0575d2a5e7"},
     {file = "django_storages-1.12.3-py3-none-any.whl", hash = "sha256:204a99f218b747c46edbfeeb1310d357f83f90fa6a6024d8d0a3f422570cee84"},
+]
+djangorestframework = [
+    {file = "djangorestframework-3.13.1-py3-none-any.whl", hash = "sha256:24c4bf58ed7e85d1fe4ba250ab2da926d263cd57d64b03e8dcef0ac683f8b1aa"},
+    {file = "djangorestframework-3.13.1.tar.gz", hash = "sha256:0c33407ce23acc68eca2a6e46424b008c9c02eceb8cf18581921d0092bc1f2ee"},
 ]
 filelock = [
     {file = "filelock-3.7.1-py3-none-any.whl", hash = "sha256:37def7b658813cda163b56fc564cdc75e86d338246458c4c28ae84cabefa2404"},
@@ -952,6 +1004,10 @@ python-stdnum = [
     {file = "python-stdnum-1.17.tar.gz", hash = "sha256:374e2b5e13912ccdbf50b0b23fca2c3e0531174805c32d74e145f37756328340"},
     {file = "python_stdnum-1.17-py2.py3-none-any.whl", hash = "sha256:a46e6cf9652807314d369b654b255c86a59f93d18be2834f3d567ed1a346c547"},
 ]
+pytz = [
+    {file = "pytz-2022.1-py2.py3-none-any.whl", hash = "sha256:e68985985296d9a66a881eb3193b0906246245294a881e7c8afe623866ac6a5c"},
+    {file = "pytz-2022.1.tar.gz", hash = "sha256:1e760e2fe6a8163bc0b3d9a19c4f84342afa0a2affebfaa84b01b978a02ecaa7"},
+]
 pyyaml = [
     {file = "PyYAML-6.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:d4db7c7aef085872ef65a8fd7d6d09a14ae91f691dec3e87ee5ee0539d516f53"},
     {file = "PyYAML-6.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:9df7ed3b3d2e0ecfe09e14741b857df43adb5a3ddadc919a2d94fbdf78fea53c"},
@@ -996,6 +1052,10 @@ s3transfer = [
     {file = "s3transfer-0.6.0.tar.gz", hash = "sha256:2ed07d3866f523cc561bf4a00fc5535827981b117dd7876f036b0c1aca42c947"},
 ]
 sentry-sdk = []
+shortuuid = [
+    {file = "shortuuid-1.0.9-py3-none-any.whl", hash = "sha256:b2bb9eb7773170e253bb7ba25971023acb473517a8b76803d9618668cb1dd46f"},
+    {file = "shortuuid-1.0.9.tar.gz", hash = "sha256:459f12fa1acc34ff213b1371467c0325169645a31ed989e268872339af7563d5"},
+]
 six = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},

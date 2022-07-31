@@ -6,6 +6,9 @@
             display: unset;
             width: 100%;
         }
+        .main > #nav-sidebar + .content, .main.shifted > #nav-sidebar + .content {
+            max-width: calc(100% - 23px);
+        }
     }
 </style>
 <button class="sticky toggle-nav-sidebar" id="toggle-nav-sidebar" aria-label="{% translate 'Toggle navigation' %}"></button>

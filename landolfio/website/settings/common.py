@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     "localflavor",
     # "admin_numeric_filter",
     "autocompletefilter",
+    "django_drf_filepond",
     "moneybird",
     "accounting",
     "inventory",
@@ -200,3 +201,6 @@ AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_S3_FILE_OVERWRITE = False
 if AWS_STORAGE_BUCKET_NAME is not None:
     DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    DJANGO_DRF_FILEPOND_STORAGES_BACKEND = "storages.backends.s3boto3.S3Boto3Storage"
+
+DJANGO_DRF_FILEPOND_UPLOAD_TMP = os.path.join(MEDIA_ROOT, "filepond-temp-uploads")

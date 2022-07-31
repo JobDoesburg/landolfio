@@ -32,6 +32,9 @@
 {% block title %}{{ asset }}{% endblock %}
 
 {% block content %}
+    <div id="content-related">
+        {% include "admin/includes/sidebar.html" %}
+    </div>
     <div id="content-main">
         {% include "admin/includes/photos.html" %}
         {% include "admin/includes/remarks.html" %}
@@ -41,9 +44,6 @@
 {% endblock %}
 
 {% block sidebar %}
-    <div id="content-related">
-    {% include "admin/includes/sidebar.html" %}
-    </div>
 {% endblock %}
 
 {% block footer %}
