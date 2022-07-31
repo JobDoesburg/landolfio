@@ -44,6 +44,8 @@ def push_to_moneybird(admin_obj, request, queryset):
 
 
 class MoneybirdResourceModelAdminMixin:
+    has_non_moneybird_fields = False
+
     def get_queryset(self, *args, **kwargs):
         return (
             super().get_queryset(*args, **kwargs).filter(_delete_from_moneybird=False)
@@ -79,7 +81,11 @@ class MoneybirdResourceModelAdminMixin:
 
     def has_change_permission(self, *args, **kwargs):
         resource_type = self.moneybird_resource_type
-        if resource_type and not resource_type.can_write:
+        if (
+            resource_type
+            and not resource_type.can_write
+            and not self.has_non_moneybird_fields
+        ):
             return False
         return super().has_change_permission(*args, **kwargs)
 

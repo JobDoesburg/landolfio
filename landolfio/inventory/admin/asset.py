@@ -4,8 +4,13 @@ from autocompletefilter.filters import AutocompleteListFilter
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from queryable_properties.admin import QueryablePropertiesAdmin
+from queryable_properties.admin import (
+    QueryablePropertiesAdmin,
+    QueryablePropertiesAdminMixin,
+    QueryablePropertiesTabularInline,
+)
 
+from accounting.models.ledger_account import LedgerAccountType
 from inventory.models.asset import (
     Asset,
     AssetOnJournalDocumentLine,
@@ -52,49 +57,18 @@ class RemarkInline(admin.StackedInline):
         return False
 
 
-class JournalDocumentLineInline(admin.TabularInline):
-    model = AssetOnJournalDocumentLine
+class DocumentLineInline(QueryablePropertiesAdminMixin, admin.TabularInline):
     extra = 0
     can_delete = False
-    show_change_link = True
 
-    fields = [
-        "_date",
-        "_description",
-        "_contact",
-        "_ledger_account",
-        "value",
-        "view_on_moneybird",
-    ]
-
-    readonly_fields = (
-        "_date",
-        "_description",
-        "_contact",
-        "_ledger_account",
-        "value",
-        "view_on_moneybird",
-    )
-
-    @admin.display
-    def _date(self, obj):
-        return obj.document_line.document.date
-
-    @admin.display
-    def _description(self, obj):
-        return obj.document_line.description
-
-    @admin.display
-    def _contact(self, obj):
-        return obj.document_line.document.contact
-
-    @admin.display
-    def _ledger_account(self, obj):
-        return obj.document_line.ledger_account
+    @admin.display(description="Workflow")
+    def workflow(self, obj):
+        return obj.document_line.document.workflow
 
     @admin.display(description="View on Moneybird")
     def view_on_moneybird(self, obj):
         url = obj.document_line.document.moneybird_url
+
         if url is None:
             return None
         return mark_safe(
@@ -105,12 +79,134 @@ class JournalDocumentLineInline(admin.TabularInline):
         return False
 
 
-class EstimateDocumentLineInline(JournalDocumentLineInline):
+class JournalDocumentLineInline(DocumentLineInline):
+    model = AssetOnJournalDocumentLine
+
+    fields = [
+        "date",
+        "description",
+        "document",
+        "workflow",
+        "contact",
+        "ledger_account",
+        "value",
+        "view_on_moneybird",
+    ]
+
+    readonly_fields = (
+        "date",
+        "description",
+        "document",
+        "workflow",
+        "contact",
+        "ledger_account",
+        "value",
+        "view_on_moneybird",
+    )
+
+
+class SalesAndPurchaseJournalDocumentLineInline(JournalDocumentLineInline):
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .exclude(
+                document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
+                document_line__ledger_account__is_sales=False,
+            )
+            .exclude(
+                document_line__ledger_account__account_type=LedgerAccountType.EXPENSES,
+                document_line__ledger_account__is_purchase=False,
+            )
+        )
+
+
+class NonSalesRevenueDocumentLineInline(JournalDocumentLineInline):
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .filter(
+                document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
+                document_line__ledger_account__is_sales=False,
+            )
+        )
+
+
+class NonPurchaseExpenseDocumentLineInline(JournalDocumentLineInline):
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .filter(
+                document_line__ledger_account__account_type=LedgerAccountType.EXPENSES,
+                document_line__ledger_account__is_purchase=False,
+            )
+        )
+
+
+class EstimateDocumentLineInline(DocumentLineInline):
     model = AssetOnEstimateDocumentLine
 
+    fields = [
+        "date",
+        "description",
+        "document",
+        "document_state",
+        "workflow",
+        "contact",
+        "ledger_account",
+        "value",
+        "view_on_moneybird",
+    ]
 
-class RecurringSalesDocumentLineInline(JournalDocumentLineInline):
+    readonly_fields = (
+        "date",
+        "description",
+        "document",
+        "document_state",
+        "workflow",
+        "contact",
+        "ledger_account",
+        "value",
+        "view_on_moneybird",
+    )
+
+    @admin.display(description="Document state")
+    def document_state(self, obj):
+        return obj.document_line.document.state
+
+
+class RecurringSalesDocumentLineInline(DocumentLineInline):
     model = AssetOnRecurringSalesInvoiceDocumentLine
+
+    fields = [
+        "date",
+        "description",
+        "document",
+        "active",
+        "workflow",
+        "contact",
+        "ledger_account",
+        "value",
+        "view_on_moneybird",
+    ]
+
+    readonly_fields = (
+        "date",
+        "description",
+        "document",
+        "active",
+        "workflow",
+        "contact",
+        "ledger_account",
+        "value",
+        "view_on_moneybird",
+    )
+
+    @admin.display(description="Active", boolean=True)
+    def active(self, obj):
+        return obj.document_line.document.active
 
 
 # class ListingPriceSliderFilter(SliderNumericFilter):
@@ -265,6 +361,9 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
         RemarkInline,
         AttachmentInlineAdmin,
         JournalDocumentLineInline,
+        SalesAndPurchaseJournalDocumentLineInline,
+        NonSalesRevenueDocumentLineInline,
+        NonPurchaseExpenseDocumentLineInline,
         EstimateDocumentLineInline,
         RecurringSalesDocumentLineInline,
     ]

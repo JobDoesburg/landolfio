@@ -4,7 +4,8 @@ from decimal import Decimal
 from django.db import models
 from django.db.models import F
 from django.utils.translation import gettext as _
-from queryable_properties.properties import AnnotationProperty
+from queryable_properties.properties import AnnotationProperty, SubqueryFieldProperty
+from queryable_properties.managers import QueryablePropertiesManager
 
 from accounting.models import (
     DocumentStyle,
@@ -129,6 +130,7 @@ class Estimate(SynchronizableMoneybirdResourceModel):
 
 
 class EstimateDocumentLine(MoneybirdDocumentLineModel):
+    objects = QueryablePropertiesManager()
     description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
     total_amount = models.DecimalField(
         max_digits=19,
@@ -190,6 +192,10 @@ class EstimateDocumentLine(MoneybirdDocumentLineModel):
     )
 
     date = AnnotationProperty(F("document__estimate_date"))
+
+    @property
+    def contact(self):
+        return self.document.contact
 
     def __str__(self):
         return f"{self.amount} {self.description} in {self.document}"

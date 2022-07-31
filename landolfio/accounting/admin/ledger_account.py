@@ -27,3 +27,4 @@ class LedgerAccountAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
         "name",
         "account_type",
     )
+    has_non_moneybird_fields = True

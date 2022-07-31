@@ -19,6 +19,26 @@ class AssetOnJournalDocumentLine(models.Model):
     )
     value = models.DecimalField(max_digits=10, decimal_places=2)
 
+    @property
+    def date(self):
+        return self.document_line.date
+
+    @property
+    def contact(self):
+        return self.document_line.contact
+
+    @property
+    def ledger_account(self):
+        return self.document_line.ledger_account
+
+    @property
+    def description(self):
+        return self.document_line.description
+
+    @property
+    def document(self):
+        return self.document_line.document
+
     # TODO add a `aandeel in geheel` field here and determine value based on that
 
     class Meta:
@@ -38,6 +58,26 @@ class AssetOnEstimateDocumentLine(models.Model):
         EstimateDocumentLine, on_delete=models.CASCADE, related_name="assets"
     )
     value = models.DecimalField(max_digits=10, decimal_places=2)
+
+    @property
+    def date(self):
+        return self.document_line.date
+
+    @property
+    def contact(self):
+        return self.document_line.contact
+
+    @property
+    def ledger_account(self):
+        return self.document_line.ledger_account
+
+    @property
+    def description(self):
+        return self.document_line.description
+
+    @property
+    def document(self):
+        return self.document_line.document
 
     class Meta:
         unique_together = [
@@ -60,6 +100,26 @@ class AssetOnRecurringSalesInvoiceDocumentLine(models.Model):
         related_name="assets",
     )
     value = models.DecimalField(max_digits=10, decimal_places=2)
+
+    @property
+    def date(self):
+        return self.document_line.date
+
+    @property
+    def contact(self):
+        return self.document_line.contact
+
+    @property
+    def ledger_account(self):
+        return self.document_line.ledger_account
+
+    @property
+    def description(self):
+        return self.document_line.description
+
+    @property
+    def document(self):
+        return self.document_line.document
 
     class Meta:
         unique_together = [
@@ -86,5 +146,3 @@ class AssetSubscription(models.Model):
 
     def __str__(self):
         return f"{self.asset} on {self.subscription} for {self.value}"
-
-    # TODO queryable properties (AnnotationProperty) here for a lot of fields

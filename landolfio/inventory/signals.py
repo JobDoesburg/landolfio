@@ -5,7 +5,8 @@ from accounting.models import (
     SalesInvoiceDocumentLine,
     PurchaseDocumentLine,
     GeneralJournalDocumentLine,
-    RecurringSalesInvoiceDocumentLine, GeneralJournalDocument,
+    RecurringSalesInvoiceDocumentLine,
+    GeneralJournalDocument,
 )
 from accounting.models.estimate import EstimateDocumentLine
 from accounting.models.journal_document import JournalDocumentLine

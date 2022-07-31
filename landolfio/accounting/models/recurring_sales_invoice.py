@@ -161,6 +161,10 @@ class RecurringSalesInvoiceDocumentLine(MoneybirdDocumentLineModel):
 
     date = AnnotationProperty(F("document__start_date"))
 
+    @property
+    def contact(self):
+        return self.document.contact
+
     def __str__(self):
         return f"{self.amount} {self.description} in {self.document}"
 

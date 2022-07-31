@@ -19,3 +19,4 @@ class WorkflowAdmin(MoneybirdResourceModelAdmin):
         "name",
         "type",
     )
+    has_non_moneybird_fields = True

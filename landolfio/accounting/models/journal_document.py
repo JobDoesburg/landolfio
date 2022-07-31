@@ -37,6 +37,10 @@ class JournalDocumentLineQueryset(
 
 class JournalDocumentLineManager(InheritanceManagerMixin, QueryablePropertiesManager):
     _queryset_class = JournalDocumentLineQueryset
+    use_for_related_fields = True
+
+    def get_queryset(self):
+        return super().get_queryset().select_subclasses()
 
 
 class JournalDocumentLine(MoneybirdDocumentLineModel):
@@ -65,8 +69,6 @@ class JournalDocumentLine(MoneybirdDocumentLineModel):
         verbose_name=_("Project"),
     )
 
-    date = AnnotationProperty(F("document__date"))
-
     document = AnnotationProperty(
         Case(
             When(
@@ -81,8 +83,15 @@ class JournalDocumentLine(MoneybirdDocumentLineModel):
                 Q(generaljournaldocumentline__isnull=False),
                 then=F("generaljournaldocumentline__document"),
             ),
+            default=None,
         )
     )
+
+    date = AnnotationProperty(F("document__date"))
+
+    @property
+    def contact(self):
+        return self.document.contact
 
     def __str__(self):
         return f"Document line {self.moneybird_id}"
@@ -90,6 +99,7 @@ class JournalDocumentLine(MoneybirdDocumentLineModel):
     class Meta:
         verbose_name = _("Journal document line")
         verbose_name_plural = _("Journal document lines")
+        base_manager_name = "objects"
 
 
 class JournalDocumentResourceType(MoneybirdResourceTypeWithDocumentLines):
