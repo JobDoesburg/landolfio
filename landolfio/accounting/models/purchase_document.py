@@ -31,6 +31,7 @@ class PurchaseDocumentKind(models.TextChoices):
 
 
 class PurchaseDocumentStates(models.TextChoices):
+    NEW = "NEW", _("new")
     OPEN = "open", _("open")
     SCHEDULED = "scheduled", _("scheduled")
     PENDING_PAYMENT = "pending_payment", _("pending payment")
