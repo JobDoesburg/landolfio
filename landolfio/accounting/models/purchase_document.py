@@ -217,13 +217,31 @@ class PurchaseInvoiceDocumentResourceType(
         return data
 
 
-class ReceiptResourceType(PurchaseInvoiceDocumentResourceType, resources.ReceiptResourceType):
+class ReceiptResourceType(resources.ReceiptResourceType):
     @classmethod
     def get_queryset(cls):
         return super().get_queryset().filter(document_kind=PurchaseDocumentKind.RECEIPT)
 
     @classmethod
     def get_model_kwargs(cls, data):
-        kwargs = super().get_model_kwargs(data)
+        kwargs = PurchaseInvoiceDocumentResourceType.get_model_kwargs(data)
         kwargs["document_kind"] = PurchaseDocumentKind.RECEIPT
         return kwargs
+
+    @classmethod
+    def get_document_line_model_kwargs(cls, line_data: MoneybirdResource, document):
+        return PurchaseInvoiceDocumentResourceType.get_document_line_model_kwargs(
+            line_data, document
+        )
+
+    @classmethod
+    def serialize_for_moneybird(cls, instance):
+        return PurchaseInvoiceDocumentResourceType.serialize_for_moneybird(instance)
+
+    @classmethod
+    def serialize_document_line_for_moneybird(cls, document_line, document):
+        return (
+            PurchaseInvoiceDocumentResourceType.serialize_document_line_for_moneybird(
+                document_line, document
+            )
+        )
