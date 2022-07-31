@@ -5,7 +5,7 @@ from accounting.models import (
     SalesInvoiceDocumentLine,
     PurchaseDocumentLine,
     GeneralJournalDocumentLine,
-    RecurringSalesInvoiceDocumentLine,
+    RecurringSalesInvoiceDocumentLine, GeneralJournalDocument,
 )
 from accounting.models.estimate import EstimateDocumentLine
 from accounting.models.journal_document import JournalDocumentLine
@@ -46,6 +46,13 @@ def on_document_line_save(
 def on_document_line_save(sender, instance: EstimateDocumentLine, **kwargs):
     # pylint: disable=unused-argument
     find_assets_in_document_line(instance)
+
+
+@receiver(models.signals.post_save, sender=GeneralJournalDocument)
+def on_document_line_save(sender, instance: GeneralJournalDocument, **kwargs):
+    # pylint: disable=unused-argument
+    for line in instance.document_lines.all():
+        find_assets_in_document_line(line)
 
 
 @receiver(models.signals.post_save, sender=Asset)
