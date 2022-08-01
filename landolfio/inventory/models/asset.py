@@ -343,7 +343,18 @@ class Asset(models.Model):
 
     is_amortized = AnnotationProperty(
         Case(
-            When(GreaterThan(F("total_assets_value"), Decimal(0)), then=Value(False)),
+            When(
+                GreaterThan(
+                    Sum(
+                        "journal_document_line_assets__value",
+                        filter=Q(
+                            journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
+                            journal_document_line_assets__document_line__ledger_account__is_sales=True,
+                        ),
+                        output_field=models.DecimalField(max_digits=10, decimal_places=2),
+                    ), Decimal(0)
+                ), then=Value(False),
+            ),
             default=Value(True),
         )
     )
