@@ -14,6 +14,7 @@ from django.db.models import (
     Expression, Exists,
 )
 from django.db.models.functions import Coalesce, FirstValue, Concat
+from django.db.models.lookups import GreaterThan
 from django.utils.translation import gettext_lazy as _
 from queryable_properties.managers import QueryablePropertiesManager
 from queryable_properties.properties import (
@@ -339,7 +340,8 @@ class Asset(models.Model):
     coalesce_total_assets_value = AnnotationProperty(
         Coalesce(F("total_assets_value"), Decimal(0))
     )
-    is_amortized = ValueCheckProperty("coalesce_total_assets_value", Decimal(0))
+
+    is_amortized = AnnotationProperty(GreaterThan(Coalesce(F("total_assets_value"), Decimal(0)), Decimal(0)))
 
     is_commerce = FilteredRelatedExistenceCheckProperty(
         'collection',
