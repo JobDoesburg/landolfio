@@ -1,5 +1,6 @@
 import collections
 import json
+import logging
 
 from django.db.transaction import non_atomic_requests
 from django.http import HttpResponse
@@ -29,6 +30,10 @@ webhook_cache = WebhookCache()
 @require_POST
 @non_atomic_requests
 def webhook_receive(request):
+    logging.info("Received webhook request")
+    logging.info(request.headers)
+    logging.info(request.body)
+
     idempotency_key = request.headers.get("Idempotency-Key")
     if idempotency_key in webhook_cache:
         return HttpResponse("Webhook already processed.", content_type="text/plain")
