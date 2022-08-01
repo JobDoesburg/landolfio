@@ -12,6 +12,7 @@ from django.db.models import (
     Count,
     Func,
     Expression,
+    Exists,
 )
 from django.db.models.functions import Coalesce, FirstValue, Concat
 from django.utils.translation import gettext_lazy as _
@@ -341,7 +342,9 @@ class Asset(models.Model):
     )
     is_amortized = ValueCheckProperty("coalesce_total_assets_value", Decimal(0))
 
-    is_commerce = AnnotationProperty(F("collection__commerce"))
+    is_commerce = FilteredRelatedExistenceCheckProperty(
+        "collection", filter=Q(collection__commerce=True)
+    )
 
     is_rented = FilteredRelatedExistenceCheckProperty(
         "recurring_sales_invoice_document_lines",
