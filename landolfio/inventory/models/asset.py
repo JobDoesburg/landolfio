@@ -11,8 +11,7 @@ from django.db.models import (
     Case,
     Count,
     Func,
-    Expression,
-    Exists,
+    Expression, Exists,
 )
 from django.db.models.functions import Coalesce, FirstValue, Concat
 from django.utils.translation import gettext_lazy as _
@@ -343,7 +342,10 @@ class Asset(models.Model):
     is_amortized = ValueCheckProperty("coalesce_total_assets_value", Decimal(0))
 
     is_commerce = FilteredRelatedExistenceCheckProperty(
-        "collection", filter=Q(collection__commerce=True)
+        'collection',
+        filter=Q(
+            collection__commerce=True
+        )
     )
 
     is_rented = FilteredRelatedExistenceCheckProperty(
@@ -380,6 +382,10 @@ class Asset(models.Model):
     objects = QueryablePropertiesManager()
 
     moneybird_status = AnnotationProperty(
+        Coalesce(F("_moneybird_status"), Value(""))
+    )
+
+    _moneybird_status = AnnotationProperty(
         Case(
             When(is_commerce=False, then=Value("-")),
             When(
