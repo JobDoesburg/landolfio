@@ -424,6 +424,24 @@ class Asset(models.Model):
         )
     )
 
+    @property
+    def _moneybird_status(self):
+        if not self.is_commerce:
+            return None
+        if not self.is_purchased_amortized and not self.is_purchased_asset:
+            return "Unknown"
+        if self.is_sold:
+            return "Sold"
+        if self.is_rented:
+            if self.has_rental_agreement:
+                return "Rented"
+            else:
+                return "Rented (error)"
+        if self.has_loan_agreement:
+            return "Loaned"
+        return "Available"
+
+
     def check_moneybird_errors(self):
         if self.is_margin and self.is_non_margin:
             return "Margin asset on non-margin ledgers"

@@ -229,7 +229,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
         "location",
         "collection",
         "listing_price",
-        "moneybird_status",
+        "_moneybird_status",
         "local_status",
         "is_margin",
         "is_amortized",
