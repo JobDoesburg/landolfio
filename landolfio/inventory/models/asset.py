@@ -14,7 +14,6 @@ from django.db.models import (
     Expression, Exists,
 )
 from django.db.models.functions import Coalesce, FirstValue, Concat
-from django.db.models.lookups import GreaterThan
 from django.utils.translation import gettext_lazy as _
 from queryable_properties.managers import QueryablePropertiesManager
 from queryable_properties.properties import (
@@ -341,23 +340,7 @@ class Asset(models.Model):
         Coalesce(F("total_assets_value"), Decimal(0))
     )
 
-    is_amortized = AnnotationProperty(
-        Case(
-            When(
-                GreaterThan(
-                    Sum(
-                        "journal_document_line_assets__value",
-                        filter=Q(
-                            journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
-                            journal_document_line_assets__document_line__ledger_account__is_sales=True,
-                        ),
-                        output_field=models.DecimalField(max_digits=10, decimal_places=2),
-                    ), Decimal(0)
-                ), then=Value(False),
-            ),
-            default=Value(True),
-        )
-    )
+    is_amortized = ValueCheckProperty("coalesce_total_assets_value", Decimal(0))
 
     is_commerce = FilteredRelatedExistenceCheckProperty(
         'collection',
@@ -408,33 +391,24 @@ class Asset(models.Model):
                 then=Value("Unknown"),
             ),
             When(is_sold=True, then=Value("sold")),
-            When(GreaterThan(
-                Sum(
-                    "journal_document_line_assets__value",
-                    filter=Q(
-                        journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
-                        journal_document_line_assets__document_line__ledger_account__is_sales=True,
-                    ),
-                    output_field=models.DecimalField(max_digits=10, decimal_places=2),
-                ), Decimal(0)
-            ), then=Value("Amortized")),
-            # When(is_commerce=True, is_sold=True, is_purchased_amortized=True, is_purchased_asset=False, is_amortized=True, then=Value("Sold")),
-            # When(is_commerce=True, is_sold=True, is_purchased_amortized=False, is_purchased_asset=True, is_amortized=True, then=Value("Sold")),
+            # When(is_amortized=True, then=Value("Amortized")),
+            # When(is_commerce=True, is_sold=True, is_purchased_amortized=True, is_purchased_asset=False, then=Value("Sold")),
+            # When(is_commerce=True, is_sold=True, is_purchased_amortized=False, is_purchased_asset=True, then=Value("Sold")),
             # When(is_commerce=True, is_sold=True, is_purchased_amortized=True, is_purchased_asset=False, is_amortized=False, then=Value("Sold (error)")),
             # When(is_commerce=True, is_sold=True, is_purchased_amortized=False, is_purchased_asset=True, is_amortized=False, then=Value("Sold (error)")),
             # When(is_sold=True, is_amortized=False, then=Value("Sold (error)")),
-            # When(is_rented=True, has_rental_agreement=True, then=Value("Rented")),
-            # When(
-            #     is_rented=False,
-            #     has_rental_agreement=True,
-            #     then=Value("Rented (error)"),
-            # ),
-            # When(
-            #     is_rented=True,
-            #     has_rental_agreement=False,
-            #     then=Value("Rented (error)"),
-            # ),
-            # When(is_rented=False, has_loan_agreement=True, then=Value("Loaned")),
+            When(is_rented=True, has_rental_agreement=True, then=Value("Rented")),
+            When(
+                is_rented=False,
+                has_rental_agreement=True,
+                then=Value("Rented (error)"),
+            ),
+            When(
+                is_rented=True,
+                has_rental_agreement=False,
+                then=Value("Rented (error)"),
+            ),
+            When(is_rented=False, has_loan_agreement=True, then=Value("Loaned")),
             # When(
             #     is_sold=False,
             #     is_amortized=True,
