@@ -408,7 +408,16 @@ class Asset(models.Model):
                 then=Value("Unknown"),
             ),
             When(is_sold=True, then=Value("sold")),
-            When(is_amortized=True, then=Value("Amortized")),
+            When(GreaterThan(
+                Sum(
+                    "journal_document_line_assets__value",
+                    filter=Q(
+                        journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
+                        journal_document_line_assets__document_line__ledger_account__is_sales=True,
+                    ),
+                    output_field=models.DecimalField(max_digits=10, decimal_places=2),
+                ), Decimal(0)
+            ), then=Value("Amortized")),
             # When(is_commerce=True, is_sold=True, is_purchased_amortized=True, is_purchased_asset=False, is_amortized=True, then=Value("Sold")),
             # When(is_commerce=True, is_sold=True, is_purchased_amortized=False, is_purchased_asset=True, is_amortized=True, then=Value("Sold")),
             # When(is_commerce=True, is_sold=True, is_purchased_amortized=True, is_purchased_asset=False, is_amortized=False, then=Value("Sold (error)")),
