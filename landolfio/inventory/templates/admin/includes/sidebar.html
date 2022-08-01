@@ -34,6 +34,9 @@
         <li>Location: {{ asset.location }}</li>
         <li>Listing price: {{ asset.listing_price }}</li>
         <li>Moneybird status: {{ asset.moneybird_status }}</li>
+        {% if asset.check_moneybird_errors %}
+            <li>Moneybird errors: {{ asset.check_moneybird_errors }}</li>
+        {% endif %}
     </ul>
     <br>
     <ul>

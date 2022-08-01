@@ -11,7 +11,8 @@ from django.db.models import (
     Case,
     Count,
     Func,
-    Expression, Exists,
+    Expression,
+    Exists,
 )
 from django.db.models.functions import Coalesce, FirstValue, Concat
 from django.utils.translation import gettext_lazy as _
@@ -343,10 +344,7 @@ class Asset(models.Model):
     is_amortized = ValueCheckProperty("coalesce_total_assets_value", Decimal(0))
 
     is_commerce = FilteredRelatedExistenceCheckProperty(
-        'collection',
-        filter=Q(
-            collection__commerce=True
-        )
+        "collection", filter=Q(collection__commerce=True)
     )
 
     is_rented = FilteredRelatedExistenceCheckProperty(
@@ -381,68 +379,94 @@ class Asset(models.Model):
     )
 
     objects = QueryablePropertiesManager()
-    moneybird_status = AnnotationProperty(
-        Case(
-            When(is_commerce=False, then=Value("-")),
-            When(
-                is_commerce=True,
-                is_purchased_amortized=False,
-                is_purchased_asset=False,
-                then=Value("Unknown"),
-            ),
-            When(is_sold=True, then=Value("sold")),
-            # When(is_amortized=True, then=Value("Amortized")),
-            # When(is_commerce=True, is_sold=True, is_purchased_amortized=True, is_purchased_asset=False, then=Value("Sold")),
-            # When(is_commerce=True, is_sold=True, is_purchased_amortized=False, is_purchased_asset=True, then=Value("Sold")),
-            # When(is_commerce=True, is_sold=True, is_purchased_amortized=True, is_purchased_asset=False, is_amortized=False, then=Value("Sold (error)")),
-            # When(is_commerce=True, is_sold=True, is_purchased_amortized=False, is_purchased_asset=True, is_amortized=False, then=Value("Sold (error)")),
-            # When(is_sold=True, is_amortized=False, then=Value("Sold (error)")),
-            When(is_rented=True, has_rental_agreement=True, then=Value("Rented")),
-            When(
-                is_rented=False,
-                has_rental_agreement=True,
-                then=Value("Rented (error)"),
-            ),
-            When(
-                is_rented=True,
-                has_rental_agreement=False,
-                then=Value("Rented (error)"),
-            ),
-            When(is_rented=False, has_loan_agreement=True, then=Value("Loaned")),
-            # When(
-            #     is_sold=False,
-            #     is_amortized=True,
-            #     is_purchased_amortized=False,
-            #     then=Value("Amortized"),
-            # ),
-            # When(
-            #     is_amortized=True,
-            #     is_purchased_amortized=True,
-            #     then=Value("Available or amortized"),
-            # ),
-            default=Value("Available"),
-        )
-    )
+    # moneybird_status = AnnotationProperty(
+    #     Case(
+    #         When(is_commerce=False, then=Value("-")),
+    #         When(
+    #             is_commerce=True,
+    #             is_purchased_amortized=False,
+    #             is_purchased_asset=False,
+    #             then=Value("Unknown"),
+    #         ),
+    #         When(is_sold=True, then=Value("sold")),
+    #         # When(is_amortized=True, then=Value("Amortized")),
+    #         # When(is_commerce=True, is_sold=True, is_purchased_amortized=True, is_purchased_asset=False, then=Value("Sold")),
+    #         # When(is_commerce=True, is_sold=True, is_purchased_amortized=False, is_purchased_asset=True, then=Value("Sold")),
+    #         # When(is_commerce=True, is_sold=True, is_purchased_amortized=True, is_purchased_asset=False, is_amortized=False, then=Value("Sold (error)")),
+    #         # When(is_commerce=True, is_sold=True, is_purchased_amortized=False, is_purchased_asset=True, is_amortized=False, then=Value("Sold (error)")),
+    #         # When(is_sold=True, is_amortized=False, then=Value("Sold (error)")),
+    #         When(is_rented=True, has_rental_agreement=True, then=Value("Rented")),
+    #         When(
+    #             is_rented=False,
+    #             has_rental_agreement=True,
+    #             then=Value("Rented (error)"),
+    #         ),
+    #         When(
+    #             is_rented=True,
+    #             has_rental_agreement=False,
+    #             then=Value("Rented (error)"),
+    #         ),
+    #         When(is_rented=False, has_loan_agreement=True, then=Value("Loaned")),
+    #         # When(
+    #         #     is_sold=False,
+    #         #     is_amortized=True,
+    #         #     is_purchased_amortized=False,
+    #         #     then=Value("Amortized"),
+    #         # ),
+    #         # When(
+    #         #     is_amortized=True,
+    #         #     is_purchased_amortized=True,
+    #         #     then=Value("Available or amortized"),
+    #         # ),
+    #         default=Value("Available"),
+    #     )
+    # )
 
     @property
-    def _moneybird_status(self):
-        if not self.is_commerce:
-            return None
-        if not self.is_purchased_amortized and not self.is_purchased_asset:
-            return "Unknown"
-        if self.is_sold:
-            return "Sold"
-        if self.is_rented:
-            if self.has_rental_agreement:
-                return "Rented"
-            else:
-                return "Rented (error)"
-        if self.has_loan_agreement:
-            return "Loaned"
-        return "Available"
+    def moneybird_status(self):
+        error = self.check_moneybird_errors() is not None
 
+        if not self.is_commerce:
+            return None if not error else "Error"
+        if self.is_sold:
+            return "Sold" if not error else "Sold (error)"
+        if self.is_rented or self.has_rental_agreement:
+            return "Rented" if not error else "Rented (error)"
+        if self.has_loan_agreement:
+            return "Loaned" if not error else "Loaned (error)"
+        if self.is_amortized:
+            if self.is_purchased_asset:
+                return "Amortized" if not error else "Amortized (error)"
+            return (
+                "Available or amortized"
+                if not error
+                else "Available or amortized (error)"
+            )
+
+        return "Available" if not error else "Available (error)"
 
     def check_moneybird_errors(self):
+        if self.is_sold and self.is_rented:
+            return "Sold and rented"
+        if self.is_sold and not self.is_amortized:
+            return "Sold and not amortized"
+        if self.is_rented and not self.has_rental_agreement:
+            return "Rented and not rental agreement"
+        if self.is_rented and self.has_loan_agreement:
+            return "Rented and loan agreement"
+        if self.has_rental_agreement and not self.is_rented:
+            return "Rental agreement and not rented"
+        if self.has_rental_agreement and self.has_loan_agreement:
+            return "Rental agreement and loan agreement"
+
+        if not self.is_commerce:
+            if self.is_sold:
+                return "Sold and not commerce"
+            if self.is_rented:
+                return "Rented and not commerce"
+            if self.has_rental_agreement:
+                return "Rental agreement and not commerce"
+
         if self.is_margin and self.is_non_margin:
             return "Margin asset on non-margin ledgers"
 
