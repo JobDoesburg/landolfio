@@ -389,47 +389,34 @@ class Asset(models.Model):
                 is_purchased_asset=False,
                 then=Value("Unknown"),
             ),
+            When(is_sold=True, is_amortized=True, then=Value("Sold")),
+            # When(is_sold=True, is_amortized=False, then=Value("Sold (error)")),
+            # When(is_rented=True, has_rental_agreement=True, then=Value("Rented")),
+            # When(
+            #     is_rented=False,
+            #     has_rental_agreement=True,
+            #     then=Value("Rented (error)"),
+            # ),
+            # When(
+            #     is_rented=True,
+            #     has_rental_agreement=False,
+            #     then=Value("Rented (error)"),
+            # ),
+            # When(is_rented=False, has_loan_agreement=True, then=Value("Loaned")),
+            # When(
+            #     is_sold=False,
+            #     is_amortized=True,
+            #     is_purchased_amortized=False,
+            #     then=Value("Amortized"),
+            # ),
+            # When(
+            #     is_amortized=True,
+            #     is_purchased_amortized=True,
+            #     then=Value("Available or amortized"),
+            # ),
             default=Value("Available"),
         )
     )
-
-    # moneybird_status = AnnotationProperty(
-    #     Case(
-    #         When(is_commerce=False, then=Value("-")),
-    #         When(
-    #             is_commerce=True,
-    #             is_purchased_amortized=False,
-    #             is_purchased_asset=False,
-    #             then=Value("Unknown"),
-    #         ),
-    #         When(is_sold=True, is_amortized=True, then=Value("Sold")),
-    #         When(is_sold=True, is_amortized=False, then=Value("Sold (error)")),
-    #         When(is_rented=True, has_rental_agreement=True, then=Value("Rented")),
-    #         When(
-    #             is_rented=False,
-    #             has_rental_agreement=True,
-    #             then=Value("Rented (error)"),
-    #         ),
-    #         When(
-    #             is_rented=True,
-    #             has_rental_agreement=False,
-    #             then=Value("Rented (error)"),
-    #         ),
-    #         When(is_rented=False, has_loan_agreement=True, then=Value("Loaned")),
-    #         When(
-    #             is_sold=False,
-    #             is_amortized=True,
-    #             is_purchased_amortized=False,
-    #             then=Value("Amortized"),
-    #         ),
-    #         When(
-    #             is_amortized=True,
-    #             is_purchased_amortized=True,
-    #             then=Value("Available or amortized"),
-    #         ),
-    #         default=Value("Available"),
-    #     )
-    # )
 
     def check_moneybird_errors(self):
         if self.is_margin and self.is_non_margin:
