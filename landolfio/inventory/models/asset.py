@@ -389,7 +389,10 @@ class Asset(models.Model):
                 is_purchased_asset=False,
                 then=Value("Unknown"),
             ),
-            When(is_commerce=True, is_sold=True, is_amortized=True, then=Value("Sold")),
+            When(is_commerce=True, is_sold=True, is_purchased_amortized=True, is_purchased_asset=False, is_amortized=True, then=Value("Sold")),
+            When(is_commerce=True, is_sold=True, is_purchased_amortized=False, is_purchased_asset=True, is_amortized=True, then=Value("Sold")),
+            When(is_commerce=True, is_sold=True, is_purchased_amortized=True, is_purchased_asset=False, is_amortized=False, then=Value("Sold (error)")),
+            When(is_commerce=True, is_sold=True, is_purchased_amortized=False, is_purchased_asset=True, is_amortized=False, then=Value("Sold (error)")),
             # When(is_sold=True, is_amortized=False, then=Value("Sold (error)")),
             # When(is_rented=True, has_rental_agreement=True, then=Value("Rented")),
             # When(
