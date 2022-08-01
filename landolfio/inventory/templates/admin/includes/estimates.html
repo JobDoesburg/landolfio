@@ -1,11 +1,27 @@
 <div class="module">
     <h2>Estimates</h2>
-    <ul>
-        {% for estimate_line in asset.estimate_document_line_assets.all %}
-            <li>
-                {{ estimate_line.date|default_if_none:"" }} {{ estimate_line.contact }} ({{ estimate_line.document_line.document.state }}):<br>
-                {{ estimate_line.description }}. {{ estimate_line.value }}
-            </li>
-        {% endfor %}
-    </ul>
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Contact</th>
+                <th>Description</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for estimate_line in asset.estimate_document_line_assets.all %}
+                <tr>
+                    <td>{{ estimate_line.date|default_if_none:"" }}</td>
+                    <td>{{ estimate_line.contact }}</td>
+                    <td>{{ estimate_line.description }}</td>
+                    <td>{{ estimate_line.value }}</td>
+                    <td>{{ estimate_line.document_line.document.state }}</td>
+                    <td><a href="#">View</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>

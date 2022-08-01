@@ -379,10 +379,28 @@ class Asset(models.Model):
     moneybird_status = AnnotationProperty(
         Case(
             When(Q(is_commerce=False), then=Value(None)),
-            When(Q(is_sold=True), then=Value("Sold")),
-            When(Q(is_rented=True), then=Value("Rented")),
             When(
-                Q(is_amortized=True, is_purchased_amortized=False),
+                Q(
+                    is_commerce=True,
+                    is_purchased_amortized=False,
+                    is_purchased_asset=False,
+                ),
+                then=Value("Unknown"),
+            ),
+            When(Q(is_sold=True, is_amortized=True), then=Value("Sold")),
+            When(Q(is_sold=True, is_amortized=False), then=Value("Sold (error)")),
+            When(Q(is_rented=True, has_rental_agreement=True), then=Value("Rented")),
+            When(
+                Q(is_rented=False, has_rental_agreement=True),
+                then=Value("Rented (error)"),
+            ),
+            When(
+                Q(is_rented=True, has_rental_agreement=False),
+                then=Value("Rented (error)"),
+            ),
+            When(Q(is_rented=False, has_loan_agreement=True), then=Value("Loaned")),
+            When(
+                Q(is_sold=False, is_amortized=True, is_purchased_amortized=False),
                 then=Value("Amortized"),
             ),
             When(

@@ -16,11 +16,13 @@
         align-items: stretch;
     }
     .file-upload form input[type=submit] {
-        margin-top: 10px;
         align-self: center;
     }
     .file-upload .filepond--panel-root {
         background-color: var(--darkened-bg);
+    }
+    .filepond--credits {
+        display: none;
     }
 
 
@@ -38,7 +40,6 @@
                data-max-file-size="200MB"
                data-max-files="20">
         </div>
-
         <input type="submit" value="Submit">
     </form>
     <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
