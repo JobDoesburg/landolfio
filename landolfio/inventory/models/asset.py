@@ -341,7 +341,12 @@ class Asset(models.Model):
         Coalesce(F("total_assets_value"), Decimal(0))
     )
 
-    is_amortized = AnnotationProperty(GreaterThan(Coalesce(F("total_assets_value"), Decimal(0)), Decimal(0)))
+    is_amortized = AnnotationProperty(
+        Case(
+            When(GreaterThan(F("total_assets_value"), Decimal(0)), then=Value(False)),
+            default=Value(True),
+        )
+    )
 
     is_commerce = FilteredRelatedExistenceCheckProperty(
         'collection',
