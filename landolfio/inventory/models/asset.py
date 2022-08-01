@@ -383,6 +383,12 @@ class Asset(models.Model):
     moneybird_status = AnnotationProperty(
         Case(
             When(is_commerce=False, then=Value("-")),
+            When(
+                is_commerce=True,
+                is_purchased_amortized=False,
+                is_purchased_asset=False,
+                then=Value("Unknown"),
+            ),
             default=Value("Available"),
         )
     )
