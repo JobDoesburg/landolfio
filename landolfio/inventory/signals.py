@@ -23,7 +23,7 @@ logging.info("Loading inventory.models.signals")
     sender=JournalDocumentLine,
     dispatch_uid="journal_document_line_post_save",
 )
-def on_document_line_save(sender, instance: JournalDocumentLine, **kwargs):
+def on_document_line_save(sender, instance: JournalDocumentLine, *args, **kwargs):
     # pylint: disable=unused-argument
     logging.info("JournalDocumentLine post save")
     find_assets_in_document_line(instance)
@@ -34,7 +34,7 @@ def on_document_line_save(sender, instance: JournalDocumentLine, **kwargs):
     sender=SalesInvoiceDocumentLine,
     dispatch_uid="sales_invoice_document_line_post_save",
 )
-def on_document_line_save(sender, instance: SalesInvoiceDocumentLine, **kwargs):
+def on_document_line_save(sender, instance: SalesInvoiceDocumentLine, *args, **kwargs):
     # pylint: disable=unused-argument
     logging.info("SalesInvoiceDocumentLine post save")
     find_assets_in_document_line(instance)
@@ -45,7 +45,7 @@ def on_document_line_save(sender, instance: SalesInvoiceDocumentLine, **kwargs):
     sender=PurchaseDocumentLine,
     dispatch_uid="purchase_document_line_post_save",
 )
-def on_document_line_save(sender, instance: PurchaseDocumentLine, **kwargs):
+def on_document_line_save(sender, instance: PurchaseDocumentLine, *args, **kwargs):
     # pylint: disable=unused-argument
     logging.info("PurchaseDocumentLine post save")
     find_assets_in_document_line(instance)
@@ -56,7 +56,7 @@ def on_document_line_save(sender, instance: PurchaseDocumentLine, **kwargs):
     sender=GeneralJournalDocumentLine,
     dispatch_uid="general_journal_document_line_post_save",
 )
-def on_document_line_save(sender, instance: GeneralJournalDocumentLine, **kwargs):
+def on_document_line_save(sender, instance: GeneralJournalDocumentLine, *args, **kwargs):
     # pylint: disable=unused-argument
     logging.info("GeneralJournalDocumentLine post save")
     find_assets_in_document_line(instance)
@@ -68,7 +68,7 @@ def on_document_line_save(sender, instance: GeneralJournalDocumentLine, **kwargs
     dispatch_uid="recurring_sales_invoice_document_line_post_save",
 )
 def on_document_line_save(
-    sender, instance: RecurringSalesInvoiceDocumentLine, **kwargs
+    sender, instance: RecurringSalesInvoiceDocumentLine, *args, **kwargs
 ):
     # pylint: disable=unused-argument
     logging.info("RecurringSalesInvoiceDocumentLine post save")
@@ -80,7 +80,7 @@ def on_document_line_save(
     sender=EstimateDocumentLine,
     dispatch_uid="estimate_document_line_post_save",
 )
-def on_document_line_save(sender, instance: EstimateDocumentLine, **kwargs):
+def on_document_line_save(sender, instance: EstimateDocumentLine, *args, **kwargs):
     # pylint: disable=unused-argument
     logging.info("EstimateDocumentLine post save")
     find_assets_in_document_line(instance)
@@ -91,7 +91,7 @@ def on_document_line_save(sender, instance: EstimateDocumentLine, **kwargs):
     sender=GeneralJournalDocument,
     dispatch_uid="general_journal_document_post_save",
 )
-def on_document_line_save(sender, instance: GeneralJournalDocument, **kwargs):
+def on_document_line_save(sender, instance: GeneralJournalDocument, *args, **kwargs):
     # pylint: disable=unused-argument
     logging.info("GeneralJournalDocument post save")
     for line in instance.document_lines.all():
