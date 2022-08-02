@@ -27,10 +27,10 @@ INSTALLED_APPS = [
     # "admin_numeric_filter",
     "autocompletefilter",
     "django_drf_filepond",
-    "moneybird",
-    "accounting",
-    "inventory",
     "ninox_import",
+    "inventory",
+    "accounting",
+    "moneybird",
 ]
 
 MIDDLEWARE = [
