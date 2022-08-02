@@ -6,20 +6,32 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounting', '0016_alter_journaldocumentline_options_and_more'),
+        ("accounting", "0016_alter_journaldocumentline_options_and_more"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='estimate',
-            options={'ordering': ('-draft_id', '-estimate_date', '-estimate_id'), 'verbose_name': 'Estimate', 'verbose_name_plural': 'Estimates'},
+            name="estimate",
+            options={
+                "ordering": ("-draft_id", "-estimate_date", "-estimate_id"),
+                "verbose_name": "Estimate",
+                "verbose_name_plural": "Estimates",
+            },
         ),
         migrations.AlterModelOptions(
-            name='purchasedocument',
-            options={'ordering': ('-date', 'pk'), 'verbose_name': 'Purchase document', 'verbose_name_plural': 'Purchase documents'},
+            name="purchasedocument",
+            options={
+                "ordering": ("-date", "pk"),
+                "verbose_name": "Purchase document",
+                "verbose_name_plural": "Purchase documents",
+            },
         ),
         migrations.AlterModelOptions(
-            name='salesinvoice',
-            options={'ordering': ('-draft_id', '-date', '-invoice_id'), 'verbose_name': 'Sales invoice', 'verbose_name_plural': 'Sales invoices'},
+            name="salesinvoice",
+            options={
+                "ordering": ("-draft_id", "-date", "-invoice_id"),
+                "verbose_name": "Sales invoice",
+                "verbose_name_plural": "Sales invoices",
+            },
         ),
     ]

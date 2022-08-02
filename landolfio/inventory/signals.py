@@ -17,6 +17,12 @@ from inventory.services import (
 )
 
 
+@receiver(models.signals.post_save, sender=JournalDocumentLine)
+def on_document_line_save(sender, instance: JournalDocumentLine, **kwargs):
+    # pylint: disable=unused-argument
+    find_assets_in_document_line(instance)
+
+
 @receiver(models.signals.post_save, sender=SalesInvoiceDocumentLine)
 def on_document_line_save(sender, instance: SalesInvoiceDocumentLine, **kwargs):
     # pylint: disable=unused-argument
