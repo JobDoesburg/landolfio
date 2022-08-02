@@ -99,15 +99,15 @@ class Asset(models.Model):
     )
 
     @property
-    def get_ledger_amounts(self):
+    def get_ledger_account_amounts(self):
         return dict(
             (
                 LedgerAccount.objects.get(
-                    moneybird_id=x["ledger_account__moneybird_id"]
+                    moneybird_id=x["document_line__ledger_account__moneybird_id"]
                 ),
                 x["value__sum"],
             )
-            for x in self.journal_document_lines.values(
+            for x in self.journal_document_line_assets.values(
                 "document_line__ledger_account__moneybird_id"
             ).annotate(Sum("value"))
         )
@@ -446,29 +446,35 @@ class Asset(models.Model):
         return "Available" if not error else "Available (error)"
 
     def check_moneybird_errors(self):
+        errors = []
+
         if self.is_sold and self.is_rented:
-            return "Sold and rented"
+            errors.append("Sold and rented")
         if self.is_sold and not self.is_amortized:
-            return "Sold and not amortized"
+            errors.append("Sold and not amortized")
         if self.is_rented and not self.has_rental_agreement:
-            return "Rented and not rental agreement"
+            errors.append("Rented and not rental agreement")
         if self.is_rented and self.has_loan_agreement:
-            return "Rented and loan agreement"
+            errors.append("Rented and loan agreement")
         if self.has_rental_agreement and not self.is_rented:
-            return "Rental agreement and not rented"
+            errors.append("Rental agreement and not rented")
         if self.has_rental_agreement and self.has_loan_agreement:
-            return "Rental agreement and loan agreement"
+            errors.append("Rental agreement and loan agreement")
 
         if not self.is_commerce:
             if self.is_sold:
-                return "Sold and not commerce"
+                errors.append("Sold and not commerce")
             if self.is_rented:
-                return "Rented and not commerce"
+                errors.append("Rented and not commerce")
             if self.has_rental_agreement:
-                return "Rental agreement and not commerce"
+                errors.append("Rental agreement and not commerce")
 
         if self.is_margin and self.is_non_margin:
-            return "Margin asset on non-margin ledgers"
+            errors.append("Margin asset on non-margin ledgers")
+
+        if errors:
+            return errors
+        return None
 
     def __str__(self):
         return f"{self.category.name_singular} {self.id} ({self.size})"

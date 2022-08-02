@@ -1,11 +1,49 @@
+<style>
+    #content-main .module {
+        padding-bottom: 0;
+    }
+    #content-main .module table {
+        display: block;
+        overflow-x: scroll;
+    }
+</style>
+
 <div class="module">
     <h2>Journal documents</h2>
-    <ul>
+    <table>
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Date</th>
+            <th>Contact</th>
+            <th>Workflow</th>
+            <th>Status</th>
+            <th>Acion</th>
+            <th>Description</th>
+            <th>Ledger account</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
         {% for journal_document_line in asset.journal_document_line_assets.all %}
-            <li>
-                {{ journal_document_line.date|default_if_none:"" }} {{ journal_document_line.contact }} ({{ journal_document_line.document_line.document.state }}):<br>
-                {{ journal_document_line.description }}. {{ journal_document_line.value }}
-            </li>
+            <tr>
+                <td>{{ journal_document_line.document_line.document|default_if_none:"" }}</td>
+                <td>{{ journal_document_line.date|default_if_none:"" }}</td>
+                <td>{{ journal_document_line.contact|default_if_none:"" }}</td>
+                <td>{{ journal_document_line.document_line.document.workflow|default_if_none:"" }}</td>
+                <td>{{ journal_document_line.document_line.document.state|default_if_none:"" }}</td>
+                <td>
+                    <a class="button small" href="{{ journal_document_line.document_line.document.moneybird_url }}" target="_blank" style="white-space: nowrap;">View on Moneybird</a>
+                </td>
+                <td>{{ journal_document_line.description|default_if_none:"" }}</td>
+                <td>{{ journal_document_line.ledger_account|default_if_none:"" }}</td>
+                <td>{{ journal_document_line.value|default_if_none:"" }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="9">No journal documents</td>
+            </tr>
         {% endfor %}
-    </ul>
+        </tbody>
+    </table>
 </div>

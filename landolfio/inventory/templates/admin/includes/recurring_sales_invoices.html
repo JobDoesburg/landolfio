@@ -1,0 +1,50 @@
+{% load static %}
+<style>
+    #content-main .module {
+        padding-bottom: 0;
+    }
+    #content-main .module table {
+        display: block;
+        overflow-x: scroll;
+    }
+</style>
+
+<div class="module">
+    <h2>Recurring sales invoices</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Start date</th>
+            <th>Contact</th>
+            <th>Workflow</th>
+            <th>Active</th>
+            <th>Frequency</th>
+            <th>Acion</th>
+            <th>Description</th>
+            <th>Ledger account</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for document_line in asset.recurring_sales_invoice_document_lines.all %}
+            <tr>
+                <td>{{ document_line.document.start_date|default_if_none:"" }}</td>
+                <td>{{ document_line.contact|default_if_none:"" }}</td>
+                <td>{{ document_line.document.workflow|default_if_none:"" }}</td>
+                <td><img src="{% if document_line.document.active %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></td>
+                <td>{{ document_line.document.frequency }} {{ document_line.document.frequency_type }}</td>
+                <td>
+                    <a class="button small" href="{{ document_line.document.moneybird_url }}" target="_blank" style="white-space: nowrap;">View on Moneybird</a>
+                </td>
+                <td>{{ document_line.description|default_if_none:"" }}</td>
+                <td>{{ document_line.ledger_account|default_if_none:"" }}</td>
+                <td>{{ document_line.value|default_if_none:"" }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="9">No recurring sales invoices</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,23 @@
+<div class="module">
+    <h2 style="margin-bottom: 0">Ledger accounts</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>Ledger account</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ledger_account, value in asset.get_ledger_account_amounts.items %}
+            <tr>
+                <td>{{ ledger_account }}</td>
+                <td>{{ value }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="2">Not on ledger accounts</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

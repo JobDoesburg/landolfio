@@ -1,25 +1,45 @@
+<style>
+    #content-main .module {
+        padding-bottom: 0;
+    }
+    #content-main .module table {
+        display: block;
+        overflow-x: scroll;
+    }
+</style>
+
 <div class="module">
     <h2>Estimates</h2>
     <table>
         <thead>
             <tr>
+                <th>Id</th>
                 <th>Date</th>
                 <th>Contact</th>
+                <th>Workflow</th>
+                <th>Status</th>
+                <th>Acion</th>
                 <th>Description</th>
                 <th>Total</th>
-                <th>Status</th>
-                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             {% for estimate_line in asset.estimate_document_line_assets.all %}
                 <tr>
+                    <td>{{ estimate_line.document_line.document|default_if_none:"" }}</td>
                     <td>{{ estimate_line.date|default_if_none:"" }}</td>
-                    <td>{{ estimate_line.contact }}</td>
-                    <td>{{ estimate_line.description }}</td>
-                    <td>{{ estimate_line.value }}</td>
-                    <td>{{ estimate_line.document_line.document.state }}</td>
-                    <td><a href="#">View</a></td>
+                    <td>{{ estimate_line.contact|default_if_none:"" }}</td>
+                    <td>{{ estimate_line.document_line.document.workflow|default_if_none:"" }}</td>
+                    <td>{{ estimate_line.document_line.document.state|default_if_none:"" }}</td>
+                    <td>
+                        <a class="button small" href="{{ estimate_line.document_line.document.moneybird_url }}" target="_blank" style="white-space: nowrap;">View on Moneybird</a>
+                    </td>
+                    <td>{{ estimate_line.description|default_if_none:"" }}</td>
+                    <td>{{ estimate_line.value|default_if_none:"" }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="8">No estimates</td>
                 </tr>
             {% endfor %}
         </tbody>

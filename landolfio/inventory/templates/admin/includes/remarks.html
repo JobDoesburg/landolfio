@@ -1,11 +1,25 @@
 <div class="module">
     <h2>Remarks</h2>
-    <ul>
+    <table>
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Remark</th>
+        </tr>
+        </thead>
+        <tbody>
         {% for remark in asset.remarks.all %}
-            <li>
-                {{ remark.date }}:<br>
-                {{ remark.remark }}
-            </li>
+            <tr>
+                <td>{{ remark.date }}</td>
+                <td>{{ remark.remark }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="2">No remarks</td>
+            </tr>
         {% endfor %}
-    </ul>
+        </tbody>
+    </table>
+
+    <ul>
 </div>

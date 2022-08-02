@@ -5,6 +5,12 @@
         float: right;
     }
     #content-related {
+        background: unset;
+    }
+    #content-related .module {
+        background: var(--darkened-bg);
+    }
+    #content-related .module {
         margin-bottom: 30px;
     }
     #content-related .module h2 {
@@ -25,17 +31,23 @@
     }
 </style>
 
-<div class="module">
-    <h2 style="margin-bottom: 6px;">{{ asset.id }}<a class="button small" href="{% url 'admin:inventory_asset_change' asset.pk %}">Edit</a></h2>
+<div class="module" style="padding-bottom: 8px">
+    <h2>{{ asset.id }}<a class="button small" href="{% url 'admin:inventory_asset_change' asset.pk %}">Edit</a></h2>
     <ul>
-        <li>Category: {{ asset.category }}</li>
-        <li>Size: {{ asset.size }}</li>
-        <li>Collection: {{ asset.collection }}</li>
-        <li>Location: {{ asset.location }}</li>
-        <li>Listing price: {{ asset.listing_price }}</li>
-        <li>Moneybird status: {{ asset.moneybird_status }}</li>
+        <li>Category: {{ asset.category|default_if_none:"-" }}</li>
+        <li>Size: {{ asset.size|default_if_none:"-" }}</li>
+        <li>Collection: {{ asset.collection|default_if_none:"-" }}</li>
+        <li>Location: {{ asset.location|default_if_none:"-" }}</li>
+        <li>Listing price: {{ asset.listing_price|default_if_none:"-" }}</li>
+        <li>Moneybird status: {{ asset.moneybird_status|default_if_none:"-" }}</li>
         {% if asset.check_moneybird_errors %}
-            <li>Moneybird errors: {{ asset.check_moneybird_errors }}</li>
+            <li>Moneybird errors:
+                <ul>
+                    {% for error in asset.check_moneybird_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </li>
         {% endif %}
     </ul>
     <br>

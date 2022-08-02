@@ -34,11 +34,13 @@
 {% block content %}
     <div id="content-related">
         {% include "admin/includes/sidebar.html" %}
+        {% include "admin/includes/ledger_accounts.html" %}
     </div>
     <div id="content-main">
         {% include "admin/includes/photos.html" %}
         {% include "admin/includes/remarks.html" %}
         {% include "admin/includes/estimates.html" %}
+        {% include "admin/includes/recurring_sales_invoices.html" %}
         {% include "admin/includes/journal_documents.html" %}
     </div>
 {% endblock %}

@@ -10,6 +10,7 @@ class Collection(models.Model):
     )
 
     commerce = models.BooleanField()
+    order = models.PositiveSmallIntegerField(null=True, blank=True)
 
     def __str__(self):
         """Return Asset string."""
@@ -19,3 +20,4 @@ class Collection(models.Model):
         """Meta Class to define verbose_name."""
 
         verbose_name = "Collectie"
+        ordering = ["order", "pk"]
