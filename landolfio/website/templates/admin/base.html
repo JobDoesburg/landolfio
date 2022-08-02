@@ -7,7 +7,7 @@
 
 {% block userlinks %}
     {% if has_permission %}
-        <a href="#" onclick="sync_database_button_click(this)">{% trans '&#128257; Synchroniseren met MoneyBird' %}</a> /
+        <a href="#" onclick="sync_database_button_click(this)">&#128257; {% trans 'Synchronize with MoneyBird' %}</a> /
     {% endif %}
     <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
     <a href="{% url 'admin:logout' %}">{% trans 'Log out' %} </a>
