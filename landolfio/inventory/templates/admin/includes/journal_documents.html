@@ -16,7 +16,6 @@
             <th style="width: unset">Id</th>
             <th style="width: unset">Date</th>
             <th style="width: unset">Contact</th>
-            <th style="width: unset">Workflow</th>
             <th style="width: unset">Status</th>
             <th style="width: unset">Action</th>
             <th>Description</th>
@@ -30,7 +29,6 @@
                 <td>{{ journal_document_line.document_line.document|default_if_none:"" }}</td>
                 <td>{{ journal_document_line.date|default_if_none:"" }}</td>
                 <td>{{ journal_document_line.contact|default_if_none:"" }}</td>
-                <td>{{ journal_document_line.document_line.document.workflow|default_if_none:"" }}</td>
                 <td>{{ journal_document_line.document_line.document.state|default_if_none:"" }}</td>
                 <td>
                     <a class="button small" href="{{ journal_document_line.document_line.document.moneybird_url }}" target="_blank" style="white-space: nowrap;">View on Moneybird</a>
@@ -41,7 +39,7 @@
             </tr>
         {% empty %}
             <tr>
-                <td colspan="9">No journal documents</td>
+                <td colspan="8">No journal documents</td>
             </tr>
         {% endfor %}
         </tbody>
