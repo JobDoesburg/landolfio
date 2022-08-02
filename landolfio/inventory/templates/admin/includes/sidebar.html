@@ -34,14 +34,14 @@
 <div class="module" style="padding-bottom: 8px">
     <h2>{{ asset.id }}<a class="button small" href="{% url 'admin:inventory_asset_change' asset.pk %}">Edit</a></h2>
     <ul>
-        <li>Category: {{ asset.category|default_if_none:"-" }}</li>
-        <li>Size: {{ asset.size|default_if_none:"-" }}</li>
-        <li>Collection: {{ asset.collection|default_if_none:"-" }}</li>
-        <li>Location: {{ asset.location|default_if_none:"-" }}</li>
-        <li>Listing price: {{ asset.listing_price|default_if_none:"-" }}</li>
-        <li>Moneybird status: {{ asset.moneybird_status|default_if_none:"-" }}</li>
+        <li><strong>Category:</strong> {{ asset.category|default_if_none:"-" }}</li>
+        <li><strong>Size:</strong> {{ asset.size|default_if_none:"-" }}</li>
+        <li><strong>Collection:</strong> {{ asset.collection|default_if_none:"-" }}</li>
+        <li><strong>Location:</strong> {{ asset.location|default_if_none:"-" }}</li>
+        <li><strong>Listing price:</strong> {{ asset.listing_price|default_if_none:"-" }}</li>
+        <li><strong>Moneybird status:</strong> {{ asset.moneybird_status|default_if_none:"-" }}</li>
         {% if asset.check_moneybird_errors %}
-            <li>Moneybird errors:
+            <li><strong>Moneybird errors:</strong>
                 <ul>
                     {% for error in asset.check_moneybird_errors %}
                         <li>{{ error }}</li>
@@ -50,20 +50,20 @@
             </li>
         {% endif %}
     </ul>
-    <br>
+    <hr>
     <ul>
-        <li>Margin: <img src="{% if asset.is_margin %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
-        <li>Amortized: <img src="{% if asset.amortized %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
-        <li>Has rental agreement: <img src="{% if asset.has_rental_agreement %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
-        <li>Has loan agreement: <img src="{% if asset.has_loan_agreement %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
-        <li>Is rented: <img src="{% if asset.is_rented %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
-        <li>Is sold: <img src="{% if asset.sold %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
+        <li><strong>Margin:</strong> <img src="{% if asset.is_margin %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
+        <li><strong>Amortized:</strong> <img src="{% if asset.amortized %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
+        <li><strong>Sold:</strong> <img src="{% if asset.sold %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
+        <li><strong>Rented:</strong> <img src="{% if asset.is_rented %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
+        <li><strong>Has rental agreement:</strong> <img src="{% if asset.has_rental_agreement %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
+        <li><strong>Has loan agreement:</strong> <img src="{% if asset.has_loan_agreement %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
     </ul>
-    <br>
+    <hr>
     <ul>
-        <li>Purchase value: {{ asset.purchase_value|default_if_none:"" }} </li>
-        <li>Assets value: {{ asset.total_assets_value|default_if_none:"" }} </li>
-        <li>Total expenses: {{ asset.total_expenses_value|default_if_none:"" }} </li>
-        <li>Total revenue: {{ asset.total_revenue_value|default_if_none:"" }} </li>
+        <li><strong>Assets value:</strong> {{ asset.total_assets_value|default_if_none:"" }} </li>
+        <li><strong>Purchase value:</strong> {{ asset.purchase_value|default_if_none:"" }} </li>
+        <li><strong>Total expenses:</strong> {{ asset.total_expenses_value|default_if_none:"" }} </li>
+        <li><strong>Total revenue:</strong> {{ asset.total_revenue_value|default_if_none:"" }} </li>
     </ul>
 </div>

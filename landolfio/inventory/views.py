@@ -11,6 +11,7 @@ from django_drf_filepond.api import store_upload
 from django_drf_filepond.models import TemporaryUpload, StoredUpload
 
 from inventory.models.asset import Asset
+from inventory.models.remarks import Remark
 from inventory.models.attachment import Attachment, attachments_directory_path
 from inventory.models.category import AssetCategory
 
@@ -38,14 +39,16 @@ class ViewAssetView(DetailView):
         return context
 
     def post(self, request, *args, **kwargs):
+        asset = self.get_object()
+
         data = request.POST
         try:
             filepond_ids = data.getlist("filepond")
         except KeyError:
-            return HttpResponseBadRequest("Missing filepond key in form.")
+            filepond_ids = []
 
         if not isinstance(filepond_ids, list):
-            return HttpResponseBadRequest("Unexpected data type in form.")
+            filepond_ids = []
 
         stored_uploads = []
         for upload_id in filepond_ids:
@@ -53,7 +56,6 @@ class ViewAssetView(DetailView):
                 continue
 
             tu = TemporaryUpload.objects.get(upload_id=upload_id)
-            asset = self.get_object()
             attachment = Attachment(asset=asset)
             stored_upload = store_upload(
                 upload_id, attachments_directory_path(attachment, tu.upload_name)
@@ -62,7 +64,12 @@ class ViewAssetView(DetailView):
             attachment.save()
             stored_uploads.append(upload_id)
 
-        # Return the list of uploads that were stored.
+        try:
+            remark = data.get("remark")
+            if remark != "":
+                Remark.objects.create(asset=asset, remark=remark)
+        except KeyError:
+            pass
         return redirect(self.request.path)
 
 
