@@ -9,16 +9,17 @@ from moneybird.models import (
 
 class Project(MoneybirdResourceModel):
     name = models.CharField(
+        verbose_name=_("name"),
         max_length=255,
     )
-    active = models.BooleanField(default=True)
+    active = models.BooleanField(verbose_name=_("active"), default=True)
 
     def __str__(self):
         return self.name
 
     class Meta:
-        verbose_name = _("Project")
-        verbose_name_plural = _("Projects")
+        verbose_name = _("project")
+        verbose_name_plural = _("projects")
 
 
 class ProjectResourceType(resources.ProjectResourceType):

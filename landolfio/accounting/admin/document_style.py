@@ -1,4 +1,3 @@
-from django.contrib import admin
 from django.contrib.admin import register
 
 from accounting.models.document_style import DocumentStyle

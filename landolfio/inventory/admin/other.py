@@ -9,16 +9,12 @@ from inventory.models.location import AssetLocation, AssetLocationGroup
 
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
-    """Collection admin."""
-
     search_fields = ["name"]
     ordering = ["id"]
 
 
 @admin.register(Attachment)
 class AttachmentAdmin(admin.ModelAdmin):
-    """Attachments admin."""
-
     model = Attachment
     list_display = (
         "asset",

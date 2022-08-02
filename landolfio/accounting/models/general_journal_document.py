@@ -25,12 +25,17 @@ class GeneralJournalDocument(SynchronizableMoneybirdResourceModel):
     def __str__(self):
         return self.reference
 
+    class Meta:
+        verbose_name = _("general journal document")
+        verbose_name_plural = _("general journal documents")
+        ordering = ["-date", "-moneybird_id"]
+
 
 class GeneralJournalDocumentLine(JournalDocumentLine):
     document = models.ForeignKey(
         GeneralJournalDocument,
         on_delete=models.CASCADE,
-        verbose_name=_("Document"),
+        verbose_name=_("document"),
         related_name="document_lines",
     )
 
@@ -39,13 +44,13 @@ class GeneralJournalDocumentLine(JournalDocumentLine):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name=_("Contact"),
+        verbose_name=_("contact"),
     )
     debit = models.DecimalField(
-        max_digits=19, decimal_places=2, null=True, blank=True, verbose_name=_("Debit")
+        max_digits=19, decimal_places=2, null=True, blank=True, verbose_name=_("debit")
     )
     credit = models.DecimalField(
-        max_digits=19, decimal_places=2, null=True, blank=True, verbose_name=_("Credit")
+        max_digits=19, decimal_places=2, null=True, blank=True, verbose_name=_("credit")
     )
 
     row_order = models.PositiveSmallIntegerField(
@@ -56,8 +61,8 @@ class GeneralJournalDocumentLine(JournalDocumentLine):
         return f"{self.description} in {self.document}"
 
     class Meta:
-        verbose_name = _("General journal document line")
-        verbose_name_plural = _("General journal document lines")
+        verbose_name = _("general journal document line")
+        verbose_name_plural = _("general journal document lines")
         ordering = ("-document__date", "row_order")
 
 

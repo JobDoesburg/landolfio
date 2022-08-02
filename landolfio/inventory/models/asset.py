@@ -6,15 +6,8 @@ from django.db.models import (
     Sum,
     Q,
     F,
-    Value,
-    When,
-    Case,
-    Count,
-    Func,
-    Expression,
-    Exists,
 )
-from django.db.models.functions import Coalesce, FirstValue, Concat
+from django.db.models.functions import Coalesce
 from django.utils.translation import gettext_lazy as _
 from queryable_properties.managers import QueryablePropertiesManager
 from queryable_properties.properties import (
@@ -22,19 +15,16 @@ from queryable_properties.properties import (
     AggregateProperty,
     AnnotationProperty,
     ValueCheckProperty,
-    SubqueryFieldProperty,
 )
 
 from accounting.models import (
     JournalDocumentLine,
     RecurringSalesInvoiceDocumentLine,
-    Contact,
 )
 from accounting.models.ledger_account import LedgerAccountType, LedgerAccount
 from accounting.models.estimate import (
     EstimateStates,
     EstimateDocumentLine,
-    Estimate,
 )
 from inventory.models.asset_on_document_line import (
     AssetOnJournalDocumentLine,
@@ -57,23 +47,21 @@ class FilteredRelatedExistenceCheckProperty(RelatedExistenceCheckProperty):
 
 
 class Asset(models.Model):
-    """Class model for Assets."""
-
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
     id = models.CharField(verbose_name=_("ID"), max_length=200, primary_key=True)
     category = models.ForeignKey(
-        AssetCategory, null=True, blank=False, on_delete=PROTECT
+        AssetCategory, null=True, blank=False, on_delete=PROTECT, verbose_name=_("category")
     )
-    size = models.ForeignKey(AssetSize, null=True, blank=True, on_delete=PROTECT)
+    size = models.ForeignKey(AssetSize, null=True, blank=True, on_delete=PROTECT, verbose_name=_("size"))
     location = models.ForeignKey(
-        AssetLocation, null=True, blank=True, on_delete=PROTECT
+        AssetLocation, null=True, blank=True, on_delete=PROTECT, verbose_name=_("location")
     )
     collection = models.ForeignKey(
-        Collection, on_delete=models.CASCADE, verbose_name=_("Collection")
+        Collection, on_delete=models.CASCADE, verbose_name=_("collection")
     )
 
     listing_price = models.DecimalField(
-        verbose_name=_("Listing price"),
+        verbose_name=_("listing price"),
         null=True,
         blank=True,
         max_digits=10,
@@ -82,20 +70,23 @@ class Asset(models.Model):
     local_status = models.CharField(
         max_length=40,
         choices=AssetStates.choices,
-        verbose_name=_("Local status"),
-        default="Unknown",
+        verbose_name=_("local status"),
+        default=AssetStates.UNKNOWN,
     )
 
     journal_document_lines = models.ManyToManyField(
         JournalDocumentLine,
         through=AssetOnJournalDocumentLine,
+        verbose_name=_("journal document lines"),
     )
     estimate_document_lines = models.ManyToManyField(
-        EstimateDocumentLine, through=AssetOnEstimateDocumentLine
+        EstimateDocumentLine, through=AssetOnEstimateDocumentLine,
+        verbose_name=_("estimate document lines"),
     )
     recurring_sales_invoice_document_lines = models.ManyToManyField(
         RecurringSalesInvoiceDocumentLine,
         through=AssetOnRecurringSalesInvoiceDocumentLine,
+        verbose_name=_("recurring sales invoice document lines"),
     )
 
     @property
@@ -427,50 +418,50 @@ class Asset(models.Model):
         error = self.check_moneybird_errors() is not None
 
         if not self.is_commerce:
-            return None if not error else "Error"
+            return None if not error else _("Error")
         if self.is_sold:
-            return "Sold" if not error else "Sold (error)"
+            return _("Sold") if not error else _("Sold (error)")
         if self.is_rented or self.has_rental_agreement:
-            return "Rented" if not error else "Rented (error)"
+            return _("Rented") if not error else _("Rented (error)")
         if self.has_loan_agreement:
-            return "Loaned" if not error else "Loaned (error)"
+            return _("Loaned") if not error else _("Loaned (error)")
         if self.is_amortized:
             if self.is_purchased_asset:
-                return "Amortized" if not error else "Amortized (error)"
+                return _("Amortized") if not error else _("Amortized (error)")
             return (
-                "Available or amortized"
+                _("Available or amortized")
                 if not error
-                else "Available or amortized (error)"
+                else _("Available or amortized (error)")
             )
 
-        return "Available" if not error else "Available (error)"
+        return _("Available") if not error else _("Available (error)")
 
     def check_moneybird_errors(self):
         errors = []
 
         if self.is_sold and self.is_rented:
-            errors.append("Sold and rented")
+            errors.append(_("Sold and rented"))
         if self.is_sold and not self.is_amortized:
-            errors.append("Sold and not amortized")
+            errors.append(_("Sold and not amortized"))
         if self.is_rented and not self.has_rental_agreement:
-            errors.append("Rented and not rental agreement")
+            errors.append(_("Rented and not rental agreement"))
         if self.is_rented and self.has_loan_agreement:
-            errors.append("Rented and loan agreement")
+            errors.append(_("Rented and loan agreement"))
         if self.has_rental_agreement and not self.is_rented:
-            errors.append("Rental agreement and not rented")
+            errors.append(_("Rental agreement and not rented"))
         if self.has_rental_agreement and self.has_loan_agreement:
-            errors.append("Rental agreement and loan agreement")
+            errors.append(_("Rental agreement and loan agreement"))
 
         if not self.is_commerce:
             if self.is_sold:
-                errors.append("Sold and not commerce")
+                errors.append(_("Sold and not commerce"))
             if self.is_rented:
-                errors.append("Rented and not commerce")
+                errors.append(_("Rented and not commerce"))
             if self.has_rental_agreement:
-                errors.append("Rental agreement and not commerce")
+                errors.append(_("Rental agreement and not commerce"))
 
         if self.is_margin and self.is_non_margin:
-            errors.append("Margin asset on non-margin ledgers")
+            errors.append(_("Margin asset on non-margin ledgers"))
 
         if errors:
             return errors

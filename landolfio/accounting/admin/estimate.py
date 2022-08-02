@@ -12,8 +12,6 @@ from website.multi_select_filter import MultiSelectFieldListFilter
 
 
 class EstimateDocumentLineInline(MoneybirdResourceModelAdminMixin, admin.StackedInline):
-    """The admin view for DocumentLines."""
-
     model = EstimateDocumentLine
     fields = (
         "amount",

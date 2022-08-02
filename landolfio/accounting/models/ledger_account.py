@@ -22,34 +22,40 @@ class LedgerAccountType(models.TextChoices):
 
 class LedgerAccount(MoneybirdResourceModel):
 
-    parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
+    parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("parent"))
 
     name = models.CharField(
         max_length=100,
+        verbose_name=_("name"),
     )
 
     account_type = models.CharField(
         max_length=100,
         choices=LedgerAccountType.choices,
-        verbose_name=_("Account type"),
+        verbose_name=_("account type"),
     )
 
     is_margin = models.BooleanField(
         default=False,
+        verbose_name=_("is margin"),
         help_text=_("All assets on this ledger account are margin assets."),
     )
 
     is_sales = models.BooleanField(
-        default=False, help_text=_("Ledger account is used for selling assets.")
+        default=False,
+        verbose_name=_("is sales"),
+        help_text=_("Ledger account is used for selling assets.")
     )
 
     is_purchase = models.BooleanField(
-        default=False, help_text=_("Ledger account is used for purchasing assets.")
+        default=False,
+        verbose_name=_("is purchase"),
+        help_text=_("Ledger account is used for purchasing assets.")
     )
 
     class Meta:
-        verbose_name = _("Ledger account")
-        verbose_name_plural = _("Ledger accounts")
+        verbose_name = _("ledger account")
+        verbose_name_plural = _("ledger accounts")
 
     def __str__(self):
         return self.name

@@ -9,12 +9,9 @@ from moneybird.admin import (
     MoneybirdResourceModelAdminMixin,
 )
 
-
 class GeneralJournalDocumentLineInline(
     MoneybirdResourceModelAdminMixin, admin.StackedInline
 ):
-    """The admin view for DocumentLines."""
-
     model = GeneralJournalDocumentLine
     fields = (
         "ledger_account",

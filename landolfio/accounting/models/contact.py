@@ -1,6 +1,5 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import PROTECT
 from django.db.models.functions import datetime
 from django.utils.translation import gettext as _
 from django_countries.fields import CountryField
@@ -41,50 +40,62 @@ class Contact(SynchronizableMoneybirdResourceModel):
         blank=True,
     )
     address_1 = models.CharField(
+        verbose_name=_("address 1"),
         max_length=255,
         null=True,
         blank=True,
     )
     address_2 = models.CharField(
+        verbose_name=_("address 2"),
         max_length=255,
         null=True,
         blank=True,
     )
     zip_code = models.CharField(
+        verbose_name=_("zip code"),
         max_length=50,
         null=True,
         blank=True,
     )
     city = models.CharField(
+        verbose_name=_("city"),
         max_length=255,
         null=True,
         blank=True,
     )
-    country = CountryField(default="NL")
+    country = CountryField(
+        verbose_name=_("country"),
+        default="NL")
     phone = models.CharField(
+        verbose_name=_("phone"),
         max_length=255,
         null=True,
         blank=True,
     )
     customer_id = models.CharField(
+        verbose_name=_("customer id"),
         max_length=255,
         null=True,
         blank=True,
     )
     tax_number = models.CharField(
+        verbose_name=_("tax number"),
         max_length=50,
         null=True,
         blank=True,
     )
     chamber_of_commerce = models.CharField(
+        verbose_name=_("chamber of commerce"),
         max_length=50,
         null=True,
         blank=True,
     )
     bank_account = IBANField(
+        verbose_name=_("bank account"),
         include_countries=IBAN_SEPA_COUNTRIES, blank=True, null=True
     )
     attention = models.CharField(
+        verbose_name=_("attention"),
         max_length=255,
         null=True,
         blank=True,
@@ -96,38 +107,49 @@ class Contact(SynchronizableMoneybirdResourceModel):
     )
     email_ubl = models.BooleanField(verbose_name=_("email ubl"), default=False)
     send_invoices_to_attention = models.CharField(
+        verbose_name=_("send invoices to (attention)"),
         max_length=255,
         null=True,
         blank=True,
     )
     send_invoices_to_email = models.EmailField(
+        verbose_name=_("send invoices to (email)"),
         null=True,
         blank=True,
     )
     send_estimates_to_attention = models.CharField(
+        verbose_name=_("send estimates to (attention)"),
         max_length=255,
         null=True,
         blank=True,
     )
     send_estimates_to_email = models.EmailField(
+        verbose_name=_("send estimates to (email)"),
         null=True,
         blank=True,
     )
-    sepa_active = models.BooleanField(verbose_name=_("sepa active"), default=False)
-    sepa_iban = IBANField(include_countries=IBAN_SEPA_COUNTRIES, blank=True, null=True)
+    sepa_active = models.BooleanField(verbose_name=_("SEPA active"), default=False)
+    sepa_iban = IBANField(verbose_name=_("SEPA IBAN"), include_countries=IBAN_SEPA_COUNTRIES, blank=True, null=True)
     sepa_iban_account_name = models.CharField(
+        verbose_name=_("SEPA IBAN account name"),
         max_length=255,
         null=True,
         blank=True,
     )
-    sepa_bic = BICField(blank=True, null=True)
+    sepa_bic = BICField(
+        verbose_name=_("SEPA BIC"),
+        blank=True, null=True)
     sepa_mandate_id = models.CharField(
+        verbose_name=_("SEPA mandate id"),
         max_length=50,
         null=True,
         blank=True,
     )
-    sepa_mandate_date = models.DateField(null=True, blank=True)
+    sepa_mandate_date = models.DateField(
+        verbose_name=_("SEPA mandate date"),
+        null=True, blank=True)
     sepa_sequence_type = models.CharField(
+        verbose_name=_("SEPA sequence type"),
         max_length=4, null=True, blank=True, choices=SepaSequenceTypes.choices
     )
     tax_number_valid = models.BooleanField(
@@ -135,6 +157,7 @@ class Contact(SynchronizableMoneybirdResourceModel):
     )
     invoice_workflow = models.ForeignKey(
         Workflow,
+        verbose_name=_("default invoice workflow"),
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -143,13 +166,16 @@ class Contact(SynchronizableMoneybirdResourceModel):
     )
     estimate_workflow = models.ForeignKey(
         Workflow,
+        verbose_name=_("default estimate workflow"),
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
         limit_choices_to={"active": True, "type": WorkflowTypes.ESTIMATE_WORKFLOW},
         related_name="estimate_workflow_contacts",
     )
-    sales_invoices_url = models.URLField(blank=True, max_length=2048, null=True)
+    sales_invoices_url = models.URLField(
+        verbose_name=_("sales invoices url"),
+        blank=True, max_length=2048, null=True)
 
     def clean(self):
         super().clean()
@@ -202,6 +228,11 @@ class Contact(SynchronizableMoneybirdResourceModel):
         if self.company_name:
             return self.company_name
         return f"{self.first_name} {self.last_name}"
+
+    class Meta:
+        verbose_name = _("contact")
+        verbose_name_plural = _("contacts")
+        ordering = ["company_name", "last_name", "first_name"]
 
 
 class ContactResourceType(resources.ContactResourceType):

@@ -5,29 +5,29 @@ from django.utils.translation import gettext_lazy as _
 
 class AssetCategory(models.Model):
     class Meta:
-        verbose_name = "category"
-        verbose_name_plural = "categories"
+        verbose_name = _("category")
+        verbose_name_plural = _("categories")
         ordering = ["order", "pk"]
 
-    name = models.CharField(null=False, blank=False, max_length=20)
+    name = models.CharField(null=False, blank=False, max_length=20, verbose_name=_("name"))
     name_singular = models.CharField(
-        null=False, blank=False, max_length=20, validators=[validate_unicode_slug]
+        null=False, blank=False, max_length=20, validators=[validate_unicode_slug], verbose_name=_("name singular")
     )
-    order = models.PositiveSmallIntegerField(null=True, blank=True)
+    order = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name=_("order"))
 
     def __str__(self):
-        return f"{self.name}"
+        return self.name
 
 
 class AssetSize(models.Model):
     class Meta:
-        verbose_name = "size"
-        verbose_name_plural = "sizes"
+        verbose_name = _("size")
+        verbose_name_plural = _("sizes")
         ordering = ["order", "pk"]
 
-    name = models.CharField(null=False, blank=False, max_length=20)
-    categories = models.ManyToManyField(AssetCategory, blank=False)
-    order = models.PositiveSmallIntegerField(null=True, blank=True)
+    name = models.CharField(null=False, blank=False, max_length=20, verbose_name=_("name"))
+    categories = models.ManyToManyField(AssetCategory, blank=False, verbose_name=_("categories"))
+    order = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name=_("order"))
 
     def __str__(self):
-        return f"{self.name}"
+        return self.name

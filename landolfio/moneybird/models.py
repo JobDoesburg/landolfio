@@ -202,6 +202,9 @@ class MoneybirdDocumentLineModel(MoneybirdResourceModel):
             return None
         return self.document_line_parent.moneybird_url
 
+    def get_absolute_url(self):
+        return self.moneybird_url
+
 
 class SynchronizableMoneybirdResourceModel(MoneybirdResourceModel):
     moneybird_version = models.PositiveBigIntegerField(

@@ -4,7 +4,7 @@ from decimal import Decimal
 from django.db import models
 from django.db.models import F
 from django.utils.translation import gettext as _
-from queryable_properties.properties import AnnotationProperty, SubqueryFieldProperty
+from queryable_properties.properties import AnnotationProperty
 from queryable_properties.managers import QueryablePropertiesManager
 
 from accounting.models import (
@@ -48,7 +48,7 @@ class Estimate(SynchronizableMoneybirdResourceModel):
         null=True,
         blank=False,
         on_delete=models.SET_NULL,
-        verbose_name=_("Contact"),
+        verbose_name=_("contact"),
         related_name="estimates",
     )
     estimate_id = models.CharField(
@@ -63,19 +63,19 @@ class Estimate(SynchronizableMoneybirdResourceModel):
         null=True,
         blank=True,
         limit_choices_to={"active": True, "type": WorkflowTypes.ESTIMATE_WORKFLOW},
-        verbose_name=_("Workflow"),
+        verbose_name=_("workflow"),
     )
     document_style = models.ForeignKey(
         DocumentStyle,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name=_("Document style"),
+        verbose_name=_("document style"),
     )
     state = models.CharField(
         max_length=10,
         choices=EstimateStates.choices,
-        verbose_name=_("State"),
+        verbose_name=_("state"),
         default=EstimateStates.DRAFT,
     )
 
@@ -120,48 +120,48 @@ class Estimate(SynchronizableMoneybirdResourceModel):
 
     def __str__(self):
         if self.draft_id:
-            return f"Draft {self.draft_id}"
+            return f"{_('draft')} {self.draft_id}"
         return f"{self.estimate_id}"
 
     class Meta:
-        verbose_name = _("Estimate")
-        verbose_name_plural = _("Estimates")
+        verbose_name = _("estimate")
+        verbose_name_plural = _("estimates")
         ordering = ("-draft_id", "-estimate_date", "-estimate_id")
 
 
 class EstimateDocumentLine(MoneybirdDocumentLineModel):
     objects = QueryablePropertiesManager()
-    description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
+    description = models.TextField(verbose_name=_("description"), null=True, blank=True)
     total_amount = models.DecimalField(
         max_digits=19,
         decimal_places=2,
         null=True,
         blank=True,
-        verbose_name=_("Total amount"),
+        verbose_name=_("total amount"),
     )
     ledger_account = models.ForeignKey(
         LedgerAccount,
         on_delete=models.SET_NULL,
         null=True,
         blank=False,
-        verbose_name=_("Ledger account"),
+        verbose_name=_("ledger account"),
     )
     project = models.ForeignKey(
         Project,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name=_("Project"),
+        verbose_name=_("project"),
     )
     amount = models.CharField(
-        verbose_name=_("Amount"), null=True, blank=True, default="1 x", max_length=255
+        verbose_name=_("amount"), null=True, blank=True, default="1 x", max_length=255
     )
     amount_decimal = models.DecimalField(
         null=True,
         max_digits=19,
         decimal_places=2,
         blank=True,
-        verbose_name=_("Amount (decimal)"),
+        verbose_name=_("amount (decimal)"),
     )
     price = models.DecimalField(
         max_digits=19, decimal_places=2, verbose_name=_("price")
@@ -169,7 +169,7 @@ class EstimateDocumentLine(MoneybirdDocumentLineModel):
     document = models.ForeignKey(
         Estimate,
         on_delete=models.CASCADE,
-        verbose_name=_("Document"),
+        verbose_name=_("document"),
         related_name="document_lines",
     )
     product = models.ForeignKey(
@@ -177,14 +177,14 @@ class EstimateDocumentLine(MoneybirdDocumentLineModel):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name=_("Product"),
+        verbose_name=_("product"),
     )
     tax_rate = models.ForeignKey(
         TaxRate,
         on_delete=models.SET_NULL,
         null=True,
         blank=False,
-        verbose_name=_("Tax rate"),
+        verbose_name=_("tax rate"),
         limit_choices_to={"active": True, "type": TaxRateTypes.SALES_INVOICE},
     )
     row_order = models.PositiveSmallIntegerField(
@@ -201,8 +201,8 @@ class EstimateDocumentLine(MoneybirdDocumentLineModel):
         return f"{self.amount} {self.description} in {self.document}"
 
     class Meta:
-        verbose_name = _("Estimate document line")
-        verbose_name_plural = _("Estimate document lines")
+        verbose_name = _("estimate document line")
+        verbose_name_plural = _("estimate document lines")
         ordering = ("-document__estimate_date", "row_order")
 
 

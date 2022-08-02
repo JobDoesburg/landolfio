@@ -19,22 +19,28 @@ class ProductFrequencies(models.TextChoices):
 
 class Product(MoneybirdResourceModel):
     title = models.CharField(
+        verbose_name=_("title"),
         max_length=255,
         null=True,
         blank=True,
     )
 
     description = models.TextField(
+        verbose_name=_("description"),
         null=True,
         blank=True,
     )
     identifier = models.CharField(
+        verbose_name=_("identifier"),
         max_length=100,
         null=True,
         blank=True,
     )
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(
+        verbose_name=_("price"),
+        max_digits=10, decimal_places=2)
     frequency = models.PositiveSmallIntegerField(
+        verbose_name=_("frequency"),
         null=True,
         blank=True,
     )
@@ -50,6 +56,7 @@ class Product(MoneybirdResourceModel):
         on_delete=models.SET_NULL,
         null=True,
         blank=False,
+        verbose_name=_("tax rate"),
         limit_choices_to={"active": True, "type": TaxRateTypes.SALES_INVOICE},
     )
     ledger_account = models.ForeignKey(
@@ -61,8 +68,8 @@ class Product(MoneybirdResourceModel):
     )
 
     class Meta:
-        verbose_name = _("Product")
-        verbose_name_plural = _("Products")
+        verbose_name = _("product")
+        verbose_name_plural = _("products")
 
     def __str__(self):
         if self.identifier:

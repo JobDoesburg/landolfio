@@ -21,13 +21,13 @@ class Subscription(MoneybirdResourceModel):
     end_date = models.DateField(null=True, verbose_name=_("end date"))
     cancelled_at = models.DateField(null=True, verbose_name=_("cancelled at"))
     reference = models.CharField(
-        verbose_name=_("Reference"), max_length=255, null=False, blank=False
+        verbose_name=_("reference"), max_length=255, null=False, blank=False
     )
     product = models.ForeignKey(
         Product,
         null=True,
         on_delete=models.SET_NULL,
-        verbose_name=_("Product"),
+        verbose_name=_("product"),
         related_name="subscription",
     )
     frequency = models.PositiveSmallIntegerField(
@@ -42,23 +42,23 @@ class Subscription(MoneybirdResourceModel):
         Contact,
         null=True,
         on_delete=models.SET_NULL,
-        verbose_name=_("Contact"),
+        verbose_name=_("contact"),
         related_name="subscriptions",
     )
     recurring_sales_invoice = models.ForeignKey(
         RecurringSalesInvoice,
         null=True,
         on_delete=models.SET_NULL,
-        verbose_name=_("Recurring sales invoice"),
+        verbose_name=_("recurring sales invoice"),
         related_name="subscriptions",
     )
 
     def __str__(self):
-        return f"{self.product} {self.reference} for {self.contact}"
+        return f"{self.product} {self.reference} {_('for')} {self.contact}"
 
     class Meta:
-        verbose_name = _("Subscription")
-        verbose_name_plural = _("Subscriptions")
+        verbose_name = _("subscription")
+        verbose_name_plural = _("subscriptions")
         ordering = ("-start_date",)
 
 

@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from accounting.models import (
     JournalDocumentLine,
@@ -12,12 +13,13 @@ from accounting.models.estimate import (
 
 class AssetOnJournalDocumentLine(models.Model):
     asset = models.ForeignKey(
-        "Asset", on_delete=models.CASCADE, related_name="journal_document_line_assets"
+        "Asset", on_delete=models.CASCADE, related_name="journal_document_line_assets",
+        verbose_name=_("asset"),
     )
     document_line = models.ForeignKey(
-        JournalDocumentLine, on_delete=models.CASCADE, related_name="assets"
+        JournalDocumentLine, on_delete=models.CASCADE, related_name="assets", verbose_name=_("document line"),
     )
-    value = models.DecimalField(max_digits=10, decimal_places=2)
+    value = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("value"))
 
     @property
     def date(self):
@@ -42,22 +44,24 @@ class AssetOnJournalDocumentLine(models.Model):
     # TODO add a `aandeel in geheel` field here and determine value based on that
 
     class Meta:
+        verbose_name = _("asset on journal document line")
+        verbose_name_plural = _("assets on journal document lines")
         unique_together = [
             ("asset", "document_line"),
         ]
 
     def __str__(self):
-        return f"{self.asset} on {self.document_line} for {self.value}"
+        return f"{self.asset} {_('on')} {self.document_line} [{self.value}]"
 
 
 class AssetOnEstimateDocumentLine(models.Model):
     asset = models.ForeignKey(
-        "Asset", on_delete=models.CASCADE, related_name="estimate_document_line_assets"
+        "Asset", on_delete=models.CASCADE, related_name="estimate_document_line_assets", verbose_name=_("asset"),
     )
     document_line = models.ForeignKey(
-        EstimateDocumentLine, on_delete=models.CASCADE, related_name="assets"
+        EstimateDocumentLine, on_delete=models.CASCADE, related_name="assets", verbose_name=_("document line"),
     )
-    value = models.DecimalField(max_digits=10, decimal_places=2)
+    value = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("value"))
 
     @property
     def date(self):
@@ -80,12 +84,14 @@ class AssetOnEstimateDocumentLine(models.Model):
         return self.document_line.document
 
     class Meta:
+        verbose_name = _("asset on estimate document line")
+        verbose_name_plural = _("assets on estimate document lines")
         unique_together = [
             ("asset", "document_line"),
         ]
 
     def __str__(self):
-        return f"{self.asset} on {self.document_line} for {self.value}"
+        return f"{self.asset} {_('on')} {self.document_line} [{self.value}]"
 
 
 class AssetOnRecurringSalesInvoiceDocumentLine(models.Model):
@@ -93,13 +99,15 @@ class AssetOnRecurringSalesInvoiceDocumentLine(models.Model):
         "Asset",
         on_delete=models.CASCADE,
         related_name="recurring_sales_invoice_document_line_assets",
+        verbose_name=_("asset"),
     )
     document_line = models.ForeignKey(
         RecurringSalesInvoiceDocumentLine,
         on_delete=models.CASCADE,
         related_name="assets",
+        verbose_name=_("document line"),
     )
-    value = models.DecimalField(max_digits=10, decimal_places=2)
+    value = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("value"))
 
     @property
     def date(self):
@@ -122,27 +130,31 @@ class AssetOnRecurringSalesInvoiceDocumentLine(models.Model):
         return self.document_line.document
 
     class Meta:
+        verbose_name = _("asset on recurring sales invoice document line")
+        verbose_name_plural = _("assets on recurring sales invoice document lines")
         unique_together = [
             ("asset", "document_line"),
         ]
 
     def __str__(self):
-        return f"{self.asset} on {self.document_line} for {self.value}"
+        return f"{self.asset} {_('on')} {self.document_line} [{self.value}]"
 
 
 class AssetSubscription(models.Model):
     asset = models.ForeignKey(
-        "Asset", on_delete=models.CASCADE, related_name="asset_subscriptions"
+        "Asset", on_delete=models.CASCADE, related_name="asset_subscriptions", verbose_name=_("asset"),
     )
     subscription = models.ForeignKey(
-        Subscription, on_delete=models.CASCADE, related_name="assets"
+        Subscription, on_delete=models.CASCADE, related_name="assets", verbose_name=_("subscription"),
     )
-    value = models.DecimalField(max_digits=10, decimal_places=2)
+    value = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("value"))
 
     class Meta:
+        verbose_name = _("asset subscription")
+        verbose_name_plural = _("assets subscriptions")
         unique_together = [
             ("asset", "subscription"),
         ]
 
     def __str__(self):
-        return f"{self.asset} on {self.subscription} for {self.value}"
+        return f"{self.asset} {_('on')} {self.subscription} [{self.value}]"

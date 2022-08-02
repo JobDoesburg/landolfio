@@ -1,4 +1,3 @@
-"""The urls for the accounting app's API."""
 from django.urls import path
 
 from . import views

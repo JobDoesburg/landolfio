@@ -14,7 +14,6 @@ from accounting.models.ledger_account import (
 from accounting.models.product import Product, ProductResourceType
 from accounting.models.tax_rate import TaxRate, TaxRateResourceType, TaxRateTypes
 from accounting.models.project import Project, ProjectResourceType
-from accounting.models.document_style import DocumentStyle, DocumentStyleResourceType
 from accounting.models.contact import Contact, ContactResourceType
 from accounting.models.workflow import Workflow, WorkflowResourceType, WorkflowTypes
 from moneybird import resources
@@ -34,14 +33,14 @@ class RecurringSalesInvoiceFrequencies(models.TextChoices):
 
 
 class RecurringSalesInvoice(SynchronizableMoneybirdResourceModel):
-    active = models.BooleanField(verbose_name=_("Active"), default=True)
+    active = models.BooleanField(verbose_name=_("active"), default=True)
 
     contact = models.ForeignKey(
         Contact,
         null=True,
         blank=False,
         on_delete=models.SET_NULL,
-        verbose_name=_("Contact"),
+        verbose_name=_("contact"),
         related_name="recurring_sales_invoices",
     )
     workflow = models.ForeignKey(
@@ -50,7 +49,7 @@ class RecurringSalesInvoice(SynchronizableMoneybirdResourceModel):
         null=True,
         blank=True,
         limit_choices_to={"active": True, "type": WorkflowTypes.INVOICE_WORKFLOW},
-        verbose_name=_("Workflow"),
+        verbose_name=_("workflow"),
     )
     reference = models.CharField(
         max_length=255, null=True, blank=True, verbose_name=_("reference")
@@ -61,12 +60,12 @@ class RecurringSalesInvoice(SynchronizableMoneybirdResourceModel):
         choices=RecurringSalesInvoiceFrequencies.choices,
         verbose_name=_("frequency type"),
     )
-    frequency = models.PositiveSmallIntegerField()
+    frequency = models.PositiveSmallIntegerField(verbose_name=_("frequency"))
     first_due_interval = models.PositiveSmallIntegerField(
         null=True, blank=True, verbose_name=_("first due interval")
     )
 
-    auto_send = models.BooleanField(default=True, verbose_name=_("Auto send"))
+    auto_send = models.BooleanField(default=True, verbose_name=_("auto send"))
 
     start_date = models.DateField(null=True, verbose_name=_("start date"))
     invoice_date = models.DateField(
@@ -90,46 +89,46 @@ class RecurringSalesInvoice(SynchronizableMoneybirdResourceModel):
     )
 
     def __str__(self):
-        return f"Recurring sales invoice for {self.contact} every {self.frequency} {self.frequency_type} since {self.start_date}"
+        return f"{_('Recurring sales invoice for')} {self.contact} {_('every')} {self.frequency} {self.frequency_type} {_('since')} {self.start_date}"
 
     class Meta:
-        verbose_name = _("Recurring sales invoice")
-        verbose_name_plural = _("Recurring sales invoices")
+        verbose_name = _("recurring sales invoice")
+        verbose_name_plural = _("recurring sales invoices")
         ordering = ("-start_date",)
 
 
 class RecurringSalesInvoiceDocumentLine(MoneybirdDocumentLineModel):
-    description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
+    description = models.TextField(verbose_name=_("description"), null=True, blank=True)
     total_amount = models.DecimalField(
         max_digits=19,
         decimal_places=2,
         null=True,
         blank=True,
-        verbose_name=_("Total amount"),
+        verbose_name=_("total amount"),
     )
     ledger_account = models.ForeignKey(
         LedgerAccount,
         on_delete=models.SET_NULL,
         null=True,
         blank=False,
-        verbose_name=_("Ledger account"),
+        verbose_name=_("ledger account"),
     )
     project = models.ForeignKey(
         Project,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name=_("Project"),
+        verbose_name=_("project"),
     )
     amount = models.CharField(
-        verbose_name=_("Amount"), null=True, blank=True, default="1 x", max_length=255
+        verbose_name=_("amount"), null=True, blank=True, default="1 x", max_length=255
     )
     amount_decimal = models.DecimalField(
         null=True,
         max_digits=19,
         decimal_places=2,
         blank=True,
-        verbose_name=_("Amount (decimal)"),
+        verbose_name=_("amount (decimal)"),
     )
     price = models.DecimalField(
         max_digits=19, decimal_places=2, verbose_name=_("price")
@@ -137,7 +136,7 @@ class RecurringSalesInvoiceDocumentLine(MoneybirdDocumentLineModel):
     document = models.ForeignKey(
         RecurringSalesInvoice,
         on_delete=models.CASCADE,
-        verbose_name=_("Document"),
+        verbose_name=_("document"),
         related_name="document_lines",
     )
     product = models.ForeignKey(
@@ -145,14 +144,14 @@ class RecurringSalesInvoiceDocumentLine(MoneybirdDocumentLineModel):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name=_("Product"),
+        verbose_name=_("product"),
     )
     tax_rate = models.ForeignKey(
         TaxRate,
         on_delete=models.SET_NULL,
         null=True,
         blank=False,
-        verbose_name=_("Tax rate"),
+        verbose_name=_("tax rate"),
         limit_choices_to={"active": True, "type": TaxRateTypes.SALES_INVOICE},
     )
     row_order = models.PositiveSmallIntegerField(
@@ -169,8 +168,8 @@ class RecurringSalesInvoiceDocumentLine(MoneybirdDocumentLineModel):
         return f"{self.amount} {self.description} in {self.document}"
 
     class Meta:
-        verbose_name = _("Recurring sales invoice document line")
-        verbose_name_plural = _("Recurring sales invoice document lines")
+        verbose_name = _("recurring sales invoice document line")
+        verbose_name_plural = _("recurring sales invoice document lines")
         ordering = (
             "-document__start_date",
             "row_order",

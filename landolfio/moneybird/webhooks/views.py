@@ -1,6 +1,5 @@
 import collections
 import json
-import logging
 
 from django.db.transaction import non_atomic_requests
 from django.http import HttpResponse

@@ -8,14 +8,15 @@ from moneybird.models import (
 
 
 class TaxRateTypes(models.TextChoices):
-    SALES_INVOICE = "sales_invoice", _("Sales invoice")
-    PURCHASE_INVOICE = "purchase_invoice", _("Purchase invoice")
-    GENERAL_JOURNAL_DOCUMENT = "general_journal_document", _("General journal document")
+    SALES_INVOICE = "sales_invoice", _("sales invoice")
+    PURCHASE_INVOICE = "purchase_invoice", _("purchase invoice")
+    GENERAL_JOURNAL_DOCUMENT = "general_journal_document", _("general journal document")
 
 
 class TaxRate(MoneybirdResourceModel):
     name = models.CharField(
         max_length=100,
+        verbose_name=_("name"),
     )
 
     type = models.CharField(
@@ -25,16 +26,16 @@ class TaxRate(MoneybirdResourceModel):
         default=TaxRateTypes.SALES_INVOICE,
     )
 
-    active = models.BooleanField(default=True)
+    active = models.BooleanField(default=True, verbose_name=_("active"))
 
     def __str__(self):
         if self.name:
             return f"{self.name} ({self.type})"
-        return f"{self.type} tax rate {self.moneybird_id}"
+        return f"{self.type} {_('tax rate')} {self.moneybird_id}"
 
     class Meta:
-        verbose_name = _("Tax rate")
-        verbose_name_plural = _("Tax rates")
+        verbose_name = _("tax rate")
+        verbose_name_plural = _("tax rates")
 
 
 class TaxRateResourceType(resources.TaxRateResourceType):

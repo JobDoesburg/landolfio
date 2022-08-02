@@ -3,6 +3,7 @@ from autocompletefilter.filters import AutocompleteListFilter
 from django.contrib import admin
 from django.contrib.admin import register
 from django.http import HttpResponseRedirect
+from django.utils.translation import gettext_lazy as _
 
 from accounting.models import SalesInvoice
 from accounting.models.sales_invoice import SalesInvoiceDocumentLine
@@ -16,8 +17,6 @@ from website.multi_select_filter import MultiSelectFieldListFilter
 class SalesInvoiceDocumentLineInline(
     MoneybirdResourceModelAdminMixin, admin.StackedInline
 ):
-    """The admin view for DocumentLines."""
-
     model = SalesInvoiceDocumentLine
     fields = (
         "amount",
@@ -94,14 +93,14 @@ class SalesInvoiceAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
 
     def send_invoice(self, request, obj):
         obj.send_invoice()
-        self.message_user(request, "This villain is now unique")
+        # TODO implement this
         return HttpResponseRedirect(".")
 
     def get_moneybird_actions(self, request, obj=None):
         actions = super().get_moneybird_actions(request, obj)
         actions.append(
             {
-                "label": "Send invoice",
+                "label": _("Send invoice"),
                 "func": self.send_invoice,
                 "post_parameter": "_moneybird_send_invoice",
             }

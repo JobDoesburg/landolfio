@@ -1,10 +1,11 @@
+{% load i18n %}
 <div class="module">
-    <h2>Remarks</h2>
+    <h2>{% translate "Remarks" %}</h2>
     <table>
         <thead>
         <tr>
-            <th style="width: unset">Date</th>
-            <th>Remark</th>
+            <th style="width: unset">{% translate "date" %}</th>
+            <th>{% translate "remark" %}</th>
         </tr>
         </thead>
         <tbody>
@@ -15,7 +16,7 @@
             </tr>
         {% empty %}
             <tr>
-                <td colspan="2">No remarks</td>
+                <td colspan="2">{% translate "No remarks" %}</td>
             </tr>
         {% endfor %}
         <tr>
@@ -23,13 +24,11 @@
             <td>
                 <form method="post">
                     {% csrf_token %}
-                    <textarea name="remark" id="remark" placeholder="Add remark" rows="3" style="float: right; width: 100%"></textarea><br>
+                    <textarea name="remark" id="remark" placeholder="{% translate "Add remark" %}" rows="3" style="float: right; width: 100%"></textarea><br>
                     <input type="submit" style="float: right; margin-top: 5px;">
                 </form>
             </td>
         </tr>
         </tbody>
     </table>
-
-    <ul>
 </div>

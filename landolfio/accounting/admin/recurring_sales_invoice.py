@@ -13,8 +13,6 @@ from moneybird.admin import (
 class RecurringSalesInvoiceDocumentLineInline(
     MoneybirdResourceModelAdminMixin, admin.StackedInline
 ):
-    """The admin view for DocumentLines."""
-
     model = RecurringSalesInvoiceDocumentLine
     fields = (
         "amount",

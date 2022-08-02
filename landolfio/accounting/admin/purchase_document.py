@@ -3,8 +3,7 @@ from autocompletefilter.filters import AutocompleteListFilter
 from django.contrib import admin
 from django.contrib.admin import register
 
-from accounting.models import SalesInvoice, PurchaseDocument, PurchaseDocumentLine
-from accounting.models.sales_invoice import SalesInvoiceDocumentLine
+from accounting.models import PurchaseDocument, PurchaseDocumentLine
 from moneybird.admin import (
     MoneybirdResourceModelAdmin,
     MoneybirdResourceModelAdminMixin,
@@ -12,8 +11,6 @@ from moneybird.admin import (
 
 
 class PurchaseDocumentLineInline(MoneybirdResourceModelAdminMixin, admin.StackedInline):
-    """The admin view for DocumentLines."""
-
     model = PurchaseDocumentLine
     fields = (
         "amount",

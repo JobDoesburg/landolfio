@@ -50,8 +50,6 @@ class AttachmentInlineAdmin(admin.StackedInline):
 
 
 class RemarkInline(admin.StackedInline):
-    """Attachment inline admin."""
-
     model = Remark
     fields = ["date", "remark"]
     readonly_fields = ["date"]
@@ -65,18 +63,18 @@ class DocumentLineInline(QueryablePropertiesAdminMixin, admin.TabularInline):
     extra = 0
     can_delete = False
 
-    @admin.display(description="Workflow")
+    @admin.display(description=_("Workflow"))
     def workflow(self, obj):
         return obj.document_line.document.workflow
 
-    @admin.display(description="View on Moneybird")
+    @admin.display(description=_("View on Moneybird"))
     def view_on_moneybird(self, obj):
         url = obj.document_line.document.moneybird_url
 
         if url is None:
             return None
         return mark_safe(
-            f'<a class="button small" href="{url}" target="_blank" style="white-space: nowrap;">View on Moneybird</a>'
+            f'<a class="button small" href="{url}" target="_blank" style="white-space: nowrap;">{_("View on Moneybird")}</a>'
         )
 
     def has_add_permission(self, request, obj):
@@ -176,7 +174,7 @@ class EstimateDocumentLineInline(DocumentLineInline):
         "view_on_moneybird",
     )
 
-    @admin.display(description="Document state")
+    @admin.display(description=_("Document state"))
     def document_state(self, obj):
         return obj.document_line.document.state
 
@@ -208,7 +206,7 @@ class RecurringSalesDocumentLineInline(DocumentLineInline):
         "view_on_moneybird",
     )
 
-    @admin.display(description="Active", boolean=True)
+    @admin.display(description=_("Active"), boolean=True)
     def active(self, obj):
         return obj.document_line.document.active
 
@@ -220,8 +218,6 @@ class RecurringSalesDocumentLineInline(DocumentLineInline):
 
 @admin.register(Asset)
 class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
-    """Asset admin."""
-
     list_display = (
         "asset_view_link",
         "category",
@@ -373,7 +369,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     @admin.display(
         boolean=True,
         ordering="is_margin",
-        description="margin",
+        description=_("margin"),
     )
     def is_margin(self, obj):
         return obj.is_margin
@@ -381,7 +377,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     @admin.display(
         boolean=True,
         ordering="is_non_margin",
-        description="not margin",
+        description=_("not margin"),
     )
     def is_non_margin(self, obj):
         return obj.is_non_margin
@@ -389,7 +385,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     @admin.display(
         boolean=True,
         ordering="is_sold",
-        description="sold",
+        description=_("sold"),
     )
     def is_sold(self, obj):
         return obj.is_sold
@@ -397,7 +393,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     @admin.display(
         boolean=True,
         ordering="is_sold_as_margin",
-        description="sold margin",
+        description=_("sold margin"),
     )
     def is_sold_as_margin(self, obj):
         return obj.is_sold_as_margin
@@ -405,7 +401,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     @admin.display(
         boolean=True,
         ordering="is_sold_as_non_margin",
-        description="sold non margin",
+        description=_("sold non margin"),
     )
     def is_sold_as_non_margin(self, obj):
         return obj.is_sold_as_non_margin
@@ -413,7 +409,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     @admin.display(
         boolean=True,
         ordering="is_purchased_asset",
-        description="purchased asset",
+        description=_("purchased asset"),
     )
     def is_purchased_asset(self, obj):
         return obj.is_purchased_asset
@@ -421,7 +417,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     @admin.display(
         boolean=True,
         ordering="is_purchased_asset_as_margin",
-        description="purchased asset margin",
+        description=_("purchased asset margin"),
     )
     def is_purchased_asset_as_margin(self, obj):
         return obj.is_purchased_asset_as_margin
@@ -429,7 +425,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     @admin.display(
         boolean=True,
         ordering="is_purchased_asset_as_non_margin",
-        description="purchased asset non margin",
+        description=_("purchased asset non margin"),
     )
     def is_purchased_asset_as_non_margin(self, obj):
         return obj.is_purchased_asset_as_non_margin
@@ -437,7 +433,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     @admin.display(
         boolean=True,
         ordering="is_purchased_amortized",
-        description="purchased amortized",
+        description=_("purchased amortized"),
     )
     def is_purchased_amortized(self, obj):
         return obj.is_purchased_amortized
@@ -445,7 +441,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     @admin.display(
         boolean=True,
         ordering="is_commerce",
-        description="commerce",
+        description=_("commerce"),
     )
     def is_commerce(self, obj):
         return obj.is_commerce
@@ -453,7 +449,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     @admin.display(
         boolean=True,
         ordering="is_amortized",
-        description="amortized",
+        description=_("amortized"),
     )
     def is_amortized(self, obj):
         return obj.is_amortized
@@ -461,7 +457,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     @admin.display(
         boolean=True,
         ordering="is_rented",
-        description="rented",
+        description=_("rented"),
     )
     def is_rented(self, obj):
         return obj.is_rented
@@ -469,7 +465,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     @admin.display(
         boolean=True,
         ordering="has_rental_agreement",
-        description="has rental agreement",
+        description=_("has rental agreement"),
     )
     def has_rental_agreement(self, obj):
         return obj.has_rental_agreement
@@ -477,7 +473,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     @admin.display(
         boolean=True,
         ordering="has_loan_agreement",
-        description="has loan agreement",
+        description=_("has loan agreement"),
     )
     def has_loan_agreement(self, obj):
         return obj.has_loan_agreement
@@ -490,7 +486,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
 
     @admin.display(
         ordering="pk",
-        description="Asset",
+        description=_("asset"),
     )
     def asset_view_link(self, obj):
         return format_html(

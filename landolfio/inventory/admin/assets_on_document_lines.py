@@ -2,6 +2,7 @@ from autocompletefilter.admin import AutocompleteFilterMixin
 from autocompletefilter.filters import AutocompleteListFilter
 from django.contrib import admin
 from queryable_properties.admin import QueryablePropertiesAdmin
+from django.utils.translation import gettext_lazy as _
 
 from accounting.models.journal_document import JournalDocumentLine
 from accounting.models.estimate import EstimateDocumentLine
@@ -47,7 +48,7 @@ class JournalDocumentLineAdmin(
     def get_queryset(self, request):
         return super().get_queryset(request).select_subclasses()
 
-    @admin.display
+    @admin.display(description=_("assets"))
     def assets(self, obj):
         return ", ".join(obj.assets.values_list("asset", flat=True))
 
@@ -84,7 +85,7 @@ class EstimateDocumentLineAdmin(
         ("document__workflow", AutocompleteListFilter),
     ]
 
-    @admin.display
+    @admin.display(description=_("assets"))
     def assets(self, obj):
         return ", ".join(obj.assets.values_list("asset", flat=True))
 
@@ -123,7 +124,7 @@ class RecurringSalesInvoiceDocumentLineAdmin(
         "ledger_account__account_type",
     ]
 
-    @admin.display
+    @admin.display(description=_("assets"))
     def assets(self, obj):
         return ", ".join(obj.assets.values_list("asset", flat=True))
 

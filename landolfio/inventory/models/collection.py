@@ -3,21 +3,16 @@ from django.utils.translation import gettext_lazy as _
 
 
 class Collection(models.Model):
-    """Class model for an asset collection."""
-
     name = models.CharField(
-        verbose_name=_("Collection Name"), max_length=200, unique=True
+        verbose_name=_("name"), max_length=200, unique=True
     )
-
-    commerce = models.BooleanField()
-    order = models.PositiveSmallIntegerField(null=True, blank=True)
+    commerce = models.BooleanField(verbose_name=_("commerce"), default=True)
+    order = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name=_("order"))
 
     def __str__(self):
-        """Return Asset string."""
-        return f"{self.name}"
+        return self.name
 
     class Meta:
-        """Meta Class to define verbose_name."""
-
-        verbose_name = "Collectie"
+        verbose_name = _("collection")
+        verbose_name_plural = _("collections")
         ordering = ["order", "pk"]

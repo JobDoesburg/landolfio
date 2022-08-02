@@ -5,33 +5,29 @@ from django.utils.translation import gettext_lazy as _
 
 
 def attachments_directory_path(instance, filename):
-    """Return the attachment's directory path."""
     return f"inventory/attachments/{instance.asset.id}/{filename}"
 
 
 class Attachment(models.Model):
-    """Class model for Attachments."""
-
     asset = models.ForeignKey(
         Asset,
         on_delete=models.CASCADE,
-        verbose_name=_("Asset"),
+        verbose_name=_("asset"),
         related_name="attachments",
     )
     attachment = models.FileField(
         upload_to=attachments_directory_path,
-        verbose_name=_("Attachment"),
+        verbose_name=_("attachment"),
     )
-    upload_date = models.DateField(auto_now_add=True, verbose_name=_("Upload date"))
+    upload_date = models.DateField(auto_now_add=True, verbose_name=_("upload date"))
 
     def __str__(self):
-        """Return Attachment string."""
-        return f"{self.attachment} from {self.asset}"
+        return f"{self.attachment} {_('from')} {self.asset}"
 
     class Meta:
-        """Meta Class to define verbose_name."""
-
-        verbose_name = "Bijlage"
+        verbose_name = _("attachment")
+        verbose_name_plural = _("attachments")
+        ordering = ["upload_date"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

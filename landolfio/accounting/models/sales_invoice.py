@@ -42,7 +42,7 @@ class SalesInvoice(SynchronizableMoneybirdResourceModel):
         null=True,
         blank=False,
         on_delete=models.SET_NULL,
-        verbose_name=_("Contact"),
+        verbose_name=_("contact"),
         related_name="sales_invoices",
     )
     # TODO: contact person
@@ -61,14 +61,14 @@ class SalesInvoice(SynchronizableMoneybirdResourceModel):
         null=True,
         blank=True,
         limit_choices_to={"active": True, "type": WorkflowTypes.INVOICE_WORKFLOW},
-        verbose_name=_("Workflow"),
+        verbose_name=_("workflow"),
     )
     document_style = models.ForeignKey(
         DocumentStyle,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name=_("Document style"),
+        verbose_name=_("document style"),
     )
 
     total_price = models.DecimalField(
@@ -129,25 +129,25 @@ class SalesInvoice(SynchronizableMoneybirdResourceModel):
 
     def __str__(self):
         if self.draft_id:
-            return f"Draft {self.draft_id}"
+            return f"{_('draft')} {self.draft_id}"
         return f"{self.invoice_id}"
 
     class Meta:
-        verbose_name = _("Sales invoice")
-        verbose_name_plural = _("Sales invoices")
+        verbose_name = _("sales invoice")
+        verbose_name_plural = _("sales invoices")
         ordering = ("-draft_id", "-date", "-invoice_id")
 
 
 class SalesInvoiceDocumentLine(JournalDocumentLine):
     amount = models.CharField(
-        verbose_name=_("Amount"), null=True, blank=True, default="1 x", max_length=255
+        verbose_name=_("amount"), null=True, blank=True, default="1 x", max_length=255
     )
     amount_decimal = models.DecimalField(
         null=True,
         max_digits=19,
         decimal_places=2,
         blank=True,
-        verbose_name=_("Amount (decimal)"),
+        verbose_name=_("amount (decimal)"),
     )
     price = models.DecimalField(
         max_digits=19, decimal_places=2, verbose_name=_("price")
@@ -155,7 +155,7 @@ class SalesInvoiceDocumentLine(JournalDocumentLine):
     document = models.ForeignKey(
         SalesInvoice,
         on_delete=models.CASCADE,
-        verbose_name=_("Document"),
+        verbose_name=_("document"),
         related_name="document_lines",
     )
     product = models.ForeignKey(
@@ -163,14 +163,14 @@ class SalesInvoiceDocumentLine(JournalDocumentLine):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name=_("Product"),
+        verbose_name=_("product"),
     )
     tax_rate = models.ForeignKey(
         TaxRate,
         on_delete=models.SET_NULL,
         null=True,
         blank=False,
-        verbose_name=_("Tax rate"),
+        verbose_name=_("tax rate"),
     )
     row_order = models.PositiveSmallIntegerField(
         null=True, blank=True, verbose_name=_("row order")
@@ -180,8 +180,8 @@ class SalesInvoiceDocumentLine(JournalDocumentLine):
         return f"{self.amount} {self.description} in {self.document}"
 
     class Meta:
-        verbose_name = _("Sales invoice document line")
-        verbose_name_plural = _("Sales invoice document lines")
+        verbose_name = _("sales invoice document line")
+        verbose_name_plural = _("sales invoice document lines")
         ordering = ("-document__date", "row_order")
 
 

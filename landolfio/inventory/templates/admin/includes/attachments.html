@@ -1,3 +1,4 @@
+{% load i18n %}
 <script>
     Fancybox.bind('[data-fancybox="gallery"]',
         {
@@ -15,16 +16,16 @@
                 autoStart: false,
             },
             l10n: {
-                CLOSE: "Sluit",
-                NEXT: "Next",
-                PREV: "Previous",
-                MODAL: "You can close this modal content with the ESC key",
-                ERROR: "Something Went Wrong, Please Try Again Later",
-                IMAGE_ERROR: "Image Not Found",
-                ELEMENT_NOT_FOUND: "HTML Element Not Found",
-                AJAX_NOT_FOUND: "Error Loading AJAX : Not Found",
-                AJAX_FORBIDDEN: "Error Loading AJAX : Forbidden",
-                IFRAME_ERROR: "Error Loading Page",
+                CLOSE: "{% translate "Close" %}",
+                NEXT: "{% translate "Next" %}",
+                PREV: "{% translate "Previous" %}",
+                MODAL: "{% translate "You can close this modal content with the ESC key" %}",
+                ERROR: "{% translate "Something Went Wrong, Please Try Again Later" %}",
+                IMAGE_ERROR: "{% translate "Image Not Found" %}",
+                ELEMENT_NOT_FOUND: "{% translate "HTML Element Not Found" %}",
+                AJAX_NOT_FOUND: "{% translate "Error Loading AJAX : Not Found" %}",
+                AJAX_FORBIDDEN: "{% translate "Error Loading AJAX : Forbidden" %}",
+                IFRAME_ERROR: "{% translate "Error Loading Page" %}",
             },
         }
     );
@@ -58,7 +59,7 @@
 </style>
 
 <div class="module" style="padding-bottom: 10px">
-    <h2>Attachments</h2>
+    <h2>{% translate "Attachment" %}</h2>
     <div class="carousel">
         {% for photo in asset.attachments.all %}
             <div class="carousel__slide">
@@ -74,9 +75,9 @@
 <script>
     const carousel = new Carousel(document.querySelector(".carousel"), {
         'l10n': {
-            NEXT: "Volgende",
-            PREV: "Previous slide",
-            GOTO: "Go to slide %d",
+            NEXT: "{% translate "Next" %}",
+            PREV: "{% translate "Previous slide" %}",
+            GOTO: "{% translate "Go to slide %d" %}",
         }
     });
 </script>

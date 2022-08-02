@@ -3,13 +3,11 @@ from django.db.models import Case, When, Q, F
 from django.utils.translation import gettext as _
 from model_utils.managers import (
     InheritanceManagerMixin,
-    InheritanceQuerySet,
     InheritanceQuerySetMixin,
 )
 
 from queryable_properties.managers import (
     QueryablePropertiesManager,
-    QueryablePropertiesQuerySetMixin,
     QueryablePropertiesQuerySet,
 )
 
@@ -46,27 +44,27 @@ class JournalDocumentLineManager(InheritanceManagerMixin, QueryablePropertiesMan
 class JournalDocumentLine(MoneybirdDocumentLineModel):
     objects = JournalDocumentLineManager()
 
-    description = models.TextField(verbose_name=_("Description"), null=True, blank=True)
+    description = models.TextField(verbose_name=_("description"), null=True, blank=True)
     total_amount = models.DecimalField(
         max_digits=19,
         decimal_places=2,
         null=True,
         blank=True,
-        verbose_name=_("Total amount"),
+        verbose_name=_("total amount"),
     )
     ledger_account = models.ForeignKey(
         LedgerAccount,
         on_delete=models.SET_NULL,
         null=True,
         blank=False,
-        verbose_name=_("Ledger account"),
+        verbose_name=_("ledger account"),
     )
     project = models.ForeignKey(
         Project,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name=_("Project"),
+        verbose_name=_("project"),
     )
 
     document = AnnotationProperty(
@@ -94,11 +92,11 @@ class JournalDocumentLine(MoneybirdDocumentLineModel):
         return self.document.contact
 
     def __str__(self):
-        return f"Document line {self.moneybird_id}"
+        return f"{self.description} in {self.document}"
 
     class Meta:
-        verbose_name = _("Journal document line")
-        verbose_name_plural = _("Journal document lines")
+        verbose_name = _("journal document line")
+        verbose_name_plural = _("journal document lines")
         base_manager_name = "objects"
 
 

@@ -8,9 +8,7 @@ from moneybird.administration import (
 )
 from moneybird.resource_types import (
     MoneybirdResourceId,
-    MoneybirdResource,
     MoneybirdResourceVersion,
-    ResourceDiff,
     MoneybirdResourceType,
     SynchronizableMoneybirdResourceType,
     get_moneybird_resources,

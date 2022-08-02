@@ -10,6 +10,6 @@
         <a href="#" onclick="sync_database_button_click(this)">{% trans '&#128257; Synchroniseren met MoneyBird' %}</a> /
     {% endif %}
     <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
-    <a href="{% url 'admin:logout' %}" id="yourlogoutid">{% trans 'Log out' %} </a>
+    <a href="{% url 'admin:logout' %}">{% trans 'Log out' %} </a>
 {% endblock %}
 

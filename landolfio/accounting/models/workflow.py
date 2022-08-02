@@ -8,13 +8,14 @@ from moneybird.models import (
 
 
 class WorkflowTypes(models.TextChoices):
-    INVOICE_WORKFLOW = "InvoiceWorkflow", _("Invoice")
-    ESTIMATE_WORKFLOW = "EstimateWorkflow", _("Estimate")
+    INVOICE_WORKFLOW = "InvoiceWorkflow", _("invoice")
+    ESTIMATE_WORKFLOW = "EstimateWorkflow", _("estimate")
 
 
 class Workflow(MoneybirdResourceModel):
     name = models.CharField(
         max_length=100,
+        verbose_name=_("name"),
     )
 
     type = models.CharField(
@@ -24,15 +25,15 @@ class Workflow(MoneybirdResourceModel):
         default=WorkflowTypes.INVOICE_WORKFLOW,
     )
 
-    active = models.BooleanField(default=True)
+    active = models.BooleanField(default=True, verbose_name=_("active"))
 
-    is_rental = models.BooleanField(default=False)
-    is_loan = models.BooleanField(default=False)
-    is_direct_debit = models.BooleanField(default=False)
+    is_rental = models.BooleanField(default=False, verbose_name=_("is rental"))
+    is_loan = models.BooleanField(default=False, verbose_name=_("is loan"))
+    is_direct_debit = models.BooleanField(default=False, verbose_name=_("is direct debit"))
 
     class Meta:
-        verbose_name = _("Workflow")
-        verbose_name_plural = _("Workflows")
+        verbose_name = _("workflow")
+        verbose_name_plural = _("workflows")
 
     def __str__(self):
         return self.name

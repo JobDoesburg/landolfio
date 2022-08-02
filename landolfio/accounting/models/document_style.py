@@ -9,13 +9,14 @@ from moneybird.models import (
 
 class DocumentStyle(MoneybirdResourceModel):
     name = models.CharField(
+        verbose_name=_("name"),
         max_length=100,
     )
-    default = models.BooleanField(default=True)
+    default = models.BooleanField(verbose_name=_("default"), default=True)
 
     class Meta:
-        verbose_name = _("Document style")
-        verbose_name_plural = _("Document styles")
+        verbose_name = _("document style")
+        verbose_name_plural = _("document styles")
 
     def __str__(self):
         return self.name

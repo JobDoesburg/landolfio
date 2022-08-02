@@ -1,4 +1,4 @@
-{% load static %}
+{% load static i18n %}
 <style>
     #content-main .module {
         padding-bottom: 0;
@@ -10,19 +10,19 @@
 </style>
 
 <div class="module">
-    <h2>Recurring sales invoices</h2>
+    <h2>{% translate "Recurring sales invoices" %}</h2>
     <table>
         <thead>
         <tr>
-            <th style="width: unset">Start date</th>
-            <th style="width: unset">Contact</th>
-            <th style="width: unset">Workflow</th>
-            <th style="width: unset">Active</th>
-            <th style="width: unset">Frequency</th>
-            <th style="width: unset">Action</th>
-            <th>Description</th>
-            <th>Ledger account</th>
-            <th>Total</th>
+            <th style="width: unset">{% translate "start date" %}</th>
+            <th style="width: unset">{% translate "contact" %}</th>
+            <th style="width: unset">{% translate "workflow" %}</th>
+            <th style="width: unset">{% translate "active" %}</th>
+            <th style="width: unset">{% translate "frequency" %}</th>
+            <th style="width: unset">{% translate "action" %}</th>
+            <th>{% translate "description" %}</th>
+            <th>{% translate "ledger account" %}</th>
+            <th>{% translate "total" %}</th>
         </tr>
         </thead>
         <tbody>
@@ -34,7 +34,7 @@
                 <td><img src="{% if document_line.document.active %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></td>
                 <td>{{ document_line.document.frequency }} {{ document_line.document.frequency_type }}</td>
                 <td>
-                    <a class="button small" href="{{ document_line.document.moneybird_url }}" target="_blank" style="white-space: nowrap;">View on Moneybird</a>
+                    <a class="button small" href="{{ document_line.document.moneybird_url }}" target="_blank" style="white-space: nowrap;">{% translate "View on Moneybird" %}</a>
                 </td>
                 <td>{{ document_line.description|default_if_none:"" }}</td>
                 <td>{{ document_line.ledger_account|default_if_none:"" }}</td>
@@ -42,7 +42,7 @@
             </tr>
         {% empty %}
             <tr>
-                <td colspan="9">No recurring sales invoices</td>
+                <td colspan="9">{% translate "No recurring sales invoices" %}</td>
             </tr>
         {% endfor %}
         </tbody>
