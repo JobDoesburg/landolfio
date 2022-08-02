@@ -1,5 +1,3 @@
-import logging
-
 from django.db import models
 from django.dispatch import receiver
 
@@ -15,8 +13,6 @@ from inventory.services import (
     relink_document_lines_to_asset,
 )
 
-logging.info("Loading inventory.models.signals")
-
 
 @receiver(
     models.signals.post_save,
@@ -25,7 +21,6 @@ logging.info("Loading inventory.models.signals")
 )
 def on_journal_document_line_post_save(sender, instance: JournalDocumentLine, *args, **kwargs):
     # pylint: disable=unused-argument
-    logging.info("JournalDocumentLine post save")
     find_assets_in_document_line(instance)
 
 
@@ -36,7 +31,6 @@ def on_journal_document_line_post_save(sender, instance: JournalDocumentLine, *a
 )
 def on_sales_invoice_document_line_post_save(sender, instance: SalesInvoiceDocumentLine, *args, **kwargs):
     # pylint: disable=unused-argument
-    logging.info("SalesInvoiceDocumentLine post save")
     find_assets_in_document_line(instance)
 
 
@@ -47,7 +41,6 @@ def on_sales_invoice_document_line_post_save(sender, instance: SalesInvoiceDocum
 )
 def on_purchase_document_line_post_save(sender, instance: PurchaseDocumentLine, *args, **kwargs):
     # pylint: disable=unused-argument
-    logging.info("PurchaseDocumentLine post save")
     find_assets_in_document_line(instance)
 
 
@@ -58,7 +51,6 @@ def on_purchase_document_line_post_save(sender, instance: PurchaseDocumentLine, 
 )
 def on_general_journal_document_line_post_save(sender, instance: GeneralJournalDocumentLine, *args, **kwargs):
     # pylint: disable=unused-argument
-    logging.info("GeneralJournalDocumentLine post save")
     find_assets_in_document_line(instance)
 
 
@@ -71,7 +63,6 @@ def on_recurring_sales_invoice_document_line_post_save(
     sender, instance: RecurringSalesInvoiceDocumentLine, *args, **kwargs
 ):
     # pylint: disable=unused-argument
-    logging.info("RecurringSalesInvoiceDocumentLine post save")
     find_assets_in_document_line(instance)
 
 
@@ -82,7 +73,6 @@ def on_recurring_sales_invoice_document_line_post_save(
 )
 def on_estimate_document_line_post_save(sender, instance: EstimateDocumentLine, *args, **kwargs):
     # pylint: disable=unused-argument
-    logging.info("EstimateDocumentLine post save")
     find_assets_in_document_line(instance)
 
 
@@ -93,14 +83,12 @@ def on_estimate_document_line_post_save(sender, instance: EstimateDocumentLine, 
 )
 def on_general_journal_document_post_save(sender, instance: GeneralJournalDocument, *args, **kwargs):
     # pylint: disable=unused-argument
-    logging.info("GeneralJournalDocument post save")
     for line in instance.document_lines.all():
         find_assets_in_document_line(line)
 
 
 @receiver(models.signals.post_save, sender=Asset, dispatch_uid="asset_post_save")
 def on_asset_save(sender, instance: Asset, created, **kwargs):
-    logging.info("Asset post save")
     # pylint: disable=unused-argument
     if created:
         relink_document_lines_to_asset(instance)

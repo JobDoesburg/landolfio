@@ -24,7 +24,7 @@
             </tr>
         </thead>
         <tbody>
-            {% for estimate_line in asset.estimate_document_line_assets.all %}
+            {% for estimate_line in asset.estimate_document_line_assets.all|dictsort:"date" %}
                 <tr>
                     <td>{{ estimate_line.document_line.document|default_if_none:"" }}</td>
                     <td>{{ estimate_line.date|default_if_none:"" }}</td>

@@ -25,7 +25,7 @@
         </tr>
         </thead>
         <tbody>
-        {% for journal_document_line in asset.journal_document_line_assets.all %}
+        {% for journal_document_line in asset.journal_document_line_assets.all|dictsort:"date" %}
             <tr>
                 <td>{{ journal_document_line.document_line.document|default_if_none:"" }}</td>
                 <td>{{ journal_document_line.date|default_if_none:"" }}</td>
