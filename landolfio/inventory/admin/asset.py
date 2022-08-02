@@ -356,7 +356,7 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
         "has_rental_agreement",
         "has_loan_agreement",
         "is_rented",
-        # "moneybird_status",
+        "moneybird_status",
         "check_moneybird_errors",
     )
     inlines = [
