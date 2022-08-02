@@ -126,7 +126,7 @@ class Estimate(SynchronizableMoneybirdResourceModel):
     class Meta:
         verbose_name = _("Estimate")
         verbose_name_plural = _("Estimates")
-        ordering = ("-draft_id", "-estimate_id")
+        ordering = ("-draft_id", "-estimate_date", "-estimate_id")
 
 
 class EstimateDocumentLine(MoneybirdDocumentLineModel):

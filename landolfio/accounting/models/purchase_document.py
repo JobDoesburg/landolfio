@@ -80,7 +80,7 @@ class PurchaseDocument(SynchronizableMoneybirdResourceModel):
     class Meta:
         verbose_name = _("Purchase document")
         verbose_name_plural = _("Purchase documents")
-        ordering = ("-date",)
+        ordering = ("-date", "pk")
 
 
 class PurchaseDocumentLine(JournalDocumentLine):

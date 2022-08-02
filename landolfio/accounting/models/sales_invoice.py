@@ -135,7 +135,7 @@ class SalesInvoice(SynchronizableMoneybirdResourceModel):
     class Meta:
         verbose_name = _("Sales invoice")
         verbose_name_plural = _("Sales invoices")
-        ordering = ("-draft_id", "-invoice_id")
+        ordering = ("-draft_id", "-date", "-invoice_id")
 
 
 class SalesInvoiceDocumentLine(JournalDocumentLine):

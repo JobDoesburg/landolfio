@@ -37,6 +37,7 @@ class EstimateDocumentLineInline(MoneybirdResourceModelAdminMixin, admin.Stacked
 class EstimateAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
     list_display = (
         "__str__",
+        "estimate_date",
         "reference",
         "contact",
         "workflow",

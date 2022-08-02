@@ -41,6 +41,7 @@ class SalesInvoiceDocumentLineInline(
 class SalesInvoiceAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
     list_display = (
         "__str__",
+        "date",
         "reference",
         "contact",
         "workflow",

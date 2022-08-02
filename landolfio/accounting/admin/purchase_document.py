@@ -34,9 +34,9 @@ class PurchaseDocumentLineInline(MoneybirdResourceModelAdminMixin, admin.Stacked
 
 @register(PurchaseDocument)
 class PurchaseDocumentAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
-    ordering = ("-date", "reference")
     list_display = (
         "__str__",
+        "date",
         "contact",
         "total_price",
         "state",
