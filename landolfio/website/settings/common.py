@@ -204,6 +204,6 @@ if AWS_STORAGE_BUCKET_NAME is not None:
     DJANGO_DRF_FILEPOND_STORAGES_BACKEND = "storages.backends.s3boto3.S3Boto3Storage"
 else:
     DJANGO_DRF_FILEPOND_STORAGES_BACKEND = "django.core.files.storage.FileSystemStorage"
-    DJANGO_DRF_FILEPOND_FILE_STORE_PATH = os.path.join(BASE_DIR, "stored_uploads")
+    DJANGO_DRF_FILEPOND_FILE_STORE_PATH = os.path.join(MEDIA_ROOT, "stored_uploads")
 
 DJANGO_DRF_FILEPOND_UPLOAD_TMP = os.path.join(MEDIA_ROOT, "filepond-temp-uploads")
