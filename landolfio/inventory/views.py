@@ -33,9 +33,9 @@ class ViewAssetView(DetailView):
             Asset.objects.filter(category=self.object.category)
             .values_list("size__name", flat=True)
             .distinct()
-            .order_by()
+            .order_by("order")
         )
-        context["categories"] = AssetCategory.objects.all()
+        context["categories"] = AssetCategory.objects.all().order_by("order")
         return context
 
     def post(self, request, *args, **kwargs):
@@ -89,8 +89,8 @@ class AssetCategoryView(DetailView):
             Asset.objects.filter(category=self.object)
             .values_list("size__name", flat=True)
             .distinct()
-            .order_by()
+            .order_by("order")
         )
-        context["categories"] = AssetCategory.objects.all()
+        context["categories"] = AssetCategory.objects.all().order_by("order")
         context["asset"] = None
         return context
