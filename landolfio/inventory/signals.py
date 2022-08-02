@@ -3,15 +3,12 @@ import logging
 from django.db import models
 from django.dispatch import receiver
 
-from accounting.models import (
-    SalesInvoiceDocumentLine,
-    PurchaseDocumentLine,
-    GeneralJournalDocumentLine,
-    RecurringSalesInvoiceDocumentLine,
-    GeneralJournalDocument,
-)
-from accounting.models.estimate import EstimateDocumentLine
+from accounting.models.sales_invoice import SalesInvoiceDocumentLine
+from accounting.models.purchase_document import PurchaseDocumentLine
+from accounting.models.general_journal_document import GeneralJournalDocumentLine, GeneralJournalDocument
+from accounting.models.recurring_sales_invoice import RecurringSalesInvoiceDocumentLine
 from accounting.models.journal_document import JournalDocumentLine
+from accounting.models.estimate import EstimateDocumentLine
 from inventory.models.asset import Asset
 from inventory.services import (
     find_assets_in_document_line,
