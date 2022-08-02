@@ -9,3 +9,8 @@ class InventoryConfig(AppConfig):
     default_auto_field = "django.db.models.BigAutoField"
     name = "inventory"
     verbose_name = _("inventory")
+
+    def ready(self):
+        """Import the signals when the app is ready."""
+        # pylint: disable=unused-import,import-outside-toplevel
+        from . import signals
