@@ -48,6 +48,7 @@ MEDIA_ROOT = "/landolfio/media/"
 MEDIA_URL = "/media/"
 
 DJANGO_DRF_FILEPOND_UPLOAD_TMP = os.path.join(MEDIA_ROOT, "filepond-temp-uploads")
+DJANGO_DRF_FILEPOND_ALLOW_EXTERNAL_UPLOAD_DIR = True
 
 # We do this in our reverse proxy, no need to do it here
 SECURE_SSL_REDIRECT = False
