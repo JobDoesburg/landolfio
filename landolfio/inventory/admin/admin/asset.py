@@ -1,5 +1,5 @@
 from admin_numeric_filter.admin import SliderNumericFilter, NumericFilterModelAdmin
-from django.urls import path, reverse
+from django.urls import reverse
 from django.utils.html import format_html
 
 from autocompletefilter.admin import AutocompleteFilterMixin
@@ -7,8 +7,8 @@ from autocompletefilter.filters import AutocompleteListFilter
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from django.db.models.aggregates import Max
 from queryable_properties.admin import (
-    QueryablePropertiesAdmin,
     QueryablePropertiesAdminMixin,
 )
 
@@ -212,7 +212,9 @@ class RecurringSalesDocumentLineInline(DocumentLineInline):
 
 class ListingPriceSliderFilter(SliderNumericFilter):
     MAX_DECIMALS = 0
-    STEP = 50
+    MIN_VALUE = 0
+    MAX_VALUE = Asset.objects.aggregate(Max("listing_price"))["listing_price__max"]
+    STEP = 100
 
 
 @admin.register(Asset)
