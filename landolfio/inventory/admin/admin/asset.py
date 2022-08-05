@@ -1,4 +1,4 @@
-# from admin_numeric_filter.admin import SliderNumericFilter, NumericFilterModelAdmin
+from admin_numeric_filter.admin import SliderNumericFilter, NumericFilterModelAdmin
 from django.urls import path, reverse
 from django.utils.html import format_html
 
@@ -210,13 +210,15 @@ class RecurringSalesDocumentLineInline(DocumentLineInline):
         return obj.document_line.document.active
 
 
-# class ListingPriceSliderFilter(SliderNumericFilter):
-#     MAX_DECIMALS = 0
-#     STEP = 50
+class ListingPriceSliderFilter(SliderNumericFilter):
+    MAX_DECIMALS = 0
+    STEP = 50
 
 
 @admin.register(Asset)
-class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
+class AssetAdmin(
+    AutocompleteFilterMixin, QueryablePropertiesAdminMixin, NumericFilterModelAdmin
+):
     list_display = (
         "id",
         "category",
@@ -241,6 +243,11 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     list_filter = (
         ("collection", AutocompleteListFilter),
         ("local_status", MultiSelectFieldListFilter),
+        ("category", AutocompleteListFilter),
+        ("size", AutocompleteListFilter),
+        ("location", AutocompleteListFilter),
+        ("location__location_group", AutocompleteListFilter),
+        ("listing_price", ListingPriceSliderFilter),
         # "moneybird_status",
         "is_sold",
         "is_margin",
@@ -250,11 +257,6 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
         "has_rental_agreement",
         "has_loan_agreement",
         "is_rented",
-        ("category", AutocompleteListFilter),
-        ("size", AutocompleteListFilter),
-        ("location", AutocompleteListFilter),
-        ("location__location_group", AutocompleteListFilter),
-        # ("listing_price", ListingPriceSliderFilter),
     )
 
     search_fields = [

@@ -4,6 +4,11 @@
 {% block extrahead %}
     {{ block.super }}
     <meta name="format-detection" content="telephone=no"/>
+    <style>
+        #changelist-filter .admin-numeric-filter-wrapper {
+            border-bottom: 0;
+        }
+    </style>
 {% endblock %}
 
 {% block userlinks %}

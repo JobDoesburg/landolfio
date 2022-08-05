@@ -11,6 +11,7 @@ from inventory.admin.assets_admin.views import ViewAssetView
 from website.multi_select_filter import MultiSelectFieldListFilter
 from inventory.admin.assets_admin.site import assets_admin
 from inventory.admin.assets_admin.utils import get_extra_assets_context
+from inventory.admin.admin.asset import ListingPriceSliderFilter
 
 
 class AssetAdmin(BaseAssetAdmin):
@@ -29,22 +30,24 @@ class AssetAdmin(BaseAssetAdmin):
         "is_margin",
         "is_amortized",
     )
-
     list_filter = (
-        ("attachments", admin.EmptyFieldListFilter),
-        # "moneybird_status",
-        ("local_status", MultiSelectFieldListFilter),
-        ("category", AutocompleteListFilter),
         ("size", AutocompleteListFilter),
-        ("collection", AutocompleteListFilter),
-        ("location", AutocompleteListFilter),
-        ("location__location_group", AutocompleteListFilter),
+        ("attachments", admin.EmptyFieldListFilter),
+        ("local_status", MultiSelectFieldListFilter),
+        ("listing_price", ListingPriceSliderFilter),
+        # "moneybird_status",
+        "is_sold",
         "is_margin",
+        "is_purchased_asset",
+        "is_purchased_amortized",
         "is_amortized",
         "has_rental_agreement",
         "has_loan_agreement",
         "is_rented",
-        # ("listing_price", ListingPriceSliderFilter),
+        ("collection", AutocompleteListFilter),
+        ("category", AutocompleteListFilter),
+        ("location", AutocompleteListFilter),
+        ("location__location_group", AutocompleteListFilter),
     )
 
     inlines = []
@@ -156,7 +159,9 @@ class AssetAdmin(BaseAssetAdmin):
     def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
         extra_context = extra_context or {}
         extra_context = get_extra_assets_context(extra_context)
-        return super().changeform_view(request, object_id, form_url, extra_context=extra_context)
+        return super().changeform_view(
+            request, object_id, form_url, extra_context=extra_context
+        )
 
     def get_urls(self):
         urls = super().get_urls()

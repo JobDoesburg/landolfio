@@ -24,7 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django_countries",
     "localflavor",
-    # "admin_numeric_filter",
+    "admin_numeric_filter",
     "autocompletefilter",
     "django_drf_filepond",
     "ninox_import",
