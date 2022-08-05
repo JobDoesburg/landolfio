@@ -40,6 +40,7 @@
         <li><strong>{% translate "collection"|capfirst %}:</strong> {{ asset.collection|default_if_none:"-" }}</li>
         <li><strong>{% translate "location"|capfirst %}:</strong> {{ asset.location|default_if_none:"-" }}</li>
         <li><strong>{% translate "listing price"|capfirst %}:</strong> {{ asset.listing_price|default_if_none:"-" }}</li>
+        <li><strong>{% translate "local status"|capfirst %}:</strong> {{ asset.local_status|default_if_none:"-" }}</li>
         <li><strong>{% translate "Moneybird status"|capfirst %}:</strong> {{ asset.moneybird_status|default_if_none:"-" }}</li>
         {% if asset.check_moneybird_errors %}
             <li><strong>{% translate "Moneybird errors"|capfirst %}:</strong>
