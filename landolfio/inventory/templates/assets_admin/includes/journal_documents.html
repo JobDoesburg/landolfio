@@ -31,7 +31,7 @@
                         {{ journal_document_line.document_line.document|default_if_none:"" }}
                     </a>
                 </td>
-                <td>{{ journal_document_line.date|default_if_none:"" }}</td>
+                <td style="width: unset; white-space: nowrap">{{ journal_document_line.date|default_if_none:"" }}</td>
                 <td>
                     <a href="{{ journal_document_line.contact.moneybird_url }}" target="_blank" style="white-space: nowrap;">
                         {{ journal_document_line.contact|default_if_none:"" }}
