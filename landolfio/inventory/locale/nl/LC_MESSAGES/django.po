@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-05 13:20+0200\n"
-"PO-Revision-Date: 2022-08-05 13:25+0200\n"
+"POT-Creation-Date: 2022-08-05 13:35+0200\n"
+"PO-Revision-Date: 2022-08-05 13:36+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -555,12 +555,12 @@ msgid "Upload"
 msgstr "Uploaden"
 
 #: templates/assets_admin/includes/file_upload.html:66
-msgid ""
-"Drag & Drop your files or <span class=\"filepond--label-action\"> Browse </"
-"span>"
-msgstr ""
-"Klik & sleep of <span class=“filepond—label-action”> Selecteer bestanden</"
-"span>"
+msgid "Drag & Drop your files or"
+msgstr "Sleep bestanden hiernaartoe of"
+
+#: templates/assets_admin/includes/file_upload.html:66
+msgid "Browse"
+msgstr "Klik hier en selecteer"
 
 #: templates/assets_admin/includes/file_upload.html:67
 msgid "Field contains invalid files"
@@ -608,15 +608,15 @@ msgstr "Fout tijdens verwijderen"
 
 #: templates/assets_admin/includes/file_upload.html:78
 msgid "tap to cancel"
-msgstr "Tik om te annuleren"
+msgstr "tik om te annuleren"
 
 #: templates/assets_admin/includes/file_upload.html:79
 msgid "tap to retry"
-msgstr "Tik om opnieuw te proberen"
+msgstr "tik om opnieuw te proberen"
 
 #: templates/assets_admin/includes/file_upload.html:80
 msgid "tap to undo"
-msgstr "Tik om ongedaan te maken"
+msgstr "tik om ongedaan te maken"
 
 #: templates/assets_admin/includes/file_upload.html:81
 msgid "Remove"
@@ -733,6 +733,9 @@ msgstr "Recent aangemaakte eigendommen"
 #: templates/assets_admin/view_asset.html:5
 msgid "Django administration"
 msgstr "Django administratie"
+
+#~ msgid "Drag & Drop your files or <span class=\"filepond--label-action\"> Browse </span>"
+#~ msgstr "Klik & sleep of <span class=\"filepond—label-action\"> Selecteer bestanden </span>"
 
 #~ msgid "action"
 #~ msgstr "actie"

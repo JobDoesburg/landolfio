@@ -19,7 +19,7 @@ urlpatterns = (
         path("api/accounting/", include("accounting.api.urls")),
         path("fp/", include("django_drf_filepond.urls")),
         re_path(r"^media/", views.protected_ask_reverse_proxy),
-        path(r"^.*", RedirectView.as_view(url="/assets/"), name="index"),
+        path("", RedirectView.as_view(url="/assets/"), name="index"),
         path("admin/", RedirectView.as_view(url="/admin/"), name="admin"),
     ]
 )
