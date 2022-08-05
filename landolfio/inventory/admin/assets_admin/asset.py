@@ -153,6 +153,11 @@ class AssetAdmin(BaseAssetAdmin):
         extra_context = get_extra_assets_context(extra_context)
         return super().add_view(request, form_url, extra_context=extra_context)
 
+    def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
+        extra_context = extra_context or {}
+        extra_context = get_extra_assets_context(extra_context)
+        return super().changeform_view(request, object_id, form_url, extra_context=extra_context)
+
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
