@@ -63,9 +63,7 @@ class Contact(SynchronizableMoneybirdResourceModel):
         null=True,
         blank=True,
     )
-    country = CountryField(
-        verbose_name=_("country"),
-        default="NL")
+    country = CountryField(verbose_name=_("country"), default="NL")
     phone = models.CharField(
         verbose_name=_("phone"),
         max_length=255,
@@ -92,7 +90,9 @@ class Contact(SynchronizableMoneybirdResourceModel):
     )
     bank_account = IBANField(
         verbose_name=_("bank account"),
-        include_countries=IBAN_SEPA_COUNTRIES, blank=True, null=True
+        include_countries=IBAN_SEPA_COUNTRIES,
+        blank=True,
+        null=True,
     )
     attention = models.CharField(
         verbose_name=_("attention"),
@@ -129,16 +129,19 @@ class Contact(SynchronizableMoneybirdResourceModel):
         blank=True,
     )
     sepa_active = models.BooleanField(verbose_name=_("SEPA active"), default=False)
-    sepa_iban = IBANField(verbose_name=_("SEPA IBAN"), include_countries=IBAN_SEPA_COUNTRIES, blank=True, null=True)
+    sepa_iban = IBANField(
+        verbose_name=_("SEPA IBAN"),
+        include_countries=IBAN_SEPA_COUNTRIES,
+        blank=True,
+        null=True,
+    )
     sepa_iban_account_name = models.CharField(
         verbose_name=_("SEPA IBAN account name"),
         max_length=255,
         null=True,
         blank=True,
     )
-    sepa_bic = BICField(
-        verbose_name=_("SEPA BIC"),
-        blank=True, null=True)
+    sepa_bic = BICField(verbose_name=_("SEPA BIC"), blank=True, null=True)
     sepa_mandate_id = models.CharField(
         verbose_name=_("SEPA mandate id"),
         max_length=50,
@@ -146,11 +149,14 @@ class Contact(SynchronizableMoneybirdResourceModel):
         blank=True,
     )
     sepa_mandate_date = models.DateField(
-        verbose_name=_("SEPA mandate date"),
-        null=True, blank=True)
+        verbose_name=_("SEPA mandate date"), null=True, blank=True
+    )
     sepa_sequence_type = models.CharField(
         verbose_name=_("SEPA sequence type"),
-        max_length=4, null=True, blank=True, choices=SepaSequenceTypes.choices
+        max_length=4,
+        null=True,
+        blank=True,
+        choices=SepaSequenceTypes.choices,
     )
     tax_number_valid = models.BooleanField(
         verbose_name=_("tax number valid"), default=False
@@ -174,8 +180,8 @@ class Contact(SynchronizableMoneybirdResourceModel):
         related_name="estimate_workflow_contacts",
     )
     sales_invoices_url = models.URLField(
-        verbose_name=_("sales invoices url"),
-        blank=True, max_length=2048, null=True)
+        verbose_name=_("sales invoices url"), blank=True, max_length=2048, null=True
+    )
 
     def clean(self):
         super().clean()

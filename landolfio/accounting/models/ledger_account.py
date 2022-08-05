@@ -22,7 +22,13 @@ class LedgerAccountType(models.TextChoices):
 
 class LedgerAccount(MoneybirdResourceModel):
 
-    parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True, verbose_name=_("parent"))
+    parent = models.ForeignKey(
+        "self",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        verbose_name=_("parent"),
+    )
 
     name = models.CharField(
         max_length=100,
@@ -44,13 +50,13 @@ class LedgerAccount(MoneybirdResourceModel):
     is_sales = models.BooleanField(
         default=False,
         verbose_name=_("is sales"),
-        help_text=_("Ledger account is used for selling assets.")
+        help_text=_("Ledger account is used for selling assets."),
     )
 
     is_purchase = models.BooleanField(
         default=False,
         verbose_name=_("is purchase"),
-        help_text=_("Ledger account is used for purchasing assets.")
+        help_text=_("Ledger account is used for purchasing assets."),
     )
 
     class Meta:

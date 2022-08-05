@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-02 23:50+0200\n"
-"PO-Revision-Date: 2022-08-02 23:50+0200\n"
+"POT-Creation-Date: 2022-08-05 13:21+0200\n"
+"PO-Revision-Date: 2022-08-05 13:26+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -30,14 +30,18 @@ msgstr "Alle"
 msgid "Dutch"
 msgstr "Nederlands"
 
-#: templates/admin/base.html:10
+#: templates/admin/base.html:11
 msgid "Synchronize with MoneyBird"
 msgstr "Synchroniseren met MoneyBird"
 
-#: templates/admin/base.html:12
+#: templates/admin/base.html:13
+msgid "Assets admin"
+msgstr "Eigendommenbeheer"
+
+#: templates/admin/base.html:14
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
-#: templates/admin/base.html:13
+#: templates/admin/base.html:15
 msgid "Log out"
 msgstr "Log uit"

@@ -1,15 +1,15 @@
 {% load static i18n %}
-<style>
-    @media (max-width: 767px) {
-        #nav-sidebar, #toggle-nav-sidebar {
-            display: unset;
-            width: 100%;
-        }
-        .main > #nav-sidebar + .content, .main.shifted > #nav-sidebar + .content {
-            max-width: calc(100% - 23px);
-        }
-    }
-</style>
+{#<style>#}
+{#    @media (max-width: 767px) {#}
+{#        #nav-sidebar, #toggle-nav-sidebar {#}
+{#            display: unset;#}
+{#            width: 100%;#}
+{#        }#}
+{#        .main > #nav-sidebar + .content, .main.shifted > #nav-sidebar + .content {#}
+{#            max-width: calc(100% - 23px);#}
+{#        }#}
+{#    }#}
+{#</style>#}
 <button class="sticky toggle-nav-sidebar" id="toggle-nav-sidebar" aria-label="{% translate 'Toggle navigation' %}"></button>
 <nav class="sticky" id="nav-sidebar">
     <input class="sticky" type="search" id="nav-filter"
@@ -31,7 +31,10 @@
 {#                                <span style="background: var(--button-bg)">{{ asset.local_status }}</span>#}
 {#                            </td>#}
                             <td>
-                                <span style="float: right">{{ asset.location|default_if_none:"-" }}</span>
+                                <span style="float: right; text-align: right; white-space: normal;">{{ asset.location|default_if_none:"-" }}</span>
+                            </td>
+                            <td>
+                                <span style="float: right">{{ asset.listing_price|default_if_none:"-" }}</span>
                             </td>
                         </tr>
                     {% endif %}

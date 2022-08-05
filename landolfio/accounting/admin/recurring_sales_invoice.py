@@ -52,6 +52,7 @@ class RecurringSalesInvoiceAdmin(AutocompleteFilterMixin, MoneybirdResourceModel
     list_filter = (
         ("workflow", AutocompleteListFilter),
         ("contact", AutocompleteListFilter),
+        "active",
         "frequency_type",
         "auto_send",
         "invoice_date",

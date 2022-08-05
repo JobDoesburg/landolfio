@@ -147,7 +147,15 @@ class MoneybirdSync:
             except Exception as e:
                 logging.error(f"Failed to push {resource_type.__name__} {resource.id}")
                 logging.error(e)
-                resource.refresh_from_moneybird()
+                try:
+                    resource.refresh_from_moneybird()
+                except Exception as e:
+                    logging.error(
+                        f"Failed to refresh {resource_type.__name__} {resource.id}"
+                    )
+                    logging.error(e)
+                    resource.delete()
+                    continue
 
     def perform_sync(self, resource_types: list[MoneybirdResourceType]):
         """Perform a full sync of a list of resources."""

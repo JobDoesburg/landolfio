@@ -1,0 +1,15 @@
+{% load i18n %}
+
+<div class="module">
+    <table>
+        <caption>
+            <a href="#" class="section" title="locations">{% translate "locations"|capfirst %}</a>
+        </caption>
+        {% for location in locations %}
+            <tr class="">
+                <th scope="row"><a href="{% url "assets_admin:inventory_asset_changelist" %}?location__id__exact={{ location.id }}">{{ location }}</a></th>
+                <td style="float: right">{{ location.asset_set.all.count }} {% translate "assets" %}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>

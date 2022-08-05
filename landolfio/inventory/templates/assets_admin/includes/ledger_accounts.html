@@ -2,7 +2,6 @@
 <style>
     #content-related .module table {
         display: block;
-        overflow-x: hidden;
     }
 </style>
 
@@ -11,14 +10,14 @@
     <table>
         <thead>
         <tr>
-            <th style="white-space: break-spaces">Ledger account</th>
-            <th>Total</th>
+            <th style="white-space: break-spaces">{% translate "ledger account" %}</th>
+            <th>{% translate "total" %}</th>
         </tr>
         </thead>
         <tbody>
         {% for ledger_account, value in asset.get_ledger_account_amounts.items %}
             <tr>
-                <td>{{ ledger_account }}</td>
+                <td style="white-space: normal">{{ ledger_account }}</td>
                 <td>{{ value }}</td>
             </tr>
         {% empty %}

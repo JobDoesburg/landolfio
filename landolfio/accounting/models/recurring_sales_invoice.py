@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from django.db import models
 from django.db.models import F
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, ngettext
 from queryable_properties.properties import AnnotationProperty
 
 from accounting.models.ledger_account import (
@@ -89,7 +89,11 @@ class RecurringSalesInvoice(SynchronizableMoneybirdResourceModel):
     )
 
     def __str__(self):
-        return f"{_('Recurring sales invoice for')} {self.contact} {_('every')} {self.frequency} {self.frequency_type} {_('since')} {self.start_date}"
+        return ngettext(
+            f"{_('Every')} {self.frequency_type} {_('since')} {self.start_date} {_('to')} {self.contact}",
+            f"{_('Every')} {self.frequency} {self.frequency_type} {_('since')} {self.start_date} {_('to')} {self.contact}",
+            self.frequency,
+        )
 
     class Meta:
         verbose_name = _("recurring sales invoice")

@@ -132,6 +132,10 @@ class SalesInvoice(SynchronizableMoneybirdResourceModel):
             return f"{_('draft')} {self.draft_id}"
         return f"{self.invoice_id}"
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.document_lines.update(contact=self.contact)
+
     class Meta:
         verbose_name = _("sales invoice")
         verbose_name_plural = _("sales invoices")
@@ -254,6 +258,7 @@ class SalesInvoiceResourceType(
         kwargs["product"] = ProductResourceType.get_or_create_from_moneybird_data(
             line_data["product_id"]
         )
+        kwargs["contact"] = document.contact
         ledger_account = kwargs["ledger_account"]
         kwargs["total_amount"] = line_data["total_price_excl_tax_with_discount_base"]
         if (

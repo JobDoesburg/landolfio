@@ -9,6 +9,7 @@ from moneybird.admin import (
     MoneybirdResourceModelAdminMixin,
 )
 
+
 class GeneralJournalDocumentLineInline(
     MoneybirdResourceModelAdminMixin, admin.StackedInline
 ):

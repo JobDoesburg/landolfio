@@ -1,0 +1,74 @@
+{% extends 'admin/index.html' %}
+{% load static i18n %}
+
+{% block branding %}
+    <h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+    <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"
+    />
+    <style>
+        .dashboard #content {
+            width: unset;
+        }
+    </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+    {{ block.super }}
+    {% include "assets_admin/includes/category_breadcrumbs.html" %}
+{% endblock %}
+
+{% block nav-sidebar %}
+    {{ block.super }}
+    {% include 'assets_admin/includes/assets_nav-sidebar.html' %}
+{% endblock %}
+
+{% block content_title %}<h1>{{ asset }}</h1>{% endblock %}
+{% block title %}{{ asset }}{% endblock %}
+
+{% block userlinks %}
+    <a href="{% url 'index' %}">{% trans 'admin' %}</a> /
+    <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
+    <a href="{% url 'admin:logout' %}">{% trans 'Log out' %} </a>
+{% endblock %}
+
+
+{% block content %}
+    <div class="module">
+        <div id="content-related">
+            <ul class="object-tools">
+                <li>
+                    <a href="{% url "assets_admin:inventory_asset_add" %}" class="addlink">
+                        {% translate "Add asset" %}
+                    </a>
+                </li>
+            </ul>
+            {% include "assets_admin/includes/sidebar.html" %}
+            {% include "assets_admin/includes/ledger_accounts.html" %}
+        </div>
+        <div id="content-main">
+            {% include "assets_admin/includes/attachments.html" %}
+            {% include "assets_admin/includes/remarks.html" %}
+            {% include "assets_admin/includes/estimates.html" %}
+            {% include "assets_admin/includes/recurring_sales_invoices.html" %}
+            {% include "assets_admin/includes/journal_documents.html" %}
+        </div>
+    </div>
+{% endblock %}
+
+{% block sidebar %}
+{% endblock %}
+
+{% block footer %}
+    {{ block.super }}
+{% endblock %}

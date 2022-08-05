@@ -13,13 +13,20 @@ from accounting.models.estimate import (
 
 class AssetOnJournalDocumentLine(models.Model):
     asset = models.ForeignKey(
-        "Asset", on_delete=models.CASCADE, related_name="journal_document_line_assets",
+        "Asset",
+        on_delete=models.CASCADE,
+        related_name="journal_document_line_assets",
         verbose_name=_("asset"),
     )
     document_line = models.ForeignKey(
-        JournalDocumentLine, on_delete=models.CASCADE, related_name="assets", verbose_name=_("document line"),
+        JournalDocumentLine,
+        on_delete=models.CASCADE,
+        related_name="assets",
+        verbose_name=_("document line"),
     )
-    value = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("value"))
+    value = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name=_("value")
+    )
 
     @property
     def date(self):
@@ -56,12 +63,20 @@ class AssetOnJournalDocumentLine(models.Model):
 
 class AssetOnEstimateDocumentLine(models.Model):
     asset = models.ForeignKey(
-        "Asset", on_delete=models.CASCADE, related_name="estimate_document_line_assets", verbose_name=_("asset"),
+        "Asset",
+        on_delete=models.CASCADE,
+        related_name="estimate_document_line_assets",
+        verbose_name=_("asset"),
     )
     document_line = models.ForeignKey(
-        EstimateDocumentLine, on_delete=models.CASCADE, related_name="assets", verbose_name=_("document line"),
+        EstimateDocumentLine,
+        on_delete=models.CASCADE,
+        related_name="assets",
+        verbose_name=_("document line"),
     )
-    value = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("value"))
+    value = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name=_("value")
+    )
 
     @property
     def date(self):
@@ -107,7 +122,9 @@ class AssetOnRecurringSalesInvoiceDocumentLine(models.Model):
         related_name="assets",
         verbose_name=_("document line"),
     )
-    value = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("value"))
+    value = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name=_("value")
+    )
 
     @property
     def date(self):
@@ -142,12 +159,20 @@ class AssetOnRecurringSalesInvoiceDocumentLine(models.Model):
 
 class AssetSubscription(models.Model):
     asset = models.ForeignKey(
-        "Asset", on_delete=models.CASCADE, related_name="asset_subscriptions", verbose_name=_("asset"),
+        "Asset",
+        on_delete=models.CASCADE,
+        related_name="asset_subscriptions",
+        verbose_name=_("asset"),
     )
     subscription = models.ForeignKey(
-        Subscription, on_delete=models.CASCADE, related_name="assets", verbose_name=_("subscription"),
+        Subscription,
+        on_delete=models.CASCADE,
+        related_name="assets",
+        verbose_name=_("subscription"),
     )
-    value = models.DecimalField(max_digits=10, decimal_places=2, verbose_name=_("value"))
+    value = models.DecimalField(
+        max_digits=10, decimal_places=2, verbose_name=_("value")
+    )
 
     class Meta:
         verbose_name = _("asset subscription")

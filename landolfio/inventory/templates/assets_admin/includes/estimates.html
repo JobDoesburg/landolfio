@@ -19,28 +19,32 @@
                 <th style="width: unset">{% translate "contact" %}</th>
                 <th style="width: unset">{% translate "workflow" %}</th>
                 <th style="width: unset">{% translate "status" %}</th>
-                <th style="width: unset">{% translate "action" %}</th>
                 <th>{% translate "description" %}</th>
                 <th>{% translate "total" %}</th>
             </tr>
         </thead>
         <tbody>
-            {% for estimate_line in asset.estimate_document_line_assets.all|dictsort:"date" %}
+            {% for estimate_line in asset.estimate_document_line_assets.all|dictsortreversed:"date" %}
                 <tr>
-                    <td>{{ estimate_line.document_line.document|default_if_none:"" }}</td>
+                    <td>
+                        <a href="{{ estimate_line.document_line.document.moneybird_url }}" target="_blank" style="white-space: nowrap;">
+                            {{ estimate_line.document_line.document|default_if_none:"" }}
+                        </a>
+                    </td>
                     <td>{{ estimate_line.date|default_if_none:"" }}</td>
-                    <td>{{ estimate_line.contact|default_if_none:"" }}</td>
+                    <td>
+                        <a href="{{ estimate_line.contact.moneybird_url }}" target="_blank" style="white-space: nowrap;">
+                            {{ estimate_line.contact|default_if_none:"" }}
+                        </a>
+                    </td>
                     <td>{{ estimate_line.document_line.document.workflow|default_if_none:"" }}</td>
                     <td>{{ estimate_line.document_line.document.state|default_if_none:"" }}</td>
-                    <td>
-                        <a class="button small" href="{{ estimate_line.document_line.document.moneybird_url }}" target="_blank" style="white-space: nowrap;">{% translate "View on Moneybird" %}</a>
-                    </td>
                     <td>{{ estimate_line.description|default_if_none:"" }}</td>
                     <td>{{ estimate_line.value|default_if_none:"" }}</td>
                 </tr>
             {% empty %}
                 <tr>
-                    <td colspan="8">{% translate "No estimates" %}</td>
+                    <td colspan="7">{% translate "No estimates" %}</td>
                 </tr>
             {% endfor %}
         </tbody>

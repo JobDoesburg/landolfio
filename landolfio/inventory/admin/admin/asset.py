@@ -21,7 +21,6 @@ from inventory.models.asset import (
 )
 from inventory.models.attachment import Attachment
 from inventory.models.remarks import Remark
-from inventory.views import ViewAssetView, AssetCategoryView
 
 from website.multi_select_filter import MultiSelectFieldListFilter
 
@@ -219,7 +218,7 @@ class RecurringSalesDocumentLineInline(DocumentLineInline):
 @admin.register(Asset)
 class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     list_display = (
-        "asset_view_link",
+        "id",
         "category",
         "size",
         "location",
@@ -240,13 +239,10 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     )
 
     list_filter = (
-        ("category", AutocompleteListFilter),
-        ("size", AutocompleteListFilter),
         ("collection", AutocompleteListFilter),
         ("local_status", MultiSelectFieldListFilter),
         # "moneybird_status",
-        ("location", AutocompleteListFilter),
-        ("location__location_group", AutocompleteListFilter),
+        "is_sold",
         "is_margin",
         "is_purchased_asset",
         "is_purchased_amortized",
@@ -254,12 +250,31 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
         "has_rental_agreement",
         "has_loan_agreement",
         "is_rented",
+        ("category", AutocompleteListFilter),
+        ("size", AutocompleteListFilter),
+        ("location", AutocompleteListFilter),
+        ("location__location_group", AutocompleteListFilter),
         # ("listing_price", ListingPriceSliderFilter),
     )
 
     search_fields = [
         "id",
         "remarks__remark",
+        "category__name",
+        "size__name",
+        "location__name",
+        "location__location_group__name",
+        "collection__name",
+        "journal_document_lines__description",
+        "journal_document_lines__contact__first_name",
+        "estimate_document_lines__description",
+        "estimate_document_lines__document__contact__first_name",
+        "estimate_document_lines__document__contact__last_name",
+        "estimate_document_lines__document__contact__company_name",
+        "recurring_sales_invoice_document_lines__description",
+        "recurring_sales_invoice_document_lines__document__contact__first_name",
+        "recurring_sales_invoice_document_lines__document__contact__last_name",
+        "recurring_sales_invoice_document_lines__document__contact__company_name",
     ]
 
     fieldsets = [
@@ -491,42 +506,6 @@ class AssetAdmin(AutocompleteFilterMixin, QueryablePropertiesAdmin):
     def asset_view_link(self, obj):
         return format_html(
             '<a href="{link}">{title}</a>',
-            link=reverse("admin:view_asset", kwargs={"id": obj.id}),
+            link=reverse("assets_admin:view_asset", kwargs={"id": obj.id}),
             title=obj.id,
         )
-
-    def get_urls(self):
-        urls = super().get_urls()
-        custom_urls = [
-            path(
-                "view/<path:id>/",
-                self.admin_site.admin_view(
-                    ViewAssetView.as_view(
-                        extra_context={
-                            "site_title": self.admin_site.site_title,
-                            "site_header": self.admin_site.site_header,
-                            "site_url": self.admin_site.site_url,
-                            "has_permission": True,
-                            "is_popup": False,
-                        },
-                    )
-                ),
-                name="view_asset",
-            ),
-            path(
-                "category/<path:id>/",
-                self.admin_site.admin_view(
-                    AssetCategoryView.as_view(
-                        extra_context={
-                            "site_title": self.admin_site.site_title,
-                            "site_header": self.admin_site.site_header,
-                            "site_url": self.admin_site.site_url,
-                            "has_permission": True,
-                            "is_popup": False,
-                        },
-                    )
-                ),
-                name="view_asset_category",
-            ),
-        ]
-        return custom_urls + urls

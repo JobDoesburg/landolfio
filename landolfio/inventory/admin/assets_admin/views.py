@@ -1,41 +1,40 @@
-import json
-import os
-
 from django.contrib.admin.views.decorators import staff_member_required
-from django.core.files.base import ContentFile
-from django.http import HttpResponseBadRequest, HttpResponse
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
-from django.views.generic import TemplateView, DetailView
+from django.views.generic import DetailView
 from django_drf_filepond.api import store_upload
-from django_drf_filepond.models import TemporaryUpload, StoredUpload
+from django_drf_filepond.models import TemporaryUpload
 
 from inventory.models.asset import Asset
 from inventory.models.remarks import Remark
 from inventory.models.attachment import Attachment, attachments_directory_path
-from inventory.models.category import AssetCategory
+from inventory.admin.assets_admin.utils import get_extra_assets_context
 
 
 @method_decorator(staff_member_required, name="dispatch")
 class ViewAssetView(DetailView):
 
-    template_name = "admin/view_asset.html"
+    template_name = "assets_admin/view_asset.html"
     model = Asset
     context_object_name = "asset"
     pk_url_kwarg = "id"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context = get_extra_assets_context(context)
         context["is_popup"] = False
         context["is_nav_sidebar_enabled"] = True
-        context["assets"] = Asset.objects.filter(category=self.object.category).all()
+        context["assets"] = (
+            Asset.objects.filter(category=self.object.category)
+            .all()
+            .order_by("size__order", "-created_at")
+        )
         context["asset_sizes"] = (
             Asset.objects.filter(category=self.object.category)
             .values_list("size__name", flat=True)
             .distinct()
             .order_by("size__order")
         )
-        context["categories"] = AssetCategory.objects.all().order_by("order")
         return context
 
     def post(self, request, *args, **kwargs):
@@ -66,31 +65,8 @@ class ViewAssetView(DetailView):
 
         try:
             remark = data.get("remark")
-            if remark != "":
+            if remark and remark != "":
                 Remark.objects.create(asset=asset, remark=remark)
         except KeyError:
             pass
         return redirect(self.request.path)
-
-
-@method_decorator(staff_member_required, name="dispatch")
-class AssetCategoryView(DetailView):
-    template_name = "admin/view_asset_category.html"
-    model = AssetCategory
-    context_object_name = "asset_category"
-    pk_url_kwarg = "id"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["is_popup"] = False
-        context["is_nav_sidebar_enabled"] = True
-        context["assets"] = Asset.objects.filter(category=self.object).all()
-        context["asset_sizes"] = (
-            Asset.objects.filter(category=self.object)
-            .values_list("size__name", flat=True)
-            .distinct()
-            .order_by("size__order")
-        )
-        context["categories"] = AssetCategory.objects.all().order_by("order")
-        context["asset"] = None
-        return context

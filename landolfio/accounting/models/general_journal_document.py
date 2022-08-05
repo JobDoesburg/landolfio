@@ -38,14 +38,6 @@ class GeneralJournalDocumentLine(JournalDocumentLine):
         verbose_name=_("document"),
         related_name="document_lines",
     )
-
-    contact = models.ForeignKey(
-        Contact,
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        verbose_name=_("contact"),
-    )
     debit = models.DecimalField(
         max_digits=19, decimal_places=2, null=True, blank=True, verbose_name=_("debit")
     )

@@ -50,11 +50,21 @@ class Asset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
     id = models.CharField(verbose_name=_("ID"), max_length=200, primary_key=True)
     category = models.ForeignKey(
-        AssetCategory, null=True, blank=False, on_delete=PROTECT, verbose_name=_("category")
+        AssetCategory,
+        null=True,
+        blank=False,
+        on_delete=PROTECT,
+        verbose_name=_("category"),
     )
-    size = models.ForeignKey(AssetSize, null=True, blank=True, on_delete=PROTECT, verbose_name=_("size"))
+    size = models.ForeignKey(
+        AssetSize, null=True, blank=True, on_delete=PROTECT, verbose_name=_("size")
+    )
     location = models.ForeignKey(
-        AssetLocation, null=True, blank=True, on_delete=PROTECT, verbose_name=_("location")
+        AssetLocation,
+        null=True,
+        blank=True,
+        on_delete=PROTECT,
+        verbose_name=_("location"),
     )
     collection = models.ForeignKey(
         Collection, on_delete=models.CASCADE, verbose_name=_("collection")
@@ -80,7 +90,8 @@ class Asset(models.Model):
         verbose_name=_("journal document lines"),
     )
     estimate_document_lines = models.ManyToManyField(
-        EstimateDocumentLine, through=AssetOnEstimateDocumentLine,
+        EstimateDocumentLine,
+        through=AssetOnEstimateDocumentLine,
         verbose_name=_("estimate document lines"),
     )
     recurring_sales_invoice_document_lines = models.ManyToManyField(
@@ -471,6 +482,6 @@ class Asset(models.Model):
         return f"{self.category.name_singular} {self.id} ({self.size})"
 
     class Meta:
-        ordering = ["created_at", "id"]
+        ordering = ["-created_at", "id"]
         verbose_name = _("asset")
         verbose_name_plural = _("assets")

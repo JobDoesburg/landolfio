@@ -1,0 +1,23 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block extrahead %}
+    <meta name="format-detection" content="telephone=no"/>
+{% endblock %}
+
+{% if not is_popup %}
+    {% block breadcrumbs %}
+        {% include "assets_admin/includes/category_breadcrumbs.html" %}
+    {% endblock %}
+{% endif %}
+
+{% block userlinks %}
+    <a href="{% url 'admin:inventory_asset_changelist' %}">{% trans 'admin' %}</a> /
+    <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
+    <a href="{% url 'admin:logout' %}">{% trans 'Log out' %} </a>
+{% endblock %}
+
+
+{% block nav-sidebar %}
+    {% include 'assets_admin/index-nav-sidebar.html' %}
+{% endblock %}

@@ -1,3 +1,2 @@
-from .asset import *
-from .assets_on_document_lines import *
-from .other import *
+from .admin import *
+from .assets_admin import *

@@ -13,6 +13,7 @@ from queryable_properties.managers import (
 
 from queryable_properties.properties import AnnotationProperty
 
+from accounting.models import Contact
 from accounting.models.ledger_account import (
     LedgerAccount,
     LedgerAccountResourceType,
@@ -59,6 +60,13 @@ class JournalDocumentLine(MoneybirdDocumentLineModel):
         blank=False,
         verbose_name=_("ledger account"),
     )
+    contact = models.ForeignKey(
+        Contact,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=False,
+        verbose_name=_("contact"),
+    )
     project = models.ForeignKey(
         Project,
         on_delete=models.SET_NULL,
@@ -86,10 +94,6 @@ class JournalDocumentLine(MoneybirdDocumentLineModel):
     )
 
     date = AnnotationProperty(F("document__date"))
-
-    @property
-    def contact(self):
-        return self.document.contact
 
     def __str__(self):
         return f"{self.description} in {self.document}"

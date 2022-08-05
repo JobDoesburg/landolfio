@@ -18,29 +18,33 @@
             <th style="width: unset">{% translate "date" %}</th>
             <th style="width: unset">{% translate "contact" %}</th>
             <th style="width: unset">{% translate "status" %}</th>
-            <th style="width: unset">{% translate "action" %}</th>
             <th>{% translate "description" %}</th>
-            <th>{% translate "ledger account" %}</th>
             <th>{% translate "total" %}</th>
+            <th>{% translate "ledger account" %}</th>
         </tr>
         </thead>
         <tbody>
-        {% for journal_document_line in asset.journal_document_line_assets.all|dictsort:"date" %}
+        {% for journal_document_line in asset.journal_document_line_assets.all|dictsortreversed:"date" %}
             <tr>
-                <td>{{ journal_document_line.document_line.document|default_if_none:"" }}</td>
-                <td>{{ journal_document_line.date|default_if_none:"" }}</td>
-                <td>{{ journal_document_line.contact|default_if_none:"" }}</td>
-                <td>{{ journal_document_line.document_line.document.state|default_if_none:"" }}</td>
                 <td>
-                    <a class="button small" href="{{ journal_document_line.document_line.document.moneybird_url }}" target="_blank" style="white-space: nowrap;">{% translate "View on Moneybird" %}</a>
+                    <a href="{{ journal_document_line.document_line.document.moneybird_url }}" target="_blank" style="white-space: nowrap;">
+                        {{ journal_document_line.document_line.document|default_if_none:"" }}
+                    </a>
                 </td>
+                <td>{{ journal_document_line.date|default_if_none:"" }}</td>
+                <td>
+                    <a href="{{ journal_document_line.contact.moneybird_url }}" target="_blank" style="white-space: nowrap;">
+                        {{ journal_document_line.contact|default_if_none:"" }}
+                    </a>
+                </td>
+                <td>{{ journal_document_line.document_line.document.state|default_if_none:"" }}</td>
                 <td>{{ journal_document_line.description|default_if_none:"" }}</td>
-                <td>{{ journal_document_line.ledger_account|default_if_none:"" }}</td>
                 <td>{{ journal_document_line.value|default_if_none:"" }}</td>
+                <td>{{ journal_document_line.ledger_account|default_if_none:"" }}</td>
             </tr>
         {% empty %}
             <tr>
-                <td colspan="8">{% translate "No journal documents" %}</td>
+                <td colspan="7">{% translate "No journal documents" %}</td>
             </tr>
         {% endfor %}
         </tbody>

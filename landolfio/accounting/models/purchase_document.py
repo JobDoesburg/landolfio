@@ -70,6 +70,10 @@ class PurchaseDocument(SynchronizableMoneybirdResourceModel):
     def __str__(self):
         return f"{self.document_kind} {self.reference}"
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self.document_lines.update(contact=self.contact)
+
     class Meta:
         verbose_name = _("purchase document")
         verbose_name_plural = _("purchase documents")
@@ -162,6 +166,7 @@ class PurchaseInvoiceDocumentResourceType(
         kwargs["tax_rate"] = TaxRateResourceType.get_or_create_from_moneybird_data(
             line_data["tax_rate_id"]
         )
+        kwargs["contact"] = document.contact
         ledger_account = kwargs["ledger_account"]
         kwargs["total_amount"] = line_data["total_price_excl_tax_with_discount_base"]
         if (

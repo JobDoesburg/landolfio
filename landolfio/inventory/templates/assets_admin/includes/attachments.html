@@ -13,7 +13,7 @@
                 ],
             },
             Thumbs: {
-                autoStart: false,
+                autoStart: true,
             },
             l10n: {
                 CLOSE: "{% translate "Close" %}",
@@ -31,14 +31,14 @@
     );
 </script>
 <style>
-    .carousel__slide {
+    .carousel .carousel__slide {
         background-size: contain;
         height: 400px;
         color: #fff;
         font-size: 3em;
         overflow-y: hidden;
     }
-    .carousel__slide img {
+    .carousel .carousel__slide img {
         background: white;
         width: 100%;
         height: 100%;
@@ -67,7 +67,7 @@
             </div>
         {% endfor %}
         <div class="carousel__slide">
-            {% include "admin/includes/file_upload.html" %}
+            {% include "assets_admin/includes/file_upload.html" %}
         </div>
     </div>
 </div>

@@ -37,8 +37,8 @@ class Product(MoneybirdResourceModel):
         blank=True,
     )
     price = models.DecimalField(
-        verbose_name=_("price"),
-        max_digits=10, decimal_places=2)
+        verbose_name=_("price"), max_digits=10, decimal_places=2
+    )
     frequency = models.PositiveSmallIntegerField(
         verbose_name=_("frequency"),
         null=True,

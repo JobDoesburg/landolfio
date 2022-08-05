@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-02 23:45+0200\n"
-"PO-Revision-Date: 2022-08-03 00:20+0200\n"
+"POT-Creation-Date: 2022-08-05 13:20+0200\n"
+"PO-Revision-Date: 2022-08-05 13:25+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -27,8 +27,8 @@ msgid "The database was successfully updated."
 msgstr "De database is succesvol geüpdate."
 
 #: apps.py:8
-msgid "accounting"
-msgstr "boekhouding"
+msgid "Accounting"
+msgstr "Boekhouding"
 
 #: models/contact.py:17
 msgid "Recurring"
@@ -74,27 +74,27 @@ msgstr "postcode"
 msgid "city"
 msgstr "stad"
 
-#: models/contact.py:67
+#: models/contact.py:66
 msgid "country"
 msgstr "land"
 
-#: models/contact.py:70
+#: models/contact.py:68
 msgid "phone"
 msgstr "telefoonnummer"
 
-#: models/contact.py:76
+#: models/contact.py:74
 msgid "customer id"
 msgstr "klantnummer"
 
-#: models/contact.py:82
+#: models/contact.py:80
 msgid "tax number"
 msgstr "btw-nummer"
 
-#: models/contact.py:88
+#: models/contact.py:86
 msgid "chamber of commerce"
 msgstr "Kamer van Koophandel"
 
-#: models/contact.py:94
+#: models/contact.py:92
 msgid "bank account"
 msgstr "bankrekening"
 
@@ -130,66 +130,66 @@ msgstr "verstuur facturen aan (e-mail)"
 msgid "SEPA active"
 msgstr "SEPA actief"
 
-#: models/contact.py:132
+#: models/contact.py:133
 msgid "SEPA IBAN"
 msgstr "SEPA IBAN"
 
-#: models/contact.py:134
+#: models/contact.py:139
 msgid "SEPA IBAN account name"
 msgstr "SEPA IBAN tenaamstelling"
 
-#: models/contact.py:140
+#: models/contact.py:144
 msgid "SEPA BIC"
 msgstr "SEPA BIC"
 
-#: models/contact.py:143
+#: models/contact.py:146
 msgid "SEPA mandate id"
 msgstr "SEPA mandaatnummer"
 
-#: models/contact.py:149
+#: models/contact.py:152
 msgid "SEPA mandate date"
 msgstr "SEPA mandaatdatum"
 
-#: models/contact.py:152
+#: models/contact.py:155
 msgid "SEPA sequence type"
 msgstr "SEPA sequencetype"
 
-#: models/contact.py:156
+#: models/contact.py:162
 msgid "tax number valid"
 msgstr "btw-nummer valide"
 
-#: models/contact.py:160
+#: models/contact.py:166
 msgid "default invoice workflow"
 msgstr "standaard factuur workflow"
 
-#: models/contact.py:169
+#: models/contact.py:175
 msgid "default estimate workflow"
 msgstr "standaard offerte workflow"
 
-#: models/contact.py:177
+#: models/contact.py:183
 msgid "sales invoices url"
 msgstr "facturen url"
 
-#: models/contact.py:188 models/contact.py:195 models/contact.py:202
+#: models/contact.py:194 models/contact.py:201 models/contact.py:208
 msgid "Contact must either have a company name, or first and last name."
-msgstr "Contact moet ofwel een bedrijfsnaam, ofwel een voor- en achternaam hebben."
+msgstr ""
+"Contact moet ofwel een bedrijfsnaam, ofwel een voor- en achternaam hebben."
 
-#: models/contact.py:221
+#: models/contact.py:227
 msgid "Fill in all SEPA fields if SEPA mandate is active."
 msgstr "Vul alle SEPA velden in als SEPA mandaat actief is."
 
-#: models/contact.py:233 models/estimate.py:51
-#: models/general_journal_document.py:47 models/purchase_document.py:45
-#: models/recurring_sales_invoice.py:43 models/sales_invoice.py:45
-#: models/subscription.py:45
+#: models/contact.py:239 models/estimate.py:51 models/journal_document.py:68
+#: models/purchase_document.py:45 models/recurring_sales_invoice.py:43
+#: models/sales_invoice.py:45 models/subscription.py:45
 msgid "contact"
 msgstr "contact"
 
-#: models/contact.py:234
+#: models/contact.py:240
 msgid "contacts"
 msgstr "contacten"
 
-#: models/document_style.py:12 models/ledger_account.py:29 models/project.py:12
+#: models/document_style.py:12 models/ledger_account.py:35 models/project.py:12
 #: models/tax_rate.py:19 models/workflow.py:18
 msgid "name"
 msgstr "naam"
@@ -250,7 +250,7 @@ msgid "draft id"
 msgstr "conceptnummer"
 
 #: models/estimate.py:66 models/recurring_sales_invoice.py:52
-#: models/sales_invoice.py:64 models/workflow.py:35
+#: models/sales_invoice.py:64 models/workflow.py:37
 msgid "workflow"
 msgstr "workflow"
 
@@ -333,63 +333,63 @@ msgstr "offerte"
 msgid "estimates"
 msgstr "offertes"
 
-#: models/estimate.py:134 models/journal_document.py:47 models/product.py:29
-#: models/recurring_sales_invoice.py:101
+#: models/estimate.py:134 models/journal_document.py:48 models/product.py:29
+#: models/recurring_sales_invoice.py:105
 msgid "description"
 msgstr "omschrijving"
 
-#: models/estimate.py:140 models/journal_document.py:53
-#: models/recurring_sales_invoice.py:107
+#: models/estimate.py:140 models/journal_document.py:54
+#: models/recurring_sales_invoice.py:111
 msgid "total amount"
 msgstr "totaalbedrag"
 
-#: models/estimate.py:147 models/journal_document.py:60
-#: models/ledger_account.py:57 models/product.py:67
-#: models/recurring_sales_invoice.py:114
+#: models/estimate.py:147 models/journal_document.py:61
+#: models/ledger_account.py:63 models/product.py:67
+#: models/recurring_sales_invoice.py:118
 msgid "ledger account"
 msgstr "boekrekening"
 
-#: models/estimate.py:154 models/journal_document.py:67 models/project.py:21
-#: models/recurring_sales_invoice.py:121
+#: models/estimate.py:154 models/journal_document.py:75 models/project.py:21
+#: models/recurring_sales_invoice.py:125
 msgid "project"
 msgstr "project"
 
-#: models/estimate.py:157 models/purchase_document.py:81
-#: models/recurring_sales_invoice.py:124 models/sales_invoice.py:143
+#: models/estimate.py:157 models/purchase_document.py:85
+#: models/recurring_sales_invoice.py:128 models/sales_invoice.py:147
 msgid "amount"
 msgstr "aantal"
 
-#: models/estimate.py:164 models/purchase_document.py:88
-#: models/recurring_sales_invoice.py:131 models/sales_invoice.py:150
+#: models/estimate.py:164 models/purchase_document.py:92
+#: models/recurring_sales_invoice.py:135 models/sales_invoice.py:154
 msgid "amount (decimal)"
 msgstr "aantal (decimaal)"
 
-#: models/estimate.py:167 models/product.py:40 models/purchase_document.py:91
-#: models/recurring_sales_invoice.py:134 models/sales_invoice.py:153
+#: models/estimate.py:167 models/product.py:40 models/purchase_document.py:95
+#: models/recurring_sales_invoice.py:138 models/sales_invoice.py:157
 msgid "price"
 msgstr "prijs"
 
 #: models/estimate.py:172 models/general_journal_document.py:38
-#: models/purchase_document.py:96 models/recurring_sales_invoice.py:139
-#: models/sales_invoice.py:158
+#: models/purchase_document.py:100 models/recurring_sales_invoice.py:143
+#: models/sales_invoice.py:162
 msgid "document"
 msgstr "document"
 
 #: models/estimate.py:180 models/product.py:71
-#: models/recurring_sales_invoice.py:147 models/sales_invoice.py:166
+#: models/recurring_sales_invoice.py:151 models/sales_invoice.py:170
 #: models/subscription.py:30
 msgid "product"
 msgstr "product"
 
-#: models/estimate.py:187 models/product.py:59 models/purchase_document.py:104
-#: models/recurring_sales_invoice.py:154 models/sales_invoice.py:173
+#: models/estimate.py:187 models/product.py:59 models/purchase_document.py:108
+#: models/recurring_sales_invoice.py:158 models/sales_invoice.py:177
 #: models/tax_rate.py:37
 msgid "tax rate"
 msgstr "btw-tarief"
 
-#: models/estimate.py:191 models/general_journal_document.py:57
-#: models/purchase_document.py:108 models/recurring_sales_invoice.py:158
-#: models/sales_invoice.py:176
+#: models/estimate.py:191 models/general_journal_document.py:49
+#: models/purchase_document.py:112 models/recurring_sales_invoice.py:162
+#: models/sales_invoice.py:180
 msgid "row order"
 msgstr "rijvolgorde"
 
@@ -413,27 +413,27 @@ msgstr "memoriaalboeking"
 msgid "general journal documents"
 msgstr "memoriaalboekingen"
 
-#: models/general_journal_document.py:50
+#: models/general_journal_document.py:42
 msgid "debit"
 msgstr "debet"
 
-#: models/general_journal_document.py:53
+#: models/general_journal_document.py:45
 msgid "credit"
 msgstr "credit"
 
-#: models/general_journal_document.py:64
+#: models/general_journal_document.py:56
 msgid "general journal document line"
 msgstr "memoriaalboekregel"
 
-#: models/general_journal_document.py:65
+#: models/general_journal_document.py:57
 msgid "general journal document lines"
 msgstr "memoriaalboekregels"
 
-#: models/journal_document.py:98
+#: models/journal_document.py:102
 msgid "journal document line"
 msgstr "boekregel"
 
-#: models/journal_document.py:99
+#: models/journal_document.py:103
 msgid "journal document lines"
 msgstr "boekregels"
 
@@ -477,39 +477,39 @@ msgstr "kosten"
 msgid "other income expenses"
 msgstr "overige kosten"
 
-#: models/ledger_account.py:25
+#: models/ledger_account.py:30
 msgid "parent"
 msgstr "hoofdrekening"
 
-#: models/ledger_account.py:35
+#: models/ledger_account.py:41
 msgid "account type"
 msgstr "rekeningtype"
 
-#: models/ledger_account.py:40
+#: models/ledger_account.py:46
 msgid "is margin"
 msgstr "is marge"
 
-#: models/ledger_account.py:41
+#: models/ledger_account.py:47
 msgid "All assets on this ledger account are margin assets."
 msgstr "Alle eigendommen op deze boekrekening zijn margegoederen."
 
-#: models/ledger_account.py:46
+#: models/ledger_account.py:52
 msgid "is sales"
 msgstr "is verkoop"
 
-#: models/ledger_account.py:47
+#: models/ledger_account.py:53
 msgid "Ledger account is used for selling assets."
 msgstr "Boekrekening wordt gebruikt voor de verkoop van eigendommen."
 
-#: models/ledger_account.py:52
+#: models/ledger_account.py:58
 msgid "is purchase"
 msgstr "is aankoop"
 
-#: models/ledger_account.py:53
+#: models/ledger_account.py:59
 msgid "Ledger account is used for purchasing assets."
 msgstr "Boekrekening wordt gebruikt voor de inkoop van eigendommen."
 
-#: models/ledger_account.py:58
+#: models/ledger_account.py:64
 msgid "ledger accounts"
 msgstr "boekrekeningen"
 
@@ -592,19 +592,19 @@ msgstr "soort document"
 msgid "paid at"
 msgstr "betaald op"
 
-#: models/purchase_document.py:74
+#: models/purchase_document.py:78
 msgid "purchase document"
 msgstr "inkoopdocument"
 
-#: models/purchase_document.py:75
+#: models/purchase_document.py:79
 msgid "purchase documents"
 msgstr "inkoopdocumenten"
 
-#: models/purchase_document.py:115
+#: models/purchase_document.py:119
 msgid "purchase document line"
 msgstr "inkoopdocumentregel"
 
-#: models/purchase_document.py:116
+#: models/purchase_document.py:120
 msgid "purchase document lines"
 msgstr "inkoopdocumentregels"
 
@@ -648,19 +648,29 @@ msgstr "factuurdatum"
 msgid "last date"
 msgstr "laatste datum"
 
-#: models/recurring_sales_invoice.py:95 models/subscription.py:52
+#: models/recurring_sales_invoice.py:93
+msgid ""
+"{_('Every')} {self.frequency_type} {_('since')} {self.start_date} {_('to')} "
+"{self.contact}"
+msgid_plural ""
+"{_('Every')} {self.frequency} {self.frequency_type} {_('since')} {self."
+"start_date} {_('to')} {self.contact}"
+msgstr[0] ""
+msgstr[1] ""
+
+#: models/recurring_sales_invoice.py:99 models/subscription.py:52
 msgid "recurring sales invoice"
 msgstr "periodieke factuur"
 
-#: models/recurring_sales_invoice.py:96
+#: models/recurring_sales_invoice.py:100
 msgid "recurring sales invoices"
 msgstr "periodieke facturen"
 
-#: models/recurring_sales_invoice.py:171
+#: models/recurring_sales_invoice.py:175
 msgid "recurring sales invoice document line"
 msgstr "periodieke factuurregel"
 
-#: models/recurring_sales_invoice.py:172
+#: models/recurring_sales_invoice.py:176
 msgid "recurring sales invoice document lines"
 msgstr "periodieke factuurregels"
 
@@ -704,19 +714,19 @@ msgstr "totaal onbetaald"
 msgid "payment url"
 msgstr "betaallink"
 
-#: models/sales_invoice.py:136 models/tax_rate.py:11
+#: models/sales_invoice.py:140 models/tax_rate.py:11
 msgid "sales invoice"
 msgstr "factuur"
 
-#: models/sales_invoice.py:137
+#: models/sales_invoice.py:141
 msgid "sales invoices"
 msgstr "facturen"
 
-#: models/sales_invoice.py:183
+#: models/sales_invoice.py:187
 msgid "sales invoice document line"
 msgstr "factuurregel"
 
-#: models/sales_invoice.py:184
+#: models/sales_invoice.py:188
 msgid "sales invoice document lines"
 msgstr "factuurregels"
 
@@ -756,10 +766,10 @@ msgstr "is verhuur"
 msgid "is loan"
 msgstr "is leen"
 
-#: models/workflow.py:32
+#: models/workflow.py:33
 msgid "is direct debit"
 msgstr "is incasso"
 
-#: models/workflow.py:36
+#: models/workflow.py:38
 msgid "workflows"
 msgstr "workflows"
