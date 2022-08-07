@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-05 13:35+0200\n"
-"PO-Revision-Date: 2022-08-05 13:36+0200\n"
+"POT-Creation-Date: 2022-08-07 23:53+0200\n"
+"PO-Revision-Date: 2022-08-07 23:55+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -42,65 +42,65 @@ msgstr "Document status"
 msgid "Active"
 msgstr "Actief"
 
-#: admin/admin/asset.py:387 templates/assets_admin/includes/sidebar.html:55
+#: admin/admin/asset.py:391 templates/assets_admin/includes/sidebar.html:57
 msgid "margin"
 msgstr "marge"
 
-#: admin/admin/asset.py:395
+#: admin/admin/asset.py:399
 msgid "not margin"
 msgstr "niet-marge"
 
-#: admin/admin/asset.py:403 models/status.py:17
-#: templates/assets_admin/includes/sidebar.html:57
+#: admin/admin/asset.py:407 models/asset.py:61 models/asset.py:73
+#: templates/assets_admin/includes/sidebar.html:59
 msgid "sold"
 msgstr "verkocht"
 
-#: admin/admin/asset.py:411
+#: admin/admin/asset.py:415
 msgid "sold margin"
 msgstr "verkocht marge"
 
-#: admin/admin/asset.py:419
+#: admin/admin/asset.py:423
 msgid "sold non margin"
 msgstr "verkocht niet-marge"
 
-#: admin/admin/asset.py:427
+#: admin/admin/asset.py:431
 msgid "purchased asset"
 msgstr "ingekocht"
 
-#: admin/admin/asset.py:435
+#: admin/admin/asset.py:439
 msgid "purchased asset margin"
 msgstr "ingekocht marge"
 
-#: admin/admin/asset.py:443
+#: admin/admin/asset.py:447
 msgid "purchased asset non margin"
 msgstr "ingekocht niet-marge"
 
-#: admin/admin/asset.py:451
+#: admin/admin/asset.py:455
 msgid "purchased amortized"
 msgstr "afgeschreven bij aankoop"
 
-#: admin/admin/asset.py:459 models/collection.py:7
+#: admin/admin/asset.py:463 models/collection.py:7
 msgid "commerce"
 msgstr "handelsgoed"
 
-#: admin/admin/asset.py:467 models/status.py:16
-#: templates/assets_admin/includes/sidebar.html:56
+#: admin/admin/asset.py:471 models/asset.py:60 models/asset.py:72
+#: templates/assets_admin/includes/sidebar.html:58
 msgid "amortized"
 msgstr "afgeschreven"
 
-#: admin/admin/asset.py:475 templates/assets_admin/includes/sidebar.html:58
+#: admin/admin/asset.py:479 templates/assets_admin/includes/sidebar.html:60
 msgid "rented"
 msgstr "verhuurd"
 
-#: admin/admin/asset.py:483 templates/assets_admin/includes/sidebar.html:59
+#: admin/admin/asset.py:487 templates/assets_admin/includes/sidebar.html:61
 msgid "has rental agreement"
 msgstr "heeft huurovereenkomst"
 
-#: admin/admin/asset.py:491 templates/assets_admin/includes/sidebar.html:60
+#: admin/admin/asset.py:495 templates/assets_admin/includes/sidebar.html:62
 msgid "has loan agreement"
 msgstr "heeft leenovereenkomst"
 
-#: admin/admin/asset.py:504 models/asset.py:486
+#: admin/admin/asset.py:508 models/asset.py:592
 #: models/asset_on_document_line.py:19 models/asset_on_document_line.py:69
 #: models/asset_on_document_line.py:117 models/asset_on_document_line.py:165
 #: models/attachment.py:15 models/remarks.py:9
@@ -110,10 +110,7 @@ msgstr "eigendom"
 #: admin/admin/assets_on_document_lines.py:51
 #: admin/admin/assets_on_document_lines.py:88
 #: admin/admin/assets_on_document_lines.py:127 admin/assets_admin/site.py:8
-#: admin/assets_admin/site.py:9 models/asset.py:487
-#: templates/assets_admin/categories_module.html:11
-#: templates/assets_admin/collections_module.html:11
-#: templates/assets_admin/locations_module.html:11
+#: admin/assets_admin/site.py:9 models/asset.py:593
 msgid "assets"
 msgstr "eigendommen"
 
@@ -125,145 +122,153 @@ msgstr "Landolfio"
 msgid "Inventory"
 msgstr "Inventaris"
 
-#: models/asset.py:50 templates/assets_admin/index.html:42
+#: models/asset.py:50 models/asset.py:65
+msgid "unknown"
+msgstr "onbekend"
+
+#: models/asset.py:51
+msgid "placeholder"
+msgstr "placeholder"
+
+#: models/asset.py:52
+msgid "to be delivered"
+msgstr "nog niet geleverd"
+
+#: models/asset.py:53
+msgid "under review"
+msgstr "onder beoordeling"
+
+#: models/asset.py:54
+msgid "maintenance in house"
+msgstr "reparatie in huis"
+
+#: models/asset.py:55
+msgid "maintenance external"
+msgstr "reparatie extern"
+
+#: models/asset.py:56 models/asset.py:66
+msgid "available"
+msgstr "beschikbaar"
+
+#: models/asset.py:57
+msgid "issued unprocessed"
+msgstr "uitgegeven onverwerkt"
+
+#: models/asset.py:58 models/asset.py:70
+msgid "issued rent"
+msgstr "verhuurd"
+
+#: models/asset.py:59 models/asset.py:71
+msgid "issued loan"
+msgstr "uitgeleend"
+
+#: models/asset.py:68
+msgid "available or amortized"
+msgstr "beschikbaar of afgeschreven"
+
+#: models/asset.py:77 templates/assets_admin/index.html:43
 msgid "created at"
 msgstr "aangemaakt op"
 
-#: models/asset.py:51
+#: models/asset.py:78
 msgid "ID"
 msgstr "Nummer"
 
-#: models/asset.py:57 models/category.py:8
-#: templates/assets_admin/includes/sidebar.html:37
+#: models/asset.py:84 models/category.py:8
+#: templates/assets_admin/includes/sidebar.html:38
 msgid "category"
 msgstr "categorie"
 
-#: models/asset.py:60 models/category.py:32
-#: templates/assets_admin/includes/sidebar.html:38
+#: models/asset.py:87 models/category.py:32
+#: templates/assets_admin/includes/sidebar.html:39
 msgid "size"
 msgstr "maat"
 
-#: models/asset.py:67 models/location.py:25
-#: templates/assets_admin/includes/sidebar.html:40
+#: models/asset.py:94 models/location.py:25
+#: templates/assets_admin/includes/sidebar.html:41
 msgid "location"
 msgstr "locatie"
 
-#: models/asset.py:70 models/collection.py:16
-#: templates/assets_admin/includes/sidebar.html:39
+#: models/asset.py:97 models/collection.py:16
+#: templates/assets_admin/includes/sidebar.html:40
 msgid "collection"
 msgstr "collectie"
 
-#: models/asset.py:74 templates/assets_admin/includes/sidebar.html:41
+#: models/asset.py:101 templates/assets_admin/includes/sidebar.html:42
 msgid "listing price"
 msgstr "vraagprijs"
 
-#: models/asset.py:83
+#: models/asset.py:110 templates/assets_admin/includes/sidebar.html:43
 msgid "local status"
 msgstr "lokale status"
 
-#: models/asset.py:90
+#: models/asset.py:117
 msgid "journal document lines"
 msgstr "boekregels"
 
-#: models/asset.py:95
+#: models/asset.py:122
 msgid "estimate document lines"
 msgstr "offerte-documentregels"
 
-#: models/asset.py:100
+#: models/asset.py:127
 msgid "recurring sales invoice document lines"
 msgstr "periodieke factuurregels"
 
-#: models/asset.py:432
-msgid "Error"
-msgstr "Fout"
-
-#: models/asset.py:434
-msgid "Sold"
-msgstr "Verkocht"
-
-#: models/asset.py:434
-msgid "Sold (error)"
-msgstr "Verkocht (fout)"
-
-#: models/asset.py:436
-msgid "Rented"
-msgstr "Verhuurd"
-
-#: models/asset.py:436
-msgid "Rented (error)"
-msgstr "Verhuurd (fout)"
-
-#: models/asset.py:438
-msgid "Loaned"
-msgstr "Uitgeleend"
-
-#: models/asset.py:438
-msgid "Loaned (error)"
-msgstr "Uitgeleend (fout)"
-
-#: models/asset.py:441
-msgid "Amortized"
-msgstr "Afgeschreven"
-
-#: models/asset.py:441
-msgid "Amortized (error)"
-msgstr "Afgeschreven (fout)"
-
-#: models/asset.py:443
-msgid "Available or amortized"
-msgstr "Beschikbaar of afgeschreven"
-
-#: models/asset.py:445
-msgid "Available or amortized (error)"
-msgstr "Beschikbaar of afgeschreven (fout)"
-
-#: models/asset.py:448
-msgid "Available"
-msgstr "Beschikbaar"
-
-#: models/asset.py:448
-msgid "Available (error)"
-msgstr "Beschikbaar (fout)"
-
-#: models/asset.py:454
+#: models/asset.py:502
 msgid "Sold and rented"
 msgstr "Verkocht en verhuurd"
 
-#: models/asset.py:456
+#: models/asset.py:504
 msgid "Sold and not amortized"
 msgstr "Verkocht en niet afgeschreven"
 
-#: models/asset.py:458
+#: models/asset.py:506
 msgid "Rented and not rental agreement"
 msgstr "Verhuurd zonder huurovereenkomst"
 
-#: models/asset.py:460
+#: models/asset.py:508
 msgid "Rented and loan agreement"
 msgstr "Verhuurd met leenovereenkomst"
 
-#: models/asset.py:462
+#: models/asset.py:510
 msgid "Rental agreement and not rented"
 msgstr "Huurovereenkomst maar niet verhuurd"
 
-#: models/asset.py:464
+#: models/asset.py:512
 msgid "Rental agreement and loan agreement"
 msgstr "Huurovereenkomst en leenovereenkomst"
 
-#: models/asset.py:468
+#: models/asset.py:514
+msgid "Multiple loan agreements"
+msgstr "meerdere leenovereenkomsten"
+
+#: models/asset.py:516
+msgid "Multiple rental agreements"
+msgstr "meerdere huurovereenkomsten"
+
+#: models/asset.py:519
+msgid "Amortized above 450 euro"
+msgstr "Afgeschreven boven 450 euro"
+
+#: models/asset.py:523
 msgid "Sold and not commerce"
 msgstr "Verkocht en geen handelsgoed"
 
-#: models/asset.py:470
+#: models/asset.py:525
 msgid "Rented and not commerce"
 msgstr "Verhuurd en geen handelsgoed"
 
-#: models/asset.py:472
+#: models/asset.py:527
 msgid "Rental agreement and not commerce"
 msgstr "Huurovereenkomst en geen handelsgoed"
 
-#: models/asset.py:475
+#: models/asset.py:530
 msgid "Margin asset on non-margin ledgers"
 msgstr "Margegoed op niet-marge boekrekeningen"
+
+#: models/asset.py:533
+msgid "Accounting status incompatible with local status"
+msgstr "boekhoudkundige status incompatibel met lokale status"
 
 #: models/asset_on_document_line.py:25 models/asset_on_document_line.py:75
 #: models/asset_on_document_line.py:123
@@ -377,64 +382,24 @@ msgstr "datum"
 msgid "remarks"
 msgstr "opmerkingen"
 
-#: models/status.py:6
-msgid "unknown"
-msgstr "onbekend"
-
-#: models/status.py:7
-msgid "placeholder"
-msgstr "placeholder"
-
-#: models/status.py:8
-msgid "to be delivered"
-msgstr "nog niet geleverd"
-
-#: models/status.py:9
-msgid "under review"
-msgstr "onder beoordeling"
-
-#: models/status.py:10
-msgid "maintenance in house"
-msgstr "reparatie in huis"
-
-#: models/status.py:11
-msgid "maintenance external"
-msgstr "reparatie extern"
-
-#: models/status.py:12
-msgid "available"
-msgstr "beschikbaar"
-
-#: models/status.py:13
-msgid "issued unprocessed"
-msgstr "uitgegeven onverwerkt"
-
-#: models/status.py:14
-msgid "issued rent"
-msgstr "verhuurd"
-
-#: models/status.py:15
-msgid "issued loan"
-msgstr "uitgeleend"
-
-#: templates/assets_admin/change_form.html:15
-#: templates/assets_admin/change_list.html:9
-#: templates/assets_admin/index.html:9
-#: templates/assets_admin/view_asset.html:40
+#: templates/assets_admin/change_form.html:16
+#: templates/assets_admin/change_list.html:15
+#: templates/assets_admin/index.html:10
+#: templates/assets_admin/view_asset.html:44
 msgid "admin"
 msgstr "admin"
 
-#: templates/assets_admin/change_form.html:16
-#: templates/assets_admin/change_list.html:10
-#: templates/assets_admin/index.html:10
-#: templates/assets_admin/view_asset.html:41
+#: templates/assets_admin/change_form.html:17
+#: templates/assets_admin/change_list.html:16
+#: templates/assets_admin/index.html:11
+#: templates/assets_admin/view_asset.html:45
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
-#: templates/assets_admin/change_form.html:17
-#: templates/assets_admin/change_list.html:11
-#: templates/assets_admin/index.html:11
-#: templates/assets_admin/view_asset.html:42
+#: templates/assets_admin/change_form.html:18
+#: templates/assets_admin/change_list.html:17
+#: templates/assets_admin/index.html:12
+#: templates/assets_admin/view_asset.html:46
 msgid "Log out"
 msgstr "Log uit"
 
@@ -458,7 +423,7 @@ msgid "Close"
 msgstr "Sluit"
 
 #: templates/assets_admin/includes/attachments.html:20
-#: templates/assets_admin/includes/attachments.html:78
+#: templates/assets_admin/includes/attachments.html:77
 msgid "Next"
 msgstr "Volgende"
 
@@ -494,15 +459,15 @@ msgstr "Fout tijdens het laden van AJAX: geen toegang"
 msgid "Error Loading Page"
 msgstr "Fout tijdens het laden van pagina"
 
-#: templates/assets_admin/includes/attachments.html:62
+#: templates/assets_admin/includes/attachments.html:61
 msgid "Attachment"
 msgstr "Bijlage"
 
-#: templates/assets_admin/includes/attachments.html:79
+#: templates/assets_admin/includes/attachments.html:78
 msgid "Previous slide"
 msgstr "Vorige slide"
 
-#: templates/assets_admin/includes/attachments.html:80
+#: templates/assets_admin/includes/attachments.html:79
 #, python-format
 msgid "Go to slide %%d"
 msgstr "Ga naar slide %%d"
@@ -550,92 +515,92 @@ msgid "No estimates"
 msgstr "Geen offertes"
 
 #: templates/assets_admin/includes/file_upload.html:44
-#: templates/assets_admin/includes/file_upload.html:87
+#: templates/assets_admin/includes/file_upload.html:86
 msgid "Upload"
 msgstr "Uploaden"
 
-#: templates/assets_admin/includes/file_upload.html:66
+#: templates/assets_admin/includes/file_upload.html:65
 msgid "Drag & Drop your files or"
 msgstr "Sleep bestanden hiernaartoe of"
 
-#: templates/assets_admin/includes/file_upload.html:66
+#: templates/assets_admin/includes/file_upload.html:65
 msgid "Browse"
 msgstr "Klik hier en selecteer"
 
-#: templates/assets_admin/includes/file_upload.html:67
+#: templates/assets_admin/includes/file_upload.html:66
 msgid "Field contains invalid files"
 msgstr "Veld bevat invalide bestanden"
 
-#: templates/assets_admin/includes/file_upload.html:68
+#: templates/assets_admin/includes/file_upload.html:67
 msgid "Waiting for size"
 msgstr "Wachten op bestandsgrootte"
 
-#: templates/assets_admin/includes/file_upload.html:69
+#: templates/assets_admin/includes/file_upload.html:68
 msgid "Size not available"
 msgstr "Bestandsgrootte niet beschikbaar"
 
-#: templates/assets_admin/includes/file_upload.html:70
+#: templates/assets_admin/includes/file_upload.html:69
 msgid "Loading"
 msgstr "Aan het laden"
 
-#: templates/assets_admin/includes/file_upload.html:71
+#: templates/assets_admin/includes/file_upload.html:70
 msgid "Error during load"
 msgstr "Fout tijdens het laden"
 
-#: templates/assets_admin/includes/file_upload.html:72
+#: templates/assets_admin/includes/file_upload.html:71
 msgid "Uploading"
 msgstr "Aan het uploaden"
 
-#: templates/assets_admin/includes/file_upload.html:73
+#: templates/assets_admin/includes/file_upload.html:72
 msgid "Upload complete"
 msgstr "Uploaden voltooid"
 
-#: templates/assets_admin/includes/file_upload.html:74
+#: templates/assets_admin/includes/file_upload.html:73
 msgid "Upload cancelled"
 msgstr "Uploaden gecanceld"
 
-#: templates/assets_admin/includes/file_upload.html:75
+#: templates/assets_admin/includes/file_upload.html:74
 msgid "Error during upload"
 msgstr "Fout tijdens uploaden"
 
-#: templates/assets_admin/includes/file_upload.html:76
+#: templates/assets_admin/includes/file_upload.html:75
 msgid "Error during revert"
 msgstr "Fout tijdens ongedaan maken"
 
-#: templates/assets_admin/includes/file_upload.html:77
+#: templates/assets_admin/includes/file_upload.html:76
 msgid "Error during remove"
 msgstr "Fout tijdens verwijderen"
 
-#: templates/assets_admin/includes/file_upload.html:78
+#: templates/assets_admin/includes/file_upload.html:77
 msgid "tap to cancel"
 msgstr "tik om te annuleren"
 
-#: templates/assets_admin/includes/file_upload.html:79
+#: templates/assets_admin/includes/file_upload.html:78
 msgid "tap to retry"
 msgstr "tik om opnieuw te proberen"
 
-#: templates/assets_admin/includes/file_upload.html:80
+#: templates/assets_admin/includes/file_upload.html:79
 msgid "tap to undo"
 msgstr "tik om ongedaan te maken"
 
-#: templates/assets_admin/includes/file_upload.html:81
+#: templates/assets_admin/includes/file_upload.html:80
 msgid "Remove"
 msgstr "Verwijder"
 
-#: templates/assets_admin/includes/file_upload.html:82
+#: templates/assets_admin/includes/file_upload.html:81
 msgid "Abort"
 msgstr "Stop"
 
-#: templates/assets_admin/includes/file_upload.html:83
-#: templates/assets_admin/includes/file_upload.html:86
+#: templates/assets_admin/includes/file_upload.html:82
+#: templates/assets_admin/includes/file_upload.html:85
 msgid "Retry"
 msgstr "Probeer opnieuw"
 
-#: templates/assets_admin/includes/file_upload.html:84
+#: templates/assets_admin/includes/file_upload.html:83
 msgid "Cancel"
 msgstr "Annuleer"
 
-#: templates/assets_admin/includes/file_upload.html:85
+#: templates/assets_admin/includes/file_upload.html:84
 msgid "Undo"
 msgstr "Ongedaan maken"
 
@@ -689,50 +654,83 @@ msgstr "Geen opmerkingen"
 msgid "Add remark"
 msgstr "Voeg opmerking toe"
 
-#: templates/assets_admin/includes/sidebar.html:35
+#: templates/assets_admin/includes/sidebar.html:36
 msgid "Edit"
 msgstr "Wijzigen"
 
-#: templates/assets_admin/includes/sidebar.html:42
-msgid "Moneybird status"
-msgstr "Moneybird status"
-
 #: templates/assets_admin/includes/sidebar.html:44
-msgid "Moneybird errors"
-msgstr "Moneybird fouten"
+msgid "accounting status"
+msgstr "boekhoudkundige status"
 
-#: templates/assets_admin/includes/sidebar.html:64
+#: templates/assets_admin/includes/sidebar.html:46
+msgid "accounting errors"
+msgstr "boekhoudkundige fouten"
+
+#: templates/assets_admin/includes/sidebar.html:66
 msgid "assets value"
 msgstr "voorraadwaarde"
 
-#: templates/assets_admin/includes/sidebar.html:65
+#: templates/assets_admin/includes/sidebar.html:67
 msgid "purchase value"
 msgstr "aankoopwaarde"
 
-#: templates/assets_admin/includes/sidebar.html:66
+#: templates/assets_admin/includes/sidebar.html:68
 msgid "total expenses"
 msgstr "totaal kosten"
 
-#: templates/assets_admin/includes/sidebar.html:67
+#: templates/assets_admin/includes/sidebar.html:69
 msgid "total revenue"
 msgstr "totale omzet"
 
-#: templates/assets_admin/index.html:18
-#: templates/assets_admin/view_asset.html:52
+#: templates/assets_admin/index.html:19
+#: templates/assets_admin/view_asset.html:56
 msgid "Add asset"
 msgstr "Eigendom toevoegen"
 
-#: templates/assets_admin/index.html:29
+#: templates/assets_admin/index.html:30
 msgid "Assets admin"
 msgstr "Eigendommenbeheer"
 
-#: templates/assets_admin/index.html:34
+#: templates/assets_admin/index.html:35
 msgid "Recently created assets"
 msgstr "Recent aangemaakte eigendommen"
 
 #: templates/assets_admin/view_asset.html:5
 msgid "Django administration"
 msgstr "Django administratie"
+
+#~ msgid "Error"
+#~ msgstr "Fout"
+
+#~ msgid "Sold"
+#~ msgstr "Verkocht"
+
+#~ msgid "Sold (error)"
+#~ msgstr "Verkocht (fout)"
+
+#~ msgid "Rented"
+#~ msgstr "Verhuurd"
+
+#~ msgid "Rented (error)"
+#~ msgstr "Verhuurd (fout)"
+
+#~ msgid "Loaned"
+#~ msgstr "Uitgeleend"
+
+#~ msgid "Loaned (error)"
+#~ msgstr "Uitgeleend (fout)"
+
+#~ msgid "Amortized"
+#~ msgstr "Afgeschreven"
+
+#~ msgid "Available or amortized (error)"
+#~ msgstr "Beschikbaar of afgeschreven (fout)"
+
+#~ msgid "Available"
+#~ msgstr "Beschikbaar"
+
+#~ msgid "Available (error)"
+#~ msgstr "Beschikbaar (fout)"
 
 #~ msgid "Drag & Drop your files or <span class=\"filepond--label-action\"> Browse </span>"
 #~ msgstr "Klik & sleep of <span class=\"filepond—label-action\"> Selecteer bestanden </span>"

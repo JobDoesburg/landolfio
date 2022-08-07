@@ -4,6 +4,7 @@ from django.db import models
 from django.db.models import (
     PROTECT,
     Sum,
+    Count,
     Q,
     F,
 )
@@ -34,7 +35,6 @@ from inventory.models.asset_on_document_line import (
 from inventory.models.category import AssetCategory, AssetSize
 from inventory.models.collection import Collection
 from inventory.models.location import AssetLocation
-from inventory.models.status import AssetStates
 
 
 class FilteredRelatedExistenceCheckProperty(RelatedExistenceCheckProperty):
@@ -44,6 +44,33 @@ class FilteredRelatedExistenceCheckProperty(RelatedExistenceCheckProperty):
 
     def get_queryset(self, model):
         return super().get_queryset(model).filter(self.filter)
+
+
+class AssetStates(models.TextChoices):
+    UNKNOWN = "unknown", _("unknown")
+    PLACEHOLDER = "placeholder", _("placeholder")
+    TO_BE_DELIVERED = "to_be_delivered", _("to be delivered")
+    UNDER_REVIEW = "under_review", _("under review")
+    MAINTENANCE_IN_HOUSE = "maintenance_in_house", _("maintenance in house")
+    MAINTENANCE_EXTERNAL = "maintenance_external", _("maintenance external")
+    AVAILABLE = "available", _("available")
+    ISSUED_UNPROCESSED = "issued_unprocessed", _("issued unprocessed")
+    ISSUED_RENT = "issued_rent", _("issued rent")
+    ISSUED_LOAN = "issued_loan", _("issued loan")
+    AMORTIZED = "amortized", _("amortized")
+    SOLD = "sold", _("sold")
+
+
+class AccountingStates(models.TextChoices):
+    UNKNOWN = "unknown", _("unknown")  # does not occur in the accounting system
+    AVAILABLE = "available", _("available")  # purchased, not amortized, not sold
+    AVAILABLE_OR_AMORTIZED = "available_or_amortized", _(
+        "available or amortized"
+    )  # amortized at purchase
+    ISSUED_RENT = "issued_rent", _("issued rent")
+    ISSUED_LOAN = "issued_loan", _("issued loan")
+    AMORTIZED = "amortized", _("amortized")
+    SOLD = "sold", _("sold")
 
 
 class Asset(models.Model):
@@ -367,6 +394,19 @@ class Asset(models.Model):
             estimate_document_lines__document__workflow__is_rental=True,
         ),
     )
+    num_rental_agreements = AggregateProperty(
+        Count(
+            "estimate_document_lines",
+            filter=Q(
+                estimate_document_lines__document__state__in=[
+                    EstimateStates.OPEN,
+                    EstimateStates.LATE,
+                    EstimateStates.ACCEPTED,
+                ],
+                estimate_document_lines__document__workflow__is_rental=True,
+            ),
+        )
+    )
 
     has_loan_agreement = FilteredRelatedExistenceCheckProperty(
         "estimate_document_lines",
@@ -380,8 +420,22 @@ class Asset(models.Model):
         ),
     )
 
+    num_loan_agreements = AggregateProperty(
+        Count(
+            "estimate_document_lines",
+            filter=Q(
+                estimate_document_lines__document__state__in=[
+                    EstimateStates.OPEN,
+                    EstimateStates.LATE,
+                    EstimateStates.ACCEPTED,
+                ],
+                estimate_document_lines__document__workflow__is_loan=True,
+            ),
+        )
+    )
+
     objects = QueryablePropertiesManager()
-    # moneybird_status = AnnotationProperty(
+    # accounting_status = AnnotationProperty(
     #     Case(
     #         When(is_commerce=False, then=Value("-")),
     #         When(
@@ -425,29 +479,23 @@ class Asset(models.Model):
     # )
 
     @property
-    def moneybird_status(self):
-        error = self.check_moneybird_errors() is not None
-
-        if not self.is_commerce:
-            return None if not error else _("Error")
+    def accounting_status(self):
         if self.is_sold:
-            return _("Sold") if not error else _("Sold (error)")
+            return AccountingStates.SOLD
         if self.is_rented or self.has_rental_agreement:
-            return _("Rented") if not error else _("Rented (error)")
+            return AccountingStates.ISSUED_RENT
         if self.has_loan_agreement:
-            return _("Loaned") if not error else _("Loaned (error)")
-        if self.is_amortized:
-            if self.is_purchased_asset:
-                return _("Amortized") if not error else _("Amortized (error)")
-            return (
-                _("Available or amortized")
-                if not error
-                else _("Available or amortized (error)")
-            )
+            return AccountingStates.ISSUED_LOAN
+        if self.is_purchased_amortized:
+            return AccountingStates.AVAILABLE_OR_AMORTIZED
+        if self.is_amortized and self.is_purchased_amortized or self.is_purchased_asset:
+            return AccountingStates.AMORTIZED
+        if self.is_purchased_asset or self.is_purchased_asset:
+            return AccountingStates.AVAILABLE
+        return AccountingStates.UNKNOWN
 
-        return _("Available") if not error else _("Available (error)")
-
-    def check_moneybird_errors(self):
+    @property
+    def accounting_errors(self):
         errors = []
 
         if self.is_sold and self.is_rented:
@@ -462,6 +510,13 @@ class Asset(models.Model):
             errors.append(_("Rental agreement and not rented"))
         if self.has_rental_agreement and self.has_loan_agreement:
             errors.append(_("Rental agreement and loan agreement"))
+        if self.num_loan_agreements > 1:
+            errors.append(_("Multiple loan agreements"))
+        if self.num_rental_agreements > 1:
+            errors.append(_("Multiple rental agreements"))
+
+        if self.purchase_value > Decimal(450) and self.is_purchased_amortized:
+            errors.append(_("Amortized above 450 euro"))
 
         if not self.is_commerce:
             if self.is_sold:
@@ -474,9 +529,60 @@ class Asset(models.Model):
         if self.is_margin and self.is_non_margin:
             errors.append(_("Margin asset on non-margin ledgers"))
 
+        if not self.accounting_status_compatible_with_local_status:
+            errors.append(_("Accounting status incompatible with local status"))
+
         if errors:
             return errors
         return None
+
+    @property
+    def accounting_status_compatible_with_local_status(self):
+        if not self.is_commerce and self.accounting_status != AccountingStates.UNKNOWN:
+            return False
+
+        if self.accounting_status == AccountingStates.UNKNOWN:
+            return True
+        elif self.accounting_status == AccountingStates.AVAILABLE:
+            if self.local_status in [
+                AssetStates.AVAILABLE,
+                AssetStates.MAINTENANCE_EXTERNAL,
+                AssetStates.MAINTENANCE_IN_HOUSE,
+                AssetStates.UNDER_REVIEW,
+                AssetStates.ISSUED_UNPROCESSED,
+                AssetStates.TO_BE_DELIVERED,
+                AssetStates.PLACEHOLDER,
+            ]:
+                return True
+            return False
+        elif self.accounting_status == AccountingStates.AVAILABLE_OR_AMORTIZED:
+            if self.local_status in [
+                AssetStates.AVAILABLE,
+                AssetStates.MAINTENANCE_EXTERNAL,
+                AssetStates.MAINTENANCE_IN_HOUSE,
+                AssetStates.UNDER_REVIEW,
+                AssetStates.ISSUED_UNPROCESSED,
+                AssetStates.TO_BE_DELIVERED,
+                AssetStates.AMORTIZED,
+            ]:
+                return True
+            return False
+        elif self.accounting_status == AccountingStates.ISSUED_RENT:
+            if self.local_status == AssetStates.ISSUED_RENT:
+                return True
+            return False
+        elif self.accounting_status == AccountingStates.ISSUED_LOAN:
+            if self.local_status == AssetStates.ISSUED_LOAN:
+                return True
+            return False
+        elif self.accounting_status == AccountingStates.AMORTIZED:
+            if self.local_status == AssetStates.AMORTIZED:
+                return True
+            return False
+        elif self.accounting_status == AccountingStates.SOLD:
+            if self.local_status == AssetStates.SOLD:
+                return True
+            return False
 
     def __str__(self):
         return f"{self.category.name_singular} {self.id} ({self.size})"

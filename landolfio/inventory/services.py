@@ -165,3 +165,11 @@ def relink_document_lines_to_assets():
         EstimateDocumentLine,
     ):
         _relink_document_lines_to_assets(model)
+
+
+def check_accounting_errors():
+    for asset in Asset.objects.reverse():
+        if asset.accounting_errors:
+            yield asset, asset.accounting_errors
+
+    # TODO check for global errors

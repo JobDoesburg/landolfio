@@ -41,11 +41,11 @@
         <li><strong>{% translate "location"|capfirst %}:</strong> {{ asset.location|default_if_none:"-" }}</li>
         <li><strong>{% translate "listing price"|capfirst %}:</strong> {{ asset.listing_price|default_if_none:"-" }}</li>
         <li><strong>{% translate "local status"|capfirst %}:</strong> {{ asset.local_status|default_if_none:"-" }}</li>
-        <li><strong>{% translate "Moneybird status"|capfirst %}:</strong> {{ asset.moneybird_status|default_if_none:"-" }}</li>
+        <li><strong>{% translate "accounting status"|capfirst %}:</strong> {{ asset.accounting_status|default_if_none:"-" }}</li>
         {% if asset.check_moneybird_errors %}
-            <li><strong>{% translate "Moneybird errors"|capfirst %}:</strong>
+            <li><strong>{% translate "accounting errors"|capfirst %}:</strong>
                 <ul>
-                    {% for error in asset.check_moneybird_errors %}
+                    {% for error in asset.accounting_errors %}
                         <li>{{ error }}</li>
                     {% endfor %}
                 </ul>
