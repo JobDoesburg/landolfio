@@ -286,13 +286,39 @@ class Asset(models.Model):
     is_margin = FilteredRelatedExistenceCheckProperty(
         "journal_document_lines",
         filter=Q(
-            journal_document_line_assets__document_line__ledger_account__is_margin=True
+            Q(
+                journal_document_line_assets__document_line__ledger_account__is_margin=True
+            ),
+            Q(
+                Q(
+                    journal_document_line_assets__document_line__ledger_account__is_sales=True
+                )
+                | Q(
+                    journal_document_line_assets__document_line__ledger_account__is_purchase=True
+                )
+                | Q(
+                    journal_document_line_assets__document_line__ledger_account__is_assets_inventory=True
+                )
+            ),
         ),
     )
     is_non_margin = FilteredRelatedExistenceCheckProperty(
         "journal_document_lines",
         filter=Q(
-            journal_document_line_assets__document_line__ledger_account__is_margin=False
+            Q(
+                journal_document_line_assets__document_line__ledger_account__is_margin=False
+            ),
+            Q(
+                Q(
+                    journal_document_line_assets__document_line__ledger_account__is_sales=True
+                )
+                | Q(
+                    journal_document_line_assets__document_line__ledger_account__is_purchase=True
+                )
+                | Q(
+                    journal_document_line_assets__document_line__ledger_account__is_assets_inventory=True
+                )
+            ),
         ),
     )
 
