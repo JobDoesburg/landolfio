@@ -10,6 +10,7 @@ from accounting.models import (
     GeneralJournalDocumentLine,
     RecurringSalesInvoiceDocumentLine,
     JournalDocumentLine,
+    LedgerAccountType,
 )
 from accounting.models.estimate import EstimateDocumentLine
 from inventory.models.asset import Asset
@@ -165,6 +166,15 @@ def relink_document_lines_to_assets():
         EstimateDocumentLine,
     ):
         _relink_document_lines_to_assets(model)
+
+
+def check_journal_documents_without_assets():
+    for document_line in GeneralJournalDocumentLine.objects.filter(
+        ledger_account__account_type=LedgerAccountType.CURRENT_ASSETS,
+        ledger_account__is_assets_inventory=True,
+    ).all():
+        if document_line.asset_on_journal_document_lines.count() == 0:
+            logging.warning(f"No asset found for {document_line}")
 
 
 def check_accounting_errors():

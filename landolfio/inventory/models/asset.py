@@ -478,6 +478,10 @@ class Asset(models.Model):
     #     )
     # )
 
+    is_on_journal_document_lines = RelatedExistenceCheckProperty(
+        "journal_document_lines"
+    )
+
     @property
     def accounting_status(self):
         if self.is_sold:
@@ -488,9 +492,9 @@ class Asset(models.Model):
             return AccountingStates.ISSUED_LOAN
         if self.is_purchased_amortized:
             return AccountingStates.AVAILABLE_OR_AMORTIZED
-        if self.is_amortized and self.is_purchased_amortized or self.is_purchased_asset:
+        if self.is_amortized and self.is_on_journal_document_lines:
             return AccountingStates.AMORTIZED
-        if self.is_purchased_asset or self.is_purchased_asset:
+        if self.is_on_journal_document_lines:
             return AccountingStates.AVAILABLE
         return AccountingStates.UNKNOWN
 

@@ -59,6 +59,12 @@ class LedgerAccount(MoneybirdResourceModel):
         help_text=_("Ledger account is used for purchasing assets."),
     )
 
+    is_assets_inventory = models.BooleanField(
+        default=False,
+        verbose_name=_("is assets inventory"),
+        help_text=_("Ledger account is used as inventory ledger account."),
+    )
+
     class Meta:
         verbose_name = _("ledger account")
         verbose_name_plural = _("ledger accounts")
