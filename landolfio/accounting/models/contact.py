@@ -345,3 +345,29 @@ class ContactResourceType(resources.ContactResourceType):
         data["send_invoices_to_email"] = instance.email
         data["send_estimates_to_email"] = instance.email
         return data
+
+
+# class PaymentsMandateResourceType(resources.PaymentsMandateResourceType):
+#     model = Contact
+#
+#     @classmethod
+#     def process_webhook_event(
+#         cls,
+#         resource_id: MoneybirdResourceId,
+#         data: MoneybirdResource,
+#         event: WebhookEvent,
+#     ):
+#         return
+#
+#
+#     @classmethod
+#     def create_instance_from_moneybird(cls, resource_data: MoneybirdResource):
+#         # 1. Get contact from resource data
+#         # 2. Change the field
+#         return
+#
+#     @classmethod
+#     def update_from_moneybird(cls, resource_data: MoneybirdResource, obj=None):
+#         return
+#
+#     def cr

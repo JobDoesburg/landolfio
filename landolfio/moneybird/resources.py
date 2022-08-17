@@ -253,6 +253,22 @@ class AdministrationsResourceType(MoneybirdResourceType):
     # TODO this has a different endpoint than the other resources
 
 
+class PaymentsMandateResourceType(MoneybirdResourceType):
+    entity_type = "MoneybirdPaymentsMandate"
+    entity_type_name = "moneybird_payments_mandate"
+    api_path = "moneybird_payments_mandates"
+    public_path = "moneybird_payments_mandate"
+    can_do_full_sync = False
+    can_write = False
+    can_delete = False
+
+    @classmethod
+    def view_on_moneybird_url(cls, obj):
+        if not obj.moneybird_id or not obj.contact or not obj.contact.moneybird_id:
+            return None
+        return f"https://moneybird.com/{settings.MONEYBIRD_ADMINISTRATION_ID}/contacts/{obj.contact.moneybird_id}/moneybird_payments_mandate"
+
+
 # TODO contact people for contact
 # TODO financial mutations
 # TODO external sales invoice, no synchronization endpoint, with document lines
