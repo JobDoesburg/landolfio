@@ -24,5 +24,9 @@ urlpatterns = (
         path("", RedirectView.as_view(url="/assets/"), name="index"),
         path("admin/", RedirectView.as_view(url="/admin/"), name="admin"),
     ]
-    + [path("__debug__/", include("debug_toolbar.urls")) if settings.DEBUG else None]
 )
+
+if settings.DEBUG:
+    import debug_toolbar
+
+    urlpatterns += [path("__debug__/", include(debug_toolbar.urls))]
