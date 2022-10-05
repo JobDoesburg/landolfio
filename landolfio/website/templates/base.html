@@ -1,0 +1,25 @@
+{% load i18n bootstrap5 static %}
+{% get_current_language as LANGUAGE_CODE %}
+
+<!doctype html>
+<html lang="{{ LANGUAGE_CODE }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{% block title %}{% endblock %}VOF Doesburg</title>
+        {% bootstrap_css %}
+        <link href="{% static 'css/main.css' %}" rel="stylesheet">
+        <link rel="apple-touch-icon" href="{% static "img/favicon/apple-touch-icon.png" %}" sizes="180x180">
+        <link rel="icon" href="{% static "img/favicon/favicon-32x32.png" %}" sizes="32x32" type="image/png">
+        <link rel="icon" href="{% static "img/favicon/favicon-16x16.png" %}" sizes="16x16" type="image/png">
+        <link rel="manifest" href="{% static "img/favicon/site.webmanifest" %}">
+        <link rel="icon" href="{% static "img/favicon/favicon.ico" %}">
+    </head>
+    <body class="bg-light">
+        <main>
+            {% block main %}{% endblock %}
+        </main>
+        {% bootstrap_javascript %}
+    </body>
+</html>
+

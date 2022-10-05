@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load i18n bootstrap5 static %}
+
+{% block main %}
+    <div class="container pb-5">
+        <div class="py-5 text-center">
+            <img class="d-block mx-auto mb-4" src="{% static "img/logo.svg" %}" alt="" width="128" height="128">
+            {% block header %}{% endblock %}
+        </div>
+        {% bootstrap_messages %}
+        {% block content %}{% endblock %}
+    </div>
+{% endblock %}

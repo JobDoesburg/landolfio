@@ -1,0 +1,3 @@
+{% load i18n baseurl %}{% block content %}{% endblock %}
+--
+{% trans "This email was automatically sent by" %} Landolfio [{% baseurl %}]

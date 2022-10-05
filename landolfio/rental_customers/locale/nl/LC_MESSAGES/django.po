@@ -1,0 +1,198 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-10-05 17:06+0200\n"
+"PO-Revision-Date: 2022-10-05 17:07+0200\n"
+"Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
+"Language-Team: \n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.1.1\n"
+
+#: apps.py:8
+msgid "Rental customers"
+msgstr "Huurders"
+
+#: forms.py:30 forms.py:33
+msgid "Optional"
+msgstr "Optioneel"
+
+#: forms.py:49
+msgid "Pay by SEPA direct debit"
+msgstr "Betalen via SEPA automatische incasso"
+
+#: forms.py:51
+msgid ""
+"With direct debit, all invoices will automatically be collected from your "
+"bank account."
+msgstr ""
+"Met automatische incasso worden alle facturen automatisch van uw "
+"bankrekening afgeschreven."
+
+#: forms.py:54
+msgid "If you received asset numbers, please enter them here."
+msgstr "Als u registratienummers heeft ontvangen, vul ze dan hier in."
+
+#: models.py:12
+msgid "created at"
+msgstr "aangemaakt op"
+
+#: models.py:18
+msgid "contact"
+msgstr "contact"
+
+#: models.py:21
+msgid "Wants SEPA mandate"
+msgstr "Wil SEPA-mandaat"
+
+#: models.py:24
+msgid "SEPA mandate request was sent"
+msgstr "SEPA-mandaatverzoek is verzonden"
+
+#: models.py:26
+msgid "notes"
+msgstr "opmerkingen"
+
+#: models.py:28
+msgid "Processed"
+msgstr "Verwerkt"
+
+#: models.py:30
+msgid "processed at"
+msgstr "verwerkt op"
+
+#: models.py:61
+msgid "registered rental customer"
+msgstr "aangemelde huurder"
+
+#: models.py:62
+msgid "registered rental customers"
+msgstr "aangemelde huurders"
+
+#: services.py:12
+msgid "New customer registration: {}"
+msgstr "Nieuwe huurder: {}"
+
+#: templates/email/mandate_request_message.txt:1
+#, python-format
+msgid ""
+"Dear %(customer)s,\n"
+"\n"
+"You have indicated you want to pay your invoices using a direct debit "
+"mandate. This means that we will automatically collect the due amount from "
+"your bank account.\n"
+"\n"
+"In order to set up this direct debit mandate, please proceed by clicking the "
+"button below. You will pay a one-time amount of 15 cents to set up the "
+"mandate. This is used to confirm your bank account.\n"
+"\n"
+"You can cancel this mandate at any time by contacting us."
+msgstr ""
+"Beste %(customer)s,\n"
+"\n"
+"U heeft aangegeven dat u uw facturen wilt betalen met een automatische "
+"incassomachtiging. Dit betekent dat wij de openstaande bedragen automatisch "
+"van uw bankrekening afschrijven.\n"
+"\n"
+"Via de onderstaande knop kun je die machtiging afgeven. Je doet hiervoor een "
+"eenmalige betaling van 15 cent. Hiermee kunnen wij jouw rekeningnummer "
+"verifiëren.\n"
+"\n"
+"U kunt deze machtiging op elk moment opzeggen door contact met ons op te "
+"nemen."
+
+#: templates/email/new-customer.html:5 templates/email/new-customer.txt:3
+#, python-format
+msgid "A new rental customer, %(obj)s, just registered on your site."
+msgstr "Een nieuwe huurder, %(obj)s, heeft zich zojuist aangemeld."
+
+#: templates/email/new-customer.html:9 templates/email/new-customer.txt:4
+msgid "Notes:"
+msgstr "Opmerkingen:"
+
+#: templates/email/new-customer.html:15 templates/email/new-customer.txt:6
+msgid "You can view the customer's details here:"
+msgstr "U kunt de gegevens van de klant hier bekijken:"
+
+#: templates/email/new-customer.html:18 templates/email/new-customer.txt:7
+#, python-format
+msgid "There are now %(count)s unprocessed rental customers."
+msgstr "Er zijn nu %(count)s onverwerkte aangemelde huurders."
+
+#: templates/register-customer-success.html:3
+#: templates/register-customer.html:34
+msgid "Submit"
+msgstr "Verstuur"
+
+#: templates/register-customer-success.html:6
+msgid "Success - New customer"
+msgstr "Gelukt - Nieuwe huurder"
+
+#: templates/register-customer-success.html:10
+msgid "Registration successful"
+msgstr "Aanmelding succesvol"
+
+#: templates/register-customer-success.html:12
+msgid ""
+"We've successfully received your data. We will contact you as soon as "
+"possible."
+msgstr ""
+"We hebben uw gegevens ontvangen. We nemen zo spoedig mogelijk contact met u "
+"op."
+
+#: templates/register-customer-success.html:17
+msgid ""
+"If you have indicated that you want to use a SEPA mandate, you will receive "
+"a request to confirm this mandate via email in the next few minutes. Please "
+"do this within 30 minutes."
+msgstr ""
+"Als u heeft aangegeven gebruik te willen maken van automatische incasso, "
+"ontvangt u binnen enkele minuten per e-mail een verzoek om deze machtiging "
+"te bevestigen. Doe dit gelieve binnen 30 minuten."
+
+#: templates/register-customer-success.html:22
+#: templates/register-customer.html:17
+msgid ""
+"If you have any questions, please contact us at <a href=\"mailto:"
+"contact@vofdoesburg.nl\">contact@vofdoesburg.nl</a>."
+msgstr ""
+"Neem bij vragen contact met ons op via <a href=\"mailto:contact@vofdoesburg."
+"nl\">contact@vofdoesburg.nl</a>."
+
+#: templates/register-customer.html:5
+msgid "New customer"
+msgstr "Nieuwe klant"
+
+#: templates/register-customer.html:9
+msgid "Register as rental customer"
+msgstr "Aanmelden als huurder"
+
+#: templates/register-customer.html:11
+msgid ""
+"Welcome to VOF Doesburg. Use the following form to provide us with your "
+"personal details, so we can send you a rental agreement as easy as possible."
+msgstr ""
+"Welkom bij VOF Doesburg. Gebruik onderstaand formulier om uw persoonlijke "
+"gegevens aan ons door te geven, zodat wij u zo gemakkelijk mogelijk een "
+"huurovereenkomst kunnen toesturen."
+
+#: templates/register-customer.html:26
+msgid "Contact details"
+msgstr "Contactgegevens"
+
+#: templates/register-customer.html:30
+msgid "Rental details"
+msgstr "Huurgegevens"
+
+#: views.py:39
+msgid "Something went wrong. Please contact us."
+msgstr "Er is iets misgegaan. Neem contact met ons op."

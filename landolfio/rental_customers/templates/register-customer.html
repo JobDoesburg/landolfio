@@ -1,0 +1,37 @@
+{% extends "page.html" %}
+{% load i18n bootstrap5 static %}
+
+{% block title %}
+    {% blocktrans %}New customer{% endblocktrans %} - {{ block.super }}
+{% endblock %}
+
+{% block header %}
+    <h2>{% blocktrans %}Register as rental customer{% endblocktrans %}</h2>
+    <p class="lead">
+        {% blocktrans trimmed %}
+            Welcome to VOF Doesburg. Use the following form to provide us with your personal details,
+            so we can send you a rental agreement as easy as possible.
+        {% endblocktrans %}
+    </p>
+    <p class="lead">
+        {% blocktrans trimmed %}
+            If you have any questions, please contact us at <a href="mailto:contact@vofdoesburg.nl">contact@vofdoesburg.nl</a>.
+        {% endblocktrans %}
+    </p>
+{% endblock %}
+
+{% block content %}
+        <form method="post" class="form" enctype="multipart/form-data">
+            {% csrf_token %}
+            <h2 class="text-center">{% trans "Contact details" %}</h2>
+            {% bootstrap_form_errors contact %}
+            {% bootstrap_form contact %}
+
+            <h2 class="pt-3 text-center">{% trans "Rental details" %}</h2>
+            {% bootstrap_form_errors form %}
+            {% bootstrap_form form %}
+
+            {% translate "Submit" as submit %}
+            {% bootstrap_button submit button_type="submit" button_class="btn-primary btn-lg mt-3 w-100" %}
+        </form>
+{% endblock %}

@@ -15,6 +15,12 @@ DEBUG = True
 
 TEMPLATES[0]["OPTIONS"]["debug"] = True
 
+INSTALLED_APPS += ["debug_toolbar"]
+
+MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 ALLOWED_HOSTS = []
 
@@ -39,4 +45,8 @@ LOGGING = {
     },
 }
 
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL_DEFAULT_SENDER = "development@landolfio.localhost"
+
 MONEYBIRD_WEBHOOK_SITE_DOMAIN = "http://localhost:8000"
+BASE_URL = MONEYBIRD_WEBHOOK_SITE_DOMAIN

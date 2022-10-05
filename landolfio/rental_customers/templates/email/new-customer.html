@@ -1,0 +1,20 @@
+{% extends "email/email.html" %}{% load i18n baseurl %}
+
+{% block content %}
+    <p>
+        {% blocktrans trimmed %}A new rental customer, {{ obj }}, just registered on your site.{% endblocktrans %}
+    </p>
+    {% if obj.notes %}
+        <p>
+            {% blocktrans trimmed %}Notes:{% endblocktrans %}
+            <br>
+            {{ obj.notes|linebreaksbr }}
+        </p>
+    {% endif %}
+    <p>
+        {% blocktrans trimmed %}You can view the customer's details here:{% endblocktrans %}<a href="{% baseurl %}{% url 'admin:rental_customers_registeredrentalcustomer_change' obj.id %}">{% baseurl %}{% url 'admin:rental_customers_registeredrentalcustomer_change' obj.id %}</a>.
+    </p>
+    <p>
+        {% blocktrans trimmed %}There are now {{ count }} unprocessed rental customers.{% endblocktrans %}
+    </p>
+{% endblock %}

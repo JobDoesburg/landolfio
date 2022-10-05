@@ -61,6 +61,7 @@ CSRF_COOKIE_SECURE = True
 CSRF_TRUSTED_ORIGINS = ["https://" + host for host in ALLOWED_HOSTS]
 
 MONEYBIRD_WEBHOOK_SITE_DOMAIN = "https://" + ALLOWED_HOSTS[0]
+BASE_URL = MONEYBIRD_WEBHOOK_SITE_DOMAIN
 
 LOGGING = {
     "version": 1,
@@ -89,3 +90,16 @@ LOGGING = {
         "level": os.environ.get("DJANGO_LOG_LEVEL", "ERROR"),
     },
 }
+
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = os.environ.get("SMTP_HOST", None)
+EMAIL_PORT = int(os.environ.get("SMTP_PORT", None))
+EMAIL_USE_TLS = os.environ.get("SMTP_USE_TLS", None) == "True"
+EMAIL_USE_SSL = os.environ.get("SMTP_USE_SSL", None) == "True"
+EMAIL_HOST_USER = os.environ.get("SMTP_USER", None)
+EMAIL_HOST_PASSWORD = os.environ.get("SMTP_PASSWORD", None)
+
+EMAIL_DEFAULT_SENDER = os.environ.get("SMTP_FROM", None)
+DEFAULT_FROM_EMAIL = os.environ.get("SMTP_FROM_EMAIL", None)
+SERVER_EMAIL = os.environ.get("SMTP_FROM", None)

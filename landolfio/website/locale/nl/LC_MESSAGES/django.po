@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-05 13:21+0200\n"
+"POT-Creation-Date: 2022-10-05 16:45+0200\n"
 "PO-Revision-Date: 2022-08-05 13:26+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -18,30 +18,34 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.1.1\n"
 
-#: admin.py:5 admin.py:6
+#: website/admin.py:5 website/admin.py:6
 msgid "Landolfio"
 msgstr "Landolfio"
 
-#: multi_select_filter.py:38
+#: website/multi_select_filter.py:38
 msgid "All"
 msgstr "Alle"
 
-#: settings/common.py:101
+#: website/settings/common.py:104
 msgid "Dutch"
 msgstr "Nederlands"
 
-#: templates/admin/base.html:11
+#: website/templates/admin/base.html:11
 msgid "Synchronize with MoneyBird"
 msgstr "Synchroniseren met MoneyBird"
 
-#: templates/admin/base.html:13
+#: website/templates/admin/base.html:13
 msgid "Assets admin"
 msgstr "Eigendommenbeheer"
 
-#: templates/admin/base.html:14
+#: website/templates/admin/base.html:14
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
-#: templates/admin/base.html:15
+#: website/templates/admin/base.html:15
 msgid "Log out"
 msgstr "Log uit"
+
+#: website/templates/email/email.html:15 website/templates/email/email.txt:3
+msgid "This email was automatically sent by"
+msgstr ""

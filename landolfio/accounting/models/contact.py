@@ -1,3 +1,5 @@
+import logging
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.functions import datetime
@@ -8,6 +10,7 @@ from localflavor.generic.models import IBANField, BICField
 
 from accounting.models.workflow import Workflow, WorkflowTypes, WorkflowResourceType
 from moneybird import resources
+from moneybird.administration import get_moneybird_administration
 from moneybird.models import (
     SynchronizableMoneybirdResourceModel,
 )
@@ -183,6 +186,8 @@ class Contact(SynchronizableMoneybirdResourceModel):
         verbose_name=_("sales invoices url"), blank=True, max_length=2048, null=True
     )
 
+    # TODO calculate paid bails
+
     def clean(self):
         super().clean()
         errors = {}
@@ -239,6 +244,18 @@ class Contact(SynchronizableMoneybirdResourceModel):
         verbose_name = _("contact")
         verbose_name_plural = _("contacts")
         ordering = ["company_name", "last_name", "first_name"]
+
+    def request_payments_mandate(self, message=None, identity=None):
+        administration = get_moneybird_administration()
+        data = {"mandate_request": {}}
+        if message:
+            data["mandate_request"]["email_message"] = message
+        if identity:
+            data["mandate_request"]["identity_id"] = identity
+        administration.post(
+            f"contacts/{self.moneybird_id}/moneybird_payments_mandate", data=data
+        )
+        logging.info("Sent SEPA mandate request to %s", self)
 
 
 class ContactResourceType(resources.ContactResourceType):
@@ -308,7 +325,7 @@ class ContactResourceType(resources.ContactResourceType):
         data["city"] = instance.city or ""
         data["country"] = instance.country.code
         data["phone"] = instance.phone or ""
-        data["customer_id"] = instance.customer_id or ""
+        data["customer_id"] = instance.customer_id if instance.customer_id else None
         data["tax_number"] = instance.tax_number or ""
         data["chamber_of_commerce"] = instance.chamber_of_commerce or ""
         data["bank_account"] = instance.bank_account or ""

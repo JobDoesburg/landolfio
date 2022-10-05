@@ -32,6 +32,8 @@ INSTALLED_APPS = [
     "accounting",
     "moneybird",
     "scantags",
+    "bootstrap5",
+    "rental_customers",
 ]
 
 MIDDLEWARE = [
@@ -208,3 +210,5 @@ else:
     DJANGO_DRF_FILEPOND_FILE_STORE_PATH = os.path.join(MEDIA_ROOT, "stored_uploads")
 
 DJANGO_DRF_FILEPOND_UPLOAD_TMP = os.path.join(MEDIA_ROOT, "filepond-temp-uploads")
+
+NOTIFICATION_EMAIL = os.environ.get("NOTIFICATION_EMAIL", "contact@vofdoesburg.nl")

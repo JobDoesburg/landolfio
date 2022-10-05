@@ -30,7 +30,7 @@
 </style>
 <div class="file-upload">
     <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
-    <form method="post">
+    <form method="post"> <!-- TODO make this wider on mobile, optimze UX -->
         {% csrf_token %}
         <div class="filepond">
             <input type="file"

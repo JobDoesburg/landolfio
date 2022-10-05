@@ -19,8 +19,10 @@ urlpatterns = (
         path("api/accounting/", include("accounting.api.urls")),
         path("fp/", include("django_drf_filepond.urls")),
         path("scan/", include("scantags.urls")),
+        path("customer/", include("rental_customers.urls")),
         re_path(r"^media/", views.protected_ask_reverse_proxy),
         path("", RedirectView.as_view(url="/assets/"), name="index"),
         path("admin/", RedirectView.as_view(url="/admin/"), name="admin"),
     ]
+    + [path("__debug__/", include("debug_toolbar.urls")) if settings.DEBUG else None]
 )
