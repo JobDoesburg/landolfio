@@ -1,6 +1,6 @@
 from django.contrib import admin, messages
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _, ngettext
+from django.utils.translation import gettext_lazy as _, ngettext
 
 from moneybird.models import (
     SynchronizableMoneybirdResourceModel,
@@ -121,39 +121,6 @@ class MoneybirdResourceModelAdminMixin:
                 obj.delete(delete_on_moneybird=True)
         else:
             self.moneybird_resource_type.queryset_delete(queryset)
-
-    def get_actions(self, request):
-        actions = super().get_actions(request)
-        if self.has_change_permission(request):
-            actions["push_to_moneybird"] = (
-                push_to_moneybird,
-                "push_to_moneybird",
-                _(
-                    "Push selected %s to Moneybird"
-                    % self.model._meta.verbose_name_plural
-                ),
-            )
-        return actions
-
-    change_form_template = "moneybird/admin/change_form.html"
-
-    def get_moneybird_actions(self, request, obj=None):
-        return []
-
-    def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
-        context = extra_context or {}
-        if object_id:
-            obj = self.get_object(request, object_id)
-            context["moneybird_actions"] = self.get_moneybird_actions(request, obj)
-        return super().changeform_view(
-            request, object_id=object_id, form_url="", extra_context=context
-        )
-
-    def response_change(self, request, obj):
-        for action in self.get_moneybird_actions(request, obj):
-            if request.POST.get(action["post_parameter"]):
-                return action["func"](self, request, obj)
-        return super().response_change(request, obj)
 
 
 class MoneybirdResourceModelAdmin(MoneybirdResourceModelAdminMixin, admin.ModelAdmin):

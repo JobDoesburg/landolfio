@@ -320,6 +320,17 @@ shortuuid = {version = ">=0.5.0", markers = "python_version >= \"3.5\""}
 six = ">=1.14.0"
 
 [[package]]
+name = "django-easy-admin-object-actions"
+version = "1.0.0a1"
+description = "Django app to easily add actions to an object's admin change form"
+category = "main"
+optional = false
+python-versions = ">=3"
+
+[package.dependencies]
+django = ">=3"
+
+[[package]]
 name = "django-localflavor"
 version = "3.1"
 description = "Country-specific Django helpers"
@@ -876,7 +887,7 @@ production = ["psycopg2", "uWSGI"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "c6c2583b67df7d1e4db09b3f34fbf56f1f5b4b15fb840222e5a62673454fc184"
+content-hash = "33b5903f86b1c47731e6e3191050a74337c99f6be1b8755864fe3e398743041d"
 
 [metadata.files]
 asgiref = [
@@ -1040,6 +1051,10 @@ django-debug-toolbar = [
 django-drf-filepond = [
     {file = "django-drf-filepond-0.4.1.tar.gz", hash = "sha256:a32c46fd54982d88aeb4f3825973a194eb9d5d01b031c53bfe2770fc98895873"},
     {file = "django_drf_filepond-0.4.1-py2.py3-none-any.whl", hash = "sha256:e91303795d5d2f3cbb96cc28a5a6a70b5322eaa54ed7b1997ba6a7cb3a4aa609"},
+]
+django-easy-admin-object-actions = [
+    {file = "django-easy-admin-object-actions-1.0.0a1.tar.gz", hash = "sha256:7e1be69762c585cc6fd0bd687e77b50480d7c9eadd639f14dfe86a71dd8d9c8e"},
+    {file = "django_easy_admin_object_actions-1.0.0a1-py3-none-any.whl", hash = "sha256:bbc4fc768a96d9076493c279b33823249b95946efe7f37794970f3b26c4b378c"},
 ]
 django-localflavor = [
     {file = "django-localflavor-3.1.tar.gz", hash = "sha256:ac2fa377bbcba4cae95e97077d9e77c7f22b3d93e4845e2e133ba7e664043a44"},

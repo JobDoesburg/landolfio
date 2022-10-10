@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models.utils import resolve_callables
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from moneybird.resource_types import (
     get_moneybird_resource_type_for_model,

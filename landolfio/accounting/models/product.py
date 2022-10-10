@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from accounting.models.ledger_account import LedgerAccountResourceType
 from accounting.models.tax_rate import TaxRateResourceType, TaxRateTypes

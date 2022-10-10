@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from accounting.models.contact import Contact, ContactResourceType
 from accounting.models.document_style import DocumentStyle

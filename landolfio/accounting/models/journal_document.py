@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import Case, When, Q, F
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from model_utils.managers import (
     InheritanceManagerMixin,
     InheritanceQuerySetMixin,

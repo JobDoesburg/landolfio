@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
     "django_countries",
+    "django_easy_admin_object_actions",
     "localflavor",
     "admin_numeric_filter",
     "autocompletefilter",
@@ -91,7 +92,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
-LANGUAGE_CODE = "nl"
+# LANGUAGE_CODE = "nl"
 
 TIME_ZONE = "Europe/Amsterdam"
 
@@ -101,7 +102,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-LANGUAGES = (("nl", gettext_lazy("Dutch")),)
+LANGUAGES = (("nl", gettext_lazy("Dutch")), ("en", gettext_lazy("English")))
 
 LOCALE_PATHS = [BASE_DIR / "locale/"]
 

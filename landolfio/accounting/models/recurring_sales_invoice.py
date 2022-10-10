@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from django.db import models
 from django.db.models import F
-from django.utils.translation import gettext as _, ngettext
+from django.utils.translation import gettext_lazy as _, ngettext
 from queryable_properties.properties import AnnotationProperty
 
 from accounting.models.ledger_account import (
