@@ -10,7 +10,7 @@ from django.views.generic.base import RedirectView
 from . import views
 from inventory.admin.assets_admin import assets_admin
 
-urlpatterns = ([
+urlpatterns = [
     path("admin/", admin.site.urls),
     path("assets/", assets_admin.urls),
     path("moneybird/", include("moneybird.webhooks.urls")),
@@ -20,11 +20,8 @@ urlpatterns = ([
     re_path(r"^media/", views.protected_ask_reverse_proxy),
     path("", RedirectView.as_view(url="/assets/"), name="index"),
     path("admin/", RedirectView.as_view(url="/admin/"), name="admin"),
-    ]
-)
-urlpatterns += (
-    path("customer/", include("rental_customers.urls")),
-)
+]
+urlpatterns += (path("customer/", include("rental_customers.urls")),)
 
 if settings.DEBUG:
     import debug_toolbar
