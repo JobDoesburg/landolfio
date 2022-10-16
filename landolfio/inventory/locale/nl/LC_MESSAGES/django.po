@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-16 16:21+0200\n"
+"POT-Creation-Date: 2022-10-16 17:21+0200\n"
 "PO-Revision-Date: 2022-08-07 23:55+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -404,7 +404,6 @@ msgstr "opmerkingen"
 
 #: inventory/templates/assets_admin/change_form.html:16
 #: inventory/templates/assets_admin/change_list.html:15
-#: inventory/templates/assets_admin/index.html:10
 #: inventory/templates/assets_admin/view_asset.html:44
 msgid "admin"
 msgstr "admin"
@@ -701,6 +700,12 @@ msgstr "totaal kosten"
 #: inventory/templates/assets_admin/includes/sidebar.html:69
 msgid "total revenue"
 msgstr "totale omzet"
+
+#: inventory/templates/assets_admin/index.html:10
+#, fuzzy
+#| msgid "accounting status"
+msgid "Accounting"
+msgstr "boekhoudkundige status"
 
 #: inventory/templates/assets_admin/index.html:19
 #: inventory/templates/assets_admin/view_asset.html:56

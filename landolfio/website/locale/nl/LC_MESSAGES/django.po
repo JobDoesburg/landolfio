@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-16 16:21+0200\n"
-"PO-Revision-Date: 2022-08-05 13:26+0200\n"
+"POT-Creation-Date: 2022-10-16 17:21+0200\n"
+"PO-Revision-Date: 2022-10-16 17:21+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -28,27 +28,35 @@ msgstr "Nederlands"
 
 #: website/settings/common.py:105
 msgid "English"
-msgstr ""
+msgstr "Engels"
 
 #: website/templates/admin/base.html:11
 msgid "Synchronize with MoneyBird"
 msgstr "Synchroniseren met MoneyBird"
 
-#: website/templates/admin/base.html:13
+#: website/templates/admin/base.html:13 website/templates/index.html:23
 msgid "Assets admin"
 msgstr "Eigendommenbeheer"
 
-#: website/templates/admin/base.html:14
+#: website/templates/admin/base.html:14 website/templates/index.html:17
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
-#: website/templates/admin/base.html:15
+#: website/templates/admin/base.html:15 website/templates/index.html:18
 msgid "Log out"
 msgstr "Log uit"
 
 #: website/templates/email/email.html:15 website/templates/email/email.txt:3
 msgid "This email was automatically sent by"
-msgstr ""
+msgstr "Deze e-mail werd automatisch verzonden door"
+
+#: website/templates/index.html:14
+msgid "Choose module"
+msgstr "Module kiezen"
+
+#: website/templates/index.html:24
+msgid "Accounting"
+msgstr "Boekhouding"
 
 #~ msgid "All"
 #~ msgstr "Alle"

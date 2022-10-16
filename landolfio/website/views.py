@@ -22,4 +22,8 @@ def protected_ask_reverse_proxy(request: HttpRequest):
 
 def index(request: HttpRequest):
     """Render the index page."""
-    return render(request, "index.html", {})
+    return render(
+        request,
+        "index.html",
+        {"site_header": "Landolfio", "site_title": "Landolfio", "has_permission": True},
+    )
