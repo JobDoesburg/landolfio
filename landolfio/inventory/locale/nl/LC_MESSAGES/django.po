@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-05 16:45+0200\n"
+"POT-Creation-Date: 2022-10-16 16:21+0200\n"
 "PO-Revision-Date: 2022-08-07 23:55+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -18,95 +18,95 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.1.1\n"
 
-#: inventory/admin/admin/asset.py:42
+#: inventory/admin/admin/asset.py:41
 msgid "Not an image"
 msgstr "Geen afbeelding"
 
-#: inventory/admin/admin/asset.py:44
+#: inventory/admin/admin/asset.py:43
 msgid "Image"
 msgstr "Afbeelding"
 
-#: inventory/admin/admin/asset.py:65
+#: inventory/admin/admin/asset.py:64
 msgid "Workflow"
 msgstr "Workflow"
 
-#: inventory/admin/admin/asset.py:69
+#: inventory/admin/admin/asset.py:68
 msgid "View on Moneybird"
 msgstr "Bekijk op Moneybird"
 
-#: inventory/admin/admin/asset.py:176
+#: inventory/admin/admin/asset.py:175
 msgid "Document state"
 msgstr "Document status"
 
-#: inventory/admin/admin/asset.py:208
+#: inventory/admin/admin/asset.py:207
 msgid "Active"
 msgstr "Actief"
 
-#: inventory/admin/admin/asset.py:391
+#: inventory/admin/admin/asset.py:390
 #: inventory/templates/assets_admin/includes/sidebar.html:57
 msgid "margin"
 msgstr "marge"
 
-#: inventory/admin/admin/asset.py:399
+#: inventory/admin/admin/asset.py:398
 msgid "not margin"
 msgstr "niet-marge"
 
-#: inventory/admin/admin/asset.py:407 inventory/models/asset.py:61
+#: inventory/admin/admin/asset.py:406 inventory/models/asset.py:61
 #: inventory/models/asset.py:73
 #: inventory/templates/assets_admin/includes/sidebar.html:59
 msgid "sold"
 msgstr "verkocht"
 
-#: inventory/admin/admin/asset.py:415
+#: inventory/admin/admin/asset.py:414
 msgid "sold margin"
 msgstr "verkocht marge"
 
-#: inventory/admin/admin/asset.py:423
+#: inventory/admin/admin/asset.py:422
 msgid "sold non margin"
 msgstr "verkocht niet-marge"
 
-#: inventory/admin/admin/asset.py:431
+#: inventory/admin/admin/asset.py:430
 msgid "purchased asset"
 msgstr "ingekocht"
 
-#: inventory/admin/admin/asset.py:439
+#: inventory/admin/admin/asset.py:438
 msgid "purchased asset margin"
 msgstr "ingekocht marge"
 
-#: inventory/admin/admin/asset.py:447
+#: inventory/admin/admin/asset.py:446
 msgid "purchased asset non margin"
 msgstr "ingekocht niet-marge"
 
-#: inventory/admin/admin/asset.py:455
+#: inventory/admin/admin/asset.py:454
 msgid "purchased amortized"
 msgstr "afgeschreven bij aankoop"
 
-#: inventory/admin/admin/asset.py:463 inventory/models/collection.py:7
+#: inventory/admin/admin/asset.py:462 inventory/models/collection.py:7
 msgid "commerce"
 msgstr "handelsgoed"
 
-#: inventory/admin/admin/asset.py:471 inventory/models/asset.py:60
+#: inventory/admin/admin/asset.py:470 inventory/models/asset.py:60
 #: inventory/models/asset.py:72
 #: inventory/templates/assets_admin/includes/sidebar.html:58
 msgid "amortized"
 msgstr "afgeschreven"
 
-#: inventory/admin/admin/asset.py:479
+#: inventory/admin/admin/asset.py:478
 #: inventory/templates/assets_admin/includes/sidebar.html:60
 msgid "rented"
 msgstr "verhuurd"
 
-#: inventory/admin/admin/asset.py:487
+#: inventory/admin/admin/asset.py:486
 #: inventory/templates/assets_admin/includes/sidebar.html:61
 msgid "has rental agreement"
 msgstr "heeft huurovereenkomst"
 
-#: inventory/admin/admin/asset.py:495
+#: inventory/admin/admin/asset.py:494
 #: inventory/templates/assets_admin/includes/sidebar.html:62
 msgid "has loan agreement"
 msgstr "heeft leenovereenkomst"
 
-#: inventory/admin/admin/asset.py:508 inventory/models/asset.py:622
+#: inventory/admin/admin/asset.py:507 inventory/models/asset.py:622
 #: inventory/models/asset_on_document_line.py:19
 #: inventory/models/asset_on_document_line.py:69
 #: inventory/models/asset_on_document_line.py:117

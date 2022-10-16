@@ -7,11 +7,13 @@ from django.utils.translation import gettext_lazy as _
 
 from accounting.models import SalesInvoice
 from accounting.models.sales_invoice import SalesInvoiceDocumentLine
+from django_easy_admin_object_actions.admin import ObjectActionsMixin
+from django_easy_admin_object_actions.decorators import object_action
 from moneybird.admin import (
     MoneybirdResourceModelAdmin,
     MoneybirdResourceModelAdminMixin,
 )
-from website.multi_select_filter import MultiSelectFieldListFilter
+from django_admin_multi_select_filter.filters import MultiSelectFieldListFilter
 
 
 class SalesInvoiceDocumentLineInline(
@@ -37,7 +39,9 @@ class SalesInvoiceDocumentLineInline(
 
 
 @register(SalesInvoice)
-class SalesInvoiceAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
+class SalesInvoiceAdmin(
+    ObjectActionsMixin, AutocompleteFilterMixin, MoneybirdResourceModelAdmin
+):
     list_display = (
         "__str__",
         "date",
@@ -91,18 +95,44 @@ class SalesInvoiceAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
     )
     inlines = (SalesInvoiceDocumentLineInline,)
 
+    @object_action(
+        label=_("Send invoice"),
+        parameter_name="_sendinvoice",
+        extra_classes="default",
+        condition=lambda request, obj: obj.state == "draft",
+        display_as_disabled_if_condition_not_met=True,
+        log_message="Invoice sent",
+        perform_after_saving=True,
+    )
     def send_invoice(self, request, obj):
-        obj.send_invoice()
+        # obj.send_invoice()
         # TODO implement this
-        return HttpResponseRedirect(".")
+        # return HttpResponseRedirect(".")
+        pass
 
-    def get_moneybird_actions(self, request, obj=None):
-        actions = super().get_moneybird_actions(request, obj)
-        actions.append(
-            {
-                "label": _("Send invoice"),
-                "func": self.send_invoice,
-                "post_parameter": "_moneybird_send_invoice",
-            }
-        )
-        return actions
+    @object_action(
+        label=_("Resend invoice"),
+        parameter_name="_resendinvoice",
+        condition=lambda request, obj: obj.state != "draft",
+        display_as_disabled_if_condition_not_met=True,
+        log_message="Invoice resent",
+        perform_after_saving=True,
+    )
+    def resend_invoice(self, request, obj):
+        # obj.send_invoice()
+        # TODO implement this
+        # return HttpResponseRedirect(".")
+        pass
+
+    @object_action(
+        label=_("View on moneybird"),
+        parameter_name="_viewonmoneybird",
+    )
+    def view_on_moneybird_action(self, request, obj):
+        return HttpResponseRedirect(obj.moneybird_url)
+
+    object_actions_before_fieldsets = (
+        "send_invoice",
+        "resend_invoice",
+        "view_on_moneybird_action",
+    )

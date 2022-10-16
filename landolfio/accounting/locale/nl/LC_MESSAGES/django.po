@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-05 16:45+0200\n"
+"POT-Creation-Date: 2022-10-16 14:46+0200\n"
 "PO-Revision-Date: 2022-08-05 13:25+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -18,9 +18,19 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.1.1\n"
 
-#: accounting/admin/sales_invoice.py:103
+#: accounting/admin/sales_invoice.py:99
 msgid "Send invoice"
 msgstr "Verstuur factuur"
+
+#: accounting/admin/sales_invoice.py:114
+#, fuzzy
+#| msgid "Send invoice"
+msgid "Resend invoice"
+msgstr "Verstuur factuur"
+
+#: accounting/admin/sales_invoice.py:128
+msgid "View on moneybird"
+msgstr ""
 
 #: accounting/api/views.py:12
 msgid "The database was successfully updated."

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-05 16:45+0200\n"
+"POT-Creation-Date: 2022-10-16 16:21+0200\n"
 "PO-Revision-Date: 2022-08-05 13:26+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -22,13 +22,13 @@ msgstr ""
 msgid "Landolfio"
 msgstr "Landolfio"
 
-#: website/multi_select_filter.py:38
-msgid "All"
-msgstr "Alle"
-
-#: website/settings/common.py:104
+#: website/settings/common.py:105
 msgid "Dutch"
 msgstr "Nederlands"
+
+#: website/settings/common.py:105
+msgid "English"
+msgstr ""
 
 #: website/templates/admin/base.html:11
 msgid "Synchronize with MoneyBird"
@@ -49,3 +49,6 @@ msgstr "Log uit"
 #: website/templates/email/email.html:15 website/templates/email/email.txt:3
 msgid "This email was automatically sent by"
 msgstr ""
+
+#~ msgid "All"
+#~ msgstr "Alle"

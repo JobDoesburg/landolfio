@@ -11,6 +11,7 @@ from django.db.models.aggregates import Max
 from queryable_properties.admin import (
     QueryablePropertiesAdminMixin,
 )
+from django_admin_multi_select_filter.filters import MultiSelectFieldListFilter
 
 from accounting.models.ledger_account import LedgerAccountType
 from inventory.models.asset import (
@@ -21,8 +22,6 @@ from inventory.models.asset import (
 )
 from inventory.models.attachment import Attachment
 from inventory.models.remarks import Remark
-
-from website.multi_select_filter import MultiSelectFieldListFilter
 
 
 def is_an_image_path(path: str) -> bool:

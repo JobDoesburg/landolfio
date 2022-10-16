@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-05 16:45+0200\n"
+"POT-Creation-Date: 2022-10-16 14:46+0200\n"
 "PO-Revision-Date: 2022-08-02 23:53+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -34,11 +34,6 @@ msgstr[1] "%d objecten zijn succesvol naar Moneybird gepusht."
 #, python-format
 msgid "Error pushing to Moneybird: %s"
 msgstr "Fout tijdens het pushen naar Moneybird: %s"
-
-#: moneybird/admin.py:132
-#, python-format
-msgid "Push selected %s to Moneybird"
-msgstr "Push geselecteerde %s naar Moneybird"
 
 #: moneybird/apps.py:8
 #, fuzzy
@@ -69,3 +64,7 @@ msgstr "Verwijder dit object van Moneybird bij synchronisatie."
 #: moneybird/models.py:211
 msgid "Moneybird version"
 msgstr "Moneybird versie"
+
+#, python-format
+#~ msgid "Push selected %s to Moneybird"
+#~ msgstr "Push geselecteerde %s naar Moneybird"

@@ -8,7 +8,7 @@ from moneybird.admin import (
     MoneybirdResourceModelAdmin,
     MoneybirdResourceModelAdminMixin,
 )
-from website.multi_select_filter import MultiSelectFieldListFilter
+from django_admin_multi_select_filter.filters import MultiSelectFieldListFilter
 
 
 class EstimateDocumentLineInline(MoneybirdResourceModelAdminMixin, admin.StackedInline):

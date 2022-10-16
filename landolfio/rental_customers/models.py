@@ -23,6 +23,15 @@ class RegisteredRentalCustomer(models.Model):
     sepa_mandate_sent = models.BooleanField(
         default=False, verbose_name=_("SEPA mandate request was sent")
     )
+    wants_reduced_liability = models.BooleanField(
+        default=True, verbose_name=_("Wants reduced liability")
+    )
+    affiliate_name = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name=_("affiliate name")
+    )
+    instrument_numbers = models.TextField(
+        blank=True, verbose_name=_("instrument numbers")
+    )
     notes = models.TextField(blank=True, verbose_name=_("notes"))
 
     processed = models.BooleanField(default=False, verbose_name=_("Processed"))
@@ -50,7 +59,7 @@ class RegisteredRentalCustomer(models.Model):
         if self.contact and self.wants_sepa_mandate and not self.sepa_mandate_sent:
             self.contact.request_payments_mandate(
                 message=loader.render_to_string(
-                    "email/mandate_request_message.txt", {"customer": self}
+                    "email/mandate_request_message.txt", {"customer": self.contact}
                 )
             )
             self.sepa_mandate_sent = True

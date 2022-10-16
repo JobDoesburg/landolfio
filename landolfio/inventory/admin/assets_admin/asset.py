@@ -2,13 +2,13 @@ from django.urls import path
 from django.contrib import admin
 
 from autocompletefilter.filters import AutocompleteListFilter
+from django_admin_multi_select_filter.filters import MultiSelectFieldListFilter
 
 from inventory.models.asset import (
     Asset,
 )
 from inventory.admin.admin.asset import AssetAdmin as BaseAssetAdmin
 from inventory.admin.assets_admin.views import ViewAssetView
-from website.multi_select_filter import MultiSelectFieldListFilter
 from inventory.admin.assets_admin.site import assets_admin
 from inventory.admin.assets_admin.utils import get_extra_assets_context
 from inventory.admin.admin.asset import ListingPriceSliderFilter
