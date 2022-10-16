@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest
 from django.http import HttpResponse
+from django.shortcuts import render
 
 
 @login_required
@@ -17,3 +18,8 @@ def protected_ask_reverse_proxy(request: HttpRequest):
     response = HttpResponse(status=200, content_type="")
     response.headers["X-Accel-Redirect"] = request.path
     return response
+
+
+def index(request: HttpRequest):
+    """Render the index page."""
+    return render(request, "index.html", {})

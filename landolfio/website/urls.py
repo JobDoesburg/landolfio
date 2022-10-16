@@ -18,7 +18,7 @@ urlpatterns = [
     path("fp/", include("django_drf_filepond.urls")),
     path("scan/", include("scantags.urls")),
     re_path(r"^media/", views.protected_ask_reverse_proxy),
-    path("", RedirectView.as_view(url="/assets/"), name="index"),
+    path("", views.index, name="index"),
     path("admin/", RedirectView.as_view(url="/admin/"), name="admin"),
 ]
 urlpatterns += (path("customer/", include("rental_customers.urls")),)

@@ -1,0 +1,14 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block content %}
+    <div id="content-main" style="text-align: center">
+        <a href="{% url 'assets_admin:index' %}" class="button" style="padding: 50px; margin-right: 10px; margin-bottom: 10px; font-size: 20px; display: inline-block">{% trans 'Assets admin' %}</a>
+        <a href="{% url 'admin:index' %}" class="button" style="padding: 50px; margin-right: 10px; margin-bottom: 10px; font-size: 20px;display: inline-block">{% trans 'Accounting' %}</a>
+    </div>
+{% endblock %}
+
+{% block content_title %}<h1>Landolfio</h1>{% endblock %}
+
+{% block sidebar %}
+{% endblock %}
