@@ -2,6 +2,7 @@ from django.forms import models, Textarea
 from django.utils.translation import gettext_lazy as _
 
 from accounting.models import Contact
+from inventory.services import find_existing_asset_from_description
 from rental_customers.models import RegisteredRentalCustomer
 
 
@@ -75,3 +76,12 @@ class RentalCustomerRegistrationForm(models.ModelForm):
         )
 
         self.fields["notes"].help_text = _("Optional room for additional notes.")
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        if commit:
+            detected_assets = find_existing_asset_from_description(
+                instance.instrument_numbers
+            )
+            instance.assets.set(detected_assets, clear=True)
+        return instance

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-16 16:21+0200\n"
-"PO-Revision-Date: 2022-10-16 16:22+0200\n"
+"POT-Creation-Date: 2022-10-29 12:40+0200\n"
+"PO-Revision-Date: 2022-10-29 12:41+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -18,36 +18,40 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.1.1\n"
 
-#: rental_customers/admin.py:52
+#: rental_customers/admin.py:55
 msgid "(Re)send SEPA mandate request"
 msgstr "Verstuur nieuw SEPA mandaat verzoek"
 
-#: rental_customers/admin.py:55
+#: rental_customers/admin.py:57
 msgid "Are you sure you want to send the customer a new SEPA mandate request?"
 msgstr ""
 "Weet je zeker dat je de klant een nieuw SEPA mandaat verzoek wilt sturen?"
 
-#: rental_customers/admin.py:68
+#: rental_customers/admin.py:66
 msgid "View contact on Moneybird"
 msgstr "Bekijk contact op Moneybird"
 
-#: rental_customers/admin.py:76
+#: rental_customers/admin.py:72
 msgid "Mark processed"
 msgstr "Verwerk"
+
+#: rental_customers/admin.py:84
+msgid "Create draft agreement"
+msgstr "Maak concept-overeenkomst"
 
 #: rental_customers/apps.py:8
 msgid "Rental customers"
 msgstr "Huurders"
 
-#: rental_customers/forms.py:29 rental_customers/forms.py:32
+#: rental_customers/forms.py:30 rental_customers/forms.py:33
 msgid "Optional"
 msgstr "Optioneel"
 
-#: rental_customers/forms.py:58
+#: rental_customers/forms.py:59
 msgid "Pay by SEPA direct debit"
 msgstr "Betalen via SEPA automatische incasso"
 
-#: rental_customers/forms.py:60
+#: rental_customers/forms.py:61
 msgid ""
 "With direct debit, all invoices will automatically be collected from your "
 "bank account. You will receive an email to confirm the mandate via your bank "
@@ -58,11 +62,11 @@ msgstr ""
 "direct een e-mail om via uw bank een mandaat af te geven. Hiervoor maakt u "
 "eenmalig €0,15 over ter bevestiging."
 
-#: rental_customers/forms.py:63
+#: rental_customers/forms.py:64
 msgid "Request reduced liability"
 msgstr "Schaderisicoafkoopregeling aanvragen"
 
-#: rental_customers/forms.py:65
+#: rental_customers/forms.py:66
 msgid ""
 "With reduced liability, your liability to material damages will be "
 "restricted to €50 per incident (with exception of bow hair, strings and "
@@ -72,11 +76,11 @@ msgstr ""
 "materiële schade beperkt tot 50 euro per incident (met uitzondering van "
 "beharing, besnaring en kammen)."
 
-#: rental_customers/forms.py:68
+#: rental_customers/forms.py:69
 msgid "Contact person"
 msgstr "Contactpersoon"
 
-#: rental_customers/forms.py:70
+#: rental_customers/forms.py:71
 msgid ""
 "If you received the instruments from one of our affiliate contact persons, "
 "please enter their name here."
@@ -85,11 +89,11 @@ msgstr ""
 "contactpersonen (bijvoorbeeld uw docent), vul dan alstublieft hun naam hier "
 "in."
 
-#: rental_customers/forms.py:72
+#: rental_customers/forms.py:73
 msgid "Instrument numbers"
 msgstr "Instrumentnummers"
 
-#: rental_customers/forms.py:74
+#: rental_customers/forms.py:75
 msgid ""
 "Please enter the instrument numbers of the instruments you received from us, "
 "separated with a comma."
@@ -97,59 +101,71 @@ msgstr ""
 "Vul de instrumentnummers in van de instrumenten die u van ons heeft "
 "ontvangen, gescheiden door een komma."
 
-#: rental_customers/forms.py:77
+#: rental_customers/forms.py:78
 msgid "Optional room for additional notes."
 msgstr "Optionele ruimte voor extra opmerkingen."
 
-#: rental_customers/models.py:12
+#: rental_customers/models.py:14
 msgid "created at"
 msgstr "aangemaakt op"
 
-#: rental_customers/models.py:18
+#: rental_customers/models.py:20
 msgid "contact"
 msgstr "contact"
 
-#: rental_customers/models.py:21
+#: rental_customers/models.py:23
 msgid "Wants SEPA mandate"
 msgstr "Wil SEPA-mandaat"
 
-#: rental_customers/models.py:24
+#: rental_customers/models.py:26
 msgid "SEPA mandate request was sent"
 msgstr "SEPA-mandaatverzoek is verzonden"
 
-#: rental_customers/models.py:27
+#: rental_customers/models.py:29
 msgid "Wants reduced liability"
 msgstr "Wil verminderde aansprakelijkheid"
 
-#: rental_customers/models.py:30
+#: rental_customers/models.py:32
 msgid "affiliate name"
 msgstr "naam gelieerde"
 
-#: rental_customers/models.py:33
+#: rental_customers/models.py:35
 msgid "instrument numbers"
 msgstr "instrumentnummers"
 
-#: rental_customers/models.py:35
+#: rental_customers/models.py:42
+msgid "rental price"
+msgstr "huurprijs"
+
+#: rental_customers/models.py:44
 msgid "notes"
 msgstr "opmerkingen"
 
-#: rental_customers/models.py:37
+#: rental_customers/models.py:45
+msgid "assets"
+msgstr "eigendommen"
+
+#: rental_customers/models.py:52
+msgid "agreement"
+msgstr "overeenkomst"
+
+#: rental_customers/models.py:55
 msgid "Processed"
 msgstr "Verwerkt"
 
-#: rental_customers/models.py:39
+#: rental_customers/models.py:57
 msgid "processed at"
 msgstr "verwerkt op"
 
-#: rental_customers/models.py:70
+#: rental_customers/models.py:88
 msgid "registered rental customer"
 msgstr "aangemelde huurder"
 
-#: rental_customers/models.py:71
+#: rental_customers/models.py:89
 msgid "registered rental customers"
 msgstr "aangemelde huurders"
 
-#: rental_customers/services.py:12
+#: rental_customers/services.py:15
 msgid "New customer registration: {}"
 msgstr "Nieuwe huurder: {}"
 

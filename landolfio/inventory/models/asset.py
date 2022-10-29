@@ -614,6 +614,20 @@ class Asset(models.Model):
                 return True
             return False
 
+    @property
+    def last_accounting_description(self):
+        latest_asset_agreement = self.estimate_document_lines.latest(
+            "document__created_at"
+        )
+        return latest_asset_agreement.description
+
+    @property
+    def last_accounting_price(self):
+        latest_asset_agreement = self.estimate_document_lines.latest(
+            "document__created_at"
+        )
+        return latest_asset_agreement.price
+
     def __str__(self):
         return f"{self.category.name_singular} {self.id} ({self.size})"
 

@@ -77,7 +77,7 @@ def get_asset_on_document_line_class(document_line):
 
 def link_asset_to_document_line(document_line, asset, value):
     get_asset_on_document_line_class(document_line).objects.update_or_create(
-        document_line=document_line, asset=asset, defaults={"value": value}
+        document_line=document_line, asset=asset, defaults={"value": value or 0}
     )
 
 

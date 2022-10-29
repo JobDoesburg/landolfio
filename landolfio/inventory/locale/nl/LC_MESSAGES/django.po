@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-16 17:21+0200\n"
+"POT-Creation-Date: 2022-10-29 12:40+0200\n"
 "PO-Revision-Date: 2022-08-07 23:55+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -106,7 +106,7 @@ msgstr "heeft huurovereenkomst"
 msgid "has loan agreement"
 msgstr "heeft leenovereenkomst"
 
-#: inventory/admin/admin/asset.py:507 inventory/models/asset.py:622
+#: inventory/admin/admin/asset.py:507 inventory/models/asset.py:636
 #: inventory/models/asset_on_document_line.py:19
 #: inventory/models/asset_on_document_line.py:69
 #: inventory/models/asset_on_document_line.py:117
@@ -119,7 +119,7 @@ msgstr "eigendom"
 #: inventory/admin/admin/assets_on_document_lines.py:88
 #: inventory/admin/admin/assets_on_document_lines.py:127
 #: inventory/admin/assets_admin/site.py:8
-#: inventory/admin/assets_admin/site.py:9 inventory/models/asset.py:623
+#: inventory/admin/assets_admin/site.py:9 inventory/models/asset.py:637
 msgid "assets"
 msgstr "eigendommen"
 
