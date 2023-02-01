@@ -10,7 +10,6 @@ from moneybird.webhooks.events import WebhookEvent
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -50,7 +49,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "website.urls"
 
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -75,7 +73,7 @@ WSGI_APPLICATION = "website.wsgi.application"
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation"
-        ".UserAttributeSimilarityValidator",
+                ".UserAttributeSimilarityValidator",
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
@@ -87,7 +85,6 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
@@ -112,7 +109,6 @@ LOCALE_PATHS = [BASE_DIR / "locale/"]
 STATIC_URL = "static/"
 
 STATIC_ROOT = BASE_DIR / "static"
-
 
 MEDIA_ROOT = BASE_DIR / "media"
 
@@ -196,7 +192,6 @@ NINOX_API_TOKEN = os.environ.get("NINOX_API_TOKEN")
 NINOX_TEAM_ID = os.environ.get("NINOX_TEAM_ID")
 NINOX_DATABASE_ID = os.environ.get("NINOX_DATABASE_ID")
 
-
 AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
 AWS_SECRET_ACCESS_KEY = os.environ.get("AWS_SECRET_ACCESS_KEY")
 AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
@@ -213,3 +208,5 @@ else:
 DJANGO_DRF_FILEPOND_UPLOAD_TMP = os.path.join(MEDIA_ROOT, "filepond-temp-uploads")
 
 NOTIFICATION_EMAIL = os.environ.get("NOTIFICATION_EMAIL", "contact@vofdoesburg.nl")
+
+SITE_ID = 1

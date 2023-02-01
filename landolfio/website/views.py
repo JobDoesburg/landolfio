@@ -1,3 +1,4 @@
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest
 from django.http import HttpResponse
@@ -20,6 +21,8 @@ def protected_ask_reverse_proxy(request: HttpRequest):
     return response
 
 
+@login_required(login_url="/admin/login/")
+@staff_member_required
 def index(request: HttpRequest):
     """Render the index page."""
     return render(

@@ -18,7 +18,7 @@ omit = ["website/manage.py"]
 plugins = ["django_coverage_plugin"]
 
 [tool.poetry]
-authors = [""]
+authors = ["Job Doesburg <job.doesburg@gmail.com>"]
 description = ""
 name = "landolfio"
 version = "0.1.0"
