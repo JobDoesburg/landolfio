@@ -32,8 +32,10 @@ INSTALLED_APPS = [
     "accounting",
     "moneybird",
     "scantags",
+    "tickets",
     "bootstrap5",
-    "rental_customers",
+    "new_customers",
+    "new_rental_customers",
 ]
 
 MIDDLEWARE = [
@@ -73,7 +75,7 @@ WSGI_APPLICATION = "website.wsgi.application"
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation"
-                ".UserAttributeSimilarityValidator",
+        ".UserAttributeSimilarityValidator",
     },
     {
         "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",

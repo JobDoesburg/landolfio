@@ -1,0 +1,305 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-02-03 17:04+0100\n"
+"PO-Revision-Date: 2023-02-03 17:09+0100\n"
+"Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
+"Language-Team: \n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.2.2\n"
+
+#: admin.py:30
+msgid "(Re)send SEPA mandate request"
+msgstr "Verstuur nieuw SEPA mandaat verzoek"
+
+#: admin.py:32
+msgid "Are you sure you want to send the customer a new SEPA mandate request?"
+msgstr ""
+"Weet je zeker dat je de klant een nieuw SEPA mandaat verzoek wilt sturen?"
+
+#: admin.py:41
+msgid "View contact on Moneybird"
+msgstr "Bekijk contact op Moneybird"
+
+#: apps.py:8
+msgid "New customers"
+msgstr "Nieuwe klanten"
+
+#: forms.py:32 forms.py:35
+msgid "Optional"
+msgstr "Optioneel"
+
+#: forms.py:73
+msgid "Pay by SEPA direct debit"
+msgstr "Betalen via SEPA automatische incasso"
+
+#: forms.py:75
+msgid ""
+"With direct debit, all invoices will automatically be collected from your "
+"bank account. You will receive an email to confirm the mandate via your bank "
+"by transferring an amount of €0,15 right after submitting."
+msgstr ""
+"Bij automatische incasso worden alle facturen automatisch van uw "
+"bankrekening afgeschreven. U ontvangt na het versturen van dit formulier "
+"direct een e-mail om via uw bank een mandaat af te geven. Hiervoor maakt u "
+"eenmalig €0,15 over ter bevestiging."
+
+#: forms.py:78
+msgid "Remarks"
+msgstr "Opmerkingen"
+
+#: forms.py:79
+msgid "Optional room for additional notes."
+msgstr "Optionele ruimte voor extra opmerkingen."
+
+#: models.py:12
+msgid "Wants SEPA mandate"
+msgstr "Wil SEPA-mandaat"
+
+#: models.py:15
+msgid "SEPA mandate request was sent"
+msgstr "SEPA-mandaatverzoek is verzonden"
+
+#: models.py:50
+msgid "new customer"
+msgstr "nieuwe klant"
+
+#: models.py:51
+msgid "new customers"
+msgstr "nieuwe klanten"
+
+#: services.py:14
+msgid "New customer registration: {}"
+msgstr "Nieuwe huurder: {}"
+
+#: templates/email/mandate_request_message.txt:1
+#, python-format
+msgid ""
+"Dear %(customer)s,\n"
+"\n"
+"You have indicated you want to pay your invoices using a direct debit "
+"mandate. This means that we will automatically collect the due amount from "
+"your bank account.\n"
+"\n"
+"In order to set up this direct debit mandate, please proceed by clicking the "
+"button below. You will pay a one-time amount of 15 cents to set up the "
+"mandate. This is used to confirm your bank account.\n"
+"\n"
+"You can cancel this mandate at any time by contacting us."
+msgstr ""
+"Beste %(customer)s,\n"
+"\n"
+"U heeft aangegeven dat u uw facturen wilt betalen met een automatische "
+"incassomachtiging. Dit betekent dat wij de openstaande bedragen automatisch "
+"van uw bankrekening afschrijven.\n"
+"\n"
+"Via de onderstaande knop kun je die machtiging afgeven. Je doet hiervoor een "
+"eenmalige betaling van 15 cent. Hiermee kunnen wij jouw rekeningnummer "
+"verifiëren.\n"
+"\n"
+"U kunt deze machtiging op elk moment opzeggen door contact met ons op te "
+"nemen."
+
+#: templates/email/new-customer.html:5 templates/email/new-customer.txt:3
+#, python-format
+msgid "A new rental customer, %(obj)s, just registered on your site."
+msgstr "Een nieuwe huurder, %(obj)s, heeft zich zojuist aangemeld."
+
+#: templates/email/new-customer.html:9 templates/email/new-customer.txt:4
+msgid "Notes:"
+msgstr "Opmerkingen:"
+
+#: templates/email/new-customer.html:15 templates/email/new-customer.txt:6
+msgid "You can view the customer's details here:"
+msgstr "U kunt de gegevens van de klant hier bekijken:"
+
+#: templates/email/new-customer.html:18 templates/email/new-customer.txt:7
+#, python-format
+msgid "There are now %(count)s unprocessed rental customers."
+msgstr "Er zijn nu %(count)s onverwerkte aangemelde huurders."
+
+#: templates/register-customer-success-sepa.html:3
+#: templates/register-customer-success.html:3
+#: templates/register-customer.html:33
+msgid "Submit"
+msgstr "Verstuur"
+
+#: templates/register-customer-success-sepa.html:6
+#: templates/register-customer-success.html:6
+msgid "Success - New customer"
+msgstr "Gelukt - Nieuwe huurder"
+
+#: templates/register-customer-success-sepa.html:10
+msgid "Confirm your mandate"
+msgstr "Bevestig uw mandaat"
+
+#: templates/register-customer-success-sepa.html:12
+msgid ""
+"You have just received an email with a request to confirm your SEPA mandate "
+"via email. Please open this email and proceed with the instructions. If you "
+"do not confirm your mandate, we will not be able to process withdrawals from "
+"your account."
+msgstr ""
+"U heeft zojuist een e-mail ontvangen met het verzoek om uw SEPA-mandaat via "
+"e-mail te bevestigen. Open deze e-mail en volg de instructies. Als u uw "
+"mandaat niet bevestigt, kunnen wij geen opnames van uw rekening verwerken."
+
+#: templates/register-customer-success-sepa.html:18
+#: templates/register-customer-success.html:17
+#: templates/register-customer.html:16
+msgid ""
+"If you have any questions, please contact us at <a href=\"mailto:"
+"contact@vofdoesburg.nl\">contact@vofdoesburg.nl</a>."
+msgstr ""
+"Neem bij vragen contact met ons op via <a href=\"mailto:contact@vofdoesburg."
+"nl\">contact@vofdoesburg.nl</a>."
+
+#: templates/register-customer-success.html:10
+msgid "Registration successful"
+msgstr "Aanmelding succesvol"
+
+#: templates/register-customer-success.html:12
+msgid ""
+"We've successfully received your data. We will contact you as soon as "
+"possible."
+msgstr ""
+"We hebben uw gegevens ontvangen. We nemen zo spoedig mogelijk contact met u "
+"op."
+
+#: templates/register-customer.html:5
+msgid "New customer"
+msgstr "Nieuwe klant"
+
+#: templates/register-customer.html:9
+msgid "Register as customer"
+msgstr "Aanmelden als klant"
+
+#: templates/register-customer.html:11
+msgid ""
+"Welcome to VOF Doesburg. Use the following form to provide us with your "
+"personal details."
+msgstr ""
+"Welkom bij VOF Doesburg. Gebruik onderstaand formulier om uw persoonlijke "
+"gegevens aan ons door te geven."
+
+#: templates/register-customer.html:25
+msgid "Contact details"
+msgstr "Contactgegevens"
+
+#: templates/register-customer.html:29
+msgid "Extra"
+msgstr "Extra"
+
+#: views.py:50 views.py:70
+msgid "Something went wrong. Please contact us."
+msgstr "Er is iets misgegaan. Neem contact met ons op."
+
+#~ msgid "Mark processed"
+#~ msgstr "Verwerk"
+
+#~ msgid "Create draft agreement"
+#~ msgstr "Maak concept-overeenkomst"
+
+#~ msgid "Rental customers"
+#~ msgstr "Huurders"
+
+#~ msgid "Request reduced liability"
+#~ msgstr "Schaderisicoafkoopregeling aanvragen"
+
+#~ msgid ""
+#~ "With reduced liability, your liability to material damages will be "
+#~ "restricted to €50 per incident (with exception of bow hair, strings and "
+#~ "bridges)."
+#~ msgstr ""
+#~ "Met onze schaderisicoafkoopregeling wordt uw aansprakelijkheid voor "
+#~ "materiële schade beperkt tot 50 euro per incident (met uitzondering van "
+#~ "beharing, besnaring en kammen)."
+
+#~ msgid "Contact person"
+#~ msgstr "Contactpersoon"
+
+#~ msgid ""
+#~ "If you received the instruments from one of our affiliate contact "
+#~ "persons, please enter their name here."
+#~ msgstr ""
+#~ "Als u de instrumenten heeft ontvangen van een van onze gelieerde "
+#~ "contactpersonen (bijvoorbeeld uw docent), vul dan alstublieft hun naam "
+#~ "hier in."
+
+#~ msgid "Instrument numbers"
+#~ msgstr "Instrumentnummers"
+
+#~ msgid ""
+#~ "Please enter the instrument numbers of the instruments you received from "
+#~ "us, separated with a comma."
+#~ msgstr ""
+#~ "Vul de instrumentnummers in van de instrumenten die u van ons heeft "
+#~ "ontvangen, gescheiden door een komma."
+
+#~ msgid "created at"
+#~ msgstr "aangemaakt op"
+
+#~ msgid "contact"
+#~ msgstr "contact"
+
+#~ msgid "Wants reduced liability"
+#~ msgstr "Wil verminderde aansprakelijkheid"
+
+#~ msgid "affiliate name"
+#~ msgstr "naam gelieerde"
+
+#~ msgid "instrument numbers"
+#~ msgstr "instrumentnummers"
+
+#~ msgid "rental price"
+#~ msgstr "huurprijs"
+
+#~ msgid "notes"
+#~ msgstr "opmerkingen"
+
+#~ msgid "assets"
+#~ msgstr "eigendommen"
+
+#~ msgid "agreement"
+#~ msgstr "overeenkomst"
+
+#~ msgid "Processed"
+#~ msgstr "Verwerkt"
+
+#~ msgid "processed at"
+#~ msgstr "verwerkt op"
+
+#~ msgid "registered rental customer"
+#~ msgstr "aangemelde huurder"
+
+#~ msgid "registered rental customers"
+#~ msgstr "aangemelde huurders"
+
+#~ msgid ""
+#~ "If you have indicated that you want to use a SEPA mandate, you will "
+#~ "receive a request to confirm this mandate via email in the next few "
+#~ "minutes. Please do this within 30 minutes."
+#~ msgstr ""
+#~ "Als u heeft aangegeven gebruik te willen maken van automatische incasso, "
+#~ "ontvangt u binnen enkele minuten per e-mail een verzoek om deze "
+#~ "machtiging te bevestigen. Doe dit gelieve binnen 30 minuten."
+
+#~ msgid "Rental details"
+#~ msgstr "Huurgegevens"
+
+#~ msgid ""
+#~ "With direct debit, all invoices will automatically be collected from your "
+#~ "bank account."
+#~ msgstr ""
+#~ "Met automatische incasso worden alle facturen automatisch van uw "
+#~ "bankrekening afgeschreven."

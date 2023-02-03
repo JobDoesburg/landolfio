@@ -212,7 +212,6 @@ class RecurringSalesDocumentLineInline(DocumentLineInline):
 class ListingPriceSliderFilter(SliderNumericFilter):
     MAX_DECIMALS = 0
     MIN_VALUE = 0
-    MAX_VALUE = Asset.objects.aggregate(Max("listing_price"))["listing_price__max"]
     STEP = 100
 
 
@@ -262,22 +261,22 @@ class AssetAdmin(
 
     search_fields = [
         "id",
-        "remarks__remark",
+        # "remarks__remark",
         "category__name",
         "size__name",
-        "location__name",
-        "location__location_group__name",
+        # "location__name",
+        # "location__location_group__name",
         "collection__name",
-        "journal_document_lines__description",
-        "journal_document_lines__contact__first_name",
-        "estimate_document_lines__description",
-        "estimate_document_lines__document__contact__first_name",
-        "estimate_document_lines__document__contact__last_name",
-        "estimate_document_lines__document__contact__company_name",
-        "recurring_sales_invoice_document_lines__description",
-        "recurring_sales_invoice_document_lines__document__contact__first_name",
-        "recurring_sales_invoice_document_lines__document__contact__last_name",
-        "recurring_sales_invoice_document_lines__document__contact__company_name",
+        # "journal_document_lines__description",
+        # "journal_document_lines__contact__first_name",
+        # "estimate_document_lines__description",
+        # "estimate_document_lines__document__contact__first_name",
+        # "estimate_document_lines__document__contact__last_name",
+        # "estimate_document_lines__document__contact__company_name",
+        # "recurring_sales_invoice_document_lines__description",
+        # "recurring_sales_invoice_document_lines__document__contact__first_name",
+        # "recurring_sales_invoice_document_lines__document__contact__last_name",
+        # "recurring_sales_invoice_document_lines__document__contact__company_name",
     ]
 
     fieldsets = [

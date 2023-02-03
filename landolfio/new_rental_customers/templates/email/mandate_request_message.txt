@@ -1,0 +1,7 @@
+{% load i18n %}{% blocktrans %}Dear {{ customer }},
+
+You have indicated you want to pay your invoices using a direct debit mandate. This means that we will automatically collect the due amount from your bank account.
+
+In order to set up this direct debit mandate, please proceed by clicking the button below. You will pay a one-time amount of 15 cents to set up the mandate. This is used to confirm your bank account.
+
+You can cancel this mandate at any time by contacting us.{% endblocktrans %}

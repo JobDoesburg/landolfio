@@ -188,9 +188,13 @@ class HttpsAdministration(Administration):
         return self._process_response(response)
 
 
+class MoneybirdNotConfiguredError(RuntimeError):
+    pass
+
+
 def get_moneybird_administration():
     if settings.MONEYBIRD_ADMINISTRATION_ID and settings.MONEYBIRD_API_KEY:
         return HttpsAdministration(
             settings.MONEYBIRD_API_KEY, settings.MONEYBIRD_ADMINISTRATION_ID
         )
-    return None
+    raise MoneybirdNotConfiguredError()

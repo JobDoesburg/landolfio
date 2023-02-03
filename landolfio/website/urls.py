@@ -1,6 +1,4 @@
 from django.conf import settings
-from django.conf.urls.i18n import i18n_patterns
-from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include
 from django.urls import path
@@ -21,7 +19,8 @@ urlpatterns = [
     path("", views.index, name="index"),
     path("admin/", RedirectView.as_view(url="/admin/"), name="admin"),
 ]
-urlpatterns += (path("customer/", include("rental_customers.urls")),)
+urlpatterns += (path("customer/", include("new_customers.urls")),)
+urlpatterns += (path("customer/rental/", include("new_rental_customers.urls")),)
 
 if settings.DEBUG:
     import debug_toolbar

@@ -1,8 +1,0 @@
-{% extends "email/email.txt" %}{% load i18n baseurl %}
-{% block content %}
-    {% blocktrans trimmed %}A new rental customer, {{ obj }}, just registered on your site.{% endblocktrans %}
-    {% if obj.notes %}{% blocktrans trimmed %}Notes:{% endblocktrans %}
-    {{ obj.notes }}{% endif %}
-    {% blocktrans trimmed %}You can view the customer's details here:{% endblocktrans %} {% baseurl %}{% url 'admin:rental_customers_registeredrentalcustomer_change' obj.id %}.
-    {% blocktrans trimmed %}There are now {{ count }} unprocessed rental customers.{% endblocktrans %}
-{% endblock %}

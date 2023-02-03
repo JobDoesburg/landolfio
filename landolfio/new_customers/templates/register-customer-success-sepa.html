@@ -1,0 +1,22 @@
+{% extends "page.html" %}
+{% load i18n bootstrap5 static %}
+{% translate "Submit" as submit %}
+
+{% block title %}
+    {% blocktrans %}Success - New customer{% endblocktrans %} - {{ block.super }}
+{% endblock %}
+
+{% block header %}
+    <h2>{% blocktrans %}Confirm your mandate{% endblocktrans %}</h2>
+    <p class="lead">
+        {% blocktrans trimmed %}
+            You have just received an email with a request to confirm your SEPA mandate via email. Please open this email and proceed with the instructions.
+            If you do not confirm your mandate, we will not be able to process withdrawals from your account.
+        {% endblocktrans %}
+    </p>
+    <p class="lead">
+        {% blocktrans trimmed %}
+            If you have any questions, please contact us at <a href="mailto:contact@vofdoesburg.nl">contact@vofdoesburg.nl</a>.
+        {% endblocktrans %}
+    </p>
+{% endblock %}
