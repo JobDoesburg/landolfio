@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-09 10:00+0100\n"
+"POT-Creation-Date: 2023-02-09 11:35+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,47 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: ninox_import/apps.py:9
 msgid "Ninox import"
-msgstr ""
-
-#: scantags/apps.py:8
-msgid "Scan tags"
-msgstr ""
-
-#: scantags/models.py:19
-msgid "Length must be {} characters."
-msgstr ""
-
-#: scantags/models.py:23
-#, python-format
-msgid "%(value)s is not a valid mod 37, 36 checksum."
-msgstr ""
-
-#: scantags/models.py:50
-msgid "ID"
-msgstr ""
-
-#: scantags/models.py:59
-msgid "Asset"
-msgstr ""
-
-#: scantags/models.py:70
-msgid "scan tag"
-msgstr ""
-
-#: scantags/models.py:71
-msgid "scan tags"
-msgstr ""
-
-#: scantags/views.py:20
-msgid "Tag {} is not linked to an asset."
-msgstr ""
-
-#: scantags/views.py:32
-msgid "Scanned a tag with an invalid id: {}"
-msgstr ""
-
-#: scantags/views.py:36
-msgid "New tag generated: {}"
 msgstr ""

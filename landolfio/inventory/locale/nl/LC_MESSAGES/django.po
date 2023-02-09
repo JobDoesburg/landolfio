@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-09 11:26+0100\n"
-"PO-Revision-Date: 2023-02-09 11:27+0100\n"
+"POT-Creation-Date: 2023-02-09 11:32+0100\n"
+"PO-Revision-Date: 2023-02-09 11:34+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -172,10 +172,8 @@ msgid "Active"
 msgstr "Actief"
 
 #: inventory/apps.py:8
-#: inventory/templates/admin/inventory/overview/index.html:19
-#: inventory/templates/admin/inventory/overview/index.html:20
-msgid "Inventory"
-msgstr "Inventaris"
+msgid "🗂 Inventory"
+msgstr "🗂 Inventaris"
 
 #: inventory/models/asset.py:50 inventory/models/asset.py:65
 msgid "unknown"
@@ -450,6 +448,11 @@ msgstr "Filter navigatie"
 #: inventory/templates/admin/inventory/view_asset/view_asset.html:36
 msgid "Add asset"
 msgstr "Eigendom toevoegen"
+
+#: inventory/templates/admin/inventory/overview/index.html:19
+#: inventory/templates/admin/inventory/overview/index.html:20
+msgid "Inventory"
+msgstr "Inventaris"
 
 #: inventory/templates/admin/inventory/overview/index.html:25
 msgid "Recently created assets"

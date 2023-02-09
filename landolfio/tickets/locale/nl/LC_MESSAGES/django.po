@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-09 10:00+0100\n"
-"PO-Revision-Date: 2023-02-09 10:05+0100\n"
+"POT-Creation-Date: 2023-02-09 11:32+0100\n"
+"PO-Revision-Date: 2023-02-09 11:35+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -72,8 +72,8 @@ msgid "Not due"
 msgstr "Niet uitgesteld"
 
 #: tickets/apps.py:8
-msgid "Tickets"
-msgstr "Tickets"
+msgid "📝 Tickets"
+msgstr "📝 Tickets"
 
 #: tickets/models.py:16
 msgid "name"

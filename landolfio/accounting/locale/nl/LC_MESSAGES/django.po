@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-16 14:46+0200\n"
-"PO-Revision-Date: 2022-08-05 13:25+0200\n"
+"POT-Creation-Date: 2023-02-09 11:32+0100\n"
+"PO-Revision-Date: 2023-02-09 11:34+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -16,29 +16,27 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: accounting/admin/sales_invoice.py:99
 msgid "Send invoice"
 msgstr "Verstuur factuur"
 
 #: accounting/admin/sales_invoice.py:114
-#, fuzzy
-#| msgid "Send invoice"
 msgid "Resend invoice"
-msgstr "Verstuur factuur"
+msgstr "Verstuur factuur opnieuw"
 
 #: accounting/admin/sales_invoice.py:128
 msgid "View on moneybird"
-msgstr ""
+msgstr "Bekijk op Moneybird"
 
 #: accounting/api/views.py:12
 msgid "The database was successfully updated."
 msgstr "De database is succesvol geüpdate."
 
 #: accounting/apps.py:8
-msgid "Accounting"
-msgstr "Boekhouding"
+msgid "⚖️ Accounting"
+msgstr "⚖️ Boekhouding"
 
 #: accounting/models/contact.py:20
 msgid "Recurring"
@@ -545,13 +543,11 @@ msgstr "Boekrekening wordt gebruikt voor de inkoop van eigendommen."
 
 #: accounting/models/ledger_account.py:64
 msgid "is assets inventory"
-msgstr ""
+msgstr "is voorraad inventaris"
 
 #: accounting/models/ledger_account.py:65
-#, fuzzy
-#| msgid "Ledger account is used for selling assets."
 msgid "Ledger account is used as inventory ledger account."
-msgstr "Boekrekening wordt gebruikt voor de verkoop van eigendommen."
+msgstr "Boekrekening wordt gebruikt als voorraad rekening."
 
 #: accounting/models/ledger_account.py:70
 msgid "ledger accounts"
@@ -708,7 +704,11 @@ msgid_plural ""
 "{_('Every')} {self.frequency} {self.frequency_type} {_('since')} {self."
 "start_date} {_('to')} {self.contact}"
 msgstr[0] ""
+"{_(‘Iedere’)} {self.frequency_type} {_(‘sinds’)} {self.start_date} "
+"{_(‘tot’)} {self.contact}"
 msgstr[1] ""
+"{_(‘Iedere’)} {self.frequency} {self.frequency_type} {_(‘sinds’)} {self."
+"start_date} {_(‘tot’)} {self.contact}"
 
 #: accounting/models/recurring_sales_invoice.py:99
 #: accounting/models/subscription.py:52
