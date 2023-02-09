@@ -1,0 +1,54 @@
+{% extends 'admin/base_site.html' %}
+{% load static i18n %}
+
+{% block header %}
+    <div id="header">
+        <div id="branding">
+        {% block branding %}
+            <h1 id="site-name">
+                <a href="{% url 'admin:inventory_asset_overview' %}"><img src="{% static 'img/logo.svg' %}" height="30px" alt="Landolfio logo" style="margin-right: 10px"/>Landolfio</a>
+            </h1>
+        {% endblock %}
+        </div>
+        {% block quicklinks %}
+            <div>
+                <h4 style="text-transform: uppercase; text-align: center">
+                    <a href="{% url 'admin:inventory_asset_overview' %}" style="padding: 0 5px">🗂 {% trans 'Inventory' %}</a> /
+                    <a href="{% url 'admin:tickets_ticket_changelist' %}" style="padding: 0 5px"> 📝 {% trans 'Tickets' %}</a> /
+                    <a href="https://moneybird.com/145578537206679043" target="_blank" style="padding: 0 5px"> 💸 Moneybird</a> /
+                    <a href="{% url 'admin:index' %}" style="padding: 0 5px">⚙️ {% trans 'Settings' %}</a>
+                </h4>
+            </div>
+        {% endblock %}
+        {% block usertools %}
+        {% if has_permission %}
+        <div id="user-tools">
+            {% block welcome-msg %}
+                {% translate 'Welcome,' %}
+                <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+            {% endblock %}
+            {% block userlinks %}
+{#                {% if has_permission %}#}
+{#                    <a href="#" onclick="sync_database_button_click(this)">&#128257; {% trans 'Synchronize with MoneyBird' %}</a> /#}
+{#                {% endif %}#}
+                {% if user.has_usable_password %}
+                    <a href="{% url 'admin:password_change' %}">{% translate 'Change password' %}</a> /
+                {% endif %}
+                <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">{% translate 'Log out' %}</button>
+                </form>
+            {% endblock %}
+        </div>
+        {% endif %}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+
+{% block extrastyle %}
+    {{ block.super }}
+    <script src="{% static "js/sync_database_button.js" %}" defer></script>
+{% endblock %}
+
+{% block title %}Landolfio{% endblock %}

@@ -7,7 +7,7 @@
         </caption>
         {% for collection in collections %}
             <tr class="">
-                <th scope="row"><a href="{% url "assets_admin:inventory_asset_changelist" %}?collection__id__exact={{ collection.id }}">{{ collection.name }}</a></th>
+                <th scope="row"><a href="{% url "admin:inventory_asset_overview_changelist" %}?collection__id__exact={{ collection.id }}">{{ collection.name }}</a></th>
                 <td style="float: right">{{ collection.asset_set.all.count }}</td>
             </tr>
         {% endfor %}

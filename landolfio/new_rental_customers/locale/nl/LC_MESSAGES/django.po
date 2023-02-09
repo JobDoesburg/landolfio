@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-03 17:04+0100\n"
+"POT-Creation-Date: 2023-02-09 10:00+0100\n"
 "PO-Revision-Date: 2023-02-03 17:10+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -18,19 +18,19 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: admin.py:26
+#: new_rental_customers/admin.py:26
 msgid "Create draft agreement"
 msgstr "Maak concept-overeenkomst"
 
-#: apps.py:8
+#: new_rental_customers/apps.py:8
 msgid "New rental customers"
 msgstr "Nieuwe huurders"
 
-#: forms.py:24
+#: new_rental_customers/forms.py:24
 msgid "Request reduced liability"
 msgstr "Schaderisicoafkoopregeling aanvragen"
 
-#: forms.py:26
+#: new_rental_customers/forms.py:26
 msgid ""
 "With reduced liability, your liability to material damages will be "
 "restricted to €50 per incident (with exception of bow hair, strings and "
@@ -40,11 +40,11 @@ msgstr ""
 "materiële schade beperkt tot 50 euro per incident (met uitzondering van "
 "beharing, besnaring en kammen)."
 
-#: forms.py:30
+#: new_rental_customers/forms.py:30
 msgid "Contact person"
 msgstr "Contactpersoon"
 
-#: forms.py:32
+#: new_rental_customers/forms.py:32
 msgid ""
 "If you received the instruments from one of our affiliate contact persons, "
 "please enter their name here."
@@ -53,11 +53,11 @@ msgstr ""
 "contactpersonen (bijvoorbeeld uw docent), vul dan alstublieft hun naam hier "
 "in."
 
-#: forms.py:34
+#: new_rental_customers/forms.py:34
 msgid "Instrument numbers"
 msgstr "Instrumentnummers"
 
-#: forms.py:36
+#: new_rental_customers/forms.py:36
 msgid ""
 "Please enter the instrument numbers of the instruments you received from us, "
 "separated with a comma."
@@ -65,35 +65,35 @@ msgstr ""
 "Vul de instrumentnummers in van de instrumenten die u van ons heeft "
 "ontvangen, gescheiden door een komma."
 
-#: models.py:14
+#: new_rental_customers/models.py:14
 msgid "wants reduced liability"
 msgstr "wil verminderde aansprakelijkheid"
 
-#: models.py:17
+#: new_rental_customers/models.py:17
 msgid "affiliate name"
 msgstr "naam gelieerde"
 
-#: models.py:20
+#: new_rental_customers/models.py:20
 msgid "instrument numbers"
 msgstr "instrumentnummers"
 
-#: models.py:27
+#: new_rental_customers/models.py:27
 msgid "rental price"
 msgstr "huurprijs"
 
-#: models.py:35
+#: new_rental_customers/models.py:35
 msgid "New rental customer"
 msgstr "Nieuwe huurder"
 
-#: models.py:41
+#: new_rental_customers/models.py:41
 msgid "new rental customer"
 msgstr "nieuwe huurder"
 
-#: models.py:42
+#: new_rental_customers/models.py:42
 msgid "new rental customers"
 msgstr "nieuwe huurders"
 
-#: templates/email/mandate_request_message.txt:1
+#: new_rental_customers/templates/email/mandate_request_message.txt:1
 #, python-format
 msgid ""
 "Dear %(customer)s,\n"
@@ -121,33 +121,37 @@ msgstr ""
 "U kunt deze machtiging op elk moment opzeggen door contact met ons op te "
 "nemen."
 
-#: templates/email/new-customer.html:5 templates/email/new-customer.txt:3
+#: new_rental_customers/templates/email/new-customer.html:5
+#: new_rental_customers/templates/email/new-customer.txt:3
 #, python-format
 msgid "A new rental customer, %(obj)s, just registered on your site."
 msgstr "Een nieuwe huurder, %(obj)s, heeft zich zojuist aangemeld."
 
-#: templates/email/new-customer.html:9 templates/email/new-customer.txt:4
+#: new_rental_customers/templates/email/new-customer.html:9
+#: new_rental_customers/templates/email/new-customer.txt:4
 msgid "Notes:"
 msgstr "Opmerkingen:"
 
-#: templates/email/new-customer.html:15 templates/email/new-customer.txt:6
+#: new_rental_customers/templates/email/new-customer.html:15
+#: new_rental_customers/templates/email/new-customer.txt:6
 msgid "You can view the customer's details here:"
 msgstr "U kunt de gegevens van de klant hier bekijken:"
 
-#: templates/email/new-customer.html:18 templates/email/new-customer.txt:7
+#: new_rental_customers/templates/email/new-customer.html:18
+#: new_rental_customers/templates/email/new-customer.txt:7
 #, python-format
 msgid "There are now %(count)s unprocessed rental customers."
 msgstr "Er zijn nu %(count)s onverwerkte aangemelde huurders."
 
-#: templates/register-rental-customer.html:5
+#: new_rental_customers/templates/register-rental-customer.html:5
 msgid "New customer"
 msgstr "Nieuwe klant"
 
-#: templates/register-rental-customer.html:9
+#: new_rental_customers/templates/register-rental-customer.html:9
 msgid "Register as rental customer"
 msgstr "Aanmelden als huurder"
 
-#: templates/register-rental-customer.html:11
+#: new_rental_customers/templates/register-rental-customer.html:11
 msgid ""
 "Welcome to VOF Doesburg. Use the following form to provide us with your "
 "personal details, so we can send you a rental agreement as easy as possible."
@@ -156,7 +160,7 @@ msgstr ""
 "gegevens aan ons door te geven, zodat wij u zo gemakkelijk mogelijk een "
 "huurovereenkomst kunnen toesturen."
 
-#: templates/register-rental-customer.html:17
+#: new_rental_customers/templates/register-rental-customer.html:17
 msgid ""
 "If you have any questions, please contact us at <a href=\"mailto:"
 "contact@vofdoesburg.nl\">contact@vofdoesburg.nl</a>."
@@ -164,15 +168,15 @@ msgstr ""
 "Neem bij vragen contact met ons op via <a href=\"mailto:contact@vofdoesburg."
 "nl\">contact@vofdoesburg.nl</a>."
 
-#: templates/register-rental-customer.html:26
+#: new_rental_customers/templates/register-rental-customer.html:26
 msgid "Contact details"
 msgstr "Contactgegevens"
 
-#: templates/register-rental-customer.html:30
+#: new_rental_customers/templates/register-rental-customer.html:30
 msgid "Rental details"
 msgstr "Huurgegevens"
 
-#: templates/register-rental-customer.html:34
+#: new_rental_customers/templates/register-rental-customer.html:34
 msgid "Submit"
 msgstr "Verstuur"
 

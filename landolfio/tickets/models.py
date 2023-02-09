@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from model_utils.managers import InheritanceManager
@@ -96,12 +97,15 @@ class Ticket(models.Model):
             # If the ticket is closed and the date_closed is not set, set it to now
             self.date_closed = timezone.now()
 
+        super().save(*args, **kwargs)
+
         if self.assets.count() == 0 and not self.closed:
             # If the ticket has no assets, try to find them from the description, but do not overwrite existing assets
+            # Note that in the admin, the related assets field saves after the ticket is saved (in save_related), so
+            # this will be overwritten by the admin if the user adds assets in the text but keeps the related assets
+            # field empty
             detected_assets = find_existing_asset_from_description(self.description)
             self.assets.set(detected_assets, clear=True)
-
-        super().save(*args, **kwargs)
 
     def close(self):
         self.closed = True
@@ -111,6 +115,9 @@ class Ticket(models.Model):
         self.closed = False
         self.date_closed = None
         self.save()
+
+    def get_absolute_url(self):
+        return reverse("admin:tickets_ticket_change", args=(self.id,))
 
     class Meta:
         verbose_name = _("ticket")

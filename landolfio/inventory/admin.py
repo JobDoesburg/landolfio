@@ -1,212 +1,47 @@
 from admin_numeric_filter.admin import SliderNumericFilter, NumericFilterModelAdmin
-from django.urls import reverse
+from django.contrib.admin import register
+from django.db import models
+from django.forms import CheckboxSelectMultiple
+from django.urls import reverse, path
 from django.utils.html import format_html
 
 from autocompletefilter.admin import AutocompleteFilterMixin
 from autocompletefilter.filters import AutocompleteListFilter
 from django.contrib import admin
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
-from django.db.models.aggregates import Max
 from queryable_properties.admin import (
     QueryablePropertiesAdminMixin,
+    QueryablePropertiesAdmin,
 )
 from django_admin_multi_select_filter.filters import MultiSelectFieldListFilter
 
-from accounting.models.ledger_account import LedgerAccountType
+from accounting.models import (
+    EstimateDocumentLine,
+    JournalDocumentLine,
+    RecurringSalesInvoiceDocumentLine,
+)
+from inventory.admin_inlines import (
+    RemarkInline,
+    AttachmentInlineAdmin,
+    JournalDocumentLineInline,
+    SalesAndPurchaseJournalDocumentLineInline,
+    NonSalesRevenueDocumentLineInline,
+    NonPurchaseExpenseDocumentLineInline,
+    EstimateDocumentLineInline,
+    RecurringSalesDocumentLineInline,
+    AssetOnRecurringSalesInvoiceDocumentLineInline,
+    AssetOnEstimateDocumentLineInline,
+    AssetOnJournalDocumentLineInline,
+)
+from inventory.admin_views import ViewAssetView, AssetOverviewView
 from inventory.models.asset import (
     Asset,
-    AssetOnJournalDocumentLine,
-    AssetOnEstimateDocumentLine,
-    AssetOnRecurringSalesInvoiceDocumentLine,
 )
 from inventory.models.attachment import Attachment
-from inventory.models.remarks import Remark
-
-
-def is_an_image_path(path: str) -> bool:
-    """Return true if the path points to an image."""
-    extension = path.split(".")[-1]
-    return extension in ("jpg", "jpeg", "png")
-
-
-class AttachmentInlineAdmin(admin.StackedInline):
-    """Attachment inline admin."""
-
-    def show_image(self, obj):
-        # pylint: disable=no-self-use
-        """Show a file as an image if it is one."""
-        if is_an_image_path(obj.attachment.name):
-            return mark_safe(f'<img src="{obj.attachment.url}" height="600px"/>')
-        return _("Not an image")
-
-    show_image.short_description = _("Image")
-
-    model = Attachment
-    readonly_fields = ["show_image", "upload_date"]
-    extra = 0
-
-
-class RemarkInline(admin.StackedInline):
-    model = Remark
-    fields = ["date", "remark"]
-    readonly_fields = ["date"]
-    extra = 1
-
-    def has_change_permission(self, request, obj=None):
-        return False
-
-
-class DocumentLineInline(QueryablePropertiesAdminMixin, admin.TabularInline):
-    extra = 0
-    can_delete = False
-
-    @admin.display(description=_("Workflow"))
-    def workflow(self, obj):
-        return obj.document_line.document.workflow
-
-    @admin.display(description=_("View on Moneybird"))
-    def view_on_moneybird(self, obj):
-        url = obj.document_line.document.moneybird_url
-
-        if url is None:
-            return None
-        return mark_safe(
-            f'<a class="button small" href="{url}" target="_blank" style="white-space: nowrap;">{_("View on Moneybird")}</a>'
-        )
-
-    def has_add_permission(self, request, obj):
-        return False
-
-
-class JournalDocumentLineInline(DocumentLineInline):
-    model = AssetOnJournalDocumentLine
-
-    fields = [
-        "date",
-        "description",
-        "document",
-        "workflow",
-        "contact",
-        "ledger_account",
-        "value",
-        "view_on_moneybird",
-    ]
-
-    readonly_fields = (
-        "date",
-        "description",
-        "document",
-        "workflow",
-        "contact",
-        "ledger_account",
-        "value",
-        "view_on_moneybird",
-    )
-
-
-class SalesAndPurchaseJournalDocumentLineInline(JournalDocumentLineInline):
-    def get_queryset(self, request):
-        return (
-            super()
-            .get_queryset(request)
-            .exclude(
-                document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
-                document_line__ledger_account__is_sales=False,
-            )
-            .exclude(
-                document_line__ledger_account__account_type=LedgerAccountType.EXPENSES,
-                document_line__ledger_account__is_purchase=False,
-            )
-        )
-
-
-class NonSalesRevenueDocumentLineInline(JournalDocumentLineInline):
-    def get_queryset(self, request):
-        return (
-            super()
-            .get_queryset(request)
-            .filter(
-                document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
-                document_line__ledger_account__is_sales=False,
-            )
-        )
-
-
-class NonPurchaseExpenseDocumentLineInline(JournalDocumentLineInline):
-    def get_queryset(self, request):
-        return (
-            super()
-            .get_queryset(request)
-            .filter(
-                document_line__ledger_account__account_type=LedgerAccountType.EXPENSES,
-                document_line__ledger_account__is_purchase=False,
-            )
-        )
-
-
-class EstimateDocumentLineInline(DocumentLineInline):
-    model = AssetOnEstimateDocumentLine
-
-    fields = [
-        "date",
-        "description",
-        "document",
-        "document_state",
-        "workflow",
-        "contact",
-        "ledger_account",
-        "value",
-        "view_on_moneybird",
-    ]
-
-    readonly_fields = (
-        "date",
-        "description",
-        "document",
-        "document_state",
-        "workflow",
-        "contact",
-        "ledger_account",
-        "value",
-        "view_on_moneybird",
-    )
-
-    @admin.display(description=_("Document state"))
-    def document_state(self, obj):
-        return obj.document_line.document.state
-
-
-class RecurringSalesDocumentLineInline(DocumentLineInline):
-    model = AssetOnRecurringSalesInvoiceDocumentLine
-
-    fields = [
-        "date",
-        "description",
-        "document",
-        "active",
-        "workflow",
-        "contact",
-        "ledger_account",
-        "value",
-        "view_on_moneybird",
-    ]
-
-    readonly_fields = (
-        "date",
-        "description",
-        "document",
-        "active",
-        "workflow",
-        "contact",
-        "ledger_account",
-        "value",
-        "view_on_moneybird",
-    )
-
-    @admin.display(description=_("Active"), boolean=True)
-    def active(self, obj):
-        return obj.document_line.document.active
+from inventory.models.category import AssetCategory, AssetSize
+from inventory.models.collection import Collection
+from inventory.models.location import AssetLocation, AssetLocationGroup
+from moneybird.admin import MoneybirdResourceModelAdmin
 
 
 class ListingPriceSliderFilter(SliderNumericFilter):
@@ -215,12 +50,12 @@ class ListingPriceSliderFilter(SliderNumericFilter):
     STEP = 100
 
 
-@admin.register(Asset)
+@register(Asset)
 class AssetAdmin(
     AutocompleteFilterMixin, QueryablePropertiesAdminMixin, NumericFilterModelAdmin
 ):
     list_display = (
-        "id",
+        "asset_view_link",
         "category",
         "size",
         "location",
@@ -241,13 +76,13 @@ class AssetAdmin(
     )
 
     list_filter = (
-        ("collection", AutocompleteListFilter),
+        "collection",
         ("local_status", MultiSelectFieldListFilter),
-        ("category", AutocompleteListFilter),
-        ("size", AutocompleteListFilter),
-        ("location", AutocompleteListFilter),
-        ("location__location_group", AutocompleteListFilter),
-        ("listing_price", ListingPriceSliderFilter),
+        "category",
+        "size",
+        "location",
+        "location__location_group",
+        "listing_price",
         # "accounting_status",
         "is_sold",
         "is_margin",
@@ -507,7 +342,218 @@ class AssetAdmin(
     )
     def asset_view_link(self, obj):
         return format_html(
-            '<a href="{link}">{title}</a>',
-            link=reverse("assets_admin:view_asset", kwargs={"id": obj.id}),
-            title=obj.id,
+            f'<a href="{reverse("admin:inventory_asset_view", kwargs={"id": obj.id})}">{obj.id}</a>',
         )
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path(
+                "<path:id>/view/",
+                self.admin_site.admin_view(
+                    ViewAssetView.as_view(
+                        extra_context={
+                            "site_title": self.admin_site.site_title,
+                            "site_header": self.admin_site.site_header,
+                            "site_url": self.admin_site.site_url,
+                            "has_permission": True,
+                            "is_popup": False,
+                            "show_assets_sidebar": True,
+                            "categories": AssetCategory.objects.all().order_by("order"),
+                            "locations": AssetLocation.objects.all().order_by("order"),
+                            "collections": Collection.objects.all().order_by("order"),
+                            "recent_assets": Asset.objects.all().order_by(
+                                "-created_at"
+                            )[:10],
+                        },
+                    )
+                ),
+                name="inventory_asset_view",
+            ),
+            path(
+                "overview/",
+                self.admin_site.admin_view(
+                    AssetOverviewView.as_view(
+                        extra_context={
+                            "site_title": self.admin_site.site_title,
+                            "site_header": self.admin_site.site_header,
+                            "site_url": self.admin_site.site_url,
+                            "has_permission": True,
+                            "is_popup": False,
+                            "show_assets_sidebar": True,
+                            "categories": AssetCategory.objects.all().order_by("order"),
+                            "locations": AssetLocation.objects.all().order_by("order"),
+                            "collections": Collection.objects.all().order_by("order"),
+                            "recent_assets": Asset.objects.all().order_by(
+                                "-created_at"
+                            )[:10],
+                        },
+                    )
+                ),
+                name="inventory_asset_overview",
+            ),
+            path(
+                "overview/changelist/",
+                self.overview_changelist_view,
+                name="inventory_asset_overview_changelist",
+            ),
+        ]
+        return my_urls + urls
+
+    def overview_changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context["show_assets_sidebar"] = True
+        return self.changelist_view(request, extra_context=extra_context)
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context["categories"] = AssetCategory.objects.all().order_by("order")
+        extra_context["locations"] = AssetLocation.objects.all().order_by("order")
+        extra_context["collections"] = Collection.objects.all().order_by("order")
+        extra_context["recent_assets"] = Asset.objects.all().order_by("-created_at")[
+            :10
+        ]
+        return super().changelist_view(request, extra_context=extra_context)
+
+
+@admin.register(Collection)
+class CollectionAdmin(admin.ModelAdmin):
+    search_fields = ["name"]
+    ordering = ["id"]
+
+
+@admin.register(Attachment)
+class AttachmentAdmin(admin.ModelAdmin):
+    list_display = (
+        "asset",
+        "attachment",
+        "upload_date",
+    )
+    date_hierarchy = "upload_date"
+    readonly_fields = ["upload_date"]
+
+
+@admin.register(AssetCategory)
+class AssetCategoryAdmin(admin.ModelAdmin):
+    search_fields = ["name"]
+
+
+@admin.register(AssetSize)
+class AssetSizeAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.ManyToManyField: {"widget": CheckboxSelectMultiple},
+    }
+    search_fields = ["name"]
+
+
+@admin.register(AssetLocation)
+class AssetLocationAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.ManyToManyField: {"widget": CheckboxSelectMultiple},
+    }
+
+    search_fields = ["name"]
+
+
+@admin.register(AssetLocationGroup)
+class AssetLocationGroupAdmin(admin.ModelAdmin):
+    search_fields = ["name"]
+
+
+@admin.register(JournalDocumentLine)
+class JournalDocumentLineAdmin(
+    AutocompleteFilterMixin, QueryablePropertiesAdmin, MoneybirdResourceModelAdmin
+):
+    list_display = (
+        "description",
+        "document",
+        "date",
+        "assets",
+        "total_amount",
+        "ledger_account",
+    )
+    list_display_links = ["description", "document", "date"]
+    search_fields = ["description", "assets__id"]
+    readonly_fields = ["assets"]
+    inlines = [AssetOnJournalDocumentLineInline]
+    list_filter = [
+        ("assets", admin.EmptyFieldListFilter),
+        ("assets__asset", AutocompleteListFilter),
+        ("assets__asset__category", AutocompleteListFilter),
+        ("ledger_account", AutocompleteListFilter),
+        "ledger_account__account_type",
+    ]
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_subclasses()
+
+    @admin.display(description=_("assets"))
+    def assets(self, obj):
+        return ", ".join(obj.assets.values_list("asset", flat=True))
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(EstimateDocumentLine)
+class EstimateDocumentLineAdmin(
+    AutocompleteFilterMixin, QueryablePropertiesAdmin, MoneybirdResourceModelAdmin
+):
+    list_display = (
+        "description",
+        "document",
+        "date",
+        "assets",
+        "total_amount",
+        "ledger_account",
+    )
+    list_display_links = ["description", "document", "date"]
+    search_fields = ["description", "assets__id"]
+    readonly_fields = ["assets"]
+    inlines = [AssetOnEstimateDocumentLineInline]
+    list_filter = [
+        ("assets", admin.EmptyFieldListFilter),
+        ("assets__asset", AutocompleteListFilter),
+        ("assets__asset__category", AutocompleteListFilter),
+        ("document__workflow", AutocompleteListFilter),
+    ]
+
+    @admin.display(description=_("assets"))
+    def assets(self, obj):
+        return ", ".join(obj.assets.values_list("asset", flat=True))
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(RecurringSalesInvoiceDocumentLine)
+class RecurringSalesInvoiceDocumentLineAdmin(
+    AutocompleteFilterMixin, QueryablePropertiesAdmin, MoneybirdResourceModelAdmin
+):
+    list_display = (
+        "description",
+        "document",
+        "date",
+        "assets",
+        "total_amount",
+        "ledger_account",
+    )
+    list_display_links = ["description", "document", "date"]
+    search_fields = ["description", "assets__id"]
+    readonly_fields = ["assets"]
+    inlines = [AssetOnRecurringSalesInvoiceDocumentLineInline]
+    list_filter = [
+        ("assets", admin.EmptyFieldListFilter),
+        ("assets__asset", AutocompleteListFilter),
+        ("assets__asset__category", AutocompleteListFilter),
+        ("document__workflow", AutocompleteListFilter),
+        ("ledger_account", AutocompleteListFilter),
+        "ledger_account__account_type",
+    ]
+
+    @admin.display(description=_("assets"))
+    def assets(self, obj):
+        return ", ".join(obj.assets.values_list("asset", flat=True))
+
+    def has_add_permission(self, request, obj=None):
+        return False

@@ -1,0 +1,30 @@
+{% load i18n %}
+<style>
+    #content-related .module table {
+        display: block;
+    }
+</style>
+
+<div class="module">
+    <h2 style="margin-bottom: 0">{% translate "Tickets" %}</h2>
+    <table>
+        <thead>
+        <tr>
+            <th style="white-space: break-spaces">{% translate "Ticket id" %}</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for ticket in asset.tickets.all %}
+            <tr>
+                <td style="white-space: normal"><a href="{{ ticket.get_absolute_url }}">{{ ticket }}</a></td>
+                <td>{% if ticket.closed %}{{ ticket.closed_at }}{% else %}{% translate "open" %}{% endif %}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="2">{% translate "No tickets" %}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>

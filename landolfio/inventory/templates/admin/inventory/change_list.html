@@ -1,10 +1,27 @@
 {% extends "admin/change_list.html" %}
+{% load i18n admin_urls static admin_list %}
 
 {% block extrahead %}
     {{ block.super }}
+    <meta name="format-detection" content="telephone=no"/>
     <style>
         #changelist-filter .admin-numeric-filter-wrapper {
             border-bottom: 0;
         }
     </style>
 {% endblock %}
+
+{% block nav-sidebar %}
+    {% if show_assets_sidebar %}
+    {% include 'admin/inventory/overview/includes/index-nav-sidebar.html' %}
+    {% else %}
+    {{ block.super }}
+    {% endif %}
+{% endblock %}
+
+
+{% if not is_popup %}
+    {% block breadcrumbs %}
+        {% include "admin/inventory/overview/includes/category_breadcrumbs.html" %}
+    {% endblock %}
+{% endif %}

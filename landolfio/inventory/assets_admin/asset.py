@@ -7,16 +7,15 @@ from django_admin_multi_select_filter.filters import MultiSelectFieldListFilter
 from inventory.models.asset import (
     Asset,
 )
-from inventory.admin.admin.asset import AssetAdmin as BaseAssetAdmin
-from inventory.admin.assets_admin.views import ViewAssetView
-from inventory.admin.assets_admin.site import assets_admin
-from inventory.admin.assets_admin.utils import get_extra_assets_context
-from inventory.admin.admin.asset import ListingPriceSliderFilter
+from inventory.admin_views import ViewAssetView
+from inventory.assets_admin.site import assets_admin
+from inventory.assets_admin.utils import get_extra_assets_context
+from inventory.admin import ListingPriceSliderFilter
 
 
 class AssetAdmin(BaseAssetAdmin):
-    change_list_template = "assets_admin/change_list.html"
-    change_form_template = "assets_admin/change_form.html"
+    change_list_template = "view_asset/change_list.html"
+    change_form_template = "view_asset/change_form.html"
 
     list_display = (
         "asset_view_link",

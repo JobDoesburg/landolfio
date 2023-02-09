@@ -1,7 +1,0 @@
-{% load static i18n %}
-
-<div class="breadcrumbs">
-    {% for location in locations %}
-        <a class="button" href="{% url 'assets_admin:inventory_asset_changelist' %}?location__id__exact={{ location.id }}" style="display: inline-block">{{ location.name }}</a>
-    {% endfor %}
-</div>

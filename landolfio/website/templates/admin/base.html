@@ -2,16 +2,6 @@
 {% load static i18n %}
 
 {% block extrahead %}
-    <script src="{% static "js/sync_database_button.js" %}" defer></script>
+    {{ block.super }}
     <meta name="format-detection" content="telephone=no"/>
 {% endblock %}
-
-{% block userlinks %}
-    {% if has_permission %}
-        <a href="#" onclick="sync_database_button_click(this)">&#128257; {% trans 'Synchronize with MoneyBird' %}</a> /
-    {% endif %}
-    <a href="{% url 'assets_admin:index' %}">{% trans 'Assets admin' %}</a> /
-    <a href="{% url 'admin:password_change' %}">{% trans 'Change password' %}</a> /
-    <a href="{% url 'admin:logout' %}">{% trans 'Log out' %} </a>
-{% endblock %}
-

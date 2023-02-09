@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-03 17:04+0100\n"
+"POT-Creation-Date: 2023-02-09 10:00+0100\n"
 "PO-Revision-Date: 2022-10-16 17:21+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -18,10 +18,6 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.1.1\n"
 
-#: website/admin.py:5 website/admin.py:6
-msgid "Landolfio"
-msgstr "Landolfio"
-
 #: website/settings/common.py:104
 msgid "Dutch"
 msgstr "Nederlands"
@@ -30,19 +26,27 @@ msgstr "Nederlands"
 msgid "English"
 msgstr "Engels"
 
-#: website/templates/admin/base.html:11
-msgid "Synchronize with MoneyBird"
-msgstr "Synchroniseren met MoneyBird"
+#: website/templates/admin/base_site.html:16
+msgid "Inventory"
+msgstr ""
 
-#: website/templates/admin/base.html:13 website/templates/index.html:23
-msgid "Assets admin"
-msgstr "Eigendommenbeheer"
+#: website/templates/admin/base_site.html:17
+msgid "Tickets"
+msgstr ""
 
-#: website/templates/admin/base.html:14 website/templates/index.html:17
+#: website/templates/admin/base_site.html:19
+msgid "Settings"
+msgstr ""
+
+#: website/templates/admin/base_site.html:27
+msgid "Welcome,"
+msgstr ""
+
+#: website/templates/admin/base_site.html:35
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
-#: website/templates/admin/base.html:15 website/templates/index.html:18
+#: website/templates/admin/base_site.html:39
 msgid "Log out"
 msgstr "Log uit"
 
@@ -50,13 +54,20 @@ msgstr "Log uit"
 msgid "This email was automatically sent by"
 msgstr "Deze e-mail werd automatisch verzonden door"
 
-#: website/templates/index.html:14
-msgid "Choose module"
-msgstr "Module kiezen"
+#~ msgid "Landolfio"
+#~ msgstr "Landolfio"
 
-#: website/templates/index.html:24
-msgid "Accounting"
-msgstr "Boekhouding"
+#~ msgid "Synchronize with MoneyBird"
+#~ msgstr "Synchroniseren met MoneyBird"
+
+#~ msgid "Assets admin"
+#~ msgstr "Eigendommenbeheer"
+
+#~ msgid "Choose module"
+#~ msgstr "Module kiezen"
+
+#~ msgid "Accounting"
+#~ msgstr "Boekhouding"
 
 #~ msgid "All"
 #~ msgstr "Alle"

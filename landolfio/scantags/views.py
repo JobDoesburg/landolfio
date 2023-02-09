@@ -14,9 +14,7 @@ def tag_scan_view(request, *args, **kwargs):
     try:
         scan_tag = ScanTag.objects.get(id=tag_id)
         if scan_tag.asset:
-            return redirect(
-                reverse("assets_admin:view_asset", args=[scan_tag.asset_id])
-            )
+            return redirect(reverse("view_asset:view_asset", args=[scan_tag.asset_id]))
         else:
             messages.warning(
                 request, _("Tag {} is not linked to an asset.").format(tag_id)

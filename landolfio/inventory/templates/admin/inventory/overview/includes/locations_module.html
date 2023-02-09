@@ -7,7 +7,7 @@
         </caption>
         {% for location in locations %}
             <tr class="">
-                <th scope="row"><a href="{% url "assets_admin:inventory_asset_changelist" %}?location__id__exact={{ location.id }}">{{ location }}</a></th>
+                <th scope="row"><a href="{% url "admin:inventory_asset_overview_changelist" %}?location__id__exact={{ location.id }}">{{ location }}</a></th>
                 <td style="float: right">{{ location.asset_set.all.count }}</td>
             </tr>
         {% endfor %}

@@ -1,7 +1,0 @@
-{% load static i18n %}
-
-<div class="breadcrumbs">
-    {% for category in categories %}
-        <a class="button" href="{% url 'admin:view_asset_category' category.id %}" style="display: inline-block">{{ category.name }}</a>
-    {% endfor %}
-</div>

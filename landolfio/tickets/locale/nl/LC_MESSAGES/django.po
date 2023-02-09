@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-03 17:13+0100\n"
-"PO-Revision-Date: 2023-02-03 17:16+0100\n"
+"POT-Creation-Date: 2023-02-09 10:00+0100\n"
+"PO-Revision-Date: 2023-02-09 10:05+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -18,126 +18,143 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: admin.py:42
-msgid "status"
-msgstr "status"
-
-#: admin.py:58
-msgid "Open"
-msgstr "Open"
-
-#: admin.py:59 admin.py:90
-msgid "All"
-msgstr "Alle"
-
-#: admin.py:60
-msgid "Closed"
-msgstr "Gesloten"
-
-#: admin.py:74
-msgid "assignee"
-msgstr "toegewezene"
-
-#: admin.py:83
-msgid "Unassigned or assigned to me"
-msgstr "Niet- of aan mij toegewezen"
-
-#: admin.py:183
+#: tickets/admin.py:110
 msgid "Assets"
 msgstr "Eigendommen"
 
-#: admin.py:198
+#: tickets/admin.py:125
 msgid "Close ticket"
 msgstr "Sluit ticket"
 
-#: admin.py:210
+#: tickets/admin.py:137
 msgid "Reopen ticket"
 msgstr "Heropen ticket"
 
-#: apps.py:8
+#: tickets/admin_filters.py:11
+msgid "status"
+msgstr "status"
+
+#: tickets/admin_filters.py:27
+msgid "Open"
+msgstr "Open"
+
+#: tickets/admin_filters.py:28 tickets/admin_filters.py:59
+#: tickets/admin_filters.py:103
+msgid "All"
+msgstr "Alle"
+
+#: tickets/admin_filters.py:29
+msgid "Closed"
+msgstr "Gesloten"
+
+#: tickets/admin_filters.py:43
+msgid "assignee"
+msgstr "toegewezene"
+
+#: tickets/admin_filters.py:52
+msgid "Unassigned or assigned to me"
+msgstr "Niet- of aan mij toegewezen"
+
+#: tickets/admin_filters.py:87
+msgid "due"
+msgstr "uitgesteld"
+
+#: tickets/admin_filters.py:96
+msgid "Due or no due date"
+msgstr "Verlopen of niet uitgesteld"
+
+#: tickets/admin_filters.py:116
+msgid "Due"
+msgstr "Uitgesteld"
+
+#: tickets/admin_filters.py:117
+msgid "Not due"
+msgstr "Niet uitgesteld"
+
+#: tickets/apps.py:8
 msgid "Tickets"
 msgstr "Tickets"
 
-#: models.py:15
+#: tickets/models.py:16
 msgid "name"
 msgstr "naam"
 
-#: models.py:16
+#: tickets/models.py:17
 msgid "code defined"
 msgstr "code-defined"
 
-#: models.py:20
+#: tickets/models.py:21
 msgid "New customer"
 msgstr "Nieuwe klant"
 
-#: models.py:26 models.py:61
+#: tickets/models.py:27 tickets/models.py:62
 msgid "ticket type"
 msgstr "ticket type"
 
-#: models.py:27
+#: tickets/models.py:28
 msgid "ticket types"
 msgstr "ticket types"
 
-#: models.py:31
+#: tickets/models.py:32
 msgid "created at"
 msgstr "aangemaakt op"
 
-#: models.py:32
+#: tickets/models.py:33
 msgid "updated at"
 msgstr "geüpdate up"
 
-#: models.py:33
+#: tickets/models.py:34
 msgid "closed"
 msgstr "gesloten"
 
-#: models.py:35
+#: tickets/models.py:36
 msgid "closed at"
 msgstr "gesloten op"
 
-#: models.py:37
+#: tickets/models.py:38
 msgid "date due"
-msgstr "vervaldatum"
+msgstr "uitgestelde datum"
 
-#: models.py:41
+#: tickets/models.py:42
 msgid "created by"
 msgstr "aangemaakt door"
 
-#: models.py:49
+#: tickets/models.py:50
 msgid "assigned to"
 msgstr "toegewezen aan"
 
-#: models.py:64
+#: tickets/models.py:65
 msgid "title"
 msgstr "titel"
 
-#: models.py:66
+#: tickets/models.py:67
 msgid "description"
 msgstr "omschrijving"
 
-#: models.py:69
+#: tickets/models.py:70
 msgid "assets"
 msgstr "eigendommen"
 
-#: models.py:73
+#: tickets/models.py:74
 msgid "contact"
 msgstr "contact"
 
-#: models.py:80
+#: tickets/models.py:81
 msgid "estimate"
 msgstr "offerte"
 
-#: models.py:84
+#: tickets/models.py:85
 msgid "sales invoices"
 msgstr "verkoopfacturen"
 
-#: models.py:92
+#: tickets/models.py:93
 msgid "Ticket"
 msgstr "Ticket"
 
-#: models.py:116
+#: tickets/models.py:123
 msgid "ticket"
 msgstr "ticket"
 
-#: models.py:117
+#: tickets/models.py:124
 msgid "tickets"
 msgstr "tickets"

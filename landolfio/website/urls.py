@@ -6,17 +6,14 @@ from django.urls import re_path
 from django.views.generic.base import RedirectView
 
 from . import views
-from inventory.admin.assets_admin import assets_admin
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("assets/", assets_admin.urls),
     path("moneybird/", include("moneybird.webhooks.urls")),
     path("api/accounting/", include("accounting.api.urls")),
     path("fp/", include("django_drf_filepond.urls")),
     path("scan/", include("scantags.urls")),
     re_path(r"^media/", views.protected_ask_reverse_proxy),
-    path("", views.index, name="index"),
     path("admin/", RedirectView.as_view(url="/admin/"), name="admin"),
 ]
 urlpatterns += (path("customer/", include("new_customers.urls")),)

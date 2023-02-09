@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     "django_easy_admin_object_actions",
     "localflavor",
     "admin_numeric_filter",
+    "admin_reorder",
     "autocompletefilter",
     "django_drf_filepond",
     "ninox_import",
@@ -47,6 +48,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "admin_reorder.middleware.ModelAdminReorder",
 ]
 
 ROOT_URLCONF = "website.urls"
@@ -120,6 +122,54 @@ MEDIA_URL = "media/"
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+ADMIN_REORDER = (
+    {
+        "app": "tickets",
+        "models": (
+            "tickets.Ticket",
+            "new_customers.NewCustomer",
+            "new_rental_customers.NewRentalCustomer",
+            "tickets.TicketType",
+        ),
+    },
+    {
+        "app": "inventory",
+        "models": (
+            "inventory.Asset",
+            "inventory.Collection",
+            "inventory.AssetCategory",
+            "inventory.AssetSize",
+            "inventory.AssetLocation",
+            "inventory.AssetLocationGroup",
+            "inventory.Attachment",
+        ),
+    },
+    {
+        "app": "accounting",
+        "models": (
+            "accounting.Contact",
+            "accounting.SalesInvoice",
+            "accounting.PurchaseDocument",
+            "accounting.GeneralJournalDocument",
+            "accounting.JournalDocumentLine",
+            "accounting.Subscription",
+            "accounting.RecurringSalesInvoice",
+            "accounting.RecurringSalesInvoiceDocumentLine",
+            "accounting.Estimate",
+            "accounting.EstimateDocumentLine",
+            "accounting.Product",
+            "accounting.Project",
+            "accounting.LedgerAccount",
+            "accounting.TaxRate",
+            "accounting.Workflow",
+            "accounting.DocumentStyle",
+        ),
+    },
+    "auth",
+    "sites",
+)
 
 # DJANGO_DRF_FILEPOND_UPLOAD_TMP = os.path.join(BASE_DIR, "filepond-temp-uploads")
 # DJANGO_DRF_FILEPOND_FILE_STORE_PATH = os.path.join(BASE_DIR, "stored_uploads")

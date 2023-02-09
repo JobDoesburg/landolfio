@@ -1,0 +1,7 @@
+{% load static i18n %}
+
+<div class="breadcrumbs">
+    {% for category in categories %}
+        <a class="button" href="{% url 'admin:inventory_asset_overview_changelist' %}?category__id__exact={{ category.id }}" style="display: inline-block">{{ category.name }}</a>
+    {% endfor %}
+</div>
