@@ -148,7 +148,12 @@ class TicketAdmin(AutocompleteFilterMixin, ObjectActionsMixin, admin.ModelAdmin)
     def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
         """Redirect to the change form from the subclass."""
         if object_id:
-            obj = self.model.objects.select_subclasses().get(pk=object_id)
+            try:
+                obj = self.model.objects.select_subclasses().get(pk=object_id)
+            except self.model.DoesNotExist:
+                return super().changeform_view(
+                    request, object_id, form_url, extra_context
+                )
             obj_class = obj.__class__
             if issubclass(obj_class, self.model) and not obj_class == self.model:
                 return redirect(
