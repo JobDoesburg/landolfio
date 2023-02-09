@@ -10,6 +10,7 @@
             </h1>
         {% endblock %}
         </div>
+        {% if has_permission %}
         {% block quicklinks %}
             <div>
                 <h4 style="text-transform: uppercase; text-align: center">
@@ -20,6 +21,7 @@
                 </h4>
             </div>
         {% endblock %}
+        {% endif %}
         {% block usertools %}
         {% if has_permission %}
         <div id="user-tools">
