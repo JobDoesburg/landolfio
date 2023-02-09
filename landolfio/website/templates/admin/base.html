@@ -4,4 +4,46 @@
 {% block extrahead %}
     {{ block.super }}
     <meta name="format-detection" content="telephone=no"/>
+    <link rel="apple-touch-icon" href="{% static "img/favicon/apple-touch-icon.png" %}" sizes="180x180">
+    <link rel="icon" href="{% static "img/favicon/favicon-32x32.png" %}" sizes="32x32" type="image/png">
+    <link rel="icon" href="{% static "img/favicon/favicon-16x16.png" %}" sizes="16x16" type="image/png">
+    <link rel="manifest" href="{% static "img/favicon/site.webmanifest" %}">
+    <link rel="icon" href="{% static "img/favicon/favicon.ico" %}">
+    <style>
+        :root {
+            --landolfio-base: #555555;
+            --landolfio-base-dark: #454545;
+            --landolfio-2: #cccccc;
+            --landolfio-accent: #888888;
+            --landolfio-dark: #353535;
+            --accent: white;
+            --primary: var(--landolfio-base);
+            --secondary: var(--landolfio-accent);
+            --link-fg: var(--body-fg);
+            --link-hover-color: var(--landolfio-base-dark);
+            --link-selected-fg: var(--landolfio-accent);
+            --header-bg: var(--landolfio-base);
+            --header-color: white;
+            --default-button-bg: var(--landolfio-dark);
+            --default-button-hover-bg: var(--landolfio-accent);
+            --button-hover-bg: var(--landolfio-base-dark);
+            --breadcrumbs-link-fg: var(--landolfio-2);
+            --breadcrumbs-fg: white;
+            --breadcrumbs-bg: var(--landolfio-base-dark);
+        }
+        #user-tools a:focus, #user-tools a:hover {
+            color: var(--landolfio-dark);
+        }
+        .content a:not(table a) {
+            color: var(--landolfio-base);
+        }
+        .content a:not(table a):focus, .content a:not(table a):hover{
+            color: var(--landolfio-base-dark);
+        }
+        #site-name, h1, h2, h3, h4, h5 {
+            font-family: 'Didot', 'Georgia', serif;
+            text-transform: none !important;
+        }
+    </style>
+
 {% endblock %}

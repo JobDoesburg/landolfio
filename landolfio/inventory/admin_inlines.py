@@ -51,7 +51,7 @@ class DocumentLineInline(QueryablePropertiesAdminMixin, admin.TabularInline):
     extra = 0
     can_delete = False
 
-    @admin.display(description=_("Workflow"))
+    @admin.display(description=_("workflow"))
     def workflow(self, obj):
         return obj.document_line.document.workflow
 
@@ -67,6 +67,34 @@ class DocumentLineInline(QueryablePropertiesAdminMixin, admin.TabularInline):
 
     def has_add_permission(self, request, obj):
         return False
+
+    @admin.display(description=_("ledger account"))
+    def ledger_account(self, obj):
+        return obj.document_line.ledger_account
+
+    @admin.display(description=_("date"))
+    def date(self, obj):
+        return obj.document_line.date
+
+    @admin.display(description=_("description"))
+    def description(self, obj):
+        return obj.document_line.description
+
+    @admin.display(description=_("document"))
+    def document(self, obj):
+        return obj.document_line.document
+
+    @admin.display(description=_("workflow"))
+    def workflow(self, obj):
+        return obj.document_line.workflow
+
+    @admin.display(description=_("contact"))
+    def contact(self, obj):
+        return obj.document_line.contact
+
+    @admin.display(description=_("value"))
+    def value(self, obj):
+        return obj.document_line.value
 
 
 class JournalDocumentLineInline(DocumentLineInline):
@@ -162,7 +190,7 @@ class EstimateDocumentLineInline(DocumentLineInline):
         "view_on_moneybird",
     )
 
-    @admin.display(description=_("Document state"))
+    @admin.display(description=_("status"))
     def document_state(self, obj):
         return obj.document_line.document.state
 

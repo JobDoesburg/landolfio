@@ -116,7 +116,7 @@ class AssetAdmin(
 
     fieldsets = [
         (
-            "Name",
+            _("Name"),
             {
                 "fields": [
                     "id",
@@ -132,7 +132,7 @@ class AssetAdmin(
             },
         ),
         (
-            "Financial",
+            _("Financial"),
             {
                 "fields": [
                     "total_assets_value",

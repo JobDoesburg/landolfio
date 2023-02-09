@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-09 10:00+0100\n"
-"PO-Revision-Date: 2022-08-07 23:55+0200\n"
+"POT-Creation-Date: 2023-02-09 11:26+0100\n"
+"PO-Revision-Date: 2023-02-09 11:27+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -16,7 +16,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.2.2\n"
+
+#: inventory/admin.py:119
+msgid "Name"
+msgstr "Naam"
+
+#: inventory/admin.py:135
+msgid "Financial"
+msgstr "Financieel"
 
 #: inventory/admin.py:224
 #: inventory/templates/admin/inventory/view_asset/includes/sidebar.html:57
@@ -104,19 +112,62 @@ msgstr "Geen afbeelding"
 msgid "Image"
 msgstr "Afbeelding"
 
-#: inventory/admin_inlines.py:54
-msgid "Workflow"
-msgstr "Workflow"
+#: inventory/admin_inlines.py:54 inventory/admin_inlines.py:87
+#: inventory/templates/admin/inventory/view_asset/includes/estimates.html:20
+#: inventory/templates/admin/inventory/view_asset/includes/recurring_sales_invoices.html:19
+msgid "workflow"
+msgstr "workflow"
 
 #: inventory/admin_inlines.py:58
 msgid "View on Moneybird"
 msgstr "Bekijk op Moneybird"
 
-#: inventory/admin_inlines.py:165
-msgid "Document state"
-msgstr "Document status"
+#: inventory/admin_inlines.py:71
+#: inventory/templates/admin/inventory/view_asset/includes/journal_documents.html:23
+#: inventory/templates/admin/inventory/view_asset/includes/ledger_accounts.html:13
+#: inventory/templates/admin/inventory/view_asset/includes/recurring_sales_invoices.html:24
+msgid "ledger account"
+msgstr "boekrekening"
 
-#: inventory/admin_inlines.py:197
+#: inventory/admin_inlines.py:75 inventory/models/remarks.py:12
+#: inventory/templates/admin/inventory/view_asset/includes/estimates.html:18
+#: inventory/templates/admin/inventory/view_asset/includes/journal_documents.html:18
+#: inventory/templates/admin/inventory/view_asset/includes/remarks.html:7
+msgid "date"
+msgstr "datum"
+
+#: inventory/admin_inlines.py:79
+#: inventory/templates/admin/inventory/view_asset/includes/estimates.html:22
+#: inventory/templates/admin/inventory/view_asset/includes/journal_documents.html:21
+#: inventory/templates/admin/inventory/view_asset/includes/recurring_sales_invoices.html:22
+msgid "description"
+msgstr "beschrijving"
+
+#: inventory/admin_inlines.py:83
+msgid "document"
+msgstr "document"
+
+#: inventory/admin_inlines.py:91
+#: inventory/templates/admin/inventory/view_asset/includes/estimates.html:19
+#: inventory/templates/admin/inventory/view_asset/includes/journal_documents.html:19
+#: inventory/templates/admin/inventory/view_asset/includes/recurring_sales_invoices.html:18
+msgid "contact"
+msgstr "contact"
+
+#: inventory/admin_inlines.py:95 inventory/models/asset_on_document_line.py:28
+#: inventory/models/asset_on_document_line.py:78
+#: inventory/models/asset_on_document_line.py:126
+#: inventory/models/asset_on_document_line.py:174
+msgid "value"
+msgstr "waarde"
+
+#: inventory/admin_inlines.py:193
+#: inventory/templates/admin/inventory/view_asset/includes/estimates.html:21
+#: inventory/templates/admin/inventory/view_asset/includes/journal_documents.html:20
+msgid "status"
+msgstr "status"
+
+#: inventory/admin_inlines.py:225
 msgid "Active"
 msgstr "Actief"
 
@@ -247,11 +298,11 @@ msgstr "Huurovereenkomst en leenovereenkomst"
 
 #: inventory/models/asset.py:544
 msgid "Multiple loan agreements"
-msgstr "meerdere leenovereenkomsten"
+msgstr "Meerdere leenovereenkomsten"
 
 #: inventory/models/asset.py:546
 msgid "Multiple rental agreements"
-msgstr "meerdere huurovereenkomsten"
+msgstr "Meerdere huurovereenkomsten"
 
 #: inventory/models/asset.py:549
 msgid "Amortized above 450 euro"
@@ -275,20 +326,13 @@ msgstr "Margegoed op niet-marge boekrekeningen"
 
 #: inventory/models/asset.py:563
 msgid "Accounting status incompatible with local status"
-msgstr "boekhoudkundige status incompatibel met lokale status"
+msgstr "Boekhoudkundige status incompatibel met lokale status"
 
 #: inventory/models/asset_on_document_line.py:25
 #: inventory/models/asset_on_document_line.py:75
 #: inventory/models/asset_on_document_line.py:123
 msgid "document line"
 msgstr "documentregel"
-
-#: inventory/models/asset_on_document_line.py:28
-#: inventory/models/asset_on_document_line.py:78
-#: inventory/models/asset_on_document_line.py:126
-#: inventory/models/asset_on_document_line.py:174
-msgid "value"
-msgstr "waarde"
 
 #: inventory/models/asset_on_document_line.py:54
 msgid "asset on journal document line"
@@ -386,13 +430,6 @@ msgstr "locaties"
 msgid "remark"
 msgstr "opmerking"
 
-#: inventory/models/remarks.py:12
-#: inventory/templates/admin/inventory/view_asset/includes/estimates.html:18
-#: inventory/templates/admin/inventory/view_asset/includes/journal_documents.html:18
-#: inventory/templates/admin/inventory/view_asset/includes/remarks.html:7
-msgid "date"
-msgstr "datum"
-
 #: inventory/models/remarks.py:19
 msgid "remarks"
 msgstr "opmerkingen"
@@ -480,28 +517,6 @@ msgstr "Offertes"
 #: inventory/templates/admin/inventory/view_asset/includes/journal_documents.html:17
 msgid "id"
 msgstr "nummer"
-
-#: inventory/templates/admin/inventory/view_asset/includes/estimates.html:19
-#: inventory/templates/admin/inventory/view_asset/includes/journal_documents.html:19
-#: inventory/templates/admin/inventory/view_asset/includes/recurring_sales_invoices.html:18
-msgid "contact"
-msgstr "contact"
-
-#: inventory/templates/admin/inventory/view_asset/includes/estimates.html:20
-#: inventory/templates/admin/inventory/view_asset/includes/recurring_sales_invoices.html:19
-msgid "workflow"
-msgstr "workflow"
-
-#: inventory/templates/admin/inventory/view_asset/includes/estimates.html:21
-#: inventory/templates/admin/inventory/view_asset/includes/journal_documents.html:20
-msgid "status"
-msgstr "status"
-
-#: inventory/templates/admin/inventory/view_asset/includes/estimates.html:22
-#: inventory/templates/admin/inventory/view_asset/includes/journal_documents.html:21
-#: inventory/templates/admin/inventory/view_asset/includes/recurring_sales_invoices.html:22
-msgid "description"
-msgstr "beschrijving"
 
 #: inventory/templates/admin/inventory/view_asset/includes/estimates.html:23
 #: inventory/templates/admin/inventory/view_asset/includes/journal_documents.html:22
@@ -604,11 +619,9 @@ msgstr "Annuleer"
 msgid "Undo"
 msgstr "Ongedaan maken"
 
-#: inventory/templates/admin/inventory/view_asset/includes/journal_documents.html:23
-#: inventory/templates/admin/inventory/view_asset/includes/ledger_accounts.html:13
-#: inventory/templates/admin/inventory/view_asset/includes/recurring_sales_invoices.html:24
-msgid "ledger account"
-msgstr "boekrekening"
+#: inventory/templates/admin/inventory/view_asset/includes/journal_documents.html:13
+msgid "Journal documents"
+msgstr "Boekstukken"
 
 #: inventory/templates/admin/inventory/view_asset/includes/journal_documents.html:47
 msgid "No journal documents"
@@ -684,19 +697,25 @@ msgstr "totale omzet"
 
 #: inventory/templates/admin/inventory/view_asset/includes/tickets.html:9
 msgid "Tickets"
-msgstr ""
+msgstr "Tickets"
 
 #: inventory/templates/admin/inventory/view_asset/includes/tickets.html:13
 msgid "Ticket id"
-msgstr ""
+msgstr "Ticket id"
 
 #: inventory/templates/admin/inventory/view_asset/includes/tickets.html:21
 msgid "open"
-msgstr ""
+msgstr "open"
 
 #: inventory/templates/admin/inventory/view_asset/includes/tickets.html:25
 msgid "No tickets"
-msgstr ""
+msgstr "Geen tickets"
+
+#~ msgid "Workflow"
+#~ msgstr "Workflow"
+
+#~ msgid "Document state"
+#~ msgstr "Document status"
 
 #~ msgid "Landolfio"
 #~ msgstr "Landolfio"
@@ -754,12 +773,8 @@ msgstr ""
 #~ msgid "Available (error)"
 #~ msgstr "Beschikbaar (fout)"
 
-#~ msgid ""
-#~ "Drag & Drop your files or <span class=\"filepond--label-action\"> Browse "
-#~ "</span>"
-#~ msgstr ""
-#~ "Klik & sleep of <span class=\"filepond—label-action\"> Selecteer "
-#~ "bestanden </span>"
+#~ msgid "Drag & Drop your files or <span class=\"filepond--label-action\"> Browse </span>"
+#~ msgstr "Klik & sleep of <span class=\"filepond—label-action\"> Selecteer bestanden </span>"
 
 #~ msgid "action"
 #~ msgstr "actie"
