@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-02-09 11:26+0100\n"
-"PO-Revision-Date: 2022-10-16 17:21+0200\n"
+"PO-Revision-Date: 2023-02-09 11:41+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: website/settings/common.py:106
 msgid "Dutch"
@@ -28,19 +28,19 @@ msgstr "Engels"
 
 #: website/templates/admin/base_site.html:16
 msgid "Inventory"
-msgstr ""
+msgstr "Inventaris"
 
 #: website/templates/admin/base_site.html:17
 msgid "Tickets"
-msgstr ""
+msgstr "Tickets"
 
 #: website/templates/admin/base_site.html:19
 msgid "Settings"
-msgstr ""
+msgstr "Instellingen"
 
 #: website/templates/admin/base_site.html:27
 msgid "Welcome,"
-msgstr ""
+msgstr "Welkom,"
 
 #: website/templates/admin/base_site.html:35
 msgid "Change password"
