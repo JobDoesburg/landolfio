@@ -46,15 +46,15 @@ class TicketAdmin(AutocompleteFilterMixin, ObjectActionsMixin, admin.ModelAdmin)
 
     list_display = [
         "__str__",
-        "ticket_type",
         "contact",
         "assets_str",
+        "date_created",
         "date_due",
         "date_closed",
         "assigned_to",
     ]
 
-    list_display_links = ["__str__"]
+    list_display_links = ["__str__", "contact", "assets_str"]
 
     list_filter = [
         ClosedTicketFilter,
@@ -65,10 +65,9 @@ class TicketAdmin(AutocompleteFilterMixin, ObjectActionsMixin, admin.ModelAdmin)
 
     fields = [
         "ticket_type",
-        "title",
         "contact",
-        "description",
         "assets",
+        "description",
         "estimates",
         "sales_invoices",
         "date_due",
@@ -96,6 +95,14 @@ class TicketAdmin(AutocompleteFilterMixin, ObjectActionsMixin, admin.ModelAdmin)
     object_actions_after_related_objects = [
         "close",
         "reopen",
+    ]
+
+    search_fields = [
+        "description",
+        "contact__first_name",
+        "contact__last_name",
+        "contact__company_name",
+        "assets__id",
     ]
 
     def assets(self, obj):

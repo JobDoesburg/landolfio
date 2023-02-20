@@ -61,9 +61,6 @@ class Ticket(models.Model):
         blank=False,
         verbose_name=_("ticket type"),
     )
-    title = models.CharField(
-        max_length=255, verbose_name=_("title"), blank=True, null=True
-    )
     description = models.TextField(verbose_name=_("description"), blank=True, null=True)
 
     assets = models.ManyToManyField(
@@ -90,7 +87,7 @@ class Ticket(models.Model):
     objects = InheritanceManager()
 
     def __str__(self):
-        return _("Ticket") + f" #{self.id} {self.title or ''}"
+        return _("Ticket") + f" #{self.id}: {self.ticket_type.name}"
 
     def save(self, *args, **kwargs):
         if self.closed and not self.date_closed:

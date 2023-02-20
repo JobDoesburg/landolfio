@@ -16,7 +16,6 @@ class NewCustomerAdmin(TicketAdmin):
     readonly_fields = TicketAdmin.readonly_fields + [
         "ticket_type",
         "sepa_mandate_sent",
-        "title",
     ]
 
     fields = TicketAdmin.fields + [
