@@ -64,7 +64,7 @@ class JournalDocumentLine(MoneybirdDocumentLineModel):
         Contact,
         on_delete=models.SET_NULL,
         null=True,
-        blank=False,
+        blank=True,
         verbose_name=_("contact"),
     )
     project = models.ForeignKey(
