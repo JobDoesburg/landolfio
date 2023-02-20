@@ -9,6 +9,7 @@ from django.db.models import (
     F,
 )
 from django.db.models.functions import Coalesce
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from queryable_properties.managers import QueryablePropertiesManager
 from queryable_properties.properties import (
@@ -630,6 +631,9 @@ class Asset(models.Model):
 
     def __str__(self):
         return f"{self.category.name_singular} {self.id} ({self.size})"
+
+    def get_absolute_url(self):
+        return reverse("admin:inventory_asset_view", args=[self.id])
 
     class Meta:
         ordering = ["-created_at", "id"]

@@ -10,15 +10,19 @@
     <table>
         <thead>
         <tr>
-            <th style="white-space: break-spaces">{% translate "Ticket id" %}</th>
+            <th style="width: unset; white-space: nowrap">{% translate "Ticket id" %}</th>
+            <th style="width: unset; white-space: nowrap">{% translate "Contact" %}</th>
+            <th>{% translate "Description" %}</th>
             <th></th>
         </tr>
         </thead>
         <tbody>
-        {% for ticket in asset.tickets.all %}
+        {% for ticket in asset.tickets.all reversed %}
             <tr>
-                <td style="white-space: normal"><a href="{{ ticket.get_absolute_url }}">{{ ticket }}</a></td>
-                <td>{% if ticket.closed %}{{ ticket.closed_at }}{% else %}{% translate "open" %}{% endif %}</td>
+                <td style="width: unset; white-space: nowrap"><a href="{{ ticket.get_absolute_url }}">{{ ticket }}</a></td>
+                <td style="width: unset; white-space: nowrap">{{ ticket.contact }}</td>
+                <td>{{ ticket.description }}</td>
+                <td>{% if ticket.closed %}{{ ticket.closed_at }}{% else %}{% if ticket.due_date %}{% translate "due" %} {{ ticket.due_date }}{% else %}{% translate "open" %}{% endif %}{% endif %}</td>
             </tr>
         {% empty %}
             <tr>

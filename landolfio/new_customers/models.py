@@ -25,9 +25,6 @@ class NewCustomer(Ticket):
         if not self.ticket_type:
             self.ticket_type = NEW_CUSTOMER_TICKET_TYPE
 
-        if self.title and self.contact is not None:
-            self.title = str(self.contact)
-
         try:
             if self.contact and not self.contact.is_synced_with_moneybird:
                 self.contact.push_to_moneybird()

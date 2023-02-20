@@ -1,0 +1,20 @@
+{% load i18n admin_urls %}
+
+  <li>
+    {% url cl.opts|admin_urlname:'add' as add_url %}
+    <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink">
+      {% blocktranslate with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktranslate %}
+    </a>
+  </li>
+  <li>
+    {% url "admin:new_customers_newcustomer_add" as add_url %}
+    <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink">
+      {% blocktranslate with 'new customer' as name %}Add {{ name }}{% endblocktranslate %}
+    </a>
+  </li>
+  <li>
+    {% url "admin:new_rental_customers_newrentalcustomer_add" as add_url %}
+    <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink">
+      {% blocktranslate with 'new rental customer' as name %}Add {{ name }}{% endblocktranslate %}
+    </a>
+  </li>

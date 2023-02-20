@@ -134,25 +134,8 @@ ADMIN_REORDER = (
         ),
     },
     {
-        "app": "tickets",
-        "label": gettext_lazy("📝 ticket settings"),
-        "models": ("tickets.TicketType",),
-    },
-    {
         "app": "inventory",
         "models": ("inventory.Asset",),
-    },
-    {
-        "app": "inventory",
-        "label": gettext_lazy("🗂 inventory settings"),
-        "models": (
-            "inventory.Collection",
-            "inventory.AssetCategory",
-            "inventory.AssetSize",
-            "inventory.AssetLocation",
-            "inventory.AssetLocationGroup",
-            "inventory.Attachment",
-        ),
     },
     "scantags",
     {
@@ -174,6 +157,23 @@ ADMIN_REORDER = (
             "accounting.JournalDocumentLine",
             "accounting.EstimateDocumentLine",
             "accounting.RecurringSalesInvoiceDocumentLine",
+        ),
+    },
+    {
+        "app": "tickets",
+        "label": gettext_lazy("📝 ticket settings"),
+        "models": ("tickets.TicketType",),
+    },
+    {
+        "app": "inventory",
+        "label": gettext_lazy("🗂 inventory settings"),
+        "models": (
+            "inventory.Collection",
+            "inventory.AssetCategory",
+            "inventory.AssetSize",
+            "inventory.AssetLocation",
+            "inventory.AssetLocationGroup",
+            "inventory.Attachment",
         ),
     },
     {

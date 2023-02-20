@@ -135,7 +135,10 @@ class TicketAdmin(AutocompleteFilterMixin, ObjectActionsMixin, admin.ModelAdmin)
     def get_readonly_fields(self, request, obj=None):
         """Make all fields readonly if ticket is closed."""
         if obj and obj.closed:
-            return self.fields
+            fieldset_fields = [
+                fieldset[1]["fields"] for fieldset in self.get_fieldsets(request, obj)
+            ]
+            return [field for fieldset in fieldset_fields for field in fieldset]
         return super().get_readonly_fields(request, obj)
 
     def save_model(self, request, obj, form, change):
