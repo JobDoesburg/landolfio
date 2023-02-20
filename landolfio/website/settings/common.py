@@ -146,7 +146,7 @@ ADMIN_REORDER = (
             "inventory.Attachment",
         ),
     },
-    'scantags',
+    "scantags",
     {
         "app": "accounting",
         "models": (

@@ -1,6 +1,7 @@
 import logging
 from dataclasses import dataclass, field
 
+from django.db import IntegrityError
 from django.utils.module_loading import import_string
 
 from moneybird.administration import get_moneybird_administration, Administration
@@ -103,7 +104,12 @@ class MoneybirdResourceType:
 
     @classmethod
     def perform_save(cls, obj):
-        obj.save(received_from_moneybird=True)
+        try:
+            obj.save(received_from_moneybird=True)
+        except IntegrityError:
+            existing_obj = cls.model.objects.get(moneybird_id=obj.moneybird_id)
+            existing_obj.update_fields_from_moneybird(obj.serialize_for_moneybird())
+            existing_obj.save(received_from_moneybird=True)
 
     @classmethod
     def update_resources(cls, diff: ResourceDiff):
