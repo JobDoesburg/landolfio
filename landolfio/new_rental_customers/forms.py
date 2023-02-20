@@ -11,6 +11,7 @@ class NewRentalCustomerForm(NewCustomerForm):
         model = NewRentalCustomer
         fields = [
             "instrument_numbers",
+            "date_received",
             "wants_reduced_liability",
             "affiliate_name",
         ] + NewCustomerForm.Meta.fields
@@ -20,6 +21,10 @@ class NewRentalCustomerForm(NewCustomerForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["date_received"].label = _("Date received")
+        self.fields["date_received"].help_text = _(
+            "When did you receive the instruments?"
+        )
         self.fields["wants_reduced_liability"].initial = False
         self.fields["wants_reduced_liability"].label = _("Request reduced liability")
         self.fields["wants_reduced_liability"].help_text = _(

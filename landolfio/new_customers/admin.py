@@ -18,10 +18,23 @@ class NewCustomerAdmin(TicketAdmin):
         "sepa_mandate_sent",
     ]
 
-    fields = TicketAdmin.fields + [
-        "wants_sepa_mandate",
-        "sepa_mandate_sent",
-    ]
+    fieldsets = (
+        TicketAdmin.fieldsets[:1]
+        + [
+            (
+                _("New customer"),
+                {
+                    "fields": (
+                        (
+                            "wants_sepa_mandate",
+                            "sepa_mandate_sent",
+                        )
+                    )
+                },
+            ),
+        ]
+        + TicketAdmin.fieldsets[1:]
+    )
 
     object_actions_after_fieldsets = [
         "send_sepa_mandate_request",

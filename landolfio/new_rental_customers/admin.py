@@ -15,12 +15,26 @@ class NewRentalCustomerAdmin(NewCustomerAdmin):
     readonly_fields = NewCustomerAdmin.readonly_fields
     ticket_type_id = NEW_RENTAL_CUSTOMER_TICKET_TYPE.id
 
-    fields = NewCustomerAdmin.fields + [
-        "wants_reduced_liability",
-        "affiliate_name",
-        "instrument_numbers",
-        "rental_price",
-    ]
+    fieldsets = (
+        NewCustomerAdmin.fieldsets[:1]
+        + [
+            (
+                _("New rental customer"),
+                {
+                    "fields": (
+                        (
+                            "wants_reduced_liability",
+                            "rental_price",
+                            "date_received",
+                            "affiliate_name",
+                            "instrument_numbers",
+                        )
+                    )
+                },
+            ),
+        ]
+        + NewCustomerAdmin.fieldsets[1:]
+    )
 
     object_actions_after_fieldsets = NewCustomerAdmin.object_actions_after_fieldsets + [
         "draft_agreement",

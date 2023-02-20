@@ -207,6 +207,14 @@ class AssetAdmin(
         "accounting_status",
         "accounting_errors",
     )
+
+    autocomplete_fields = [
+        "category",
+        "size",
+        "location",
+        "collection",
+    ]
+
     inlines = [
         RemarkInline,
         AttachmentInlineAdmin,

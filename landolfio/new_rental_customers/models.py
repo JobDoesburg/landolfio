@@ -29,6 +29,9 @@ class NewRentalCustomer(NewCustomer):
         null=True,
         verbose_name=_("rental price"),
     )
+    date_received = models.DateField(
+        blank=True, null=True, verbose_name=_("date received")
+    )
 
     def save(
         self, force_insert=False, force_update=False, using=None, update_fields=None

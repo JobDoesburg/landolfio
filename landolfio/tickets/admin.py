@@ -63,16 +63,31 @@ class TicketAdmin(AutocompleteFilterMixin, ObjectActionsMixin, admin.ModelAdmin)
         "ticket_type",
     ]
 
-    fields = [
-        "ticket_type",
-        "contact",
-        "assets",
-        "description",
-        "estimates",
-        "sales_invoices",
-        "date_due",
-        "created_by",
-        "assigned_to",
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": (
+                    "ticket_type",
+                    "contact",
+                    "assets",
+                    "description",
+                )
+            },
+        ),
+        (
+            _("Advanced options"),
+            {
+                "classes": ("collapse",),
+                "fields": (
+                    (
+                        "date_due",
+                        "created_by",
+                        "assigned_to",
+                    )
+                ),
+            },
+        ),
     ]
 
     autocomplete_fields = [
