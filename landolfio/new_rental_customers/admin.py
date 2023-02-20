@@ -4,12 +4,16 @@ from django.utils.translation import gettext_lazy as _
 
 from new_customers.admin import NewCustomerAdmin
 from new_rental_customers import services
-from new_rental_customers.models import NewRentalCustomer
+from new_rental_customers.models import (
+    NewRentalCustomer,
+    NEW_RENTAL_CUSTOMER_TICKET_TYPE,
+)
 
 
 @admin.register(NewRentalCustomer)
 class NewRentalCustomerAdmin(NewCustomerAdmin):
     readonly_fields = NewCustomerAdmin.readonly_fields
+    ticket_type_id = NEW_RENTAL_CUSTOMER_TICKET_TYPE.id
 
     fields = NewCustomerAdmin.fields + [
         "wants_reduced_liability",

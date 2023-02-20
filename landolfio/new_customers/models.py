@@ -6,6 +6,10 @@ from django.utils.translation import gettext_lazy as _
 from moneybird.administration import MoneybirdNotConfiguredError
 from tickets.models import Ticket, TicketType
 
+NEW_CUSTOMER_TICKET_TYPE = TicketType.objects.get_or_create(
+    name=_("New customer"), code_defined=True
+)[0]
+
 
 class NewCustomer(Ticket):
     wants_sepa_mandate = models.BooleanField(
@@ -19,9 +23,7 @@ class NewCustomer(Ticket):
         self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
         if not self.ticket_type:
-            self.ticket_type = TicketType.objects.get_or_create(
-                name="New customer", code_defined=True
-            )[0]
+            self.ticket_type = NEW_CUSTOMER_TICKET_TYPE
 
         if self.title and self.contact is not None:
             self.title = str(self.contact)

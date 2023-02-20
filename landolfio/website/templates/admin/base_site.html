@@ -5,19 +5,27 @@
     <div id="header">
         <div id="branding">
         {% block branding %}
-            <h1 id="site-name">
+            <h1 id="site-name" style="white-space: nowrap;">
                 <a href="{% url 'admin:inventory_asset_overview' %}"><img src="{% static 'img/logo.svg' %}" height="30px" alt="Landolfio logo" style="margin-right: 10px"/>Landolfio</a>
             </h1>
         {% endblock %}
         </div>
         {% if has_permission %}
         {% block quicklinks %}
-            <div>
-                <h4 style="text-transform: uppercase; text-align: center">
-                    <a href="{% url 'admin:inventory_asset_overview' %}" style="padding: 0 5px">🗂 {% trans 'Inventory' %}</a> /
-                    <a href="{% url 'admin:tickets_ticket_changelist' %}" style="padding: 0 5px"> 📝 {% trans 'Tickets' %}</a> /
-                    <a href="https://moneybird.com/145578537206679043" target="_blank" style="padding: 0 5px"> 💸 Moneybird</a> /
-                    <a href="{% url 'admin:index' %}" style="padding: 0 5px">⚙️ {% trans 'Settings' %}</a>
+            <div style="padding: 5px;">
+                <h4 style="text-align: center; margin-top: 0; margin-bottom: 0">
+                    <a href="{% url 'admin:inventory_asset_overview' %}" style="padding: 0 5px; white-space: nowrap;">🗂 {% trans 'Inventory' %}</a> /
+                    <a href="{% url 'admin:tickets_ticket_changelist' %}" style="padding: 0 5px; white-space: nowrap;"> 📝 {% trans 'Tickets' %}</a> /
+                    <a href="https://moneybird.com/145578537206679043" target="_blank" style="padding: 0 5px; white-space: nowrap;"> 💸 Moneybird</a> /
+                    <a href="{% url 'admin:index' %}" style="padding: 0 5px; white-space: nowrap;">⚙️ {% trans 'Settings' %}</a>
+                </h4>
+            </div>
+        {% endblock %}
+        {% block quickbuttons %}
+            <div style="padding: 5px;">
+                <h4 style="text-align: center; margin-top: 0; margin-bottom: 0; padding-bottom: 0;">
+                    <a href="{% url 'admin:tickets_ticket_add' %}" class="button" style="background: var(--button-hover-bg); display:inline-block; margin: 3px; padding: 10px; white-space: nowrap;">📝 {% trans 'New ticket' %}</a>
+                    <a href="{% url 'admin:inventory_asset_add' %}" class="button" style="background: var(--button-hover-bg); display:inline-block; margin: 3px; padding: 10px; white-space: nowrap;">🗂 {% trans 'New asset' %}</a>
                 </h4>
             </div>
         {% endblock %}
@@ -51,6 +59,11 @@
 {% block extrastyle %}
     {{ block.super }}
     <script src="{% static "js/sync_database_button.js" %}" defer></script>
+    <style>
+    h1:first-letter {
+        text-transform: uppercase;
+    }
+    </style>
 {% endblock %}
 
 {% block title %}Landolfio{% endblock %}

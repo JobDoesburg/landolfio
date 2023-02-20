@@ -82,7 +82,7 @@ class AssetAdmin(
         "size",
         "location",
         "location__location_group",
-        "listing_price",
+        ("listing_price", SliderNumericFilter),
         # "accounting_status",
         "is_sold",
         "is_margin",
@@ -414,6 +414,10 @@ class AssetAdmin(
             :10
         ]
         return super().changelist_view(request, extra_context=extra_context)
+
+    def add_view(self, request, form_url="", extra_context=None):
+        extra_context = extra_context or {"is_nav_sidebar_enabled": False}
+        return super().add_view(request, form_url, extra_context=extra_context)
 
 
 @admin.register(Collection)

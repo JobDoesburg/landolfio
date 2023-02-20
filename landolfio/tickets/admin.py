@@ -1,6 +1,7 @@
 from autocompletefilter.admin import AutocompleteFilterMixin
 from django.contrib import admin
 from django.shortcuts import redirect
+from django.urls import reverse
 from django_easy_admin_object_actions.admin import ObjectActionsMixin
 from django_easy_admin_object_actions.decorators import object_action
 from django.utils.translation import gettext_lazy as _
@@ -145,8 +146,22 @@ class TicketAdmin(AutocompleteFilterMixin, ObjectActionsMixin, admin.ModelAdmin)
         obj.reopen()
         return True
 
+    def history_view(self, request, object_id, extra_context=None):
+        extra_context = extra_context or {"is_nav_sidebar_enabled": False}
+        return super().history_view(request, object_id, extra_context)
+
+    def changelist_view(self, request, extra_context=None):
+        extra_context = extra_context or {"is_nav_sidebar_enabled": False}
+        if self.__class__ != TicketAdmin:
+            return redirect(
+                reverse(f"admin:tickets_ticket_changelist")
+                + f"?ticket_type__id__exact={self.ticket_type_id}"
+            )
+        return super().changelist_view(request, extra_context)
+
     def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
         """Redirect to the change form from the subclass."""
+        extra_context = extra_context or {"is_nav_sidebar_enabled": False}
         if object_id:
             try:
                 obj = self.model.objects.select_subclasses().get(pk=object_id)

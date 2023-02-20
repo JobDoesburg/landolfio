@@ -1,5 +1,4 @@
 from django.db import models
-from django.template import loader
 from django.utils.translation import gettext_lazy as _
 
 from accounting.models import Contact
@@ -7,6 +6,10 @@ from accounting.models.estimate import Estimate
 from inventory.models.asset import Asset
 from new_customers.models import NewCustomer
 from tickets.models import Ticket, TicketType
+
+NEW_RENTAL_CUSTOMER_TICKET_TYPE = TicketType.objects.get_or_create(
+    name=_("New rental customer"), code_defined=True
+)[0]
 
 
 class NewRentalCustomer(NewCustomer):
@@ -31,9 +34,7 @@ class NewRentalCustomer(NewCustomer):
         self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
         if not self.ticket_type:
-            self.ticket_type = TicketType.objects.get_or_create(
-                name=_("New rental customer"), code_defined=True
-            )[0]
+            self.ticket_type = NEW_RENTAL_CUSTOMER_TICKET_TYPE
 
         super().save(force_insert, force_update, using, update_fields)
 
