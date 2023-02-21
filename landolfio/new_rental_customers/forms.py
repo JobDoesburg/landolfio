@@ -1,4 +1,4 @@
-from django.forms import Textarea
+from django.forms import Textarea, DateField
 from django.utils.translation import gettext_lazy as _
 
 from inventory.services import find_existing_asset_from_description
@@ -25,6 +25,7 @@ class NewRentalCustomerForm(NewCustomerForm):
         self.fields["date_received"].help_text = _(
             "When did you receive the instruments?"
         )
+        self.fields["date_received"].widget.input_type = "date"
         self.fields["wants_reduced_liability"].initial = False
         self.fields["wants_reduced_liability"].label = _("Request reduced liability")
         self.fields["wants_reduced_liability"].help_text = _(
