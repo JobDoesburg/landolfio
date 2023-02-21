@@ -1,4 +1,4 @@
-{% extends 'admin/inventory/overview/index.html' %}
+{% extends 'admin/inventory/asset/overview/index.html' %}
 {% load static i18n %}
 
 {% block extrastyle %}
@@ -37,16 +37,16 @@
                     </a>
                 </li>
             </ul>
-            {% include "admin/inventory/view_asset/includes/sidebar.html" %}
-            {% include "admin/inventory/view_asset/includes/ledger_accounts.html" %}
+            {% include "admin/inventory/asset/view_asset/includes/sidebar.html" %}
+            {% include "admin/inventory/asset/view_asset/includes/ledger_accounts.html" %}
         </div>
         <div id="content-main">
-            {% include "admin/inventory/view_asset/includes/attachments.html" %}
-            {% include "admin/inventory/view_asset/includes/tickets.html" %}
-            {% include "admin/inventory/view_asset/includes/remarks.html" %}
-            {% include "admin/inventory/view_asset/includes/estimates.html" %}
-            {% include "admin/inventory/view_asset/includes/recurring_sales_invoices.html" %}
-            {% include "admin/inventory/view_asset/includes/journal_documents.html" %}
+            {% include "admin/inventory/asset/view_asset/includes/attachments.html" %}
+            {% include "admin/inventory/asset/view_asset/includes/tickets.html" %}
+            {% include "admin/inventory/asset/view_asset/includes/remarks.html" %}
+            {% include "admin/inventory/asset/view_asset/includes/estimates.html" %}
+            {% include "admin/inventory/asset/view_asset/includes/recurring_sales_invoices.html" %}
+            {% include "admin/inventory/asset/view_asset/includes/journal_documents.html" %}
         </div>
     </div>
 {% endblock %}

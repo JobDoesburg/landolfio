@@ -12,7 +12,7 @@ from inventory.models.attachment import Attachment, attachments_directory_path
 
 @method_decorator(staff_member_required, name="dispatch")
 class ViewAssetView(DetailView):
-    template_name = "admin/inventory/view_asset/view_asset.html"
+    template_name = "admin/inventory/asset/view_asset/view_asset.html"
     model = Asset
     context_object_name = "asset"
     pk_url_kwarg = "id"
@@ -59,4 +59,4 @@ class ViewAssetView(DetailView):
 
 
 class AssetOverviewView(TemplateView):
-    template_name = "admin/inventory/overview/index.html"
+    template_name = "admin/inventory/asset/overview/index.html"

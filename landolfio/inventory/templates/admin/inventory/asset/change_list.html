@@ -13,7 +13,7 @@
 
 {% block nav-sidebar %}
     {% if show_assets_sidebar %}
-    {% include 'admin/inventory/overview/includes/index-nav-sidebar.html' %}
+    {% include 'admin/inventory/asset/overview/includes/index-nav-sidebar.html' %}
     {% else %}
     {{ block.super }}
     {% endif %}
@@ -22,6 +22,6 @@
 
 {% if not is_popup %}
     {% block breadcrumbs %}
-        {% include "admin/inventory/overview/includes/category_breadcrumbs.html" %}
+        {% include "admin/inventory/asset/overview/includes/category_breadcrumbs.html" %}
     {% endblock %}
 {% endif %}
