@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-21 13:37+0100\n"
-"PO-Revision-Date: 2023-02-21 13:41+0100\n"
+"POT-Creation-Date: 2023-02-21 15:05+0100\n"
+"PO-Revision-Date: 2023-02-21 15:05+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -159,12 +159,18 @@ msgstr "ticket"
 msgid "tickets"
 msgstr "tickets"
 
-#: tickets/templates/admin/tickets/change_list_object_tools.html:6
-#: tickets/templates/admin/tickets/change_list_object_tools.html:12
-#: tickets/templates/admin/tickets/change_list_object_tools.html:18
+#: tickets/templates/admin/tickets/ticket/change_list_object_tools.html:6
 #, python-format
 msgid "Add %(name)s"
 msgstr "Voeg %(name)s toe"
+
+#: tickets/templates/admin/tickets/ticket/change_list_object_tools.html:12
+msgid "Add new customer"
+msgstr "Nieuwe klant"
+
+#: tickets/templates/admin/tickets/ticket/change_list_object_tools.html:18
+msgid "Add new rental customer"
+msgstr "Nieuwe huurder"
 
 #~ msgid "title"
 #~ msgstr "titel"

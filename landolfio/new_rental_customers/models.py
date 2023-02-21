@@ -8,7 +8,7 @@ from new_customers.models import NewCustomer
 from tickets.models import Ticket, TicketType
 
 NEW_RENTAL_CUSTOMER_TICKET_TYPE = TicketType.objects.get_or_create(
-    name=_("New rental customer"), code_defined=True
+    name="Nieuwe huurder", code_defined=True
 )[0]
 
 

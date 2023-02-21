@@ -9,12 +9,12 @@
   <li>
     {% url "admin:new_customers_newcustomer_add" as add_url %}
     <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink">
-      {% blocktranslate with 'new customer' as name %}Add {{ name }}{% endblocktranslate %}
+      {% trans "Add new customer" %}
     </a>
   </li>
   <li>
     {% url "admin:new_rental_customers_newrentalcustomer_add" as add_url %}
     <a href="{% add_preserved_filters add_url is_popup to_field %}" class="addlink">
-      {% blocktranslate with 'new rental customer' as name %}Add {{ name }}{% endblocktranslate %}
+      {% trans "Add new rental customer" %}
     </a>
   </li>

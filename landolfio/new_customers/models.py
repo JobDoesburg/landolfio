@@ -7,7 +7,7 @@ from moneybird.administration import MoneybirdNotConfiguredError
 from tickets.models import Ticket, TicketType
 
 NEW_CUSTOMER_TICKET_TYPE = TicketType.objects.get_or_create(
-    name=_("New customer"), code_defined=True
+    name="Nieuwe klant", code_defined=True
 )[0]
 
 

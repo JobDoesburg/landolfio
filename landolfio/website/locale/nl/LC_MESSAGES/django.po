@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-21 13:37+0100\n"
+"POT-Creation-Date: 2023-02-21 15:05+0100\n"
 "PO-Revision-Date: 2023-02-21 13:42+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -50,27 +50,33 @@ msgstr "Inventaris"
 msgid "Tickets"
 msgstr "Tickets"
 
-#: website/templates/admin/base_site.html:20
+#: website/templates/admin/base_site.html:19
 msgid "Settings"
 msgstr "Instellingen"
 
-#: website/templates/admin/base_site.html:27
+#: website/templates/admin/base_site.html:32
 msgid "New ticket"
 msgstr "Nieuw ticket"
 
-#: website/templates/admin/base_site.html:28
+#: website/templates/admin/base_site.html:33
 msgid "New asset"
 msgstr "Nieuw eigendom"
 
-#: website/templates/admin/base_site.html:37
+#: website/templates/admin/base_site.html:42
 msgid "Welcome,"
 msgstr "Welkom,"
 
-#: website/templates/admin/base_site.html:45
+#: website/templates/admin/base_site.html:47
+#, fuzzy
+#| msgid "Synchronize with MoneyBird"
+msgid "Sync MoneyBird"
+msgstr "Synchroniseren met MoneyBird"
+
+#: website/templates/admin/base_site.html:50
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
-#: website/templates/admin/base_site.html:49
+#: website/templates/admin/base_site.html:54
 msgid "Log out"
 msgstr "Log uit"
 
@@ -80,9 +86,6 @@ msgstr "Deze e-mail werd automatisch verzonden door"
 
 #~ msgid "Landolfio"
 #~ msgstr "Landolfio"
-
-#~ msgid "Synchronize with MoneyBird"
-#~ msgstr "Synchroniseren met MoneyBird"
 
 #~ msgid "Assets admin"
 #~ msgstr "Eigendommenbeheer"

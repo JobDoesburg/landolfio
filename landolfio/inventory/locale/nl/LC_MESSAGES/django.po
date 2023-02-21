@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-21 13:37+0100\n"
+"POT-Creation-Date: 2023-02-21 15:05+0100\n"
 "PO-Revision-Date: 2023-02-21 13:39+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -436,6 +436,14 @@ msgstr "opmerkingen"
 msgid "Toggle navigation"
 msgstr "Navigatie sluiten/weergeven"
 
+#: inventory/templates/admin/inventory/overview/includes/index-nav-sidebar.html:5
+msgid "Start typing to filter…"
+msgstr "Start met typen om te filteren…"
+
+#: inventory/templates/admin/inventory/overview/includes/index-nav-sidebar.html:6
+msgid "Filter navigation items"
+msgstr "Filter navigatie"
+
 #: inventory/templates/admin/inventory/overview/index.html:8
 #: inventory/templates/admin/inventory/view_asset/view_asset.html:36
 msgid "Add asset"
@@ -718,12 +726,6 @@ msgstr "open"
 msgid "No tickets"
 msgstr "Geen tickets"
 
-#~ msgid "Start typing to filter…"
-#~ msgstr "Start met typen om te filteren…"
-
-#~ msgid "Filter navigation items"
-#~ msgstr "Filter navigatie"
-
 #~ msgid "Workflow"
 #~ msgstr "Workflow"
 
@@ -786,8 +788,12 @@ msgstr "Geen tickets"
 #~ msgid "Available (error)"
 #~ msgstr "Beschikbaar (fout)"
 
-#~ msgid "Drag & Drop your files or <span class=\"filepond--label-action\"> Browse </span>"
-#~ msgstr "Klik & sleep of <span class=\"filepond—label-action\"> Selecteer bestanden </span>"
+#~ msgid ""
+#~ "Drag & Drop your files or <span class=\"filepond--label-action\"> Browse "
+#~ "</span>"
+#~ msgstr ""
+#~ "Klik & sleep of <span class=\"filepond—label-action\"> Selecteer "
+#~ "bestanden </span>"
 
 #~ msgid "action"
 #~ msgstr "actie"
