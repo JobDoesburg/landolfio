@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2022-10-16 14:46+0200\n"
-"PO-Revision-Date: 2022-08-02 23:53+0200\n"
+"PO-Revision-Date: 2023-02-21 13:40+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.1.1\n"
+"X-Generator: Poedit 3.2.2\n"
 
 #: moneybird/admin.py:25
 #, python-format
@@ -36,8 +36,6 @@ msgid "Error pushing to Moneybird: %s"
 msgstr "Fout tijdens het pushen naar Moneybird: %s"
 
 #: moneybird/apps.py:8
-#, fuzzy
-#| msgid "moneybird"
 msgid "Moneybird"
 msgstr "Moneybird"
 

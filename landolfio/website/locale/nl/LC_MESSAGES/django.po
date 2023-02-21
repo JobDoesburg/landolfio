@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-09 11:26+0100\n"
-"PO-Revision-Date: 2023-02-09 11:41+0100\n"
+"POT-Creation-Date: 2023-02-21 13:37+0100\n"
+"PO-Revision-Date: 2023-02-21 13:42+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -26,27 +26,51 @@ msgstr "Nederlands"
 msgid "English"
 msgstr "Engels"
 
-#: website/templates/admin/base_site.html:16
+#: website/settings/common.py:155
+msgid "⚖️ journal document lines"
+msgstr "⚖️ boekregels"
+
+#: website/settings/common.py:164
+msgid "📝 ticket settings"
+msgstr "📝 ticket instellingen"
+
+#: website/settings/common.py:169
+msgid "🗂 inventory settings"
+msgstr "🗂 inventaris instellingen"
+
+#: website/settings/common.py:181
+msgid "accounting settings"
+msgstr "boekhouding instellingen"
+
+#: website/templates/admin/base_site.html:17
 msgid "Inventory"
 msgstr "Inventaris"
 
-#: website/templates/admin/base_site.html:17
+#: website/templates/admin/base_site.html:18
 msgid "Tickets"
 msgstr "Tickets"
 
-#: website/templates/admin/base_site.html:19
+#: website/templates/admin/base_site.html:20
 msgid "Settings"
 msgstr "Instellingen"
 
 #: website/templates/admin/base_site.html:27
+msgid "New ticket"
+msgstr "Nieuw ticket"
+
+#: website/templates/admin/base_site.html:28
+msgid "New asset"
+msgstr "Nieuw eigendom"
+
+#: website/templates/admin/base_site.html:37
 msgid "Welcome,"
 msgstr "Welkom,"
 
-#: website/templates/admin/base_site.html:35
+#: website/templates/admin/base_site.html:45
 msgid "Change password"
 msgstr "Wachtwoord wijzigen"
 
-#: website/templates/admin/base_site.html:39
+#: website/templates/admin/base_site.html:49
 msgid "Log out"
 msgstr "Log uit"
 
@@ -65,9 +89,6 @@ msgstr "Deze e-mail werd automatisch verzonden door"
 
 #~ msgid "Choose module"
 #~ msgstr "Module kiezen"
-
-#~ msgid "Accounting"
-#~ msgstr "Boekhouding"
 
 #~ msgid "All"
 #~ msgstr "Alle"

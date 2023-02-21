@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-09 11:32+0100\n"
-"PO-Revision-Date: 2023-02-09 11:35+0100\n"
+"POT-Creation-Date: 2023-02-21 13:37+0100\n"
+"PO-Revision-Date: 2023-02-21 13:41+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -18,15 +18,19 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: tickets/admin.py:110
+#: tickets/admin.py:79
+msgid "Advanced options"
+msgstr "Geavanceerde opties"
+
+#: tickets/admin.py:133
 msgid "Assets"
 msgstr "Eigendommen"
 
-#: tickets/admin.py:125
+#: tickets/admin.py:151
 msgid "Close ticket"
 msgstr "Sluit ticket"
 
-#: tickets/admin.py:137
+#: tickets/admin.py:163
 msgid "Reopen ticket"
 msgstr "Heropen ticket"
 
@@ -123,38 +127,44 @@ msgstr "aangemaakt door"
 msgid "assigned to"
 msgstr "toegewezen aan"
 
-#: tickets/models.py:65
-msgid "title"
-msgstr "titel"
-
-#: tickets/models.py:67
+#: tickets/models.py:64
 msgid "description"
 msgstr "omschrijving"
 
-#: tickets/models.py:70
+#: tickets/models.py:67
 msgid "assets"
 msgstr "eigendommen"
 
-#: tickets/models.py:74
+#: tickets/models.py:71
 msgid "contact"
 msgstr "contact"
 
-#: tickets/models.py:81
+#: tickets/models.py:78
 msgid "estimate"
 msgstr "offerte"
 
-#: tickets/models.py:85
+#: tickets/models.py:82
 msgid "sales invoices"
 msgstr "verkoopfacturen"
 
-#: tickets/models.py:93
+#: tickets/models.py:90
 msgid "Ticket"
 msgstr "Ticket"
 
-#: tickets/models.py:123
+#: tickets/models.py:120
 msgid "ticket"
 msgstr "ticket"
 
-#: tickets/models.py:124
+#: tickets/models.py:121
 msgid "tickets"
 msgstr "tickets"
+
+#: tickets/templates/admin/tickets/change_list_object_tools.html:6
+#: tickets/templates/admin/tickets/change_list_object_tools.html:12
+#: tickets/templates/admin/tickets/change_list_object_tools.html:18
+#, python-format
+msgid "Add %(name)s"
+msgstr "Voeg %(name)s toe"
+
+#~ msgid "title"
+#~ msgstr "titel"

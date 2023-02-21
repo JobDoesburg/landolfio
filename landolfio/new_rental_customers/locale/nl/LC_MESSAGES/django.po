@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-09 10:00+0100\n"
-"PO-Revision-Date: 2023-02-03 17:10+0100\n"
+"POT-Creation-Date: 2023-02-21 13:37+0100\n"
+"PO-Revision-Date: 2023-02-21 13:41+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -18,7 +18,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: new_rental_customers/admin.py:26
+#: new_rental_customers/admin.py:22 new_rental_customers/models.py:11
+msgid "New rental customer"
+msgstr "Nieuwe huurder"
+
+#: new_rental_customers/admin.py:44
 msgid "Create draft agreement"
 msgstr "Maak concept-overeenkomst"
 
@@ -27,10 +31,18 @@ msgid "New rental customers"
 msgstr "Nieuwe huurders"
 
 #: new_rental_customers/forms.py:24
+msgid "Date received"
+msgstr "Datum ontvangst"
+
+#: new_rental_customers/forms.py:26
+msgid "When did you receive the instruments?"
+msgstr "Wanneer heeft u de instrumenten ontvangen?"
+
+#: new_rental_customers/forms.py:29
 msgid "Request reduced liability"
 msgstr "Schaderisicoafkoopregeling aanvragen"
 
-#: new_rental_customers/forms.py:26
+#: new_rental_customers/forms.py:31
 msgid ""
 "With reduced liability, your liability to material damages will be "
 "restricted to €50 per incident (with exception of bow hair, strings and "
@@ -40,11 +52,11 @@ msgstr ""
 "materiële schade beperkt tot 50 euro per incident (met uitzondering van "
 "beharing, besnaring en kammen)."
 
-#: new_rental_customers/forms.py:30
+#: new_rental_customers/forms.py:35
 msgid "Contact person"
 msgstr "Contactpersoon"
 
-#: new_rental_customers/forms.py:32
+#: new_rental_customers/forms.py:37
 msgid ""
 "If you received the instruments from one of our affiliate contact persons, "
 "please enter their name here."
@@ -53,11 +65,11 @@ msgstr ""
 "contactpersonen (bijvoorbeeld uw docent), vul dan alstublieft hun naam hier "
 "in."
 
-#: new_rental_customers/forms.py:34
+#: new_rental_customers/forms.py:39
 msgid "Instrument numbers"
 msgstr "Instrumentnummers"
 
-#: new_rental_customers/forms.py:36
+#: new_rental_customers/forms.py:41
 msgid ""
 "Please enter the instrument numbers of the instruments you received from us, "
 "separated with a comma."
@@ -65,31 +77,31 @@ msgstr ""
 "Vul de instrumentnummers in van de instrumenten die u van ons heeft "
 "ontvangen, gescheiden door een komma."
 
-#: new_rental_customers/models.py:14
+#: new_rental_customers/models.py:17
 msgid "wants reduced liability"
 msgstr "wil verminderde aansprakelijkheid"
 
-#: new_rental_customers/models.py:17
+#: new_rental_customers/models.py:20
 msgid "affiliate name"
 msgstr "naam gelieerde"
 
-#: new_rental_customers/models.py:20
+#: new_rental_customers/models.py:23
 msgid "instrument numbers"
 msgstr "instrumentnummers"
 
-#: new_rental_customers/models.py:27
+#: new_rental_customers/models.py:30
 msgid "rental price"
 msgstr "huurprijs"
 
-#: new_rental_customers/models.py:35
-msgid "New rental customer"
-msgstr "Nieuwe huurder"
+#: new_rental_customers/models.py:33
+msgid "date received"
+msgstr "datum ontvangst"
 
-#: new_rental_customers/models.py:41
+#: new_rental_customers/models.py:45
 msgid "new rental customer"
 msgstr "nieuwe huurder"
 
-#: new_rental_customers/models.py:42
+#: new_rental_customers/models.py:46
 msgid "new rental customers"
 msgstr "nieuwe huurders"
 

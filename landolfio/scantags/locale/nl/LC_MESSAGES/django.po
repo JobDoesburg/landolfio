@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-09 11:35+0100\n"
-"PO-Revision-Date: 2023-02-09 11:36+0100\n"
+"POT-Creation-Date: 2023-02-21 13:37+0100\n"
+"PO-Revision-Date: 2023-02-21 13:41+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -19,7 +19,9 @@ msgstr ""
 "X-Generator: Poedit 3.2.2\n"
 
 #: scantags/apps.py:8
-msgid "Scan tags"
+#, fuzzy
+#| msgid "Scan tags"
+msgid "🔖 Scan tags"
 msgstr "Scan tags"
 
 #: scantags/models.py:19
