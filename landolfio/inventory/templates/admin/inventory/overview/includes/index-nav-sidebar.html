@@ -1,6 +1,11 @@
 {% load static i18n %}
 <button class="sticky toggle-nav-sidebar" id="toggle-nav-sidebar" aria-label="{% translate 'Toggle navigation' %}"></button>
 <nav class="sticky" id="nav-sidebar">
+    <input class="sticky" type="search" id="nav-filter"
+           placeholder="{% translate 'Start typing to filter…' %}"
+           aria-label="{% translate 'Filter navigation items' %}"
+           style="display: none"
+    >
     {% include "admin/inventory/overview/includes/categories_module.html" %}
     {% include "admin/inventory/overview/includes/locations_module.html" %}
     {% include "admin/inventory/overview/includes/collections_module.html" %}
