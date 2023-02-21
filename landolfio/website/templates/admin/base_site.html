@@ -22,7 +22,7 @@
             {% endblock %}
             {% block searchbar %}
                 <div class="related-widget-wrapper" data-model-ref="eigendom" style="justify-content: center; padding: 10px 15px;">
-                    <select name="assets" id="assets_search" class="admin-autocomplete select2-hidden-accessible" data-ajax--cache="true" data-ajax--delay="250" data-ajax--type="GET" data-ajax--url="/admin/autocomplete/" data-app-label="tickets" data-model-name="ticket" data-field-name="assets" data-theme="admin-autocomplete" data-allow-clear="true" data-placeholder="" lang="nl" data-select2-id="assets_search" tabindex="-1" aria-hidden="true" oninput="redirectToAsset()"></select>
+                    <select name="assets" id="assets_search" class="admin-autocomplete select2-hidden-accessible" data-ajax--cache="true" data-ajax--delay="250" data-ajax--type="GET" data-ajax--url="/admin/autocomplete/" data-app-label="tickets" data-model-name="ticket" data-field-name="assets" data-theme="admin-autocomplete" data-allow-clear="true" data-placeholder="" lang="nl" data-select2-id="assets_search" tabindex="-1" aria-hidden="true" oninput="redirectToAsset()" style="width: 200px;"></select>
                 </div>
                 <script src="{% static "admin/js/autocomplete.js" %}"></script>
             {% endblock %}
@@ -86,7 +86,6 @@
     <script src="{% static "admin/js/vendor/select2/i18n/nl.js" %}"></script>
     <script src="{% static "admin/js/jquery.init.js" %}"></script>
     <script src="{% static "admin/js/core.js" %}"></script>
-    <script src="{% static "admin/js/autocomplete.js" %}"></script>
     <script>
         function redirectToAsset() {
             const assetsSearch = document.getElementById("assets_search");
