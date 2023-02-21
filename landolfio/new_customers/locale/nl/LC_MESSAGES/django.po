@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-21 13:37+0100\n"
+"POT-Creation-Date: 2023-02-21 16:33+0100\n"
 "PO-Revision-Date: 2023-02-21 13:40+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -18,8 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: new_customers/admin.py:25 new_customers/models.py:10
-#: new_customers/templates/register-customer.html:5
+#: new_customers/admin.py:25 new_customers/templates/register-customer.html:5
 msgid "New customer"
 msgstr "Nieuwe klant"
 

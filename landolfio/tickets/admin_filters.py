@@ -113,17 +113,20 @@ class DueTicketFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return (
-            ("due", _("Due")),
             ("not_due", _("Not due")),
+            ("overdue", _("Overdue")),
+            ("not_overdue", _("Not overdue")),
         )
 
     def queryset(self, request, queryset):
         if self.value() == "all":
             return queryset
-        if self.value() == "due":
-            return queryset.filter(date_due__lt=timezone.now())
         if self.value() == "not_due":
-            return queryset.filter(date_due__gte=timezone.now())
+            return queryset.filter(date_due__isnull=True)
+        if self.value() == "overdue":
+            return queryset.filter(date_due__lte=timezone.now())
+        if self.value() == "not_overdue":
+            return queryset.filter(date_due__gt=timezone.now())
         return queryset.filter(
-            Q(date_due__lt=timezone.now()) | Q(date_due__isnull=True)
+            Q(date_due__lte=timezone.now()) | Q(date_due__isnull=True)
         )

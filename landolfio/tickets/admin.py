@@ -2,6 +2,7 @@ from autocompletefilter.admin import AutocompleteFilterMixin
 from django.contrib import admin
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils import timezone
 from django_easy_admin_object_actions.admin import ObjectActionsMixin
 from django_easy_admin_object_actions.decorators import object_action
 from django.utils.translation import gettext_lazy as _
@@ -42,10 +43,10 @@ class TicketTypeAdmin(admin.ModelAdmin):
 class TicketAdmin(AutocompleteFilterMixin, ObjectActionsMixin, admin.ModelAdmin):
     date_hierarchy = "date_created"
 
-    ordering = ["-date_due", "-id"]
+    ordering = ["-id"]
 
     list_display = [
-        "__str__",
+        "ticket_id",
         "contact",
         "assets_str",
         "date_created",
@@ -54,13 +55,13 @@ class TicketAdmin(AutocompleteFilterMixin, ObjectActionsMixin, admin.ModelAdmin)
         "assigned_to",
     ]
 
-    list_display_links = ["__str__", "contact", "assets_str"]
+    list_display_links = ["ticket_id", "contact", "assets_str"]
 
     list_filter = [
         ClosedTicketFilter,
-        AssignedTicketFilter,
-        DueTicketFilter,
         "ticket_type",
+        DueTicketFilter,
+        AssignedTicketFilter,
     ]
 
     fieldsets = [
@@ -131,6 +132,23 @@ class TicketAdmin(AutocompleteFilterMixin, ObjectActionsMixin, admin.ModelAdmin)
         )
 
     assets_str.short_description = _("Assets")
+
+    def status(self, obj):
+        if obj.closed:
+            return "✅"
+        if obj.date_due and obj.date_due <= timezone.now().date():
+            return "⚠️"
+        if obj.date_due and obj.date_due > timezone.now().date():
+            return "⏳"
+        return None
+
+    def ticket_id(self, obj):
+        if self.status(obj):
+            return f"{self.status(obj)} {str(obj)}"
+        return str(obj)
+
+    ticket_id.short_description = "#"
+    ticket_id.admin_order_field = "-id"
 
     def get_readonly_fields(self, request, obj=None):
         """Make all fields readonly if ticket is closed."""

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-21 15:05+0100\n"
-"PO-Revision-Date: 2023-02-21 15:05+0100\n"
+"POT-Creation-Date: 2023-02-21 16:33+0100\n"
+"PO-Revision-Date: 2023-02-21 16:34+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -18,19 +18,19 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: tickets/admin.py:79
+#: tickets/admin.py:80
 msgid "Advanced options"
 msgstr "Geavanceerde opties"
 
-#: tickets/admin.py:133
+#: tickets/admin.py:134
 msgid "Assets"
 msgstr "Eigendommen"
 
-#: tickets/admin.py:151
+#: tickets/admin.py:171
 msgid "Close ticket"
 msgstr "Sluit ticket"
 
-#: tickets/admin.py:163
+#: tickets/admin.py:183
 msgid "Reopen ticket"
 msgstr "Heropen ticket"
 
@@ -68,12 +68,16 @@ msgid "Due or no due date"
 msgstr "Verlopen of niet uitgesteld"
 
 #: tickets/admin_filters.py:116
-msgid "Due"
-msgstr "Uitgesteld"
-
-#: tickets/admin_filters.py:117
 msgid "Not due"
 msgstr "Niet uitgesteld"
+
+#: tickets/admin_filters.py:117
+msgid "Overdue"
+msgstr "Verlopen"
+
+#: tickets/admin_filters.py:118
+msgid "Not overdue"
+msgstr "Niet verlopen"
 
 #: tickets/apps.py:8
 msgid "📝 Tickets"
@@ -171,6 +175,9 @@ msgstr "Nieuwe klant"
 #: tickets/templates/admin/tickets/ticket/change_list_object_tools.html:18
 msgid "Add new rental customer"
 msgstr "Nieuwe huurder"
+
+#~ msgid "Due"
+#~ msgstr "Uitgesteld"
 
 #~ msgid "title"
 #~ msgstr "titel"

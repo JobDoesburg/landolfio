@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-21 13:37+0100\n"
+"POT-Creation-Date: 2023-02-21 16:33+0100\n"
 "PO-Revision-Date: 2023-02-21 13:41+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -18,7 +18,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: new_rental_customers/admin.py:22 new_rental_customers/models.py:11
+#: new_rental_customers/admin.py:22
 msgid "New rental customer"
 msgstr "Nieuwe huurder"
 
@@ -38,11 +38,11 @@ msgstr "Datum ontvangst"
 msgid "When did you receive the instruments?"
 msgstr "Wanneer heeft u de instrumenten ontvangen?"
 
-#: new_rental_customers/forms.py:29
+#: new_rental_customers/forms.py:30
 msgid "Request reduced liability"
 msgstr "Schaderisicoafkoopregeling aanvragen"
 
-#: new_rental_customers/forms.py:31
+#: new_rental_customers/forms.py:32
 msgid ""
 "With reduced liability, your liability to material damages will be "
 "restricted to €50 per incident (with exception of bow hair, strings and "
@@ -52,11 +52,11 @@ msgstr ""
 "materiële schade beperkt tot 50 euro per incident (met uitzondering van "
 "beharing, besnaring en kammen)."
 
-#: new_rental_customers/forms.py:35
+#: new_rental_customers/forms.py:36
 msgid "Contact person"
 msgstr "Contactpersoon"
 
-#: new_rental_customers/forms.py:37
+#: new_rental_customers/forms.py:38
 msgid ""
 "If you received the instruments from one of our affiliate contact persons, "
 "please enter their name here."
@@ -65,11 +65,11 @@ msgstr ""
 "contactpersonen (bijvoorbeeld uw docent), vul dan alstublieft hun naam hier "
 "in."
 
-#: new_rental_customers/forms.py:39
+#: new_rental_customers/forms.py:40
 msgid "Instrument numbers"
 msgstr "Instrumentnummers"
 
-#: new_rental_customers/forms.py:41
+#: new_rental_customers/forms.py:42
 msgid ""
 "Please enter the instrument numbers of the instruments you received from us, "
 "separated with a comma."
