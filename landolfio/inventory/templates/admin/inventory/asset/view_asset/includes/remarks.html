@@ -4,14 +4,14 @@
     <table>
         <thead>
         <tr>
-            <th style="width: unset">{% translate "date" %}</th>
+            <th style="width: unset; white-space: nowrap">{% translate "date" %}</th>
             <th>{% translate "remark" %}</th>
         </tr>
         </thead>
         <tbody>
         {% for remark in asset.remarks.all %}
             <tr>
-                <td>{% ifchanged %}{{ remark.date }}{% endifchanged %}</td>
+                <td style="width: unset; white-space: nowrap">{% ifchanged %}{{ remark.date }}{% endifchanged %}</td>
                 <td style="white-space: break-spaces">{{ remark.remark }}</td>
             </tr>
         {% empty %}
