@@ -1,5 +1,6 @@
 from django.contrib.admin import register
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
 from accounting.models.contact import Contact
 from moneybird.admin import MoneybirdResourceModelAdmin
@@ -55,6 +56,75 @@ class ContactAdmin(MoneybirdResourceModelAdmin):
         "invoice_workflow",
         "estimate_workflow",
     )
+
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": (
+                    "first_name",
+                    "last_name",
+                    "company_name",
+                )
+            },
+        ),
+        (
+            _("Contact details"),
+            {
+                "fields": (
+                    "address_1",
+                    "address_2",
+                    "zip_code",
+                    "city",
+                    "country",
+                    "phone",
+                    "send_invoices_to_email",
+                    "send_estimates_to_email",
+                    "send_invoices_to_attention",
+                    "send_estimates_to_attention",
+                    "email",
+                    "email_ubl",
+                ),
+            },
+        ),
+        (
+            _("Advanced"),
+            {
+                "fields": (
+                    "customer_id",
+                    "tax_number",
+                    "tax_number_valid",
+                    "chamber_of_commerce",
+                    "bank_account",
+                    "attention",
+                ),
+            },
+        ),
+        (
+            _("SEPA"),
+            {
+                "fields": (
+                    "sepa_active",
+                    "sepa_iban",
+                    "sepa_iban_account_name",
+                    "sepa_bic",
+                    "sepa_mandate_id",
+                    "sepa_mandate_date",
+                    "sepa_sequence_type",
+                ),
+            },
+        ),
+        (
+            _("Moneybird"),
+            {
+                "fields": (
+                    "invoice_workflow",
+                    "estimate_workflow",
+                    "sales_invoices_url",
+                ),
+            },
+        ),
+    ]
 
     @staticmethod
     def _email(instance):
