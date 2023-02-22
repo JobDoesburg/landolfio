@@ -105,7 +105,12 @@ class MoneybirdResourceModel(models.Model):
         try:
             return super().save(*args, **kwargs)
         except IntegrityError:
-            existing_obj = self.__class__.objects.get(pk=self.pk)
+            try:
+                existing_obj = self.__class__.objects.get(
+                    moneybird_id=self.moneybird_id
+                )
+            except self.__class__.DoesNotExist:
+                return super().save(*args, **kwargs)
             existing_obj.update_fields_from_moneybird(self.serialize_for_moneybird())
             existing_obj.save()
 
