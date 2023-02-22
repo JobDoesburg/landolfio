@@ -106,10 +106,14 @@ class MoneybirdResourceType:
     def perform_save(cls, obj):
         try:
             obj.save(received_from_moneybird=True)
-        except IntegrityError:
-            existing_obj = cls.model.objects.get(moneybird_id=obj.moneybird_id)
-            existing_obj.delete(received_from_moneybird=True)
-            obj.save(received_from_moneybird=True)
+        except IntegrityError as e:
+            try:
+                existing_obj = cls.model.objects.get(moneybird_id=obj.moneybird_id)
+                existing_obj.delete(received_from_moneybird=True)
+                obj.save(received_from_moneybird=True)
+            except cls.model.DoesNotExist:
+                logging.error(f"Weird IntegrityError while saving {obj}: {e}")
+                obj.save(received_from_moneybird=True)
 
     @classmethod
     def update_resources(cls, diff: ResourceDiff):
