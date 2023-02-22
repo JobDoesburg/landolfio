@@ -106,14 +106,10 @@ class MoneybirdResourceType:
     def perform_save(cls, obj):
         try:
             obj.save(received_from_moneybird=True)
-        except IntegrityError as e:
-            try:
-                existing_obj = cls.model.objects.get(moneybird_id=obj.moneybird_id)
-                existing_obj.update_fields_from_moneybird(obj.serialize_for_moneybird())
-                existing_obj.save(received_from_moneybird=True)
-            except cls.model.DoesNotExist:
-                obj.save(received_from_moneybird=True)
-
+        except IntegrityError:
+            existing_obj = cls.model.objects.get(moneybird_id=obj.moneybird_id)
+            obj.pk = existing_obj.pk
+            obj.save(received_from_moneybird=True)
 
     @classmethod
     def update_resources(cls, diff: ResourceDiff):

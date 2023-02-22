@@ -154,7 +154,7 @@ class MoneybirdSync:
                         f"Failed to refresh {resource_type.__name__} {resource.id}"
                     )
                     logging.error(e)
-                    resource.delete()
+                    resource.delete(received_from_moneybird=True)
                     continue
 
     def perform_sync(self, resource_types: list[MoneybirdResourceType]):
