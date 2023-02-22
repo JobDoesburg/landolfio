@@ -108,7 +108,7 @@ class MoneybirdResourceType:
             obj.save(received_from_moneybird=True)
         except IntegrityError:
             existing_obj = cls.model.objects.get(moneybird_id=obj.moneybird_id)
-            obj.pk = existing_obj.pk
+            existing_obj.delete(received_from_moneybird=True)
             obj.save(received_from_moneybird=True)
 
     @classmethod
