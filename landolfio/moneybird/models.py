@@ -1,4 +1,4 @@
-from django.db import models
+from django.db import models, IntegrityError
 from django.db.models.utils import resolve_callables
 from django.utils.translation import gettext_lazy as _
 
@@ -101,7 +101,13 @@ class MoneybirdResourceModel(models.Model):
                 self.push_to_moneybird()
             else:
                 self.push_diff_to_moneybird()
-        return super().save(*args, **kwargs)
+
+        try:
+            return super().save(*args, **kwargs)
+        except IntegrityError:
+            existing_obj = self.__class__.objects.get(pk=self.pk)
+            existing_obj.update_fields_from_moneybird(self.serialize_for_moneybird())
+            existing_obj.save()
 
     def delete(
         self, delete_on_moneybird=False, received_from_moneybird=False, *args, **kwargs
