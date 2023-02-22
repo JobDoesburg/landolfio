@@ -20,6 +20,9 @@ if SENTRY_DSN:
         environment="production",
         traces_sample_rate=1.0,
         send_default_pii=True,
+        _experiments={
+            "profiles_sample_rate": 1.0,
+        }
     )
 
 # SECURITY WARNING: keep the secret key used in production secret!
