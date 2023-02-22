@@ -104,10 +104,19 @@ class MoneybirdResourceModel(models.Model):
 
         try:
             return super().save(*args, **kwargs)
-        except IntegrityError as e:
-            existing_obj = self.__class__.objects.get(moneybird_id=self.moneybird_id)
-            existing_obj.delete(received_from_moneybird=True)
-            return super().save(*args, **kwargs)
+        except IntegrityError:
+            try:
+                existing_obj = self.__class__.objects.get(
+                    moneybird_id=self.moneybird_id
+                )
+                existing_obj.delete(received_from_moneybird=True)
+                return super().save(*args, **kwargs)
+            except self.__class__.DoesNotExist:
+                existing_obj = self.__class__.__base__.objects.get(
+                    moneybird_id=self.moneybird_id
+                )
+                existing_obj.delete(received_from_moneybird=True)
+                return super().save(*args, **kwargs)
 
     def delete(
         self, delete_on_moneybird=False, received_from_moneybird=False, *args, **kwargs
