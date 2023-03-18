@@ -108,12 +108,12 @@ class MoneybirdResourceType:
             obj.save(received_from_moneybird=True)
         except IntegrityError as e:
             try:
-                existing_obj = obj.__class_.objects.get(moneybird_id=obj.moneybird_id)
+                existing_obj = obj.__class__.objects.get(moneybird_id=obj.moneybird_id)
                 existing_obj.delete(received_from_moneybird=True)
                 obj.save(received_from_moneybird=True)
             except cls.model.DoesNotExist:
                 # Apparently, the object exists with the wrong subtype
-                existing_obj = obj.__class_.__base__.objects.get(
+                existing_obj = obj.__class__.__base__.objects.get(
                     moneybird_id=obj.moneybird_id
                 )
                 existing_obj.delete(received_from_moneybird=True)
