@@ -112,10 +112,14 @@ class MoneybirdResourceModel(models.Model):
                 existing_obj.delete(received_from_moneybird=True)
                 return super().save(*args, **kwargs)
             except self.__class__.DoesNotExist:
-                existing_obj = self.__class__.__base__.objects.get(
-                    moneybird_id=self.moneybird_id
-                )
-                existing_obj.delete(received_from_moneybird=True)
+                try:
+                    existing_obj = self.__class__.__base__.objects.get(
+                        moneybird_id=self.moneybird_id
+                    )
+                    existing_obj.delete(received_from_moneybird=True)
+                except AttributeError:
+                    return
+
                 return super().save(*args, **kwargs)
 
     def delete(
