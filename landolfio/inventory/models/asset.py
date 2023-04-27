@@ -128,6 +128,8 @@ class Asset(models.Model):
         verbose_name=_("recurring sales invoice document lines"),
     )
 
+    raw_data = models.JSONField(verbose_name=_("raw data"), null=True, blank=True)
+
     @property
     def get_ledger_account_amounts(self):
         return dict(

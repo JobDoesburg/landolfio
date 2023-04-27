@@ -325,7 +325,8 @@ class NinoxImporter:
         except KeyError:
             pass
 
-        # TODO detail velden
+        asset.raw_data = record["fields"]
+
         asset.save()
 
     def update_asset_media(self, asset, record, table_id):
