@@ -353,6 +353,14 @@ class AssetAdmin(
             f'<a href="{reverse("admin:inventory_asset_view", kwargs={"id": obj.id})}">{obj.id}</a>',
         )
 
+    def get_search_results(self, request, queryset, search_term):
+        """Override get_search_results to always search all objects, ignoring any filters."""
+        all_objects = self.model.objects.all()
+        queryset, use_distinct = super().get_search_results(
+            request, all_objects, search_term
+        )
+        return queryset, use_distinct
+
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
