@@ -15,7 +15,9 @@ urlpatterns = [
     path("scan/", include("scantags.urls")),
     re_path(r"^media/", views.protected_ask_reverse_proxy),
     path("admin/", RedirectView.as_view(url="/admin/"), name="admin"),
-    path("", RedirectView.as_view(url="/admin/"), name="admin"),
+    path(
+        "", RedirectView.as_view(url="/admin/inventory/asset/overview/"), name="admin"
+    ),
 ]
 urlpatterns += (path("customer/", include("new_customers.urls")),)
 urlpatterns += (path("customer/rental/", include("new_rental_customers.urls")),)

@@ -22,7 +22,7 @@ if SENTRY_DSN:
         send_default_pii=True,
         _experiments={
             "profiles_sample_rate": 1.0,
-        }
+        },
     )
 
 # SECURITY WARNING: keep the secret key used in production secret!
