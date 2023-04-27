@@ -16,7 +16,7 @@ from inventory.models.category import AssetCategory, AssetSize
 from inventory.models.collection import Collection
 from inventory.models.location import AssetLocationGroup, AssetLocation
 from inventory.models.remarks import Remark
-from inventory.models.status import AssetStates
+from inventory.models.asset import AssetStates
 
 
 class TokenAuthentication(AuthBase):

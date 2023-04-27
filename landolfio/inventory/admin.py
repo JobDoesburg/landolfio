@@ -355,9 +355,10 @@ class AssetAdmin(
 
     def get_search_results(self, request, queryset, search_term):
         """Override get_search_results to always search all objects, ignoring any filters."""
-        all_objects = self.model.objects.all()
+        if search_term:
+            queryset = self.model.objects.all()
         queryset, use_distinct = super().get_search_results(
-            request, all_objects, search_term
+            request, queryset, search_term
         )
         return queryset, use_distinct
 
