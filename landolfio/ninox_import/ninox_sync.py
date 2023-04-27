@@ -337,7 +337,7 @@ class NinoxImporter:
         )
         for attachment in record_attachments:
             filename = attachment["name"]
-            filename = filename.replace(" ", "_")
+            # filename = filename.replace(" ", "_")
             if Attachment.objects.filter(
                 asset=asset, attachment__endswith=filename
             ).exists():
