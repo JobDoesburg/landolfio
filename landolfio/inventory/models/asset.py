@@ -144,16 +144,20 @@ class Asset(models.Model):
 
     @property
     def get_balance_ledger_account_amounts(self):
-        return filter(
-            lambda key, _: key.account_type.is_balance,
-            self.get_ledger_account_amounts,
+        return dict(
+            filter(
+                lambda x: x[0].is_balance,
+                self.get_ledger_account_amounts.items(),
+            )
         )
 
     @property
     def get_results_ledger_account_amounts(self):
-        return filter(
-            lambda key, _: key.account_type.is_results,
-            self.get_ledger_account_amounts,
+        return dict(
+            filter(
+                lambda x: x[0].is_results,
+                self.get_ledger_account_amounts.items(),
+            )
         )
 
     total_assets_value = AggregateProperty(
