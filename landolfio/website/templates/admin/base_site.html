@@ -43,12 +43,6 @@
                 <strong>{% firstof user.get_short_name user.get_username %}</strong>.
             {% endblock %}
             {% block userlinks %}
-                {% if has_permission %}
-                    <a href="#" onclick="sync_database_button_click(this)">&#128257; {% trans 'Sync MoneyBird' %}</a> /
-                {% endif %}
-                {% if user.has_usable_password %}
-                    <a href="{% url 'admin:password_change' %}">{% translate 'Change password' %}</a> /
-                {% endif %}
                 <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
                     {% csrf_token %}
                     <button type="submit">{% translate 'Log out' %}</button>
