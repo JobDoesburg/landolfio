@@ -142,6 +142,20 @@ class Asset(models.Model):
             ).annotate(Sum("value"))
         )
 
+    @property
+    def get_balance_ledger_account_amounts(self):
+        return filter(
+            lambda key, _: key.account_type.is_balance,
+            self.get_ledger_account_amounts,
+        )
+
+    @property
+    def get_results_ledger_account_amounts(self):
+        return filter(
+            lambda key, _: key.account_type.is_results,
+            self.get_ledger_account_amounts,
+        )
+
     total_assets_value = AggregateProperty(
         Sum(
             "journal_document_line_assets__value",

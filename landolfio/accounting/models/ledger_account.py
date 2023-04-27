@@ -72,6 +72,26 @@ class LedgerAccount(MoneybirdResourceModel):
     def __str__(self):
         return self.name
 
+    @property
+    def is_balance(self):
+        return self.account_type in [
+            LedgerAccountType.NON_CURRENT_ASSETS,
+            LedgerAccountType.CURRENT_ASSETS,
+            LedgerAccountType.EQUITY,
+            LedgerAccountType.PROVISIONS,
+            LedgerAccountType.NON_CURRENT_LIABILITIES,
+            LedgerAccountType.CURRENT_LIABILITIES,
+        ]
+
+    @property
+    def is_results(self):
+        return self.account_type in [
+            LedgerAccountType.REVENUE,
+            LedgerAccountType.DIRECT_COSTS,
+            LedgerAccountType.EXPENSES,
+            LedgerAccountType.OTHER_INCOME_EXPENSES,
+        ]
+
 
 class LedgerAccountResourceType(resources.LedgerAccountResourceType):
     model = LedgerAccount
