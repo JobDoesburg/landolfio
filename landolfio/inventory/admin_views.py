@@ -18,11 +18,6 @@ class NewStatusForm(ModelForm):
         model = Asset
         fields = ["local_status", "location"]
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields["local_status"].label = ""
-        self.fields["location"].label = ""
-
 
 @method_decorator(staff_member_required, name="dispatch")
 class ViewAssetView(DetailView):

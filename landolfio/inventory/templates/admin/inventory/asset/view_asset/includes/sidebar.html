@@ -39,7 +39,6 @@
 </style>
 
 <div class="module" style="padding-bottom: 8px">
-    <form method="post">
     <h2>🗂 {{ asset.id }}<a class="button small" href="{% url 'admin:inventory_asset_change' asset.pk %}" style="color: white">✏️ {% translate "Edit" %}</a></h2>
     <ul>
         <li><strong>{% translate "category"|capfirst %}:</strong> {{ asset.category|default_if_none:"-" }}</li>
@@ -75,11 +74,4 @@
         <li><strong>{% translate "total expenses"|capfirst %}:</strong> {{ asset.total_expenses_value|default_if_none:"" }} </li>
         <li><strong>{% translate "total revenue"|capfirst %}:</strong> {{ asset.total_revenue_value|default_if_none:"" }} </li>
     </ul>
-    <hr>
-    <ul>
-        {% csrf_token %}
-        {{ status_form.as_ul }}
-        <input type="submit" value="{% translate "Save" %}" class="button">
-    </ul>
-    </form>
 </div>
