@@ -325,7 +325,7 @@ class NinoxImporter:
         except KeyError:
             pass
 
-        asset.raw_data = record["fields"]
+        asset.raw_data = record
 
         asset.save()
 
