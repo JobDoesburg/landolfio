@@ -450,4 +450,3 @@ class NinoxImporter:
             records = self.get(self.get_ninox_endpoint_url(table_id=table["id"]))
             for record in records:
                 self.sync_ninox_record(record, category, table["id"], with_media)
-
