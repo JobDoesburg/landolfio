@@ -412,6 +412,13 @@ class NinoxImporter:
             },
         )
 
+        asset.raw_data = record
+        if record["createdAt"] and record["createdAt"] != "":
+            asset.created_at = record["createdAt"]
+        elif record["updatedAt"] and record["updatedAt"] != "":
+            asset.created_at = record["updatedAt"]
+        asset.save()
+
         try:
             remarks = record["fields"]["Notities"]
             remarks = bleach.clean(remarks, tags=[], attributes={}, strip=True)
@@ -443,3 +450,4 @@ class NinoxImporter:
             records = self.get(self.get_ninox_endpoint_url(table_id=table["id"]))
             for record in records:
                 self.sync_ninox_record(record, category, table["id"], with_media)
+
