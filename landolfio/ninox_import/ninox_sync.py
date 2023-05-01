@@ -326,6 +326,11 @@ class NinoxImporter:
             pass
 
         asset.raw_data = record
+        if record["createdAt"] and record["createdAt"] != "":
+            asset.created_at = record["createdAt"]
+        elif record["updatedAt"] and record["updatedAt"] != "":
+            asset.created_at = record["updatedAt"]
+        asset.save()
 
         asset.save()
 
