@@ -14,7 +14,10 @@ class Remark(models.Model):
     )
 
     def __str__(self):
-        return f"{_('Remark on')} {self.asset} ({self.date:%d-%m-%Y})"
+        if self.date:
+            return f"{_('Remark on')} {self.asset} ({self.date:%d-%m-%Y})"
+        else:
+            return f"{_('Remark on')} {self.asset}"
 
     class Meta:
         verbose_name = _("remark")

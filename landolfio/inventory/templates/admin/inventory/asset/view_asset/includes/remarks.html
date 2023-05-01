@@ -11,7 +11,7 @@
         <tbody>
         {% for remark in asset.remarks.all %}
             <tr>
-                <td style="width: unset; white-space: nowrap">{% ifchanged %}{{ remark.date }}{% endifchanged %}</td>
+                <td style="width: unset; white-space: nowrap">{% ifchanged %}{{ remark.date|default_if_none:'' }}{% endifchanged %}</td>
                 <td style="white-space: break-spaces">{{ remark.remark }}</td>
             </tr>
         {% empty %}
