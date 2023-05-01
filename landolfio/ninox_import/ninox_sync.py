@@ -247,7 +247,7 @@ class NinoxImporter:
         try:
             status = self.ninox_status_to_asset_status[record["fields"]["Status"]]
         except KeyError:
-            self._logger.warning(
+            self._logger.error(
                 f"Could not match status for {category} asset {asset_number}, skipping: {record}"
             )
             return None, None, None
@@ -259,15 +259,15 @@ class NinoxImporter:
                 collection=Collection.objects.filter(commerce=True).first(),
             )
         except (IntegrityError, ValidationError):
-            self._logger.warning(
+            self._logger.error(
                 f"Could not synchronize {category} {asset_number}, does it have a valid (globally unique and a Unicode-slug) asset number?"
             )
             return None, None, None
 
         if created:
-            self._logger.info(f"Created {asset}!")
+            self._logger.warning(f"Created {asset}!")
         else:
-            self._logger.info(f"Already found {asset}!")
+            self._logger.warning(f"Already found {asset}!")
 
         return asset, created, status
 
