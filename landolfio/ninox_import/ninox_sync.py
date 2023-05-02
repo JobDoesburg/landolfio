@@ -322,7 +322,7 @@ class NinoxImporter:
             self._logger.warning(
                 f"Could not match status for {asset.category} asset {asset.id}"
             )
-            status = None
+            status = AssetStates.UNKNOWN
 
         asset.size = size
         asset.listing_price = listing_price
