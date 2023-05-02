@@ -5,6 +5,7 @@ import requests
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import IntegrityError
+from django.utils.text import slugify
 from requests import HTTPError
 from requests.auth import AuthBase
 
@@ -256,10 +257,11 @@ class NinoxImporter:
             Asset.objects.exclude(category=category).filter(id=asset_number).exists()
         )
         if already_existing_in_different_category:
-            self._logger.error(
-                f"Asset {asset_number} already exists in a different category, changing the number to {asset_number}-{category}"
+            new_asset_number = slugify(f"{asset_number}-{category}")
+            self._logger.warning(
+                f"Asset {asset_number} already exists in a different category, changing the number to {new_asset_number}"
             )
-            asset_number = f"{asset_number}-{category}"
+            asset_number = new_asset_number
 
         try:
             asset, created = Asset.objects.get_or_create(
