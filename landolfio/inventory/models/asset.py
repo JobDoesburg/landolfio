@@ -481,6 +481,8 @@ class Asset(models.Model):
         )
     )
 
+    attachment_count = AggregateProperty(Count("attachments"))
+
     objects = QueryablePropertiesManager()
     # accounting_status = AnnotationProperty(
     #     Case(

@@ -65,6 +65,7 @@ class AssetAdmin(
         "local_status",
         "is_margin",
         "is_amortized",
+        "attachment_count",
         # "accounting_errors",
         # "total_assets_value",
         # "total_direct_costs_value",
@@ -96,7 +97,11 @@ class AssetAdmin(
 
     search_fields = [
         "id",
-        # "remarks__remark",
+        "remarks__remark",
+        "tickets__description",
+        "tickets__contact__first_name",
+        "tickets__contact__last_name",
+        "tickets__contact__company_name",
         "category__name",
         "size__name",
         # "location__name",
@@ -225,6 +230,13 @@ class AssetAdmin(
         EstimateDocumentLineInline,
         RecurringSalesDocumentLineInline,
     ]
+
+    @admin.display(
+        ordering="attachment_count",
+        description=_("attachments"),
+    )
+    def attachment_count(self, obj):
+        return obj.attachment_count
 
     @admin.display(
         boolean=True,
