@@ -248,9 +248,18 @@ class NinoxImporter:
             status = self.ninox_status_to_asset_status[record["fields"]["Status"]]
         except KeyError:
             self._logger.error(
-                f"Could not match status for {category} asset {asset_number}, skipping: {record}"
+                f"Could not match status for {category} asset {asset_number}"
             )
-            return None, None, None
+            status = AssetStates.UNKNOWN
+
+        already_existing_in_different_category = (
+            Asset.objects.exclude(category=category).filter(id=asset_number).exists()
+        )
+        if already_existing_in_different_category:
+            self._logger.error(
+                f"Asset {asset_number} already exists in a different category, changing the number to {asset_number}-{category}"
+            )
+            asset_number = f"{asset_number}-{category}"
 
         try:
             asset, created = Asset.objects.get_or_create(
