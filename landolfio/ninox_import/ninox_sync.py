@@ -256,16 +256,10 @@ class NinoxImporter:
             )
             asset_number = new_asset_number
 
-        try:
-            asset, created = Asset.objects.get_or_create(
-                name=asset_number,
-                category=category,
-            )
-        except (IntegrityError, ValidationError):
-            self._logger.error(
-                f"Could not synchronize {category.name_singular} {asset_number}, does it have a valid (globally unique and a Unicode-slug) asset number?"
-            )
-            return None, None, None
+        asset, created = Asset.objects.get_or_create(
+            name=asset_number,
+            category=category,
+        )
 
         if not asset.collection:
             asset.collection = self.ninox_collection_to_collection["Zakelijk"]
