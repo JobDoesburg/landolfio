@@ -92,9 +92,9 @@ class Asset(models.Model):
         verbose_name=_("name"),
         null=False,
         blank=False,
-        max_length=10,
+        max_length=255,
         unique=True,
-        validators=[validate_slug, validate_uppercase],
+        # validators=[validate_slug, validate_uppercase],
     )
     category = models.ForeignKey(
         Category,

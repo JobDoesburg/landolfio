@@ -7,6 +7,7 @@ from django.core.files.base import ContentFile
 from django.db import IntegrityError
 from django.utils.formats import localize
 from django.utils.text import slugify
+from django.utils.timezone import make_aware
 from requests import HTTPError
 from requests.auth import AuthBase
 
@@ -337,13 +338,13 @@ class NinoxImporter:
             and record["createdAt"]
             and record["createdAt"] != ""
         ):
-            asset.created_at = localize(record["createdAt"])
+            asset.created_at = make_aware(record["createdAt"])
         elif (
             "updatedAt" in record.keys()
             and record["updatedAt"]
             and record["updatedAt"] != ""
         ):
-            asset.created_at = localize(record["updatedAt"])
+            asset.created_at = make_aware(record["updatedAt"])
 
         asset.save()
 
@@ -436,13 +437,13 @@ class NinoxImporter:
             and record["createdAt"]
             and record["createdAt"] != ""
         ):
-            asset.created_at = localize(record["createdAt"])
+            asset.created_at = make_aware(record["createdAt"])
         elif (
             "updatedAt" in record.keys()
             and record["updatedAt"]
             and record["updatedAt"] != ""
         ):
-            asset.created_at = localize(record["updatedAt"])
+            asset.created_at = make_aware(record["updatedAt"])
         asset.save()
 
         try:
