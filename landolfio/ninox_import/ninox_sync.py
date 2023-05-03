@@ -256,14 +256,19 @@ class NinoxImporter:
             )
             asset_number = new_asset_number
 
+        try:
+            collection = self.ninox_collection_to_collection[
+                record["fields"]["Collectie"]
+            ]
+        except KeyError:
+            self._logger.warning(f"Could not match collection asset {asset_number}")
+            collection = self.ninox_collection_to_collection["Zakelijk"]
+
         asset, created = Asset.objects.get_or_create(
             name=asset_number,
             category=category,
+            collection=collection,
         )
-
-        if not asset.collection:
-            asset.collection = self.ninox_collection_to_collection["Zakelijk"]
-            asset.save()
 
         if created:
             self._logger.warning(f"Created {asset}!")
