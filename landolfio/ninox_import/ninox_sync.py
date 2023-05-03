@@ -240,7 +240,7 @@ class NinoxImporter:
         try:
             status = self.ninox_status_to_asset_status[record["fields"]["Status"]]
         except KeyError:
-            self._logger.error(
+            self._logger.warning(
                 f"Could not match status for {category} asset {asset_number}"
             )
             status = AssetStates.UNKNOWN
