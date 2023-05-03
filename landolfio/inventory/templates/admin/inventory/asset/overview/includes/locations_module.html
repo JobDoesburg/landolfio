@@ -3,12 +3,17 @@
 <div class="module">
     <table>
         <caption>
-            <a href="#" class="section" title="locations">📍 {% translate "locations"|capfirst %}</a>
+            <a href="{% url 'admin:inventory_location_changelist' %}" class="section" title="locations">📍 {% translate "locations"|capfirst %}</a>
         </caption>
         {% for location in locations %}
             <tr class="">
                 <th scope="row"><a href="{% url "admin:inventory_asset_overview_changelist" %}?location__id__exact={{ location.id }}">{{ location }}</a></th>
                 <td style="float: right">{{ location.asset_set.all.count }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <th scope="row">{% translate "No locations" %}</th>
+                <td style="float: right">-</td>
             </tr>
         {% endfor %}
     </table>

@@ -6,14 +6,16 @@ from new_customers.admin import NewCustomerAdmin
 from new_rental_customers import services
 from new_rental_customers.models import (
     NewRentalCustomer,
-    NEW_RENTAL_CUSTOMER_TICKET_TYPE,
+    get_rental_customer_ticket_type,
 )
 
 
 @admin.register(NewRentalCustomer)
 class NewRentalCustomerAdmin(NewCustomerAdmin):
     readonly_fields = NewCustomerAdmin.readonly_fields
-    ticket_type_id = NEW_RENTAL_CUSTOMER_TICKET_TYPE.id
+
+    def _get_ticket_type_id(self):
+        return get_rental_customer_ticket_type().id
 
     fieldsets = (
         NewCustomerAdmin.fieldsets[:1]

@@ -23,12 +23,6 @@ from accounting.models import (
 from inventory.admin_inlines import (
     RemarkInline,
     AttachmentInlineAdmin,
-    JournalDocumentLineInline,
-    SalesAndPurchaseJournalDocumentLineInline,
-    NonSalesRevenueDocumentLineInline,
-    NonPurchaseExpenseDocumentLineInline,
-    EstimateDocumentLineInline,
-    RecurringSalesDocumentLineInline,
     AssetOnRecurringSalesInvoiceDocumentLineInline,
     AssetOnEstimateDocumentLineInline,
     AssetOnJournalDocumentLineInline,
@@ -38,9 +32,9 @@ from inventory.models.asset import (
     Asset,
 )
 from inventory.models.attachment import Attachment
-from inventory.models.category import AssetCategory, AssetSize
+from inventory.models.category import Category, Size
 from inventory.models.collection import Collection
-from inventory.models.location import AssetLocation, AssetLocationGroup
+from inventory.models.location import Location, LocationGroup
 from moneybird.admin import MoneybirdResourceModelAdmin
 
 
@@ -96,7 +90,7 @@ class AssetAdmin(
     )
 
     search_fields = [
-        "id",
+        "name",
         "remarks__remark",
         "tickets__description",
         "tickets__contact__first_name",
@@ -125,6 +119,7 @@ class AssetAdmin(
             {
                 "fields": [
                     "id",
+                    "name",
                     "category",
                     "size",
                     "location",
@@ -178,6 +173,7 @@ class AssetAdmin(
     ]
 
     readonly_fields = (
+        "id",
         "total_assets_value",
         "total_margin_assets_value",
         "total_non_margin_assets_value",
@@ -223,12 +219,6 @@ class AssetAdmin(
     inlines = [
         RemarkInline,
         AttachmentInlineAdmin,
-        JournalDocumentLineInline,
-        SalesAndPurchaseJournalDocumentLineInline,
-        NonSalesRevenueDocumentLineInline,
-        NonPurchaseExpenseDocumentLineInline,
-        EstimateDocumentLineInline,
-        RecurringSalesDocumentLineInline,
     ]
 
     @admin.display(
@@ -350,19 +340,13 @@ class AssetAdmin(
     def has_loan_agreement(self, obj):
         return obj.has_loan_agreement
 
-    def get_readonly_fields(self, request, obj=None):
-        readonly_fields = super().get_readonly_fields(request, obj)
-        if obj:
-            readonly_fields += ("id",)
-        return readonly_fields
-
     @admin.display(
         ordering="pk",
         description=_("asset"),
     )
     def asset_view_link(self, obj):
         return format_html(
-            f'<a href="{reverse("admin:inventory_asset_view", kwargs={"id": obj.id})}">{obj.id}</a>',
+            f'<a href="{reverse("admin:inventory_asset_view", kwargs={"id": obj.id})}">{obj.name}</a>',
         )
 
     def get_search_results(self, request, queryset, search_term):
@@ -388,8 +372,8 @@ class AssetAdmin(
                             "has_permission": True,
                             "is_popup": False,
                             "show_assets_sidebar": True,
-                            "categories": AssetCategory.objects.all().order_by("order"),
-                            "locations": AssetLocation.objects.all().order_by("order"),
+                            "categories": Category.objects.all().order_by("order"),
+                            "locations": Location.objects.all().order_by("order"),
                             "collections": Collection.objects.all().order_by("order"),
                             "recent_assets": Asset.objects.all().order_by(
                                 "-created_at"
@@ -410,8 +394,8 @@ class AssetAdmin(
                             "has_permission": True,
                             "is_popup": False,
                             "show_assets_sidebar": True,
-                            "categories": AssetCategory.objects.all().order_by("order"),
-                            "locations": AssetLocation.objects.all().order_by("order"),
+                            "categories": Category.objects.all().order_by("order"),
+                            "locations": Location.objects.all().order_by("order"),
                             "collections": Collection.objects.all().order_by("order"),
                             "recent_assets": Asset.objects.all().order_by(
                                 "-created_at"
@@ -436,8 +420,8 @@ class AssetAdmin(
 
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}
-        extra_context["categories"] = AssetCategory.objects.all().order_by("order")
-        extra_context["locations"] = AssetLocation.objects.all().order_by("order")
+        extra_context["categories"] = Category.objects.all().order_by("order")
+        extra_context["locations"] = Location.objects.all().order_by("order")
         extra_context["collections"] = Collection.objects.all().order_by("order")
         extra_context["recent_assets"] = Asset.objects.all().order_by("-created_at")[
             :10
@@ -466,12 +450,12 @@ class AttachmentAdmin(admin.ModelAdmin):
     readonly_fields = ["upload_date"]
 
 
-@admin.register(AssetCategory)
+@admin.register(Category)
 class AssetCategoryAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
 
-@admin.register(AssetSize)
+@admin.register(Size)
 class AssetSizeAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.ManyToManyField: {"widget": CheckboxSelectMultiple},
@@ -479,7 +463,7 @@ class AssetSizeAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
 
-@admin.register(AssetLocation)
+@admin.register(Location)
 class AssetLocationAdmin(admin.ModelAdmin):
     formfield_overrides = {
         models.ManyToManyField: {"widget": CheckboxSelectMultiple},
@@ -488,7 +472,7 @@ class AssetLocationAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
 
-@admin.register(AssetLocationGroup)
+@admin.register(LocationGroup)
 class AssetLocationGroupAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
@@ -506,7 +490,7 @@ class JournalDocumentLineAdmin(
         "ledger_account",
     )
     list_display_links = ["description", "document", "date"]
-    search_fields = ["description", "assets__id"]
+    search_fields = ["description", "assets__name"]
     readonly_fields = ["assets"]
     inlines = [AssetOnJournalDocumentLineInline]
     list_filter = [
@@ -541,7 +525,7 @@ class EstimateDocumentLineAdmin(
         "ledger_account",
     )
     list_display_links = ["description", "document", "date"]
-    search_fields = ["description", "assets__id"]
+    search_fields = ["description", "assets__name"]
     readonly_fields = ["assets"]
     inlines = [AssetOnEstimateDocumentLineInline]
     list_filter = [
@@ -572,7 +556,7 @@ class RecurringSalesInvoiceDocumentLineAdmin(
         "ledger_account",
     )
     list_display_links = ["description", "document", "date"]
-    search_fields = ["description", "assets__id"]
+    search_fields = ["description", "assets__name"]
     readonly_fields = ["assets"]
     inlines = [AssetOnRecurringSalesInvoiceDocumentLineInline]
     list_filter = [

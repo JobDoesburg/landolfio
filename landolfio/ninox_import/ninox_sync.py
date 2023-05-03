@@ -5,6 +5,7 @@ import requests
 from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.db import IntegrityError
+from django.utils.formats import localize
 from django.utils.text import slugify
 from requests import HTTPError
 from requests.auth import AuthBase
@@ -13,9 +14,9 @@ from django.conf import settings
 
 from inventory.models.asset import Asset
 from inventory.models.attachment import Attachment
-from inventory.models.category import AssetCategory, AssetSize
+from inventory.models.category import Category, Size
 from inventory.models.collection import Collection
-from inventory.models.location import AssetLocationGroup, AssetLocation
+from inventory.models.location import LocationGroup, Location
 from inventory.models.remarks import Remark
 from inventory.models.asset import AssetStates
 
@@ -34,8 +35,8 @@ class TokenAuthentication(AuthBase):
 
 
 def get_or_create_location(group_name, location_name):
-    location_group, _ = AssetLocationGroup.objects.get_or_create(name=group_name)
-    return AssetLocation.objects.get_or_create(
+    location_group, _ = LocationGroup.objects.get_or_create(name=group_name)
+    return Location.objects.get_or_create(
         name=location_name, location_group=location_group
     )
 
@@ -49,34 +50,32 @@ class NinoxImporter:
     database_id = settings.NINOX_DATABASE_ID
 
     ninox_table_to_asset_category = {
-        "Cello's": AssetCategory.objects.get_or_create(
+        "Cello's": Category.objects.get_or_create(
             name="Cello's", name_singular="Cello"
         ),
-        "Cellostokken": AssetCategory.objects.get_or_create(
+        "Cellostokken": Category.objects.get_or_create(
             name="Cellostokken", name_singular="Cellostok"
         ),
-        "Violen": AssetCategory.objects.get_or_create(
-            name="Violen", name_singular="Viool"
-        ),
-        "Vioolstokken": AssetCategory.objects.get_or_create(
+        "Violen": Category.objects.get_or_create(name="Violen", name_singular="Viool"),
+        "Vioolstokken": Category.objects.get_or_create(
             name="Vioolstokken", name_singular="Vioolstok"
         ),
-        "Altviolen": AssetCategory.objects.get_or_create(
+        "Altviolen": Category.objects.get_or_create(
             name="Altviolen", name_singular="Altviool"
         ),
-        "Altvioolstokken": AssetCategory.objects.get_or_create(
+        "Altvioolstokken": Category.objects.get_or_create(
             name="Altvioolstokken", name_singular="Altvioolstok"
         ),
-        "Contrabassen": AssetCategory.objects.get_or_create(
+        "Contrabassen": Category.objects.get_or_create(
             name="Contrabassen", name_singular="Contrabas"
         ),
-        "Contrabasstokken": AssetCategory.objects.get_or_create(
+        "Contrabasstokken": Category.objects.get_or_create(
             name="Contrabasstokken", name_singular="Contrabasstok"
         ),
-        "Gamba's": AssetCategory.objects.get_or_create(
+        "Gamba's": Category.objects.get_or_create(
             name="Gamba's", name_singular="Gamba"
         ),
-        "Gambastokken": AssetCategory.objects.get_or_create(
+        "Gambastokken": Category.objects.get_or_create(
             name="Gambastokken", name_singular="Gambastok"
         ),
     }
@@ -110,34 +109,28 @@ class NinoxImporter:
     }
 
     ninox_category_to_category = {
-        "Cello": AssetCategory.objects.get_or_create(
-            name="Cello's", name_singular="Cello"
-        ),
-        "Cellostok": AssetCategory.objects.get_or_create(
+        "Cello": Category.objects.get_or_create(name="Cello's", name_singular="Cello"),
+        "Cellostok": Category.objects.get_or_create(
             name="Cellostokken", name_singular="Cellostok"
         ),
-        "Viool": AssetCategory.objects.get_or_create(
-            name="Violen", name_singular="Viool"
-        ),
-        "Vioolstok": AssetCategory.objects.get_or_create(
+        "Viool": Category.objects.get_or_create(name="Violen", name_singular="Viool"),
+        "Vioolstok": Category.objects.get_or_create(
             name="Vioolstokken", name_singular="Vioolstok"
         ),
-        "Altviool": AssetCategory.objects.get_or_create(
+        "Altviool": Category.objects.get_or_create(
             name="Altviolen", name_singular="Altviool"
         ),
-        "Altvioolstok": AssetCategory.objects.get_or_create(
+        "Altvioolstok": Category.objects.get_or_create(
             name="Altvioolstokken", name_singular="Altvioolstok"
         ),
-        "Contrabas": AssetCategory.objects.get_or_create(
+        "Contrabas": Category.objects.get_or_create(
             name="Contrabassen", name_singular="Contrabas"
         ),
-        "Contrabasstok": AssetCategory.objects.get_or_create(
+        "Contrabasstok": Category.objects.get_or_create(
             name="Contrabasstokken", name_singular="Contrabasstok"
         ),
-        "Gamba": AssetCategory.objects.get_or_create(
-            name="Gamba's", name_singular="Gamba"
-        ),
-        "Gambastok": AssetCategory.objects.get_or_create(
+        "Gamba": Category.objects.get_or_create(name="Gamba's", name_singular="Gamba"),
+        "Gambastok": Category.objects.get_or_create(
             name="Gambastokken", name_singular="Gambastok"
         ),
     }
@@ -254,7 +247,7 @@ class NinoxImporter:
             status = AssetStates.UNKNOWN
 
         already_existing_in_different_category = (
-            Asset.objects.exclude(category=category).filter(id=asset_number).exists()
+            Asset.objects.exclude(category=category).filter(name=asset_number).exists()
         )
         if already_existing_in_different_category:
             new_asset_number = slugify(f"{asset_number}-{category}")
@@ -265,12 +258,12 @@ class NinoxImporter:
 
         try:
             asset, created = Asset.objects.get_or_create(
-                id=asset_number,
+                name=asset_number,
                 category=category,
             )
         except (IntegrityError, ValidationError):
             self._logger.error(
-                f"Could not synchronize {category} {asset_number}, does it have a valid (globally unique and a Unicode-slug) asset number?"
+                f"Could not synchronize {category.name_singular} {asset_number}, does it have a valid (globally unique and a Unicode-slug) asset number?"
             )
             return None, None, None
 
@@ -287,7 +280,7 @@ class NinoxImporter:
 
     def update_asset_details(self, asset, record):
         try:
-            size, _ = AssetSize.objects.get_or_create(name=record["fields"]["Maat"])
+            size, _ = Size.objects.get_or_create(name=record["fields"]["Maat"])
             if not asset.category in size.categories.all():
                 size.categories.add(asset.category)
         except KeyError:
@@ -298,19 +291,18 @@ class NinoxImporter:
                 record["fields"]["Collectie"]
             ]
         except KeyError:
-            self._logger.warning(
-                f"Could not match collection for {asset.category} asset {asset.id}"
-            )
+            self._logger.warning(f"Could not match collection for {asset}")
             collection = self.ninox_collection_to_collection["Zakelijk"]
 
-        try:
-            location, _ = self.ninox_location_to_asset_location[
-                record["fields"]["Locatie"]
-            ]
-        except KeyError:
-            self._logger.warning(
-                f"Could not match location for {asset.category} asset {asset.id}"
-            )
+        if "Locatie" in record["fields"]:
+            try:
+                location, _ = self.ninox_location_to_asset_location[
+                    record["fields"]["Locatie"]
+                ]
+            except KeyError:
+                self._logger.warning(f"Could not match location for {asset}")
+                location = None
+        else:
             location = None
 
         try:
@@ -318,12 +310,13 @@ class NinoxImporter:
         except KeyError:
             listing_price = None
 
-        try:
-            status = self.ninox_status_to_asset_status[record["fields"]["Status"]]
-        except KeyError:
-            self._logger.warning(
-                f"Could not match status for {asset.category} asset {asset.id}"
-            )
+        if "Status" in record["fields"]:
+            try:
+                status = self.ninox_status_to_asset_status[record["fields"]["Status"]]
+            except KeyError:
+                self._logger.info(f"Could not match status for {asset}")
+                status = AssetStates.UNKNOWN
+        else:
             status = AssetStates.UNKNOWN
 
         asset.size = size
@@ -345,14 +338,13 @@ class NinoxImporter:
             and record["createdAt"]
             and record["createdAt"] != ""
         ):
-            asset.created_at = record["createdAt"]
+            asset.created_at = localize(record["createdAt"])
         elif (
             "updatedAt" in record.keys()
             and record["updatedAt"]
             and record["updatedAt"] != ""
         ):
-            asset.created_at = record["updatedAt"]
-        asset.save()
+            asset.created_at = localize(record["updatedAt"])
 
         asset.save()
 
@@ -412,7 +404,7 @@ class NinoxImporter:
             collection = self.ninox_collection_to_collection["Algemene registratie"]
 
         try:
-            size, _ = AssetSize.objects.get_or_create(name=record["fields"]["Maat"])
+            size, _ = Size.objects.get_or_create(name=record["fields"]["Maat"])
         except KeyError:
             size = None
 
@@ -430,7 +422,7 @@ class NinoxImporter:
             listing_price = None
 
         asset, _ = Asset.objects.update_or_create(
-            id=nummer,
+            name=nummer,
             category=category,
             defaults={
                 "collection": collection,
@@ -445,13 +437,13 @@ class NinoxImporter:
             and record["createdAt"]
             and record["createdAt"] != ""
         ):
-            asset.created_at = record["createdAt"]
+            asset.created_at = localize(record["createdAt"])
         elif (
             "updatedAt" in record.keys()
             and record["updatedAt"]
             and record["updatedAt"] != ""
         ):
-            asset.created_at = record["updatedAt"]
+            asset.created_at = localize(record["updatedAt"])
         asset.save()
 
         try:

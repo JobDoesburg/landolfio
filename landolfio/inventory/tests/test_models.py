@@ -24,8 +24,8 @@ class AssetModelTest(TestCase):
 
     def test_assets_attributes(self):
         """Test the functionality of an asset."""
-        asset = Asset.objects.get(id="C7800")
-        self.assertEqual(asset.id, "C7800")
+        asset = Asset.objects.get(name="C7800")
+        self.assertEqual(asset.name, "C7800")
         self.assertEqual(asset.asset_type, "Violin")
         self.assertEqual(asset.size, "7/8")
         self.assertEqual(asset.collection, Collection.objects.get(id=2))

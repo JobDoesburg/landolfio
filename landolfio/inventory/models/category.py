@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 
-class AssetCategory(models.Model):
+class Category(models.Model):
     class Meta:
         verbose_name = _("category")
         verbose_name_plural = _("categories")
@@ -27,7 +27,7 @@ class AssetCategory(models.Model):
         return self.name
 
 
-class AssetSize(models.Model):
+class Size(models.Model):
     class Meta:
         verbose_name = _("size")
         verbose_name_plural = _("sizes")
@@ -37,7 +37,7 @@ class AssetSize(models.Model):
         null=False, blank=False, max_length=20, verbose_name=_("name")
     )
     categories = models.ManyToManyField(
-        AssetCategory, blank=False, verbose_name=_("categories")
+        Category, blank=False, verbose_name=_("categories")
     )
     order = models.PositiveSmallIntegerField(
         null=True, blank=True, verbose_name=_("order")

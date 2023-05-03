@@ -3,12 +3,17 @@
 <div class="module">
     <table>
         <caption>
-            <a href="#" class="section" title="collections">📂 {% translate "collections"|capfirst %}</a>
+            <a href="{% url 'admin:inventory_collection_changelist' %}" class="section" title="collections">📂 {% translate "collections"|capfirst %}</a>
         </caption>
         {% for collection in collections %}
             <tr class="">
                 <th scope="row"><a href="{% url "admin:inventory_asset_overview_changelist" %}?collection__id__exact={{ collection.id }}">{{ collection.name }}</a></th>
                 <td style="float: right">{{ collection.asset_set.all.count }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <th scope="row">{% translate "No collections" %}</th>
+                <td style="float: right">-</td>
             </tr>
         {% endfor %}
     </table>

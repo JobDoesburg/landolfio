@@ -39,7 +39,7 @@
 </style>
 
 <div class="module" style="padding-bottom: 8px">
-    <h2>🗂 {{ asset.id }}<a class="button small" href="{% url 'admin:inventory_asset_change' asset.pk %}" style="color: white">✏️ {% translate "Edit" %}</a></h2>
+    <h2>🗂 {{ asset.name }}<a class="button small" href="{% url 'admin:inventory_asset_change' asset.id %}" style="color: white">✏️ {% translate "Edit" %}</a></h2>
     <ul>
         <li><strong>{% translate "category"|capfirst %}:</strong> {{ asset.category|default_if_none:"-" }}</li>
         <li><strong>{% translate "size"|capfirst %}:</strong> {{ asset.size|default_if_none:"-" }}</li>

@@ -6,9 +6,9 @@ from django.utils.translation import gettext_lazy as _
 from moneybird.administration import MoneybirdNotConfiguredError
 from tickets.models import Ticket, TicketType
 
-NEW_CUSTOMER_TICKET_TYPE = TicketType.objects.get_or_create(
-    name="Nieuwe klant", code_defined=True
-)[0]
+
+def get_customer_ticket_type():
+    return TicketType.objects.get_or_create(name="Nieuwe klant", code_defined=True)[0]
 
 
 class NewCustomer(Ticket):
@@ -23,7 +23,7 @@ class NewCustomer(Ticket):
         self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
         if not self.ticket_type:
-            self.ticket_type = NEW_CUSTOMER_TICKET_TYPE
+            self.ticket_type = get_customer_ticket_type()
 
         try:
             if self.contact and not self.contact.is_synced_with_moneybird:

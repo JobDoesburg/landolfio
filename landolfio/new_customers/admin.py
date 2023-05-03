@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
 from django_easy_admin_object_actions.decorators import object_action
 
-from new_customers.models import NEW_CUSTOMER_TICKET_TYPE
+from new_customers.models import get_customer_ticket_type
 from new_rental_customers.models import NewCustomer
 from new_rental_customers import services
 from tickets.admin import TicketAdmin
@@ -11,7 +11,8 @@ from tickets.admin import TicketAdmin
 
 @admin.register(NewCustomer)
 class NewCustomerAdmin(TicketAdmin):
-    ticket_type_id = NEW_CUSTOMER_TICKET_TYPE.id
+    def _get_ticket_type_id(self):
+        return get_customer_ticket_type().id
 
     readonly_fields = TicketAdmin.readonly_fields + [
         "ticket_type",

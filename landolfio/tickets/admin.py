@@ -126,7 +126,7 @@ class TicketAdmin(AutocompleteFilterMixin, ObjectActionsMixin, admin.ModelAdmin)
 
     def assets_str(self, obj):
         return (
-            ", ".join([str(asset.id) for asset in obj.assets.all()])
+            ", ".join([str(asset.name) for asset in obj.assets.all()])
             if obj.assets.all()
             else None
         )
@@ -193,12 +193,15 @@ class TicketAdmin(AutocompleteFilterMixin, ObjectActionsMixin, admin.ModelAdmin)
         extra_context = extra_context or {"is_nav_sidebar_enabled": False}
         return super().history_view(request, object_id, extra_context)
 
+    def _get_ticket_type_id(self):
+        return 0
+
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {"is_nav_sidebar_enabled": False}
         if self.__class__ != TicketAdmin:
             return redirect(
                 reverse(f"admin:tickets_ticket_changelist")
-                + f"?ticket_type__id__exact={self.ticket_type_id}"
+                + f"?ticket_type__id__exact={self._get_ticket_type_id()}"
             )
         return super().changelist_view(request, extra_context)
 

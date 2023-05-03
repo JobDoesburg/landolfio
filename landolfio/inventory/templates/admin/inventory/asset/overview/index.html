@@ -26,7 +26,7 @@
             <ul class="actionlist">
                 {% for asset in recent_assets %}
                     <li class="addlink">
-                        <a href="{% url "admin:inventory_asset_view" asset.id %}">{{ asset.id }}</a>
+                        <a href="{% url "admin:inventory_asset_view" asset.id %}">{{ asset.name }}</a>
                         <br>
                         <span class="mini quiet">{{ asset.category.name_singular }} · {{ asset.collection }} · {{ asset.size }}</span>
                         <br>

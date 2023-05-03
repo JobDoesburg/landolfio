@@ -7,9 +7,9 @@ from inventory.models.asset import Asset
 from new_customers.models import NewCustomer
 from tickets.models import Ticket, TicketType
 
-NEW_RENTAL_CUSTOMER_TICKET_TYPE = TicketType.objects.get_or_create(
-    name="Nieuwe huurder", code_defined=True
-)[0]
+
+def get_rental_customer_ticket_type():
+    return TicketType.objects.get_or_create(name="Nieuwe huurder", code_defined=True)[0]
 
 
 class NewRentalCustomer(NewCustomer):
@@ -37,7 +37,7 @@ class NewRentalCustomer(NewCustomer):
         self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
         if not self.ticket_type:
-            self.ticket_type = NEW_RENTAL_CUSTOMER_TICKET_TYPE
+            self.ticket_type = get_rental_customer_ticket_type()
 
         super().save(force_insert, force_update, using, update_fields)
 

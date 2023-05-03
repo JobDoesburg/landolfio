@@ -23,7 +23,7 @@ from inventory.models.asset_on_document_line import (
 
 @lru_cache(maxsize=None)
 def get_asset_ids():
-    return set(Asset.objects.values_list("id", flat=True))
+    return set(Asset.objects.values_list("name", flat=True))
 
 
 @lru_cache(maxsize=None)
@@ -40,7 +40,7 @@ def find_asset_from_id(asset_id) -> Union[Asset, None]:
     if asset_id is None:
         return None
     try:
-        return Asset.objects.get(id=asset_id)
+        return Asset.objects.get(name=asset_id)
     except Asset.DoesNotExist:
         return None
 
@@ -131,12 +131,12 @@ def find_assets_in_document_line(document_line):
 
 
 def _relink_document_lines_to_asset(model, asset):
-    for document_line in model.objects.filter(description__contains=asset.id):
+    for document_line in model.objects.filter(description__contains=asset.name):
         find_assets_in_document_line(document_line)
 
     if issubclass(model, GeneralJournalDocumentLine):
         for document_line in model.objects.filter(
-            document__reference__contains=asset.id
+            document__reference__contains=asset.name
         ):
             find_assets_in_document_line(document_line)
 

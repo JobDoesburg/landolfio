@@ -3,7 +3,7 @@ from django.db.models import PROTECT
 from django.utils.translation import gettext_lazy as _
 
 
-class AssetLocationGroup(models.Model):
+class LocationGroup(models.Model):
     class Meta:
         verbose_name = _("location group")
         verbose_name_plural = _("location groups")
@@ -20,7 +20,7 @@ class AssetLocationGroup(models.Model):
         return self.name
 
 
-class AssetLocation(models.Model):
+class Location(models.Model):
     class Meta:
         verbose_name = _("location")
         verbose_name_plural = _("locations")
@@ -30,7 +30,7 @@ class AssetLocation(models.Model):
         null=False, blank=False, max_length=20, verbose_name=_("name")
     )
     location_group = models.ForeignKey(
-        AssetLocationGroup,
+        LocationGroup,
         blank=False,
         null=False,
         on_delete=PROTECT,

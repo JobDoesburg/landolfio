@@ -19,7 +19,7 @@ def create_draft_agreement(obj):
     )
     for asset in assets:
         estimate.document_lines.create(
-            description=asset.last_accounting_description or f"{asset.id}: TODO",
+            description=asset.last_accounting_description or f"{asset.name}: TODO",
             price=asset.last_accounting_price or asset.listing_price or 0,
         )
 

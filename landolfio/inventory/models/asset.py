@@ -1,5 +1,8 @@
+import uuid
 from decimal import Decimal
 
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_slug
 from django.db import models
 from django.db.models import (
     PROTECT,
@@ -33,9 +36,9 @@ from inventory.models.asset_on_document_line import (
     AssetOnEstimateDocumentLine,
     AssetOnRecurringSalesInvoiceDocumentLine,
 )
-from inventory.models.category import AssetCategory, AssetSize
+from inventory.models.category import Category, Size
 from inventory.models.collection import Collection
-from inventory.models.location import AssetLocation
+from inventory.models.location import Location
 
 
 class FilteredRelatedExistenceCheckProperty(RelatedExistenceCheckProperty):
@@ -74,21 +77,37 @@ class AccountingStates(models.TextChoices):
     SOLD = "sold", _("sold")
 
 
+def validate_uppercase(value):
+    if not value.isupper():
+        raise ValidationError(_("Name must be uppercase"))
+
+
 class Asset(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name=_("created at"))
-    id = models.CharField(verbose_name=_("ID"), max_length=200, primary_key=True)
+    updated_at = models.DateTimeField(auto_now=True, verbose_name=_("updated at"))
+    id = models.UUIDField(
+        primary_key=True, editable=False, default=uuid.uuid4, verbose_name=_("id")
+    )
+    name = models.CharField(
+        verbose_name=_("name"),
+        null=False,
+        blank=False,
+        max_length=10,
+        unique=True,
+        validators=[validate_slug, validate_uppercase],
+    )
     category = models.ForeignKey(
-        AssetCategory,
+        Category,
         null=True,
         blank=False,
         on_delete=PROTECT,
         verbose_name=_("category"),
     )
     size = models.ForeignKey(
-        AssetSize, null=True, blank=True, on_delete=PROTECT, verbose_name=_("size")
+        Size, null=True, blank=True, on_delete=PROTECT, verbose_name=_("size")
     )
     location = models.ForeignKey(
-        AssetLocation,
+        Location,
         null=True,
         blank=True,
         on_delete=PROTECT,
@@ -652,12 +671,12 @@ class Asset(models.Model):
         return latest_asset_agreement.price
 
     def __str__(self):
-        return f"{self.category.name_singular} {self.id} ({self.size})"
+        return f"{self.category.name_singular} {self.name} ({self.size})"
 
     def get_absolute_url(self):
         return reverse("admin:inventory_asset_view", args=[self.id])
 
     class Meta:
-        ordering = ["-created_at", "id"]
+        ordering = ["-created_at", "name"]
         verbose_name = _("asset")
         verbose_name_plural = _("assets")
