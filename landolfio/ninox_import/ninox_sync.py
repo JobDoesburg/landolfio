@@ -2,10 +2,8 @@ import logging
 
 import bleach
 import requests
-from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
-from django.db import IntegrityError
-from django.utils.formats import localize
+from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
 from django.utils.timezone import make_aware
 from requests import HTTPError
@@ -338,13 +336,13 @@ class NinoxImporter:
             and record["createdAt"]
             and record["createdAt"] != ""
         ):
-            asset.created_at = make_aware(record["createdAt"])
+            asset.created_at = make_aware(parse_datetime(record["createdAt"]))
         elif (
             "updatedAt" in record.keys()
             and record["updatedAt"]
             and record["updatedAt"] != ""
         ):
-            asset.created_at = make_aware(record["updatedAt"])
+            asset.created_at = make_aware(parse_datetime(record["updatedAt"]))
 
         asset.save()
 
@@ -437,13 +435,13 @@ class NinoxImporter:
             and record["createdAt"]
             and record["createdAt"] != ""
         ):
-            asset.created_at = make_aware(record["createdAt"])
+            asset.created_at = make_aware(parse_datetime(record["createdAt"]))
         elif (
             "updatedAt" in record.keys()
             and record["updatedAt"]
             and record["updatedAt"] != ""
         ):
-            asset.created_at = make_aware(record["updatedAt"])
+            asset.created_at = make_aware(parse_datetime(record["updatedAt"]))
         asset.save()
 
         try:
