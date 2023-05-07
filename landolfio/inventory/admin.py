@@ -362,7 +362,7 @@ class AssetAdmin(
         urls = super().get_urls()
         my_urls = [
             path(
-                "<path:id>/view/",
+                "<uuid:id>/view/",
                 self.admin_site.admin_view(
                     ViewAssetView.as_view(
                         extra_context={
