@@ -341,7 +341,7 @@ class AssetAdmin(
         return obj.has_loan_agreement
 
     @admin.display(
-        ordering="pk",
+        ordering="name",
         description=_("asset"),
     )
     def asset_view_link(self, obj):
@@ -506,7 +506,7 @@ class JournalDocumentLineAdmin(
 
     @admin.display(description=_("assets"))
     def assets(self, obj):
-        return ", ".join(obj.assets.values_list("asset", flat=True))
+        return ", ".join(obj.assets.values_list("name", flat=True))
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -537,7 +537,7 @@ class EstimateDocumentLineAdmin(
 
     @admin.display(description=_("assets"))
     def assets(self, obj):
-        return ", ".join(obj.assets.values_list("asset", flat=True))
+        return ", ".join(obj.assets.values_list("name", flat=True))
 
     def has_add_permission(self, request, obj=None):
         return False
@@ -570,7 +570,7 @@ class RecurringSalesInvoiceDocumentLineAdmin(
 
     @admin.display(description=_("assets"))
     def assets(self, obj):
-        return ", ".join(obj.assets.values_list("asset", flat=True))
+        return ", ".join(obj.assets.values_list("name", flat=True))
 
     def has_add_permission(self, request, obj=None):
         return False
