@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 def attachments_directory_path(instance, filename):
     filename, extension = filename.split(".")
-    return f"inventory/attachments/{instance.asset.id}/{filename}-{shortuuid.random(length=8)}.{extension}"
+    return f"inventory/attachments/{instance.asset.id}/{instance.asset.name}-{filename}-{shortuuid.random(length=8)}.{extension}"
 
 
 class Attachment(models.Model):
