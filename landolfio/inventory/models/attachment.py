@@ -40,7 +40,7 @@ class Attachment(models.Model):
 
     def delete(self, using=None, keep_parents=False):
         if self.attachment.name:
-            self.attachment.delete()
+            self.attachment.storage.delete(self.attachment.name)
         return super().delete(using, keep_parents)
 
     def save(self, **kwargs):
