@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.admin.models import LogEntry
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.contenttypes.models import ContentType
@@ -50,7 +51,16 @@ class ViewAssetView(DetailView):
             if upload_id == "":
                 continue
 
-            tu = TemporaryUpload.objects.get(upload_id=upload_id)
+            try:
+                tu = TemporaryUpload.objects.get(upload_id=upload_id)
+            except TemporaryUpload.DoesNotExist:
+                self.message_user(
+                    request,
+                    f"Upload with id {upload_id} does not exist",
+                    level=messages.ERROR,
+                )
+                continue
+
             attachment = Attachment(asset=asset)
             stored_upload = store_upload(
                 upload_id, attachments_directory_path(attachment, tu.upload_name)
