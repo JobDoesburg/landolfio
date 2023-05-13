@@ -1,3 +1,4 @@
+import shortuuid
 from django.db import models
 
 from inventory.models.asset import Asset
@@ -5,7 +6,8 @@ from django.utils.translation import gettext_lazy as _
 
 
 def attachments_directory_path(instance, filename):
-    return f"inventory/attachments/{instance.asset.id}/{filename}"  # TODO make this a random string
+    filename, extension = filename.split(".")
+    return f"inventory/attachments/{instance.asset.id}/{filename}-{shortuuid.random(length=8)}.{extension}"
 
 
 class Attachment(models.Model):
