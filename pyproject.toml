@@ -24,7 +24,7 @@ name = "landolfio"
 version = "0.1.0"
 
 [tool.poetry.dependencies]
-Django = "^4.0.1"
+Django = "^4.1.7"
 python = "^3.9"
 gunicorn = "^20.1.0"
 psycopg2 = {version = "^2.9.3", optional = true}

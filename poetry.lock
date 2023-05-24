@@ -1487,4 +1487,4 @@ production = ["psycopg2", "uWSGI"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "1b2929a4d34d67633179b7b791090b11c8e7231ac2ed587901f59822fa8daa85"
+content-hash = "735d2f7ac9d895ff115c8e9403de51ea920808ac54c525c4ab741b0918826e87"
