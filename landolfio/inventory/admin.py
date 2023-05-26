@@ -228,7 +228,8 @@ class AssetAdmin(
         description=_("nr"),
     )
     def asset_location_nr(self, obj):
-        return obj.location_nr
+        if obj.location:
+            return obj.location_nr
 
     @admin.display(
         ordering="attachment_count",
