@@ -37,14 +37,18 @@
         font-size: 3em;
         overflow-y: hidden;
     }
-    .carousel .carousel__slide img {
-        background: white;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
     .carousel__slide {
         width: 100%;
+        height: 100%;
+    }
+    .carousel__slide img {
+        width: 100%;
+        height: 100%;
+        max-height: 500px;
+        object-fit: contain;
+    }
+    .carousel__slide img:hover {
+        cursor: zoom-in;
     }
     #content-main .module h2 {
         display: block;
