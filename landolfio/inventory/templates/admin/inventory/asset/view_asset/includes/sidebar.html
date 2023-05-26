@@ -44,7 +44,7 @@
         <li><strong>{% translate "category"|capfirst %}:</strong> {{ asset.category|default_if_none:"-" }}</li>
         <li><strong>{% translate "size"|capfirst %}:</strong> {{ asset.size|default_if_none:"-" }}</li>
         <li><strong>{% translate "collection"|capfirst %}:</strong> {{ asset.collection|default_if_none:"-" }}</li>
-        <li><strong>{% translate "location"|capfirst %}:</strong> {{ asset.location|default_if_none:"-" }}</li>
+        <li><strong>{% translate "location"|capfirst %}:</strong> {{ asset.location|default_if_none:"-" }}{% if asset.location_nr %} - {{ asset.location_nr }}{% endif %}</li>
         <li><strong>{% translate "listing price"|capfirst %}:</strong> {{ asset.listing_price|default_if_none:"-" }}</li>
         <li><strong>{% translate "local status"|capfirst %}:</strong> {{ asset.local_status|default_if_none:"-" }}</li>
         <li><strong>{% translate "accounting status"|capfirst %}:</strong> {{ asset.accounting_status|default_if_none:"-" }}</li>

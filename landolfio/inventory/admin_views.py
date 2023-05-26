@@ -17,7 +17,7 @@ from inventory.models.attachment import Attachment, attachments_directory_path
 class NewStatusForm(ModelForm):
     class Meta:
         model = Asset
-        fields = ["local_status", "location"]
+        fields = ["local_status", "location", "location_nr"]
 
 
 @method_decorator(staff_member_required, name="dispatch")

@@ -113,6 +113,9 @@ class Asset(models.Model):
         on_delete=PROTECT,
         verbose_name=_("location"),
     )
+    location_nr = models.PositiveSmallIntegerField(
+        verbose_name=_("location nr"), null=True, blank=True
+    )
     collection = models.ForeignKey(
         Collection, on_delete=models.CASCADE, verbose_name=_("collection")
     )

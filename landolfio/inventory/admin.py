@@ -53,6 +53,7 @@ class AssetAdmin(
         "category",
         "size",
         "location",
+        "asset_location_nr",
         "collection",
         "listing_price",
         # "accounting_status",
@@ -123,6 +124,7 @@ class AssetAdmin(
                     "category",
                     "size",
                     "location",
+                    "location_nr",
                     "collection",
                     "local_status",
                     "accounting_status",
@@ -220,6 +222,13 @@ class AssetAdmin(
         RemarkInline,
         AttachmentInlineAdmin,
     ]
+
+    @admin.display(
+        ordering="location_nr",
+        description=_("nr"),
+    )
+    def asset_location_nr(self, obj):
+        return obj.location_nr
 
     @admin.display(
         ordering="attachment_count",
