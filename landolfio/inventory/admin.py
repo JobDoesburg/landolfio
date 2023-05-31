@@ -78,7 +78,7 @@ class AssetAdmin(
         "size",
         "location",
         "location__location_group",
-        ("listing_price", SliderNumericFilter),
+        ("listing_price", ListingPriceSliderFilter),
         # "accounting_status",
         "is_sold",
         "is_margin",
