@@ -41,7 +41,7 @@ sentry-sdk = "^1.9.0"
 django-storages = "^1.12.3"
 boto3 = "^1.24.40"
 django-drf-filepond = "^0.4.1"
-django-admin-numeric-filter = { git="https://github.com/lukasvinclav/django-admin-numeric-filter.git" }
+django-admin-numeric-filter = "^0.1.9"
 django-bootstrap-v5 = "^1.0.11"
 django-easy-admin-object-actions = "^1.1.0"
 django-admin-multi-select-filter = "^1.0.0"
