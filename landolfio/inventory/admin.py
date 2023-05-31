@@ -1,9 +1,12 @@
 from admin_numeric_filter.admin import SliderNumericFilter, NumericFilterModelAdmin
+from admin_numeric_filter.forms import SliderNumericForm
 from django.contrib.admin import register
 from django.db import models
+from django.db.models import Max, Min
 from django.forms import CheckboxSelectMultiple
 from django.urls import reverse, path
 from django.utils.html import format_html
+from django.db.models.fields import DecimalField, FloatField
 
 from autocompletefilter.admin import AutocompleteFilterMixin
 from autocompletefilter.filters import AutocompleteListFilter
@@ -42,6 +45,42 @@ class ListingPriceSliderFilter(SliderNumericFilter):
     MAX_DECIMALS = 0
     MIN_VALUE = 0
     STEP = 100
+
+    def choices(self, changelist):
+        total = self.q.all().count()
+        min_value = changelist.queryset.all().aggregate(
+            min=Min(self.parameter_name)
+        ).get('min', 0)
+
+        if total > 1:
+            max_value = changelist.queryset.all().aggregate(
+                max=Max(self.parameter_name)
+            ).get('max', 0)
+        else:
+            max_value = None
+
+        if isinstance(self.field, (FloatField, DecimalField)):
+            decimals = self.MAX_DECIMALS
+            step = self.STEP if self.STEP else self._get_min_step(self.MAX_DECIMALS)
+        else:
+            decimals = 0
+            step = self.STEP if self.STEP else 1
+
+        return ({
+            'decimals': decimals,
+            'step': step,
+            'parameter_name': self.parameter_name,
+            'request': self.request,
+            'min': min_value,
+            'max': max_value,
+            'value_from': self.used_parameters.get(self.parameter_name + '_from', min_value),
+            'value_to': self.used_parameters.get(self.parameter_name + '_to', max_value),
+            'form': SliderNumericForm(name=self.parameter_name, data={
+                self.parameter_name + '_from': self.used_parameters.get(self.parameter_name + '_from', min_value),
+                self.parameter_name + '_to': self.used_parameters.get(self.parameter_name + '_to', max_value),
+            })
+        }, )
+
 
 
 @register(Asset)
