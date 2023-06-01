@@ -49,13 +49,18 @@ class ListingPriceSliderFilter(SliderNumericFilter):
     def choices(self, changelist):
         total = changelist.queryset.all().count()
         min_value = changelist.queryset.aggregate(
-            min=Min(self.parameter_name)
-        ).get('min', 0)
+            min=Min(
+                self.parameter_name, filter=models.Q(pk__in=changelist.queryset.all())
+            )
+        ).get("min", 0)
 
         if total > 1:
             max_value = changelist.queryset.aggregate(
-                max=Max(self.parameter_name)
-            ).get('max', 0)
+                max=Max(
+                    self.parameter_name,
+                    filter=models.Q(pk__in=changelist.queryset.all()),
+                )
+            ).get("max", 0)
         else:
             max_value = None
 
@@ -66,21 +71,35 @@ class ListingPriceSliderFilter(SliderNumericFilter):
             decimals = 0
             step = self.STEP if self.STEP else 1
 
-        return ({
-            'decimals': decimals,
-            'step': step,
-            'parameter_name': self.parameter_name,
-            'request': self.request,
-            'min': min_value,
-            'max': max_value,
-            'value_from': self.used_parameters.get(self.parameter_name + '_from', min_value),
-            'value_to': self.used_parameters.get(self.parameter_name + '_to', max_value),
-            'form': SliderNumericForm(name=self.parameter_name, data={
-                self.parameter_name + '_from': self.used_parameters.get(self.parameter_name + '_from', min_value),
-                self.parameter_name + '_to': self.used_parameters.get(self.parameter_name + '_to', max_value),
-            })
-        }, )
-
+        return (
+            {
+                "decimals": decimals,
+                "step": step,
+                "parameter_name": self.parameter_name,
+                "request": self.request,
+                "min": min_value,
+                "max": max_value,
+                "value_from": self.used_parameters.get(
+                    self.parameter_name + "_from", min_value
+                ),
+                "value_to": self.used_parameters.get(
+                    self.parameter_name + "_to", max_value
+                ),
+                "form": SliderNumericForm(
+                    name=self.parameter_name,
+                    data={
+                        self.parameter_name
+                        + "_from": self.used_parameters.get(
+                            self.parameter_name + "_from", min_value
+                        ),
+                        self.parameter_name
+                        + "_to": self.used_parameters.get(
+                            self.parameter_name + "_to", max_value
+                        ),
+                    },
+                ),
+            },
+        )
 
 
 @register(Asset)
