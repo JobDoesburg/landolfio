@@ -16,7 +16,10 @@ from queryable_properties.admin import (
     QueryablePropertiesAdminMixin,
     QueryablePropertiesAdmin,
 )
-from django_admin_multi_select_filter.filters import MultiSelectFieldListFilter
+from django_admin_multi_select_filter.filters import (
+    MultiSelectFieldListFilter,
+    MultiSelectRelatedFieldListFilter,
+)
 
 from accounting.models import (
     EstimateDocumentLine,
@@ -125,12 +128,12 @@ class AssetAdmin(
     )
 
     list_filter = (
-        ("collection", MultiSelectFieldListFilter),
+        ("collection", MultiSelectRelatedFieldListFilter),
         ("local_status", MultiSelectFieldListFilter),
         "category",
         "size",
-        ("location", MultiSelectFieldListFilter),
-        ("location__location_group", MultiSelectFieldListFilter),
+        ("location", MultiSelectRelatedFieldListFilter),
+        ("location__location_group", MultiSelectRelatedFieldListFilter),
         ("listing_price", ListingPriceSliderFilter),
         # "accounting_status",
         "is_sold",

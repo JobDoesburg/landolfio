@@ -404,13 +404,13 @@ bcrypt = ["bcrypt"]
 
 [[package]]
 name = "django-admin-multi-select-filter"
-version = "1.0.0"
+version = "1.2.1"
 description = "Django admin filter for multiple select"
 optional = false
 python-versions = ">=3"
 files = [
-    {file = "django-admin-multi-select-filter-1.0.0.tar.gz", hash = "sha256:6c4fef615952811478bf46a41022bd07508d9f717a7d4278027421374c42c915"},
-    {file = "django_admin_multi_select_filter-1.0.0-py3-none-any.whl", hash = "sha256:a1bb716f0c86a6e26e8c006a41f52e6e62fe2a6f8dcd749ad6adc44e963e6363"},
+    {file = "django-admin-multi-select-filter-1.2.1.tar.gz", hash = "sha256:112af3bc4052c84dec2f8f35474732fd799d44e16bc22145cffada880ce50fdd"},
+    {file = "django_admin_multi_select_filter-1.2.1-py3-none-any.whl", hash = "sha256:0921911f7599fde008d292a38e1f190742f55ea8c9eb0ab99c7b5ff75ce0bab7"},
 ]
 
 [package.dependencies]
