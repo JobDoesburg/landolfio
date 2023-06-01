@@ -48,19 +48,14 @@ class ListingPriceSliderFilter(SliderNumericFilter):
 
     def choices(self, changelist):
         total = changelist.queryset.all().count()
-        min_value = changelist.queryset.aggregate(
-            min=Min(
-                self.parameter_name, filter=models.Q(pk__in=changelist.queryset.all())
-            )
-        ).get("min", 0)
+        min_value = changelist.queryset.aggregate(min=Min(self.parameter_name)).get(
+            "min", 0
+        )
 
         if total > 1:
-            max_value = changelist.queryset.aggregate(
-                max=Max(
-                    self.parameter_name,
-                    filter=models.Q(pk__in=changelist.queryset.all()),
-                )
-            ).get("max", 0)
+            max_value = changelist.queryset.aggregate(max=Max(self.parameter_name)).get(
+                "max", 0
+            )
         else:
             max_value = None
 
