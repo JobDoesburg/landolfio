@@ -125,12 +125,12 @@ class AssetAdmin(
     )
 
     list_filter = (
-        "collection",
+        ("collection", MultiSelectFieldListFilter),
         ("local_status", MultiSelectFieldListFilter),
         "category",
         "size",
-        "location",
-        "location__location_group",
+        ("location", MultiSelectFieldListFilter),
+        ("location__location_group", MultiSelectFieldListFilter),
         ("listing_price", ListingPriceSliderFilter),
         # "accounting_status",
         "is_sold",
