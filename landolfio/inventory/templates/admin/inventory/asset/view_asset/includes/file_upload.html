@@ -32,14 +32,16 @@
     <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
     <form method="post">
         {% csrf_token %}
-        <div class="filepond">
-            <input type="file"
-               class="filepond"
-               name="filepond"
-               multiple
-               data-allow-reorder="true"
-               data-max-file-size="200MB"
-               data-max-files="20">
+        <div>
+            <div class="filepond">
+                <input type="file"
+                   class="filepond"
+                   name="filepond"
+                   multiple
+                   data-allow-reorder="false"
+                   data-max-file-size="200MB"
+                   data-max-files="20">
+            </div>
         </div>
         <input type="submit" value="{% translate "Upload" %}" style="z-index: 9999; padding: 10px; margin-top: 30px;">
     </form>
