@@ -1,6 +1,7 @@
 import logging
 from dataclasses import dataclass, field
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.utils.module_loading import import_string
 
@@ -564,7 +565,7 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
             obj = cls.get_document_lines_queryset(document).get(
                 moneybird_id=MoneybirdResourceId(line_data["id"])
             )
-        except cls.model.DoesNotExist:
+        except ObjectDoesNotExist:
             return cls.create_document_line_from_moneybird(document, line_data), True
 
         obj.update_fields_from_moneybird(line_data)
