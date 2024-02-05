@@ -31,16 +31,17 @@ ENV DJANGO_MEDIA_ROOT /media
 
 RUN mkdir -p $DJANGO_STATIC_ROOT
 RUN mkdir -p $DJANGO_MEDIA_ROOT
+RUN mkdir -p $DJANGO_MEDIA_ROOT/filepond-temp-uploads/
 
 ENV DJANGO_STATIC_URL /static/
 ENV DJANGO_MEDIA_URL /media/
 
 RUN touch /var/log/django.log
-RUN mkdir -p /app/cache
 
 RUN python manage.py collectstatic --noinput
 
 RUN chown -R nobody:nogroup $DJANGO_MEDIA_ROOT
+RUN chown -R nobody:nogroup $DJANGO_MEDIA_ROOT/filepond-temp-uploads/
 RUN chown -R nobody:nogroup /var/log/django.log
 RUN chown -R nobody:nogroup /app/cache
 
