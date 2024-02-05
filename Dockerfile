@@ -43,7 +43,6 @@ RUN python manage.py collectstatic --noinput
 RUN chown -R nobody:nogroup $DJANGO_MEDIA_ROOT
 RUN chown -R nobody:nogroup $DJANGO_MEDIA_ROOT/filepond-temp-uploads/
 RUN chown -R nobody:nogroup /var/log/django.log
-RUN chown -R nobody:nogroup /app/cache
 
 EXPOSE 80
 
