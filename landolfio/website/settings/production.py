@@ -44,8 +44,6 @@ DATABASES = {
     }
 }
 
-STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
-
 STATIC_URL = os.environ.get("DJANGO_STATIC_URL")
 MEDIA_URL = os.environ.get("DJANGO_MEDIA_URL")
 
