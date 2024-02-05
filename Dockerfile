@@ -6,9 +6,9 @@ ENV DJANGO_SETTINGS_MODULE website.settings.production
 WORKDIR /landolfio/src/
 COPY poetry.lock pyproject.toml /landolfio/src/
 
-RUN curl -sSL https://install.python-poetry.org | python && \
-        poetry config --no-interaction --no-ansi virtualenvs.create false && \
-        poetry install --no-interaction --no-ansi --no-dev --extras "production"
+RUN pip install poetry \
+    && poetry config virtualenvs.create false  \
+    && poetry install --no-interaction --no-ansi --no-dev --extras "production"
 
 RUN mkdir --parents /landolfio/src/
 RUN mkdir --parents /landolfio/log/
