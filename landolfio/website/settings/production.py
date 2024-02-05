@@ -85,7 +85,7 @@ LOGGING = {
             "level": os.environ.get("DJANGO_LOG_LEVEL", "INFO"),
             "class": "logging.FileHandler",
             "formatter": "verbose",
-            "filename": "/landolfio/log/django.log",
+            "filename": "/var/log/django.log",
         },
     },
     "root": {
