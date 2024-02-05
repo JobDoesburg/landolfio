@@ -44,11 +44,13 @@ DATABASES = {
     }
 }
 
-STATIC_ROOT = "/landolfio/static/"
-STATIC_URL = "/static/"
+STATICFILES_STORAGE = "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"
 
-MEDIA_ROOT = "/landolfio/media/"
-MEDIA_URL = "/media/"
+STATIC_URL = os.environ.get("DJANGO_STATIC_URL")
+MEDIA_URL = os.environ.get("DJANGO_MEDIA_URL")
+
+STATIC_ROOT = os.environ.get("DJANGO_STATIC_ROOT")
+MEDIA_ROOT = os.environ.get("DJANGO_MEDIA_ROOT")
 
 DJANGO_DRF_FILEPOND_UPLOAD_TMP = os.path.join(MEDIA_ROOT, "filepond-temp-uploads")
 DJANGO_DRF_FILEPOND_ALLOW_EXTERNAL_UPLOAD_DIR = True
