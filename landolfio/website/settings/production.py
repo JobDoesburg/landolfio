@@ -97,7 +97,7 @@ LOGGING = {
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = os.environ.get("SMTP_HOST", None)
-EMAIL_PORT = int(os.environ.get("SMTP_PORT", None))
+EMAIL_PORT = int(os.environ.get("SMTP_PORT", 0))
 EMAIL_USE_TLS = os.environ.get("SMTP_USE_TLS", None) == "True"
 EMAIL_USE_SSL = os.environ.get("SMTP_USE_SSL", None) == "True"
 EMAIL_HOST_USER = os.environ.get("SMTP_USER", None)
