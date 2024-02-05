@@ -20,8 +20,11 @@ class Attachment(models.Model):
     attachment = models.FileField(
         upload_to=attachments_directory_path,
         verbose_name=_("attachment"),
+        max_length=255,
     )
-    upload_date = models.DateField(auto_now_add=True, verbose_name=_("upload date"))
+    upload_date = models.DateField(
+        auto_now_add=True, verbose_name=_("upload date"), max_length=255
+    )
 
     def __str__(self):
         return f"{self.attachment} {_('from')} {self.asset}"

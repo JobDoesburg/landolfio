@@ -1,4 +1,4 @@
-FROM python:3.10
+FROM python:3.11-slim
 ENV PYTHONUNBUFFERED 1
 ENV PATH /root/.local/bin:${PATH}
 ENV DJANGO_SETTINGS_MODULE website.settings.production

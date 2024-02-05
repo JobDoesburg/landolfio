@@ -50,3 +50,7 @@ EMAIL_DEFAULT_SENDER = "development@landolfio.localhost"
 
 MONEYBIRD_WEBHOOK_SITE_DOMAIN = "http://localhost:8000"
 BASE_URL = MONEYBIRD_WEBHOOK_SITE_DOMAIN
+
+
+MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL = "/media/"
