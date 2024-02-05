@@ -1,6 +1,4 @@
 FROM python:3.11-slim
-ENV PATH /root/.local/bin:${PATH}
-ENV DJANGO_SETTINGS_MODULE website.settings.production
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -8,24 +6,45 @@ ENV PYTHONUNBUFFERED 1
 
 # Install system dependencies
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc libpq-dev python3-dev cron libxmlsec1-dev libxmlsec1 \
+    && apt-get install -y --no-install-recommends gcc libpq-dev python3-dev cron \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /landolfio/src/
-COPY poetry.lock pyproject.toml /landolfio/src/
+# Set the working directory in the container
+WORKDIR /app
 
+# Copy only the requirements file to leverage Docker cache
+COPY pyproject.toml poetry.lock /app/
+
+# Install project dependencies
 RUN pip install poetry \
-    && poetry config virtualenvs.create false  \
-    && poetry install --no-interaction --no-ansi --no-dev --extras "production"
+    && poetry config virtualenvs.create false \
+    && poetry install --with prod --no-interaction --no-ansi --no-root
 
-RUN mkdir --parents /landolfio/src/
-RUN mkdir --parents /landolfio/log/
-RUN mkdir --parents /landolfio/static/
-RUN mkdir --parents /landolfio/media/
+# Copy the current directory contents into the container at /app
+COPY landolfio /app
+COPY entrypoint.sh /
 
-COPY entrypoint.sh /landolfio/entrypoint.sh
-RUN chmod +x /landolfio/entrypoint.sh
+ENV DJANGO_SETTINGS_MODULE website.settings.production
 
-COPY landolfio /landolfio/src/
+ENV DJANGO_STATIC_ROOT /static
+ENV DJANGO_MEDIA_ROOT /media
 
-ENTRYPOINT ["/landolfio/entrypoint.sh"]
+RUN mkdir -p $DJANGO_STATIC_ROOT
+RUN mkdir -p $DJANGO_MEDIA_ROOT
+
+ENV DJANGO_STATIC_URL /static/
+ENV DJANGO_MEDIA_URL /media/
+
+RUN touch /var/log/django.log
+RUN mkdir -p /app/cache
+
+RUN python manage.py collectstatic --noinput
+
+RUN chown -R nobody:nogroup $DJANGO_MEDIA_ROOT
+RUN chown -R nobody:nogroup /var/log/django.log
+RUN chown -R nobody:nogroup /app/cache
+
+EXPOSE 80
+
+# Command to run uWSGI
+CMD ["/bin/sh", "/entrypoint.sh"]

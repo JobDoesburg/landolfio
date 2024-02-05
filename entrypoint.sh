@@ -1,32 +1,3 @@
 #!/bin/sh
-set -e
-
-echo "Running site"
-
-chown -R www-data:www-data /landolfio/
-
-cd /landolfio/src
-
-touch -a /landolfio/log/uwsgi.log
-touch -a /landolfio/log/django.log
-
-python manage.py collectstatic --no-input
-python manage.py migrate --no-input
-
-uwsgi --chdir=/landolfio/src/ \
-    --module=website.wsgi:application \
-    --master --pidfile=/tmp/project-master.pid \
-    --socket=:8000 \
-    --processes=5 \
-    --uid=www-data --gid=www-data \
-    --harakiri=600 \
-    --post-buffering=16384 \
-    --max-requests=5000 \
-    --thunder-lock \
-    --vacuum \
-    --logfile-chown \
-    --logto2=/landolfio/log/uwsgi.log \
-    --ignore-sigpipe \
-    --ignore-write-errors \
-    --disable-write-exception \
-    --enable-threads
+python manage.py migrate --noinput
+uwsgi --http :80 --wsgi-file /app/website/wsgi.py --master --processes 4 --threads 2 --uid nobody --gid nogroup --static-map ${DJANGO_STATIC_URL}=${DJANGO_STATIC_ROOT} --static-map ${DJANGO_MEDIA_URL}=${DJANGO_MEDIA_ROOT}
