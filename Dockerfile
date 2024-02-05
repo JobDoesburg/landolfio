@@ -1,7 +1,15 @@
 FROM python:3.11-slim
-ENV PYTHONUNBUFFERED 1
 ENV PATH /root/.local/bin:${PATH}
 ENV DJANGO_SETTINGS_MODULE website.settings.production
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Install system dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc libpq-dev python3-dev cron libxmlsec1-dev libxmlsec1 \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /landolfio/src/
 COPY poetry.lock pyproject.toml /landolfio/src/
