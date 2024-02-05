@@ -6,7 +6,7 @@ version = "0.1.0"
 
 [tool.poetry.dependencies]
 Django = "^4.0.1"
-python = "^3.9"
+python = "^3.8.10"
 requests = "^2.27.1"
 json2html = "^1.3.0"
 django-queryable-properties = "^1.8.2"
