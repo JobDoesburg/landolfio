@@ -34,7 +34,7 @@ INSTALLED_APPS = [
     "moneybird",
     "scantags",
     "tickets",
-    "bootstrap5",
+    "django_bootstrap5",
     "new_customers",
     "new_rental_customers",
 ]

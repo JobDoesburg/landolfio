@@ -104,6 +104,8 @@ class ListingPriceSliderFilter(SliderNumericFilter):
 class AssetAdmin(
     AutocompleteFilterMixin, QueryablePropertiesAdminMixin, NumericFilterModelAdmin
 ):
+    show_facets = admin.ShowFacets.NEVER
+
     list_display = (
         "asset_view_link",
         "category",
