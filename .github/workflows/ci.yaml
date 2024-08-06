@@ -1,11 +1,6 @@
 name: Lint and test
 
-on:
-  push:
-    branches: [main, development]
-
-  pull_request:
-    branches: [main, development]
+on: [push, pull_request]
 
 jobs:
   lint-and-test:
