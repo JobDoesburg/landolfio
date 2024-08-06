@@ -48,7 +48,7 @@ services:
       - ./postgres_data/:/var/lib/postgresql/data/
 
   web:
-    build: .
+    image: ghcr.io/jobdoesburg/landolfio:latest
     restart: unless-stopped
     depends_on:
       - nginx
