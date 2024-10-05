@@ -5,7 +5,7 @@ name = "landolfio"
 version = "0.1.0"
 
 [tool.poetry.dependencies]
-Django = "^5.0.7"
+Django = "^5.0.8"
 python = "^3.10"
 requests = "^2.27.1"
 json2html = "^1.3.0"
