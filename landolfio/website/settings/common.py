@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "django_bootstrap5",
     "new_customers",
     "new_rental_customers",
+    "inventory_frontend",
 ]
 
 MIDDLEWARE = [

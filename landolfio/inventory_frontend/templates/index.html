@@ -1,0 +1,60 @@
+{% extends "page.html" %}
+{% load static %}
+
+{% block header %}
+    <h2 class="text-center">Landolfio</h2>
+    <p class="lead text-center">
+        Inventory management
+    </p>
+{% endblock %}
+
+{% block content %}
+    <form action="{% url 'inventory_frontend:list' %}" method="get">
+        <div class="position-relative mb-4">
+            <input type="text" name="q" class="form-control form-control-lg shadow-sm"
+                   placeholder="Search {{ total_assets|default:'0' }} assets...">
+            <button type="submit" class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2">
+                <i class="fas fa-search text-muted"></i>
+            </button>
+        </div>
+
+        <!-- New Asset Button -->
+        <div class="d-flex justify-content-center mb-3">
+            <a href="{% url 'inventory_frontend:create' %}" class="btn btn-success">
+                <i class="fas fa-plus me-2"></i>New Asset
+            </a>
+        </div>
+
+        <p class="text-muted text-center mb-3">Or immediately go to...</p>
+
+        <!-- Categories -->
+        <div class="d-flex flex-wrap gap-2 justify-content-center mb-3">
+            {% for category in categories|slice:":5" %}
+                <a href="{% url 'inventory_frontend:list' %}?category={{ category.id }}" class="btn btn-outline-primary rounded-pill">
+                    {{ category.name }}
+                    <span class="badge bg-primary ms-1">{{ category.asset_count }}</span>
+                </a>
+            {% endfor %}
+        </div>
+
+        <!-- Locations -->
+        <div class="d-flex flex-wrap gap-2 justify-content-center mb-3">
+            {% for location in locations|slice:":5" %}
+                <a href="{% url 'inventory_frontend:list' %}?location={{ location.id }}" class="btn btn-outline-primary rounded-pill">
+                    {{ location.name }}
+                    <span class="badge bg-primary ms-1">{{ location.asset_count }}</span>
+                </a>
+            {% endfor %}
+        </div>
+
+        <!-- Collections -->
+        <div class="d-flex flex-wrap gap-2 justify-content-center mb-3">
+            {% for collection in collections|slice:":5" %}
+                <a href="{% url 'inventory_frontend:list' %}?collection={{ collection.id }}" class="btn btn-outline-primary rounded-pill">
+                    {{ collection.name }}
+                    <span class="badge bg-primary ms-1">{{ collection.asset_count }}</span>
+                </a>
+            {% endfor %}
+        </div>
+    </form>
+{% endblock %}

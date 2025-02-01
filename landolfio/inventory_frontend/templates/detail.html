@@ -1,0 +1,354 @@
+{% extends "page-no-header.html" %}
+{% load static %}
+
+{% block header %}
+<div class="d-flex justify-content-between align-items-start py-4">
+    <!-- Left side with fixed width -->
+    <div style="width: 200px"> <!-- Adjust width to match the widest button group possible -->
+        <a href="javascript:history.back()" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Back
+        </a>
+    </div>
+
+    <!-- Center content -->
+    <div class="text-center flex-grow-1">
+        <h2 class="mb-0">{{ asset.name }}</h2>
+        <p class="text-muted mb-1">
+            <span class="badge bg-primary">{{ asset.category.name }}</span>
+            {% if asset.size %}
+                <span class="badge bg-secondary">{{ asset.size }}</span>
+            {% endif %}
+        </p>
+        <p class="text-muted mb-0">
+            {% if asset.location %}
+                <span class="ms-2">
+                    {{ asset.location }}
+                    {% if asset.location_nr %}#{{ asset.location_nr }}{% endif %}
+                </span>
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Right side with same fixed width -->
+    <div style="width: 200px"> <!-- Same width as left side -->
+        <div class="btn-group">
+            <a href="{% url 'inventory_frontend:update' asset.pk %}" class="btn btn-outline-primary">
+                <i class="fas fa-edit me-2"></i>Edit
+            </a>
+            {% if perms.inventory.delete_asset %}
+            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                <i class="fas fa-trash me-2"></i>Delete
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+    <!-- Status Alerts -->
+    {% if asset.accounting_errors %}
+    <div class="alert alert-danger mb-4">
+        <h5 class="alert-heading">Accounting Errors:</h5>
+        <ul class="mb-0">
+            {% for error in asset.accounting_errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <!-- Tabs -->
+<ul class="nav nav-tabs justify-content-center mb-4" id="assetTabs" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link active" data-bs-toggle="tab" href="#overview" role="tab">Overview</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#financials" role="tab">Financials</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#agreements" role="tab">Agreements</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#history" role="tab">History</a>
+    </li>
+</ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- Overview Tab -->
+        <div class="tab-pane fade show active" id="overview">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Basic Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td class="text-muted">Name:</td>
+                                    <td>{{ asset.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Category:</td>
+                                    <td>{{ asset.category.name }}</td>
+                                </tr>
+                                {% if asset.size %}
+                                <tr>
+                                    <td class="text-muted">Size:</td>
+                                    <td>{{ asset.size }}</td>
+                                </tr>
+                                {% endif %}
+                                <tr>
+                                    <td class="text-muted">Location:</td>
+                                    <td>
+                                        {{ asset.location|default:"Not specified" }}
+                                        {% if asset.location_nr %}#{{ asset.location_nr }}{% endif %}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Collection:</td>
+                                    <td>{{ asset.collection.name }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Created:</td>
+                                    <td>{{ asset.created_at|date:"d-m-Y H:i" }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Last Updated:</td>
+                                    <td>{{ asset.updated_at|date:"d-m-Y H:i" }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Status</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-sm">
+                                <tr>
+                                    <td class="text-muted">Local Status:</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{ asset.get_local_status_display }}</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Accounting Status:</td>
+                                    <td>
+                                        <span class="badge {% if asset.accounting_errors %}bg-danger{% else %}bg-success{% endif %}">
+                                            {{ asset.accounting_status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Listing Price:</td>
+                                    <td>€{{ asset.listing_price|default:0|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Commerce:</td>
+                                    <td>{% if asset.is_commerce %}Yes{% else %}No{% endif %}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financials Tab -->
+        <div class="tab-pane fade" id="financials">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Balance Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <tr>
+                                    <td class="text-muted">Total Assets Value:</td>
+                                    <td class="text-end">€{{ asset.total_assets_value|default:0|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Margin Assets Value:</td>
+                                    <td class="text-end">€{{ asset.total_margin_assets_value|default:0|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Purchase Value:</td>
+                                    <td class="text-end">€{{ asset.purchase_value|default:0|floatformat:2 }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Revenue & Costs</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                <tr>
+                                    <td class="text-muted">Total Revenue:</td>
+                                    <td class="text-end">€{{ asset.total_revenue_value|default:0|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Direct Costs:</td>
+                                    <td class="text-end">€{{ asset.total_direct_costs_value|default:0|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Total Expenses:</td>
+                                    <td class="text-end">€{{ asset.total_expenses_value|default:0|floatformat:2 }}</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td class="text-muted"><strong>Total Profit:</strong></td>
+                                    <td class="text-end"><strong>€{{ asset.total_profit|default:0|floatformat:2 }}</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Agreements Tab -->
+        <div class="tab-pane fade" id="agreements">
+            <div class="row">
+                <div class="col-12">
+                    {% if asset.has_rental_agreement or asset.has_loan_agreement %}
+                        {% if asset.has_rental_agreement %}
+                            <h5 class="mb-3">Rental Agreements</h5>
+                            <div class="table-responsive mb-4">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Description</th>
+                                            <th>Price</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for line in asset.estimate_document_lines.all %}
+                                            {% if line.document.workflow.is_rental %}
+                                                <tr>
+                                                    <td>{{ line.document.created_at|date:"d-m-Y" }}</td>
+                                                    <td>{{ line.description }}</td>
+                                                    <td>€{{ line.price|floatformat:2 }}</td>
+                                                    <td>
+                                                        <span class="badge bg-primary">{{ line.document.get_state_display }}</span>
+                                                    </td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+
+                        {% if asset.has_loan_agreement %}
+                            <h5 class="mb-3">Loan Agreements</h5>
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Description</th>
+                                            <th>Price</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for line in asset.estimate_document_lines.all %}
+                                            {% if line.document.workflow.is_loan %}
+                                                <tr>
+                                                    <td>{{ line.document.created_at|date:"d-m-Y" }}</td>
+                                                    <td>{{ line.description }}</td>
+                                                    <td>€{{ line.price|floatformat:2 }}</td>
+                                                    <td>
+                                                        <span class="badge bg-primary">{{ line.document.get_state_display }}</span>
+                                                    </td>
+                                                </tr>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-file-contract fa-3x mb-3"></i>
+                            <h5>No active agreements</h5>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- History Tab -->
+        <div class="tab-pane fade" id="history">
+            <div class="row">
+                <div class="col-12">
+                    {% if asset.journal_document_lines.exists %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Account</th>
+                                        <th class="text-end">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for line in asset.journal_document_line_assets.all %}
+                                        <tr>
+                                            <td>{{ line.document_line.document.date|date:"d-m-Y" }}</td>
+                                            <td>{{ line.document_line.description }}</td>
+                                            <td>{{ line.document_line.ledger_account.name }}</td>
+                                            <td class="text-end">€{{ line.value|floatformat:2 }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <i class="fas fa-history fa-3x mb-3"></i>
+                            <h5>No transaction history</h5>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Modal -->
+    {% if perms.inventory.delete_asset %}
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Asset</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete "{{ asset.name }}"?</p>
+                    <p class="text-danger"><strong>This action cannot be undone.</strong></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form action="{% url 'inventory_frontend:delete' asset.pk %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Delete Asset</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

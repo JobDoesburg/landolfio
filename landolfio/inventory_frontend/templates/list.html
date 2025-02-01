@@ -1,0 +1,255 @@
+{% extends "page-no-header.html" %}
+{% load static %}
+
+{% block header %}
+    <!-- Search Header -->
+    <div class="row py-4">
+        <div class="col">
+            <form action="{% url 'inventory_frontend:list' %}" method="get" class="d-flex gap-3 align-items-center">
+                <img src="{% static 'img/logo.png' %}" alt="Logo" class="img-fluid" style="max-height: 48px;">
+                <div class="flex-grow-1 position-relative">
+                    <input type="text" name="q" class="form-control"
+                           placeholder="Search assets..."
+                           value="{{ request.GET.q|default:'' }}">
+                    <button type="submit" class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2">
+                        <i class="fas fa-search text-muted"></i>
+                    </button>
+                </div>
+                <a href="{% url 'inventory_frontend:create' %}" class="btn btn-success">
+                    <i class="fas fa-plus me-2"></i>New
+                </a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="row mb-4">
+        <div class="col d-flex justify-content-center">
+            <form method="get" id="filter-form" class="row g-2" style="max-width: 1000px;">
+                <!-- Preserve search query -->
+                {% if request.GET.q %}
+                    <input type="hidden" name="q" value="{{ request.GET.q }}">
+                {% endif %}
+
+                <div class="col-auto">
+                    <select name="category" class="form-select rounded-pill" style="min-width: 150px;" onchange="this.form.submit()">
+                        <option value="">Category</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>
+                                {{ category.name }} ({{ category.asset_count }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-auto">
+                    <select name="location" class="form-select rounded-pill" style="min-width: 150px;" onchange="this.form.submit()">
+                        <option value="">Location</option>
+                        {% for location in locations %}
+                            <option value="{{ location.id }}" {% if request.GET.location == location.id|stringformat:"s" %}selected{% endif %}>
+                                {{ location.name }} ({{ location.asset_count }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-auto">
+                    <select name="collection" class="form-select rounded-pill" style="min-width: 150px;" onchange="this.form.submit()">
+                        <option value="">Collection</option>
+                        {% for collection in collections %}
+                            <option value="{{ collection.id }}" {% if request.GET.collection == collection.id|stringformat:"s" %}selected{% endif %}>
+                                {{ collection.name }} ({{ collection.asset_count }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-auto">
+                    <select name="status" class="form-select rounded-pill" style="min-width: 150px;" onchange="this.form.submit()">
+                        <option value="">Status</option>
+                        {% for value, label in asset_states %}
+                            <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="col-auto">
+                    <div class="dropdown">
+                        <button class="form-select rounded-pill d-flex align-items-center gap-2" data-bs-toggle="dropdown" style="min-width: 200px;">
+                            <span class="value-display">
+                                Price: €{{ request.GET.min_value|default:"0" }} - €{{ request.GET.max_value|default:"10000" }}
+                            </span>
+                        </button>
+                        <div class="dropdown-menu p-3" style="width: 300px;">
+                            <input type="range" class="form-range mb-2" name="min_value"
+                                   min="0" max="10000" step="100"
+                                   value="{{ request.GET.min_value|default:'0' }}"
+                                   id="valueMin">
+                            <input type="range" class="form-range mb-3" name="max_value"
+                                   min="0" max="10000" step="100"
+                                   value="{{ request.GET.max_value|default:'10000' }}"
+                                   id="valueMax">
+                            <div class="d-flex justify-content-between value-labels small text-muted">
+                                <div>Min: €<span id="valueMinLabel">{{ request.GET.min_value|default:"0" }}</span></div>
+                                <div>Max: €<span id="valueMaxLabel">{{ request.GET.max_value|default:"10000" }}</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <!-- Asset Cards -->
+    <div class="row g-3">
+        {% for asset in assets %}
+            <div class="col-12 col-md-6 col-xl-4">
+                <a href="{% url 'inventory_frontend:detail' asset.id %}" class="text-decoration-none">
+                    <div class="card h-100">
+                        <div class="row g-0">
+                            <div class="col-auto">
+                                <div style="width: 120px; height: 160px;">
+                                    <img src="{% static 'img/page.jpg' %}"
+                                         alt="Asset placeholder"
+                                         class="img-fluid rounded-start w-100 h-100"
+                                         style="object-fit: cover;">
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div class="card-body py-2 d-flex flex-column" style="min-height: 160px;">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h5 class="card-title mb-1">{{ asset.name }}</h5>
+                                            <p class="card-text text-muted mb-1">
+                                                <span class="badge bg-primary">{{ asset.category.name_singular }}</span>
+                                                {% if asset.size %}
+                                                    <span class="badge bg-secondary">{{ asset.size }}</span>
+                                                {% endif %}
+                                            </p>
+                                            {% if asset.location %}
+                                            <p class="card-text text-muted mb-1 small">
+                                                {{ asset.location }}
+                                                {% if asset.location_nr %}#{{ asset.location_nr }}{% endif %}
+                                            </p>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge {% if asset.accounting_errors %}bg-danger{% else %}bg-success{% endif %}">
+                                                {{ asset.local_status }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="mt-auto d-flex justify-content-between align-items-end">
+                                        <div class="text-muted" style="font-size: 0.75rem;">
+                                            Created:<br>{{ asset.created_at|date:"d-m-Y" }}
+                                        </div>
+                                        <div>
+                                            <small>€{{ asset.purchase_value|default:0|floatformat:0 }}</small>
+                                            <strong>€{{ asset.listing_price|default:0|floatformat:0 }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">No assets found</h4>
+                {% if request.GET.q %}
+                    <p class="text-muted">No results found for "{{ request.GET.q }}"</p>
+                {% endif %}
+                <a href="{% url 'inventory_frontend:list' %}" class="btn btn-outline-primary mt-3">Clear all filters</a>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+        <nav aria-label="Page navigation" class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            Previous
+                        </a>
+                    </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            {{ num }}
+                        </a>
+                    </li>
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            Next
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Value range slider functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const valueMin = document.getElementById('valueMin');
+        const valueMax = document.getElementById('valueMax');
+        const valueMinLabel = document.getElementById('valueMinLabel');
+        const valueMaxLabel = document.getElementById('valueMaxLabel');
+        const valueDisplay = document.querySelector('.value-display');
+
+        function updateValueLabels() {
+            const minValue = Number(valueMin.value).toLocaleString();
+            const maxValue = Number(valueMax.value).toLocaleString();
+            valueMinLabel.textContent = minValue;
+            valueMaxLabel.textContent = maxValue;
+            valueDisplay.textContent = `Value: €${minValue} - €${maxValue}`;
+        }
+
+        function updateForm() {
+            document.getElementById('filter-form').submit();
+        }
+
+        let timeout;
+        valueMin.addEventListener('input', function() {
+            if (parseInt(valueMin.value) > parseInt(valueMax.value)) {
+                valueMin.value = valueMax.value;
+            }
+            updateValueLabels();
+            clearTimeout(timeout);
+            timeout = setTimeout(updateForm, 500);
+        });
+
+        valueMax.addEventListener('input', function() {
+            if (parseInt(valueMax.value) < parseInt(valueMin.value)) {
+                valueMax.value = valueMin.value;
+            }
+            updateValueLabels();
+            clearTimeout(timeout);
+            timeout = setTimeout(updateForm, 500);
+        });
+
+        // Keep dropdown open while interacting with sliders
+        const valueDropdown = document.querySelector('.dropdown');
+        valueDropdown.addEventListener('click', function(e) {
+            if (e.target.matches('input[type="range"]')) {
+                e.stopPropagation();
+            }
+        });
+    });
+</script>
+{% endblock %}
