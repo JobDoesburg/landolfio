@@ -115,7 +115,7 @@
                         <div class="row g-0">
                             <div class="col-auto">
                                 <div style="width: 120px; height: 160px;">
-                                    <img src="{% static 'img/page.jpg' %}"
+                                    <img src="{% if asset.attachments.first %}{{ asset.attachments.first.attachment.url }}{% else %}{% static 'img/page.jpg' %}{% endif %}"
                                          alt="Asset placeholder"
                                          class="img-fluid rounded-start w-100 h-100"
                                          style="object-fit: cover;">

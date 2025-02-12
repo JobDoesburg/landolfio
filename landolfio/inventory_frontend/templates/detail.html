@@ -213,73 +213,72 @@
         </div>
 
         <!-- Financials Tab -->
-        <!-- Financials Tab -->
-<div class="tab-pane fade" id="financials">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Balance Summary</h5>
+        <div class="tab-pane fade" id="financials">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Balance Summary</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                {% for ledger_account, value in asset.get_balance_ledger_account_amounts.items %}
+                                <tr>
+                                    <td class="text-muted">{{ ledger_account.name }}:</td>
+                                    <td class="text-end">€{{ value|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                                <tr class="border-top">
+                                    <td class="text-muted">Total Assets Value:</td>
+                                    <td class="text-end">€{{ asset.total_assets_value|default:0|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Margin Assets Value:</td>
+                                    <td class="text-end">€{{ asset.total_margin_assets_value|default:0|floatformat:2 }}</td>
+                                </tr>
+                                <tr class="table-light">
+                                    <td class="text-muted"><strong>Purchase Value:</strong></td>
+                                    <td class="text-end"><strong>€{{ asset.purchase_value|default:0|floatformat:2 }}</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <table class="table">
-                        {% for ledger_account, value in asset.get_balance_ledger_account_amounts.items %}
-                        <tr>
-                            <td class="text-muted">{{ ledger_account.name }}:</td>
-                            <td class="text-end">€{{ value|floatformat:2 }}</td>
-                        </tr>
-                        {% endfor %}
-                        <tr class="border-top">
-                            <td class="text-muted">Total Assets Value:</td>
-                            <td class="text-end">€{{ asset.total_assets_value|default:0|floatformat:2 }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Margin Assets Value:</td>
-                            <td class="text-end">€{{ asset.total_margin_assets_value|default:0|floatformat:2 }}</td>
-                        </tr>
-                        <tr class="table-light">
-                            <td class="text-muted"><strong>Purchase Value:</strong></td>
-                            <td class="text-end"><strong>€{{ asset.purchase_value|default:0|floatformat:2 }}</strong></td>
-                        </tr>
-                    </table>
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">Revenue & Costs</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table">
+                                {% for ledger_account, value in asset.get_results_ledger_account_amounts.items %}
+                                <tr>
+                                    <td class="text-muted">{{ ledger_account.name }}:</td>
+                                    <td class="text-end">€{{ value|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                                <tr class="border-top">
+                                    <td class="text-muted">Total Revenue:</td>
+                                    <td class="text-end">€{{ asset.total_revenue_value|default:0|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Direct Costs:</td>
+                                    <td class="text-end">€{{ asset.total_direct_costs_value|default:0|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Total Expenses:</td>
+                                    <td class="text-end">€{{ asset.total_expenses_value|default:0|floatformat:2 }}</td>
+                                </tr>
+                                <tr class="table-info">
+                                    <td class="text-muted"><strong>Total Profit:</strong></td>
+                                    <td class="text-end"><strong>€{{ asset.total_profit|default:0|floatformat:2 }}</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Revenue & Costs</h5>
-                </div>
-                <div class="card-body">
-                    <table class="table">
-                        {% for ledger_account, value in asset.get_results_ledger_account_amounts.items %}
-                        <tr>
-                            <td class="text-muted">{{ ledger_account.name }}:</td>
-                            <td class="text-end">€{{ value|floatformat:2 }}</td>
-                        </tr>
-                        {% endfor %}
-                        <tr class="border-top">
-                            <td class="text-muted">Total Revenue:</td>
-                            <td class="text-end">€{{ asset.total_revenue_value|default:0|floatformat:2 }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Direct Costs:</td>
-                            <td class="text-end">€{{ asset.total_direct_costs_value|default:0|floatformat:2 }}</td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted">Total Expenses:</td>
-                            <td class="text-end">€{{ asset.total_expenses_value|default:0|floatformat:2 }}</td>
-                        </tr>
-                        <tr class="table-info">
-                            <td class="text-muted"><strong>Total Profit:</strong></td>
-                            <td class="text-end"><strong>€{{ asset.total_profit|default:0|floatformat:2 }}</strong></td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
         <!-- Agreements Tab -->
         <div class="tab-pane fade" id="agreements">

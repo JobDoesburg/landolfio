@@ -40,7 +40,7 @@ services:
       - web
 
   database:
-    image: postgres
+    image: postgres:14
     restart: unless-stopped
     networks:
       - db
@@ -52,7 +52,7 @@ services:
       - ./postgres_data/:/var/lib/postgresql/data/
 
   web:
-    build: .
+    image: ghcr.io/jobdoesburg/landolfio:latest
     restart: unless-stopped
     networks:
       - web
