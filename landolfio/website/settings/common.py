@@ -193,18 +193,6 @@ ADMIN_REORDER = (
     "sites",
 )
 
-# DJANGO_DRF_FILEPOND_UPLOAD_TMP = os.path.join(BASE_DIR, "filepond-temp-uploads")
-# DJANGO_DRF_FILEPOND_FILE_STORE_PATH = os.path.join(BASE_DIR, "stored_uploads")
-# DJANGO_DRF_FILEPOND_STORAGES_BACKEND = 'storages.backends.s3boto3.S3Boto3Storage'
-# AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-# AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
-# AWS_S3_REGION_NAME = 'eu-west-1'
-# AWS_STORAGE_BUCKET_NAME = 'filepond-uploads'
-# AWS_DEFAULT_ACL = 'private'
-# AWS_BUCKET_ACL = 'private'
-# AWS_AUTO_CREATE_BUCKET = True
-
-
 # Moneybird resources to syncronize
 MONEYBIRD_ADMINISTRATION_ID = int(os.environ.get("MONEYBIRD_ADMINISTRATION_ID", 0))
 MONEYBIRD_API_KEY = os.environ.get("MONEYBIRD_API_KEY")
