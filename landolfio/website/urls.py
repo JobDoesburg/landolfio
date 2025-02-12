@@ -9,16 +9,17 @@ from website import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("accounts/", include("django.contrib.auth.urls")),
     path("moneybird/", include("moneybird.webhooks.urls")),
     path("api/accounting/", include("accounting.api.urls")),
     path("fp/", include("django_drf_filepond.urls")),
     path("scan/", include("scantags.urls")),
     path("new/", include("inventory_frontend.urls")),
     path("admin/", RedirectView.as_view(url="/admin/"), name="admin"),
+    re_path(r"^media/", views.protected_ask_reverse_proxy),
     path(
         "", RedirectView.as_view(url="/admin/inventory/asset/overview/"), name="admin"
     ),
-    path("accounts/", include("django.contrib.auth.urls")),
 ]
 urlpatterns += (path("customer/", include("new_customers.urls")),)
 urlpatterns += (path("customer/rental/", include("new_rental_customers.urls")),)
@@ -30,5 +31,3 @@ if settings.DEBUG:
     urlpatterns += static(
         settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
     )  # Remove the square brackets
-else:
-    urlpatterns += (re_path(r"^media/", views.protected_ask_reverse_proxy),)
