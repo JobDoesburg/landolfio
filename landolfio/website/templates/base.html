@@ -15,11 +15,14 @@
         <link rel="manifest" href="{% static "img/favicon/site.webmanifest" %}">
         <link rel="icon" href="{% static "img/favicon/favicon.ico" %}">
         <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+        {% block extrastyle %}{% endblock %}
+        {% block extrahead %}{% endblock %}
     </head>
     <body class="bg-light">
         <main>
             {% block main %}{% endblock %}
         </main>
+        {% block body_js %}{% endblock %}
         {% bootstrap_javascript %}
     </body>
 </html>

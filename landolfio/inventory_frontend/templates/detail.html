@@ -1,5 +1,5 @@
 {% extends "page-no-header.html" %}
-{% load static %}
+{% load static i18n %}
 
 {% block header %}
 <div class="d-flex justify-content-between align-items-start py-4">
@@ -62,6 +62,9 @@
 <ul class="nav nav-tabs justify-content-center mb-4" id="assetTabs" role="tablist">
     <li class="nav-item">
         <a class="nav-link active" data-bs-toggle="tab" href="#overview" role="tab">Overview</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" data-bs-toggle="tab" href="#attachments" role="tab">Attachments</a>
     </li>
     <li class="nav-item">
         <a class="nav-link" data-bs-toggle="tab" href="#financials" role="tab">Financials</a>
@@ -159,61 +162,124 @@
             </div>
         </div>
 
-        <!-- Financials Tab -->
-        <div class="tab-pane fade" id="financials">
+        <div class="tab-pane fade" id="attachments">
             <div class="row">
-                <div class="col-md-6">
-                    <div class="card mb-4">
+                <div class="col-12">
+                    <div class="card">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Balance Summary</h5>
+                            <h5 class="card-title mb-0">Attachments</h5>
                         </div>
                         <div class="card-body">
-                            <table class="table">
-                                <tr>
-                                    <td class="text-muted">Total Assets Value:</td>
-                                    <td class="text-end">€{{ asset.total_assets_value|default:0|floatformat:2 }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Margin Assets Value:</td>
-                                    <td class="text-end">€{{ asset.total_margin_assets_value|default:0|floatformat:2 }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Purchase Value:</td>
-                                    <td class="text-end">€{{ asset.purchase_value|default:0|floatformat:2 }}</td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Revenue & Costs</h5>
-                        </div>
-                        <div class="card-body">
-                            <table class="table">
-                                <tr>
-                                    <td class="text-muted">Total Revenue:</td>
-                                    <td class="text-end">€{{ asset.total_revenue_value|default:0|floatformat:2 }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Direct Costs:</td>
-                                    <td class="text-end">€{{ asset.total_direct_costs_value|default:0|floatformat:2 }}</td>
-                                </tr>
-                                <tr>
-                                    <td class="text-muted">Total Expenses:</td>
-                                    <td class="text-end">€{{ asset.total_expenses_value|default:0|floatformat:2 }}</td>
-                                </tr>
-                                <tr class="table-info">
-                                    <td class="text-muted"><strong>Total Profit:</strong></td>
-                                    <td class="text-end"><strong>€{{ asset.total_profit|default:0|floatformat:2 }}</strong></td>
-                                </tr>
-                            </table>
+                            {% if asset.attachments.exists %}
+                                <div class="row g-3 mb-4">
+                                    {% for photo in asset.attachments.all %}
+                                        <div class="col-6 col-md-4 col-lg-3">
+                                            <div class="position-relative" style="aspect-ratio: 1;">
+                                                <img src="{{ photo.attachment.url }}"
+                                                     data-fancybox="gallery"
+                                                     data-caption="{{ photo.upload_date}} · {{ photo.attachment.name }}"
+                                                     alt="{{ photo.attachment.name }}"
+                                                     class="img-fluid rounded w-100 h-100"
+                                                     style="object-fit: cover; cursor: pointer;"/>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-center py-5 text-muted mb-4">
+                                    <i class="fas fa-images fa-3x mb-3"></i>
+                                    <h5>No attachments yet</h5>
+                                </div>
+                            {% endif %}
+
+                            <div class="file-upload">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <div>
+                                        <div class="filepond">
+                                            <input type="file" class="filepond" name="filepond"
+                                                   multiple data-allow-reorder="false"
+                                                   data-max-file-size="200MB"
+                                                   data-max-files="20">
+                                        </div>
+                                    </div>
+                                    <input type="submit" value="{% translate "Upload" %}" class="btn btn-primary mt-3">
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Financials Tab -->
+        <!-- Financials Tab -->
+<div class="tab-pane fade" id="financials">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Balance Summary</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        {% for ledger_account, value in asset.get_balance_ledger_account_amounts.items %}
+                        <tr>
+                            <td class="text-muted">{{ ledger_account.name }}:</td>
+                            <td class="text-end">€{{ value|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr class="border-top">
+                            <td class="text-muted">Total Assets Value:</td>
+                            <td class="text-end">€{{ asset.total_assets_value|default:0|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Margin Assets Value:</td>
+                            <td class="text-end">€{{ asset.total_margin_assets_value|default:0|floatformat:2 }}</td>
+                        </tr>
+                        <tr class="table-light">
+                            <td class="text-muted"><strong>Purchase Value:</strong></td>
+                            <td class="text-end"><strong>€{{ asset.purchase_value|default:0|floatformat:2 }}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="card-title mb-0">Revenue & Costs</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        {% for ledger_account, value in asset.get_results_ledger_account_amounts.items %}
+                        <tr>
+                            <td class="text-muted">{{ ledger_account.name }}:</td>
+                            <td class="text-end">€{{ value|floatformat:2 }}</td>
+                        </tr>
+                        {% endfor %}
+                        <tr class="border-top">
+                            <td class="text-muted">Total Revenue:</td>
+                            <td class="text-end">€{{ asset.total_revenue_value|default:0|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Direct Costs:</td>
+                            <td class="text-end">€{{ asset.total_direct_costs_value|default:0|floatformat:2 }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-muted">Total Expenses:</td>
+                            <td class="text-end">€{{ asset.total_expenses_value|default:0|floatformat:2 }}</td>
+                        </tr>
+                        <tr class="table-info">
+                            <td class="text-muted"><strong>Total Profit:</strong></td>
+                            <td class="text-end"><strong>€{{ asset.total_profit|default:0|floatformat:2 }}</strong></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
         <!-- Agreements Tab -->
         <div class="tab-pane fade" id="agreements">
@@ -351,4 +417,154 @@
         </div>
     </div>
     {% endif %}
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"/>
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/carousel/carousel.umd.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0/dist/fancybox.umd.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"/>
+
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        .carousel .carousel__slide {
+            background-size: contain;
+            color: #fff;
+            font-size: 3em;
+            overflow-y: hidden;
+        }
+        .carousel__slide {
+            width: 100%;
+            height: 100%;
+        }
+        .carousel__slide img {
+            width: 100%;
+            height: 100%;
+            max-height: 500px;
+            object-fit: contain;
+        }
+        .carousel__slide img:hover {
+            cursor: zoom-in;
+        }
+        .file-upload {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: stretch;
+            overflow-y: scroll;
+        }
+        .file-upload form {
+            width: 100%;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: stretch;
+        }
+        .file-upload form input[type=submit] {
+            align-self: center;
+        }
+        .file-upload .filepond--panel-root {
+            background-color: var(--darkened-bg);
+        }
+        .filepond--credits {
+            display: none;
+        }
+    </style>
+{% endblock %}
+
+{% block body_js %}
+    {{ block.super }}
+    <script>
+        Fancybox.bind('[data-fancybox="gallery"]', {
+            Toolbar: {
+                display: [
+                    { id: "counter", position: "center" },
+                    "slideshow",
+                    "fullscreen",
+                    "download",
+                    "thumbs",
+                    "close",
+                ],
+            },
+            Thumbs: {
+                autoStart: true,
+            },
+            l10n: {
+                CLOSE: "{% translate "Close" %}",
+                NEXT: "{% translate "Next" %}",
+                PREV: "{% translate "Previous" %}",
+                MODAL: "{% translate "You can close this modal content with the ESC key" %}",
+                ERROR: "{% translate "Something Went Wrong, Please Try Again Later" %}",
+                IMAGE_ERROR: "{% translate "Image Not Found" %}",
+                ELEMENT_NOT_FOUND: "{% translate "HTML Element Not Found" %}",
+                AJAX_NOT_FOUND: "{% translate "Error Loading AJAX : Not Found" %}",
+                AJAX_FORBIDDEN: "{% translate "Error Loading AJAX : Forbidden" %}",
+                IFRAME_ERROR: "{% translate "Error Loading Page" %}",
+            },
+        });
+
+        // Initialize Carousel
+        const carousel = new Carousel(document.querySelector(".carousel"), {
+            'l10n': {
+                NEXT: "{% translate "Next" %}",
+                PREV: "{% translate "Previous slide" %}",
+                GOTO: "{% translate "Go to slide %d" %}",
+            }
+        });
+    </script>
+    <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputElement = document.querySelector('input[type="file"].filepond');
+            if (inputElement) {
+                const pond = FilePond.create(inputElement, {
+                    dropOnPage: true,
+                    allowMultiple: true,
+                    allowReorder: false,
+                    allowPaste: true,
+                    allowBrowse: true,
+                    allowDrop: true,
+                    server: {
+                        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                        url: '/fp',
+                        process: '/process/',
+                        patch: '/patch/',
+                        revert: '/revert/',
+                        fetch: '/fetch/?target=',
+                        load: '/load/'
+                    },
+                    labelIdle: '{% translate 'Drag & Drop your files or' %} <span class="filepond--label-action"> {% translate 'Browse' %} </span>',
+                    labelInvalidField: "{% translate 'Field contains invalid files' %}",
+                    labelFileWaitingForSize: "{% translate 'Waiting for size' %}",
+                    labelFileSizeNotAvailable: "{% translate 'Size not available' %}",
+                    labelFileLoading: "{% translate 'Loading' %}",
+                    labelFileLoadError: "{% translate 'Error during load' %}",
+                    labelFileProcessing: "{% translate 'Uploading' %}",
+                    labelFileProcessingComplete: "{% translate 'Upload complete' %}",
+                    labelFileProcessingAborted: "{% translate 'Upload cancelled' %}",
+                    labelFileProcessingError: "{% translate 'Error during upload' %}",
+                    labelFileProcessingRevertError: "{% translate 'Error during revert' %}",
+                    labelFileRemoveError: "{% translate 'Error during remove' %}",
+                    labelTapToCancel: "{% translate 'tap to cancel' %}",
+                    labelTapToRetry: "{% translate 'tap to retry' %}",
+                    labelTapToUndo: "{% translate 'tap to undo' %}",
+                    labelButtonRemoveItem: "{% translate 'Remove' %}",
+                    labelButtonAbortItemLoad: "{% translate 'Abort' %}",
+                    labelButtonRetryItemLoad: "{% translate 'Retry' %}",
+                    labelButtonAbortItemProcessing: "{% translate  'Cancel' %}",
+                    labelButtonUndoItemProcessing: "{% translate  'Undo' %}",
+                    labelButtonRetryItemProcessing: "{% translate 'Retry' %}",
+                    labelButtonProcessItem: "{% translate 'Upload' %}",
+                });
+            }
+        });
+    </script>
 {% endblock %}

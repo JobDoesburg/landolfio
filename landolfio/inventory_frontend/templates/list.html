@@ -6,7 +6,9 @@
     <div class="row py-4">
         <div class="col">
             <form action="{% url 'inventory_frontend:list' %}" method="get" class="d-flex gap-3 align-items-center">
-                <img src="{% static 'img/logo.png' %}" alt="Logo" class="img-fluid" style="max-height: 48px;">
+                <a href="{% url 'inventory_frontend:search' %}">
+                    <img src="{% static 'img/logo.png' %}" alt="Logo" class="img-fluid" style="max-height: 48px;">
+                </a>
                 <div class="flex-grow-1 position-relative">
                     <input type="text" name="q" class="form-control"
                            placeholder="Search assets..."
@@ -25,7 +27,7 @@
     <!-- Filters -->
     <div class="row mb-4">
         <div class="col d-flex justify-content-center">
-            <form method="get" id="filter-form" class="row g-2" style="max-width: 1000px;">
+            <form method="get" id="filter-form" class="row g-2">
                 <!-- Preserve search query -->
                 {% if request.GET.q %}
                     <input type="hidden" name="q" value="{{ request.GET.q }}">
