@@ -22,8 +22,83 @@
         <main>
             {% block main %}{% endblock %}
         </main>
+        
+        <!-- Customer Mode Toggle Footer -->
+        <div class="fixed-bottom d-flex justify-content-start p-3" style="pointer-events: none;">
+            <button type="button" id="customer-mode-toggle" class="btn btn-outline-secondary" style="pointer-events: all; width: 40px; height: 40px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;">
+                <i class="fas fa-eye" id="customer-mode-icon"></i>
+            </button>
+        </div>
+        
         {% block body_js %}{% endblock %}
         {% bootstrap_javascript %}
+        
+        <!-- Customer Mode JavaScript -->
+        <script>
+        // Customer Mode functionality
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function setCookie(name, value, days = 365) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        }
+
+        function toggleCustomerMode() {
+            const isCustomerMode = getCookie('customer_mode') === 'true';
+            const newMode = !isCustomerMode;
+            
+            setCookie('customer_mode', newMode.toString());
+            updateCustomerModeUI(newMode);
+            updatePriceDisplay(newMode);
+        }
+
+        function updateCustomerModeUI(isCustomerMode) {
+            const icon = document.getElementById('customer-mode-icon');
+            const button = document.getElementById('customer-mode-toggle');
+            
+            if (isCustomerMode) {
+                icon.className = 'fas fa-eye-slash';
+                button.className = 'btn btn-primary';
+                button.style.cssText = 'pointer-events: all; width: 40px; height: 40px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;';
+            } else {
+                icon.className = 'fas fa-eye';
+                button.className = 'btn btn-outline-secondary';
+                button.style.cssText = 'pointer-events: all; width: 40px; height: 40px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;';
+            }
+        }
+
+        function updatePriceDisplay(isCustomerMode) {
+            const purchasePrices = document.querySelectorAll('.purchase-price');
+            purchasePrices.forEach(element => {
+                element.style.display = isCustomerMode ? 'none' : '';
+            });
+        }
+
+        // Initialize customer mode on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const isCustomerMode = getCookie('customer_mode') === 'true';
+            updateCustomerModeUI(isCustomerMode);
+            updatePriceDisplay(isCustomerMode);
+            
+            // Add click event listener
+            document.getElementById('customer-mode-toggle').addEventListener('click', toggleCustomerMode);
+        });
+        </script>
     </body>
 </html>
 

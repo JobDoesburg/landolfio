@@ -4,9 +4,9 @@
 {% block header %}
 <div class="d-flex justify-content-between align-items-start py-4">
     <!-- Left side with fixed width -->
-    <div style="width: 200px"> <!-- Adjust width to match the widest button group possible -->
+    <div style="width: 25vw"> <!-- Adjust width to match the widest button group possible -->
         <a href="javascript:history.back()" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Back
+            <i class="fas fa-arrow-left me-2"></i>{% translate "Back" %}
         </a>
     </div>
 
@@ -30,16 +30,19 @@
     </div>
 
     <!-- Right side with same fixed width -->
-    <div style="width: 200px"> <!-- Same width as left side -->
+    <div style="width: 25vw" class="d-flex justify-content-end"> <!-- Same width as left side -->
         <div class="btn-group">
             <a href="{% url 'inventory_frontend:update' asset.pk %}" class="btn btn-outline-primary">
-                <i class="fas fa-edit me-2"></i>Edit
+                <i class="fas fa-edit me-2"></i>{% translate "Edit" %}
             </a>
             {% if perms.inventory.delete_asset %}
             <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                <i class="fas fa-trash me-2"></i>Delete
+                <i class="fas fa-trash me-2"></i>{% translate "Delete" %}
             </button>
             {% endif %}
+            <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-cog me-2"></i>{% translate "Admin" %}
+            </a>
         </div>
     </div>
 </div>
@@ -61,19 +64,19 @@
     <!-- Tabs -->
 <ul class="nav nav-tabs justify-content-center mb-4" id="assetTabs" role="tablist">
     <li class="nav-item">
-        <a class="nav-link active" data-bs-toggle="tab" href="#overview" role="tab">Overview</a>
+        <a class="nav-link active" data-bs-toggle="tab" href="#overview" role="tab">{% translate "Overview" %}</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" href="#attachments" role="tab">Attachments</a>
+        <a class="nav-link" data-bs-toggle="tab" href="#attachments" role="tab">{% translate "Attachments" %}</a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" href="#financials" role="tab">Financials</a>
+    <li class="nav-item purchase-price">
+        <a class="nav-link" data-bs-toggle="tab" href="#financials" role="tab">{% translate "Financials" %}</a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" href="#agreements" role="tab">Agreements</a>
+    <li class="nav-item purchase-price">
+        <a class="nav-link" data-bs-toggle="tab" href="#agreements" role="tab">{% translate "Agreements" %}</a>
     </li>
-    <li class="nav-item">
-        <a class="nav-link" data-bs-toggle="tab" href="#history" role="tab">History</a>
+    <li class="nav-item purchase-price">
+        <a class="nav-link" data-bs-toggle="tab" href="#history" role="tab">{% translate "History" %}</a>
     </li>
 </ul>
 
@@ -81,66 +84,72 @@
     <div class="tab-content">
         <!-- Overview Tab -->
         <div class="tab-pane fade show active" id="overview">
-            <div class="row">
-                <div class="col-md-6">
+            <div class="row" id="overview-row">
+                <div class="col-md-6" id="overview-left-col">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Basic Information</h5>
+                            <h5 class="card-title mb-0">{% translate "Basic Information" %}</h5>
                         </div>
                         <div class="card-body">
                             <table class="table table-sm">
                                 <tr>
-                                    <td class="text-muted">Name:</td>
+                                    <td class="text-muted">{% translate "Name" %}:</td>
                                     <td>{{ asset.name }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted">Category:</td>
+                                    <td class="text-muted">{% translate "Category" %}:</td>
                                     <td>{{ asset.category.name }}</td>
                                 </tr>
                                 {% if asset.size %}
                                 <tr>
-                                    <td class="text-muted">Size:</td>
+                                    <td class="text-muted">{% translate "Size" %}:</td>
                                     <td>{{ asset.size }}</td>
                                 </tr>
                                 {% endif %}
                                 <tr>
-                                    <td class="text-muted">Location:</td>
+                                    <td class="text-muted">{% translate "Location" %}:</td>
                                     <td>
-                                        {{ asset.location|default:"Not specified" }}
+                                        {% if asset.location %}{{ asset.location }}{% else %}{% translate "Not specified" %}{% endif %}
                                         {% if asset.location_nr %}#{{ asset.location_nr }}{% endif %}
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted">Collection:</td>
+                                    <td class="text-muted">{% translate "Collection" %}:</td>
                                     <td>{{ asset.collection.name }}</td>
                                 </tr>
-                                <tr>
-                                    <td class="text-muted">Created:</td>
+                                <tr class="purchase-price">
+                                    <td class="text-muted">{% translate "Created" %}:</td>
                                     <td>{{ asset.created_at|date:"d-m-Y H:i" }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted">Last Updated:</td>
+                                    <td class="text-muted">{% translate "Last Updated" %}:</td>
                                     <td>{{ asset.updated_at|date:"d-m-Y H:i" }}</td>
                                 </tr>
                             </table>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-6">
+                    
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Status</h5>
+                            <h5 class="card-title mb-0">{% translate "Status" %}</h5>
                         </div>
                         <div class="card-body">
                             <table class="table table-sm">
                                 <tr>
-                                    <td class="text-muted">Local Status:</td>
+                                    <td class="text-muted">{% translate "Local Status" %}:</td>
                                     <td>
-                                        <span class="badge bg-primary">{{ asset.get_local_status_display }}</span>
+                                        <span class="badge 
+                                        {% if asset.local_status == 'available' %}bg-success
+                                        {% elif asset.local_status == 'issued_rent' or asset.local_status == 'issued_loan' or asset.local_status == 'issued_unprocessed' %}bg-warning
+                                        {% elif asset.local_status == 'maintenance_in_house' or asset.local_status == 'maintenance_external' or asset.local_status == 'under_review' %}bg-info
+                                        {% elif asset.local_status == 'placeholder' or asset.local_status == 'to_be_delivered' %}bg-secondary
+                                        {% elif asset.local_status == 'sold' or asset.local_status == 'amortized' %}bg-dark
+                                        {% elif asset.local_status == 'unknown' %}bg-danger
+                                        {% else %}bg-primary{% endif %}">{{ asset.get_local_status_display }}</span>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td class="text-muted">Accounting Status:</td>
+                                <tr class="purchase-price">
+                                    <td class="text-muted">{% translate "Accounting Status" %}:</td>
                                     <td>
                                         <span class="badge {% if asset.accounting_errors %}bg-danger{% else %}bg-success{% endif %}">
                                             {{ asset.accounting_status }}
@@ -148,14 +157,104 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted">Listing Price:</td>
+                                    <td class="text-muted">{% translate "Listing Price" %}:</td>
                                     <td>€{{ asset.listing_price|default:0|floatformat:2 }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted">Commerce:</td>
-                                    <td>{% if asset.is_commerce %}Yes{% else %}No{% endif %}</td>
+                                    <td class="text-muted">{% translate "Commerce" %}:</td>
+                                    <td>{% if asset.is_commerce %}{% translate "Yes" %}{% else %}{% translate "No" %}{% endif %}</td>
                                 </tr>
                             </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column -->
+                <div class="col-md-6 purchase-price">
+                    <!-- Quick Status Update Form -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{% translate "Update" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="{% url 'inventory_frontend:detail' asset.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_status">
+                                
+                                <div class="row g-2 mb-3">
+                                    <div class="col-5">
+                                        <label for="new_local_status" class="form-label">{% translate "Status" %}</label>
+                                        <select class="form-control" id="new_local_status" name="new_local_status">
+                                            <option value="">— {% translate "No change" %} —</option>
+                                            {% for value, label in asset_states %}
+                                                <option value="{{ value }}" {% if asset.local_status == value %}selected{% endif %}>{{ label }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-5">
+                                        <label for="new_location" class="form-label">{% translate "Location" %}</label>
+                                        <select class="form-control" id="new_location" name="new_location">
+                                            <option value="">— {% translate "No change" %} —</option>
+                                            {% for location in locations %}
+                                                <option value="{{ location.pk }}" {% if asset.location and asset.location.pk == location.pk %}selected{% endif %}>{{ location.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-2">
+                                        <label for="new_location_nr" class="form-label">{% translate "Nr" %}</label>
+                                        <input type="number" class="form-control" id="new_location_nr" name="new_location_nr" value="{{ asset.location_nr|default_if_none:'' }}" placeholder="#" min="1">
+                                    </div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success">
+                                    <i class="fas fa-save me-2"></i>{% translate "Update" %}
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <!-- Remarks Section -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{% translate "Remarks" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if asset.remarks.exists %}
+                                <div class="mb-4">
+                                    {% for remark in asset.remarks.all %}
+                                        <div class="border-bottom pb-2 mb-2">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <p class="mb-1">{{ remark.remark }}</p>
+                                                </div>
+                                                <small class="text-muted">{{ remark.date|date:"d-m-Y" }}</small>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-muted mb-4">
+                                    <em>{% translate "No remarks yet" %}</em>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Add New Remark Form -->
+                            <form method="post" action="{% url 'inventory_frontend:detail' asset.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="add_remark">
+                                <div class="mb-3">
+                                    <div class="row g-2">
+                                        <div class="col-10">
+                                            <textarea class="form-control" id="new_remark" name="new_remark" rows="3" placeholder="{% translate 'Enter new remark here...' %}"></textarea>
+                                        </div>
+                                        <div class="col-2 d-flex align-items-end">
+                                            <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
+                                                <i class="fas fa-plus me-2"></i>{% translate "Add" %}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -213,7 +312,7 @@
         </div>
 
         <!-- Financials Tab -->
-        <div class="tab-pane fade" id="financials">
+        <div class="tab-pane fade purchase-price" id="financials">
             <div class="row">
                 <div class="col-md-6">
                     <div class="card mb-4">
@@ -236,7 +335,7 @@
                                     <td class="text-muted">Margin Assets Value:</td>
                                     <td class="text-end">€{{ asset.total_margin_assets_value|default:0|floatformat:2 }}</td>
                                 </tr>
-                                <tr class="table-light">
+                                <tr class="table-light purchase-price">
                                     <td class="text-muted"><strong>Purchase Value:</strong></td>
                                     <td class="text-end"><strong>€{{ asset.purchase_value|default:0|floatformat:2 }}</strong></td>
                                 </tr>
@@ -281,7 +380,7 @@
         </div>
 
         <!-- Agreements Tab -->
-        <div class="tab-pane fade" id="agreements">
+        <div class="tab-pane fade purchase-price" id="agreements">
             <div class="row">
                 <div class="col-12">
                     {% if asset.has_rental_agreement or asset.has_loan_agreement %}
@@ -355,7 +454,7 @@
         </div>
 
         <!-- History Tab -->
-        <div class="tab-pane fade" id="history">
+        <div class="tab-pane fade purchase-price" id="history">
             <div class="row">
                 <div class="col-12">
                     {% if asset.journal_document_lines.exists %}
@@ -398,18 +497,18 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Delete Asset</h5>
+                    <h5 class="modal-title">{% translate "Delete Asset" %}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to delete "{{ asset.name }}"?</p>
-                    <p class="text-danger"><strong>This action cannot be undone.</strong></p>
+                    <p>{% blocktranslate with name=asset.name %}Are you sure you want to delete "{{ name }}"?{% endblocktranslate %}</p>
+                    <p class="text-danger"><strong>{% translate "This action cannot be undone." %}</strong></p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
                     <form action="{% url 'inventory_frontend:delete' asset.pk %}" method="post" class="d-inline">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Delete Asset</button>
+                        <button type="submit" class="btn btn-danger">{% translate "Delete Asset" %}</button>
                     </form>
                 </div>
             </div>
@@ -482,6 +581,54 @@
 {% block body_js %}
     {{ block.super }}
     <script>
+        // Customer Mode Layout Adjustment
+        function adjustOverviewLayout() {
+            const isCustomerMode = getCookie('customer_mode') === 'true';
+            const overviewRow = document.getElementById('overview-row');
+            const leftCol = document.getElementById('overview-left-col');
+            
+            if (isCustomerMode && overviewRow && leftCol) {
+                // Center the left column when remarks are hidden
+                overviewRow.classList.add('justify-content-center');
+                leftCol.classList.remove('col-md-6');
+                leftCol.classList.add('col-md-8', 'col-lg-6');
+            } else if (overviewRow && leftCol) {
+                // Reset to original layout
+                overviewRow.classList.remove('justify-content-center');
+                leftCol.classList.remove('col-md-8', 'col-lg-6');
+                leftCol.classList.add('col-md-6');
+            }
+        }
+
+        // Cookie helper function
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Adjust layout on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            adjustOverviewLayout();
+        });
+
+        // Listen for customer mode changes (if the toggle is clicked)
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'customer-mode-toggle' || e.target.closest('#customer-mode-toggle')) {
+                // Small delay to allow cookie to be set
+                setTimeout(adjustOverviewLayout, 100);
+            }
+        });
+        
         Fancybox.bind('[data-fancybox="gallery"]', {
             Toolbar: {
                 display: [

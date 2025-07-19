@@ -1,5 +1,5 @@
 {% extends "page-no-header.html" %}
-{% load static %}
+{% load static i18n %}
 
 {% block header %}
     <!-- Search Header -->
@@ -10,15 +10,20 @@
                     <img src="{% static 'img/logo.png' %}" alt="Logo" class="img-fluid" style="max-height: 48px;">
                 </a>
                 <div class="flex-grow-1 position-relative">
-                    <input type="text" name="q" class="form-control"
-                           placeholder="Search assets..."
-                           value="{{ request.GET.q|default:'' }}">
+                    <input type="text" name="q" id="search-input" class="form-control"
+                           placeholder="{% translate 'Search assets...' %}"
+                           value="{{ request.GET.q|default:'' }}"
+                           autocomplete="off">
+                    <div id="autocomplete-suggestions" class="position-absolute w-100 mt-1 bg-white border rounded shadow-lg" style="z-index: 1000; display: none; max-height: 400px; overflow-y: auto;"></div>
                     <button type="submit" class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2">
                         <i class="fas fa-search text-muted"></i>
                     </button>
                 </div>
                 <a href="{% url 'inventory_frontend:create' %}" class="btn btn-success">
-                    <i class="fas fa-plus me-2"></i>New
+                    <i class="fas fa-plus me-2"></i>{% translate "New" %}
+                </a>
+                <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-cog me-2"></i>{% translate "Admin" %}
                 </a>
             </form>
         </div>
@@ -26,62 +31,142 @@
 
     <!-- Filters -->
     <div class="row mb-4">
-        <div class="col d-flex justify-content-center">
-            <form method="get" id="filter-form" class="row g-2">
-                <!-- Preserve search query -->
-                {% if request.GET.q %}
-                    <input type="hidden" name="q" value="{{ request.GET.q }}">
-                {% endif %}
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <!-- Filter Form -->
+                <div class="collapse d-md-block flex-grow-1" id="filter-collapse">
+                    <form method="get" id="filter-form" class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
+                    <!-- Preserve search query -->
+                    {% if request.GET.q %}
+                        <input type="hidden" name="q" value="{{ request.GET.q }}">
+                    {% endif %}
 
-                <div class="col-auto">
-                    <select name="category" class="form-select rounded-pill" style="min-width: 150px;" onchange="this.form.submit()">
-                        <option value="">Category</option>
-                        {% for category in categories %}
-                            <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"s" %}selected{% endif %}>
-                                {{ category.name }} ({{ category.asset_count }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="col-auto">
-                    <select name="location" class="form-select rounded-pill" style="min-width: 150px;" onchange="this.form.submit()">
-                        <option value="">Location</option>
-                        {% for location in locations %}
-                            <option value="{{ location.id }}" {% if request.GET.location == location.id|stringformat:"s" %}selected{% endif %}>
-                                {{ location.name }} ({{ location.asset_count }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="col-auto">
-                    <select name="collection" class="form-select rounded-pill" style="min-width: 150px;" onchange="this.form.submit()">
-                        <option value="">Collection</option>
-                        {% for collection in collections %}
-                            <option value="{{ collection.id }}" {% if request.GET.collection == collection.id|stringformat:"s" %}selected{% endif %}>
-                                {{ collection.name }} ({{ collection.asset_count }})
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="col-auto">
-                    <select name="status" class="form-select rounded-pill" style="min-width: 150px;" onchange="this.form.submit()">
-                        <option value="">Status</option>
-                        {% for value, label in asset_states %}
-                            <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>
-                                {{ label }}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-
-                <div class="col-auto">
+                    <!-- Category Multi-Select -->
                     <div class="dropdown">
-                        <button class="form-select rounded-pill d-flex align-items-center gap-2" data-bs-toggle="dropdown" style="min-width: 200px;">
+                        <button class="btn btn-outline-primary dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" style="min-width: 150px;">
+                            {% translate "Categories" %}
+                            {% if current_filters.categories %}
+                                <span class="badge bg-primary ms-1">{{ current_filters.categories|length }}</span>
+                            {% endif %}
+                        </button>
+                        <div class="dropdown-menu p-2" style="width: 250px; max-height: 300px; overflow-y: auto;">
+                            {% for category in categories %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="category" value="{{ category.id }}" 
+                                           id="category-{{ category.id }}" 
+                                           {% if category.id|stringformat:"s" in current_filters.categories %}checked{% endif %}
+                                           onchange="updateFilters()">
+                                    <label class="form-check-label" for="category-{{ category.id }}">
+                                        {{ category.name }} ({{ category.asset_count }})
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Location Multi-Select -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" style="min-width: 150px;">
+                            {% translate "Locations" %}
+                            {% if current_filters.locations %}
+                                <span class="badge bg-primary ms-1">{{ current_filters.locations|length }}</span>
+                            {% endif %}
+                        </button>
+                        <div class="dropdown-menu p-2" style="width: 280px; max-height: 400px; overflow-y: auto;">
+                            {% for location_group in location_groups %}
+                                <div class="mb-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input location-group-checkbox" type="checkbox" 
+                                               id="location-group-{{ location_group.id }}" 
+                                               data-group-id="{{ location_group.id }}"
+                                               onchange="toggleLocationGroup({{ location_group.id }})">
+                                        <label class="form-check-label fw-bold text-dark small" for="location-group-{{ location_group.id }}">
+                                            {{ location_group.name }}
+                                            {% if location_group.asset_count > 0 %}
+                                                <span class="badge bg-primary text-white ms-1">{{ location_group.asset_count }}</span>
+                                            {% endif %}
+                                        </label>
+                                    </div>
+                                    <div class="border-bottom mb-2"></div>
+                                    {% for location in location_group.location_set.all %}
+                                        <div class="form-check ms-3">
+                                            <input class="form-check-input location-checkbox" type="checkbox" name="location" value="{{ location.id }}" 
+                                                   id="location-{{ location.id }}"
+                                                   data-group-id="{{ location_group.id }}"
+                                                   {% if location.id|stringformat:"s" in current_filters.locations %}checked{% endif %}
+                                                   onchange="updateFilters(); updateLocationGroupState({{ location_group.id }})">
+                                            <label class="form-check-label small" for="location-{{ location.id }}">
+                                                {{ location.name }}
+                                                {% if location.asset_count > 0 %}
+                                                    <span class="text-muted">({{ location.asset_count }})</span>
+                                                {% endif %}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Collection Multi-Select -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" style="min-width: 150px;">
+                            {% translate "Collections" %}
+                            {% if current_filters.collections %}
+                                <span class="badge bg-primary ms-1">{{ current_filters.collections|length }}</span>
+                            {% endif %}
+                        </button>
+                        <div class="dropdown-menu p-2" style="width: 250px; max-height: 300px; overflow-y: auto;">
+                            {% for collection in collections %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="collection" value="{{ collection.id }}" 
+                                           id="collection-{{ collection.id }}"
+                                           {% if collection.id|stringformat:"s" in current_filters.collections %}checked{% endif %}
+                                           onchange="updateFilters()">
+                                    <label class="form-check-label" for="collection-{{ collection.id }}">
+                                        {{ collection.name }} ({{ collection.asset_count }})
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Status Multi-Select -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" style="min-width: 150px;">
+                            {% translate "Status" %}
+                            {% if current_filters.statuses %}
+                                <span class="badge bg-primary ms-1">{{ current_filters.statuses|length }}</span>
+                            {% endif %}
+                        </button>
+                        <div class="dropdown-menu p-2" style="width: 250px;">
+                            {% for value, label in asset_states %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="status" value="{{ value }}" 
+                                           id="status-{{ value }}"
+                                           {% if value in current_filters.statuses %}checked{% endif %}
+                                           onchange="updateFilters()">
+                                    <label class="form-check-label d-flex align-items-center" for="status-{{ value }}">
+                                        <span class="badge me-2
+                                        {% if value == 'available' %}bg-success
+                                        {% elif value == 'issued_rent' or value == 'issued_loan' or value == 'issued_unprocessed' %}bg-warning
+                                        {% elif value == 'maintenance_in_house' or value == 'maintenance_external' or value == 'under_review' %}bg-info
+                                        {% elif value == 'placeholder' or value == 'to_be_delivered' %}bg-secondary
+                                        {% elif value == 'sold' or value == 'amortized' %}bg-dark
+                                        {% elif value == 'unknown' %}bg-danger
+                                        {% else %}bg-primary{% endif %}" style="font-size: 0.6rem; width: 12px; height: 12px;">&nbsp;</span>
+                                        {{ label }}
+                                    </label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Price Range -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle rounded-pill d-flex align-items-center gap-2" data-bs-toggle="dropdown" style="min-width: 200px;">
                             <span class="value-display">
-                                Price: €{{ request.GET.min_value|default:"0" }} - €{{ request.GET.max_value|default:"10000" }}
+                                {% translate "Price" %}: €{{ request.GET.min_value|default:"0" }} - €{{ request.GET.max_value|default:"10000" }}
                             </span>
                         </button>
                         <div class="dropdown-menu p-3" style="width: 300px;">
@@ -94,20 +179,44 @@
                                    value="{{ request.GET.max_value|default:'10000' }}"
                                    id="valueMax">
                             <div class="d-flex justify-content-between value-labels small text-muted">
-                                <div>Min: €<span id="valueMinLabel">{{ request.GET.min_value|default:"0" }}</span></div>
-                                <div>Max: €<span id="valueMaxLabel">{{ request.GET.max_value|default:"10000" }}</span></div>
+                                <div>{% translate "Min" %}: €<span id="valueMinLabel">{{ request.GET.min_value|default:"0" }}</span></div>
+                                <div>{% translate "Max" %}: €<span id="valueMaxLabel">{{ request.GET.max_value|default:"10000" }}</span></div>
                             </div>
                         </div>
                     </div>
+
+                    <!-- Clear Filters -->
+                    <a href="{% url 'inventory_frontend:list' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}" class="btn btn-outline-secondary rounded-pill">
+                        <i class="fas fa-times"></i> {% translate "Clear" %}
+                    </a>
+                    </form>
                 </div>
-            </form>
+                
+                <!-- View Toggle and Mobile Filter Toggle -->
+                <div class="d-flex align-items-center gap-2">
+                    <!-- View Toggle -->
+                    <div class="btn-group" role="group">
+                        <button type="button" id="grid-view-btn" class="btn btn-outline-primary active">
+                            <i class="fas fa-th-large"></i><span class="d-none d-md-inline ms-1">{% translate "Grid" %}</span>
+                        </button>
+                        <button type="button" id="list-view-btn" class="btn btn-outline-primary">
+                            <i class="fas fa-list"></i><span class="d-none d-md-inline ms-1">{% translate "List" %}</span>
+                        </button>
+                    </div>
+                    
+                    <!-- Mobile Filter Toggle -->
+                    <button class="btn btn-outline-secondary d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#filter-collapse">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}
 
 {% block content %}
-    <!-- Asset Cards -->
-    <div class="row g-3">
+    <!-- Grid View -->
+    <div id="grid-view" class="row g-3">
         {% for asset in assets %}
             <div class="col-12 col-md-6 col-xl-4">
                 <a href="{% url 'inventory_frontend:detail' asset.id %}" class="text-decoration-none">
@@ -139,18 +248,25 @@
                                             </p>
                                             {% endif %}
                                         </div>
-                                        <div class="text-end">
-                                            <span class="badge {% if asset.accounting_errors %}bg-danger{% else %}bg-success{% endif %}">
+                                        <div class="text-end purchase-price">
+                                            <span class="badge 
+                                            {% if asset.local_status == 'available' %}bg-success
+                                            {% elif asset.local_status == 'issued_rent' or asset.local_status == 'issued_loan' or asset.local_status == 'issued_unprocessed' %}bg-warning
+                                            {% elif asset.local_status == 'maintenance_in_house' or asset.local_status == 'maintenance_external' or asset.local_status == 'under_review' %}bg-info
+                                            {% elif asset.local_status == 'placeholder' or asset.local_status == 'to_be_delivered' %}bg-secondary
+                                            {% elif asset.local_status == 'sold' or asset.local_status == 'amortized' %}bg-dark
+                                            {% elif asset.local_status == 'unknown' %}bg-danger
+                                            {% else %}bg-primary{% endif %}">
                                                 {{ asset.local_status }}
                                             </span>
                                         </div>
                                     </div>
                                     <div class="mt-auto d-flex justify-content-between align-items-end">
-                                        <div class="text-muted" style="font-size: 0.75rem;">
-                                            Created:<br>{{ asset.created_at|date:"d-m-Y" }}
+                                        <div class="text-muted purchase-price" style="font-size: 0.75rem;">
+                                            {% translate "Created" %}:<br>{{ asset.created_at|date:"d-m-Y" }}
                                         </div>
                                         <div>
-                                            <small>€{{ asset.purchase_value|default:0|floatformat:0 }}</small>
+                                            <small class="purchase-price">€{{ asset.purchase_value|default:0|floatformat:0 }}</small>
                                             <strong>€{{ asset.listing_price|default:0|floatformat:0 }}</strong>
                                         </div>
                                     </div>
@@ -163,13 +279,90 @@
         {% empty %}
             <div class="col-12 text-center py-5">
                 <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                <h4 class="text-muted">No assets found</h4>
+                <h4 class="text-muted">{% translate "No assets found" %}</h4>
                 {% if request.GET.q %}
-                    <p class="text-muted">No results found for "{{ request.GET.q }}"</p>
+                    <p class="text-muted">{% blocktranslate with query=request.GET.q %}No results found for "{{ query }}"{% endblocktranslate %}</p>
                 {% endif %}
-                <a href="{% url 'inventory_frontend:list' %}" class="btn btn-outline-primary mt-3">Clear all filters</a>
+                <a href="{% url 'inventory_frontend:list' %}" class="btn btn-outline-primary mt-3">{% translate "Clear all filters" %}</a>
             </div>
         {% endfor %}
+    </div>
+
+    <!-- Table View -->
+    <div id="table-view" class="d-none">
+        {% if assets %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>{% translate "Image" %}</th>
+                            <th>{% translate "Name" %}</th>
+                            <th>{% translate "Category" %}</th>
+                            <th>{% translate "Location" %}</th>
+                            <th class="purchase-price">{% translate "Status" %}</th>
+                            <th class="purchase-price">{% translate "Purchase Price" %}</th>
+                            <th>{% translate "Listing Price" %}</th>
+                            <th class="purchase-price">{% translate "Created" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asset in assets %}
+                            <tr class="clickable-row" data-href="{% url 'inventory_frontend:detail' asset.id %}" style="cursor: pointer;">
+                                <td>
+                                    <img src="{% if asset.attachments.first %}{{ asset.attachments.first.attachment.url }}{% else %}{% static 'img/page.jpg' %}{% endif %}"
+                                         alt="Asset thumbnail"
+                                         class="img-thumbnail"
+                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                </td>
+                                <td>
+                                    <strong>{{ asset.name }}</strong>
+                                    {% if asset.size %}
+                                        <br><small class="text-muted">{{ asset.size }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-primary">{{ asset.category.name_singular }}</span>
+                                </td>
+                                <td>
+                                    {% if asset.location %}
+                                        {{ asset.location }}
+                                        {% if asset.location_nr %}<br><small class="text-muted">#{{ asset.location_nr }}</small>{% endif %}
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="purchase-price">
+                                    <span class="badge 
+                                    {% if asset.local_status == 'available' %}bg-success
+                                    {% elif asset.local_status == 'issued_rent' or asset.local_status == 'issued_loan' or asset.local_status == 'issued_unprocessed' %}bg-warning
+                                    {% elif asset.local_status == 'maintenance_in_house' or asset.local_status == 'maintenance_external' or asset.local_status == 'under_review' %}bg-info
+                                    {% elif asset.local_status == 'placeholder' or asset.local_status == 'to_be_delivered' %}bg-secondary
+                                    {% elif asset.local_status == 'sold' or asset.local_status == 'amortized' %}bg-dark
+                                    {% elif asset.local_status == 'unknown' %}bg-danger
+                                    {% else %}bg-primary{% endif %}">
+                                        {{ asset.local_status }}
+                                    </span>
+                                </td>
+                                <td class="purchase-price">€{{ asset.purchase_value|default:0|floatformat:0 }}</td>
+                                <td><strong>€{{ asset.listing_price|default:0|floatformat:0 }}</strong></td>
+                                <td class="purchase-price">
+                                    <small>{{ asset.created_at|date:"d-m-Y" }}</small>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h4 class="text-muted">{% translate "No assets found" %}</h4>
+                {% if request.GET.q %}
+                    <p class="text-muted">{% blocktranslate with query=request.GET.q %}No results found for "{{ query }}"{% endblocktranslate %}</p>
+                {% endif %}
+                <a href="{% url 'inventory_frontend:list' %}" class="btn btn-outline-primary mt-3">{% translate "Clear all filters" %}</a>
+            </div>
+        {% endif %}
     </div>
 
     <!-- Pagination -->
@@ -178,56 +371,186 @@
             <ul class="pagination justify-content-center">
                 {% if page_obj.has_previous %}
                     <li class="page-item">
+                        <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="fas fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
                         <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                            Previous
+                            <i class="fas fa-angle-left"></i>
                         </a>
                     </li>
                 {% endif %}
 
-                {% for num in page_obj.paginator.page_range %}
-                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-                        <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                            {{ num }}
-                        </a>
+                {% comment %} Smart pagination with page ranges {% endcomment %}
+                {% if page_obj.number > 3 %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">1</a>
                     </li>
+                    {% if page_obj.number > 4 %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    {% endif %}
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if num >= page_obj.number|add:"-2" and num <= page_obj.number|add:"2" %}
+                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                            <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                                {{ num }}
+                            </a>
+                        </li>
+                    {% endif %}
                 {% endfor %}
+
+                {% if page_obj.number < page_obj.paginator.num_pages|add:"-2" %}
+                    {% if page_obj.number < page_obj.paginator.num_pages|add:"-3" %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    {% endif %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ page_obj.paginator.num_pages }}</a>
+                    </li>
+                {% endif %}
 
                 {% if page_obj.has_next %}
                     <li class="page-item">
                         <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                            Next
+                            <i class="fas fa-angle-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                            <i class="fas fa-angle-double-right"></i>
                         </a>
                     </li>
                 {% endif %}
             </ul>
+            
+            <div class="text-center mt-2">
+                <small class="text-muted">
+                    {% blocktranslate with current=page_obj.number total=page_obj.paginator.num_pages count=page_obj.paginator.count %}Page {{ current }} of {{ total }} ({{ count }} total items){% endblocktranslate %}
+                </small>
+            </div>
         </nav>
     {% endif %}
 {% endblock %}
 
-{% block extra_js %}
+{% block body_js %}
 <script>
-    // Value range slider functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const valueMin = document.getElementById('valueMin');
-        const valueMax = document.getElementById('valueMax');
-        const valueMinLabel = document.getElementById('valueMinLabel');
-        const valueMaxLabel = document.getElementById('valueMaxLabel');
-        const valueDisplay = document.querySelector('.value-display');
+console.log('JavaScript is loading!');
 
+// Define updateFilters globally first
+window.updateFilters = function() {
+    console.log('updateFilters called');
+    const form = document.getElementById('filter-form');
+    if (form) {
+        console.log('Submitting filter form');
+        form.submit();
+    } else {
+        console.warn('Filter form not found');
+    }
+};
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded fired - starting initialization');
+    
+    // 1. VIEW TOGGLE FUNCTIONALITY
+    console.log('Setting up view toggle...');
+    const gridViewBtn = document.getElementById('grid-view-btn');
+    const listViewBtn = document.getElementById('list-view-btn');
+    const gridView = document.getElementById('grid-view');
+    const tableView = document.getElementById('table-view');
+    
+    console.log('View elements found:', {
+        gridViewBtn: !!gridViewBtn,
+        listViewBtn: !!listViewBtn,
+        gridView: !!gridView,
+        tableView: !!tableView
+    });
+
+    if (gridViewBtn && listViewBtn && gridView && tableView) {
+        gridViewBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('Grid view clicked');
+            gridView.classList.remove('d-none');
+            tableView.classList.add('d-none');
+            gridViewBtn.classList.add('active');
+            listViewBtn.classList.remove('active');
+            localStorage.setItem('preferred-view', 'grid');
+        });
+
+        listViewBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log('List view clicked');
+            gridView.classList.add('d-none');
+            tableView.classList.remove('d-none');
+            listViewBtn.classList.add('active');
+            gridViewBtn.classList.remove('active');
+            localStorage.setItem('preferred-view', 'table');
+        });
+
+        // Restore preferred view
+        const preferredView = localStorage.getItem('preferred-view');
+        if (preferredView === 'table') {
+            listViewBtn.click();
+        }
+        console.log('View toggle setup complete');
+    } else {
+        console.error('View toggle elements not found');
+    }
+
+    // 2. MULTI-SELECT FILTER FUNCTIONALITY
+    console.log('Setting up multi-select filters...');
+
+    // Keep filter dropdowns open when clicking checkboxes
+    document.querySelectorAll('.dropdown-menu').forEach(dropdown => {
+        dropdown.addEventListener('click', function(e) {
+            if (e.target.matches('input[type="checkbox"]') || e.target.matches('.form-check-label') || e.target.matches('.form-check')) {
+                e.stopPropagation();
+            }
+        });
+    });
+    console.log('Multi-select filters setup complete');
+
+    // 3. PRICE RANGE FUNCTIONALITY
+    console.log('Setting up price range...');
+    const valueMin = document.getElementById('valueMin');
+    const valueMax = document.getElementById('valueMax');
+    const valueMinLabel = document.getElementById('valueMinLabel');
+    const valueMaxLabel = document.getElementById('valueMaxLabel');
+    const valueDisplay = document.querySelector('.value-display');
+
+    console.log('Price range elements found:', {
+        valueMin: !!valueMin,
+        valueMax: !!valueMax,
+        valueMinLabel: !!valueMinLabel,
+        valueMaxLabel: !!valueMaxLabel,
+        valueDisplay: !!valueDisplay
+    });
+
+    if (valueMin && valueMax && valueMinLabel && valueMaxLabel && valueDisplay) {
         function updateValueLabels() {
             const minValue = Number(valueMin.value).toLocaleString();
             const maxValue = Number(valueMax.value).toLocaleString();
             valueMinLabel.textContent = minValue;
             valueMaxLabel.textContent = maxValue;
-            valueDisplay.textContent = `Value: €${minValue} - €${maxValue}`;
+            valueDisplay.textContent = `Price: €${minValue} - €${maxValue}`;
         }
 
         function updateForm() {
-            document.getElementById('filter-form').submit();
+            const form = document.getElementById('filter-form');
+            if (form) {
+                console.log('Submitting form due to price change');
+                form.submit();
+            }
         }
 
         let timeout;
         valueMin.addEventListener('input', function() {
+            console.log('Price min changed:', this.value);
             if (parseInt(valueMin.value) > parseInt(valueMax.value)) {
                 valueMin.value = valueMax.value;
             }
@@ -237,6 +560,7 @@
         });
 
         valueMax.addEventListener('input', function() {
+            console.log('Price max changed:', this.value);
             if (parseInt(valueMax.value) < parseInt(valueMin.value)) {
                 valueMax.value = valueMin.value;
             }
@@ -246,12 +570,246 @@
         });
 
         // Keep dropdown open while interacting with sliders
-        const valueDropdown = document.querySelector('.dropdown');
-        valueDropdown.addEventListener('click', function(e) {
-            if (e.target.matches('input[type="range"]')) {
-                e.stopPropagation();
+        document.querySelectorAll('.dropdown').forEach(dropdown => {
+            dropdown.addEventListener('click', function(e) {
+                if (e.target.matches('input[type="range"]')) {
+                    e.stopPropagation();
+                }
+            });
+        });
+
+        console.log('Price range setup complete');
+    }
+
+    // 4. AUTOCOMPLETE FUNCTIONALITY
+    console.log('Setting up autocomplete...');
+    const searchInput = document.getElementById('search-input');
+    const suggestionsDiv = document.getElementById('autocomplete-suggestions');
+
+    console.log('Autocomplete elements found:', {
+        searchInput: !!searchInput,
+        suggestionsDiv: !!suggestionsDiv
+    });
+
+    if (searchInput && suggestionsDiv) {
+        let autocompleteTimeout;
+        
+        // Cookie helper function for autocomplete
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function fetchSuggestions(query) {
+            console.log('Fetching suggestions for:', query);
+            if (query.length < 2) {
+                suggestionsDiv.style.display = 'none';
+                return;
+            }
+
+            // Get CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+            
+            fetch(`{% url 'inventory_frontend:autocomplete' %}?q=${encodeURIComponent(query)}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => {
+                    console.log('Autocomplete response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(suggestions => {
+                    console.log('Autocomplete suggestions:', suggestions);
+                    if (suggestions && suggestions.length > 0) {
+                        showSuggestions(suggestions);
+                    } else {
+                        suggestionsDiv.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Autocomplete error:', error);
+                    suggestionsDiv.style.display = 'none';
+                });
+        }
+
+        function showSuggestions(suggestions) {
+            suggestionsDiv.innerHTML = '';
+            suggestions.forEach(suggestion => {
+                const div = document.createElement('div');
+                div.className = 'p-3 border-bottom';
+                div.style.cursor = 'pointer';
+                
+                // Create rich suggestion HTML
+                let locationText = '';
+                if (suggestion.location) {
+                    locationText = suggestion.location;
+                    if (suggestion.location_nr) {
+                        locationText += ` #${suggestion.location_nr}`;
+                    }
+                }
+                
+                // Check customer mode
+                const isCustomerMode = getCookie('customer_mode') === 'true';
+                
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="fw-bold text-dark">${suggestion.name}</div>
+                            <div class="small text-muted d-flex gap-2 flex-wrap">
+                                ${suggestion.category ? `<span class="badge bg-primary">${suggestion.category}</span>` : ''}
+                                ${suggestion.size ? `<span class="badge bg-secondary">${suggestion.size}</span>` : ''}
+                                ${locationText ? `<span class="text-muted">${locationText}</span>` : ''}
+                                ${!isCustomerMode && suggestion.created_at ? `<span class="text-muted">Created: ${suggestion.created_at}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="text-end ms-2">
+                            ${!isCustomerMode ? `<div class="small text-muted purchase-price">Purchase: €${suggestion.purchase_value.toFixed(0)}</div>` : ''}
+                            <div class="fw-bold text-success">€${suggestion.listing_price.toFixed(0)}</div>
+                        </div>
+                    </div>
+                `;
+                
+                div.addEventListener('click', function() {
+                    console.log('Suggestion clicked:', suggestion);
+                    suggestionsDiv.style.display = 'none';
+                    // Navigate directly to detail page
+                    window.location.href = `/new/${suggestion.id}/`;
+                });
+                
+                div.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#f8f9fa';
+                });
+                
+                div.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                });
+                
+                suggestionsDiv.appendChild(div);
+            });
+            suggestionsDiv.style.display = 'block';
+        }
+
+        searchInput.addEventListener('input', function() {
+            console.log('Search input changed:', this.value);
+            clearTimeout(autocompleteTimeout);
+            autocompleteTimeout = setTimeout(() => {
+                fetchSuggestions(this.value.trim());
+            }, 300);
+        });
+
+        searchInput.addEventListener('focus', function() {
+            if (this.value.trim().length >= 2) {
+                fetchSuggestions(this.value.trim());
             }
         });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+
+        console.log('Autocomplete setup complete');
+    }
+
+    // 5. CLICKABLE TABLE ROWS
+    console.log('Setting up clickable table rows...');
+    const clickableRows = document.querySelectorAll('.clickable-row');
+    
+    clickableRows.forEach(row => {
+        row.addEventListener('click', function() {
+            const href = this.getAttribute('data-href');
+            if (href) {
+                console.log('Navigating to:', href);
+                window.location.href = href;
+            }
+        });
+        
+        // Add hover effects
+        row.addEventListener('mouseenter', function() {
+            this.style.backgroundColor = '#f8f9fa';
+            this.style.transform = 'scale(1.01)';
+            this.style.transition = 'all 0.2s ease';
+        });
+        
+        row.addEventListener('mouseleave', function() {
+            this.style.backgroundColor = '';
+            this.style.transform = '';
+        });
     });
+    
+    console.log(`Set up ${clickableRows.length} clickable table rows`);
+
+    // 6. LOCATION GROUP FUNCTIONALITY
+    console.log('Setting up location group functionality...');
+    
+    // Initialize location group states on page load
+    document.querySelectorAll('.location-group-checkbox').forEach(groupCheckbox => {
+        const groupId = groupCheckbox.getAttribute('data-group-id');
+        updateLocationGroupState(groupId);
+    });
+    
+    console.log('Location group functionality setup complete');
+
+    console.log('All initialization complete');
+});
+
+// Location group toggle functions (defined globally)
+function toggleLocationGroup(groupId) {
+    console.log('Toggling location group:', groupId);
+    const groupCheckbox = document.getElementById(`location-group-${groupId}`);
+    const locationCheckboxes = document.querySelectorAll(`input[data-group-id="${groupId}"].location-checkbox`);
+    
+    const isChecked = groupCheckbox.checked;
+    
+    // Set all locations in this group to match the group checkbox state
+    locationCheckboxes.forEach(checkbox => {
+        checkbox.checked = isChecked;
+    });
+    
+    // Update filters
+    updateFilters();
+}
+
+function updateLocationGroupState(groupId) {
+    const groupCheckbox = document.getElementById(`location-group-${groupId}`);
+    const locationCheckboxes = document.querySelectorAll(`input[data-group-id="${groupId}"].location-checkbox`);
+    
+    if (!groupCheckbox || locationCheckboxes.length === 0) return;
+    
+    const checkedLocations = Array.from(locationCheckboxes).filter(cb => cb.checked);
+    
+    if (checkedLocations.length === 0) {
+        // No locations checked - group unchecked
+        groupCheckbox.checked = false;
+        groupCheckbox.indeterminate = false;
+    } else if (checkedLocations.length === locationCheckboxes.length) {
+        // All locations checked - group checked
+        groupCheckbox.checked = true;
+        groupCheckbox.indeterminate = false;
+    } else {
+        // Some locations checked - group indeterminate
+        groupCheckbox.checked = false;
+        groupCheckbox.indeterminate = true;
+    }
+}
 </script>
 {% endblock %}

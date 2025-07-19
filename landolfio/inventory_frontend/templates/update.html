@@ -1,15 +1,15 @@
 {% extends "page-no-header.html" %}
-{% load static %}
+{% load static i18n %}
 
 {% block content %}
 <div class="container py-4">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-start mb-4">
         <a href="javascript:history.back()" class="btn btn-outline-secondary">
-            <i class="fas fa-arrow-left me-2"></i>Back
+            <i class="fas fa-arrow-left me-2"></i>{% translate "Back" %}
         </a>
         <div class="text-center flex-grow-1">
-            <h2 class="mb-1">Edit {{ asset.name }}</h2>
+            <h2 class="mb-1">{% blocktranslate with name=asset.name %}Edit {{ name }}{% endblocktranslate %}</h2>
             <p class="text-muted mb-0">
                 <span class="badge bg-primary">{{ asset.category.name }}</span>
                 {% if asset.size %}
@@ -29,7 +29,7 @@
                 <div class="row g-3">
                     <!-- Name -->
                     <div class="col-md-6">
-                        <label for="{{ form.name.id_for_label }}" class="form-label">Name</label>
+                        <label for="{{ form.name.id_for_label }}" class="form-label">{% translate "Name" %}</label>
                         {{ form.name }}
                         {% if form.name.errors %}
                             <div class="invalid-feedback d-block">
@@ -40,7 +40,7 @@
 
                     <!-- Category -->
                     <div class="col-md-6">
-                        <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+                        <label for="{{ form.category.id_for_label }}" class="form-label">{% translate "Category" %}</label>
                         {{ form.category }}
                         {% if form.category.errors %}
                             <div class="invalid-feedback d-block">
@@ -51,7 +51,7 @@
 
                     <!-- Size -->
                     <div class="col-md-6">
-                        <label for="{{ form.size.id_for_label }}" class="form-label">Size</label>
+                        <label for="{{ form.size.id_for_label }}" class="form-label">{% translate "Size" %}</label>
                         {{ form.size }}
                         {% if form.size.errors %}
                             <div class="invalid-feedback d-block">
@@ -62,7 +62,7 @@
 
                     <!-- Collection -->
                     <div class="col-md-6">
-                        <label for="{{ form.collection.id_for_label }}" class="form-label">Collection</label>
+                        <label for="{{ form.collection.id_for_label }}" class="form-label">{% translate "Collection" %}</label>
                         {{ form.collection }}
                         {% if form.collection.errors %}
                             <div class="invalid-feedback d-block">
@@ -73,7 +73,7 @@
 
                     <!-- Location -->
                     <div class="col-md-6">
-                        <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
+                        <label for="{{ form.location.id_for_label }}" class="form-label">{% translate "Location" %}</label>
                         {{ form.location }}
                         {% if form.location.errors %}
                             <div class="invalid-feedback d-block">
@@ -84,7 +84,7 @@
 
                     <!-- Location Number -->
                     <div class="col-md-6">
-                        <label for="{{ form.location_nr.id_for_label }}" class="form-label">Location Number</label>
+                        <label for="{{ form.location_nr.id_for_label }}" class="form-label">{% translate "Location Number" %}</label>
                         {{ form.location_nr }}
                         {% if form.location_nr.errors %}
                             <div class="invalid-feedback d-block">
@@ -95,7 +95,7 @@
 
                     <!-- Listing Price -->
                     <div class="col-md-6">
-                        <label for="{{ form.listing_price.id_for_label }}" class="form-label">Listing Price</label>
+                        <label for="{{ form.listing_price.id_for_label }}" class="form-label">{% translate "Listing Price" %}</label>
                         {{ form.listing_price }}
                         {% if form.listing_price.errors %}
                             <div class="invalid-feedback d-block">
@@ -106,7 +106,7 @@
 
                     <!-- Local Status -->
                     <div class="col-md-6">
-                        <label for="{{ form.local_status.id_for_label }}" class="form-label">Status</label>
+                        <label for="{{ form.local_status.id_for_label }}" class="form-label">{% translate "Status" %}</label>
                         {{ form.local_status }}
                         {% if form.local_status.errors %}
                             <div class="invalid-feedback d-block">
@@ -127,8 +127,8 @@
                     <!-- Submit Buttons -->
                     <div class="col-12 mt-4">
                         <div class="d-flex justify-content-end gap-2">
-                            <a href="javascript:history.back()" class="btn btn-outline-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <a href="javascript:history.back()" class="btn btn-outline-secondary">{% translate "Cancel" %}</a>
+                            <button type="submit" class="btn btn-primary">{% translate "Save Changes" %}</button>
                         </div>
                     </div>
                 </div>

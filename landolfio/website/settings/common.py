@@ -272,3 +272,6 @@ DJANGO_DRF_FILEPOND_UPLOAD_TMP = os.path.join(MEDIA_ROOT, "filepond-temp-uploads
 NOTIFICATION_EMAIL = os.environ.get("NOTIFICATION_EMAIL", "contact@vofdoesburg.nl")
 
 SITE_ID = 1
+
+# Authentication settings
+LOGIN_REDIRECT_URL = "/admin/"

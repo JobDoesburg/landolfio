@@ -17,9 +17,7 @@ urlpatterns = [
     path("new/", include("inventory_frontend.urls")),
     path("admin/", RedirectView.as_view(url="/admin/"), name="admin"),
     re_path(r"^media/", views.protected_ask_reverse_proxy),
-    path(
-        "", RedirectView.as_view(url="/admin/inventory/asset/overview/"), name="admin"
-    ),
+    path("", RedirectView.as_view(url="/new/"), name="home"),
 ]
 urlpatterns += (path("customer/", include("new_customers.urls")),)
 urlpatterns += (path("customer/rental/", include("new_rental_customers.urls")),)

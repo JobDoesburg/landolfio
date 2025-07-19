@@ -7,12 +7,14 @@ from django.http import JsonResponse
 from django.urls import reverse_lazy
 from django_drf_filepond.api import store_upload
 from django_drf_filepond.models import TemporaryUpload
+from django.views import View
 
 from inventory.models.asset import Asset, AssetStates
 from inventory.models.attachment import Attachment, attachments_directory_path
 from inventory.models.category import Category
 from inventory.models.collection import Collection
 from inventory.models.location import Location
+from inventory.models.remarks import Remark
 from inventory_frontend.forms import AssetForm
 
 from django.db.models import Count
@@ -24,7 +26,16 @@ from django.views.generic.edit import UpdateView
 from django.contrib.messages.views import SuccessMessageMixin
 
 
-class AssetSearchView(TemplateView):
+class PublicIndexView(TemplateView):
+    template_name = "public_index.html"
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect("inventory_frontend:search")
+        return super().dispatch(request, *args, **kwargs)
+
+
+class AssetSearchView(LoginRequiredMixin, TemplateView):
     template_name = "index.html"
 
     def get_context_data(self, **kwargs):
@@ -60,12 +71,12 @@ class AssetListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        # Get filter parameters
+        # Get filter parameters (support multiple values)
         search_query = self.request.GET.get("q")
-        category = self.request.GET.get("category")
-        status = self.request.GET.get("status")
-        location = self.request.GET.get("location")
-        collection = self.request.GET.get("collection")
+        categories = self.request.GET.getlist("category")
+        statuses = self.request.GET.getlist("status")
+        locations = self.request.GET.getlist("location")
+        collections = self.request.GET.getlist("collection")
         min_value = self.request.GET.get("min_value")
         max_value = self.request.GET.get("max_value")
 
@@ -76,17 +87,29 @@ class AssetListView(LoginRequiredMixin, ListView):
                 | Q(category__name__icontains=search_query)
             )
 
-        if category:
-            queryset = queryset.filter(category_id=category)
+        if categories:
+            # Filter non-empty values
+            categories = [cat for cat in categories if cat]
+            if categories:
+                queryset = queryset.filter(category_id__in=categories)
 
-        if status:
-            queryset = queryset.filter(local_status=status)
+        if statuses:
+            # Filter non-empty values
+            statuses = [stat for stat in statuses if stat]
+            if statuses:
+                queryset = queryset.filter(local_status__in=statuses)
 
-        if location:
-            queryset = queryset.filter(location_id=location)
+        if locations:
+            # Filter non-empty values
+            locations = [loc for loc in locations if loc]
+            if locations:
+                queryset = queryset.filter(location_id__in=locations)
 
-        if collection:
-            queryset = queryset.filter(collection_id=collection)
+        if collections:
+            # Filter non-empty values
+            collections = [col for col in collections if col]
+            if collections:
+                queryset = queryset.filter(collection_id__in=collections)
 
         if min_value:
             queryset = queryset.filter(listing_price__gte=min_value)
@@ -107,26 +130,59 @@ class AssetListView(LoginRequiredMixin, ListView):
             asset_count=Count("asset")
         ).order_by("name")
 
-        # Get locations with counts
-        context["locations"] = Location.objects.annotate(
+        # Get locations grouped by location group with counts
+        from inventory.models.location import LocationGroup
+        from django.db.models import Prefetch
+
+        # Prefetch locations with their asset counts
+        locations_with_counts = Location.objects.annotate(
             asset_count=Count("asset")
-        ).order_by("name")
+        ).order_by("order", "pk")
+
+        location_groups = (
+            LocationGroup.objects.prefetch_related(
+                Prefetch("location_set", queryset=locations_with_counts)
+            )
+            .annotate(asset_count=Count("location__asset"))
+            .order_by("order", "pk")
+        )
+
+        context["location_groups"] = location_groups
 
         # Get collections with counts
         context["collections"] = Collection.objects.annotate(
             asset_count=Count("asset")
         ).order_by("name")
 
-        # Add asset states
-        context["asset_states"] = AssetStates.choices
+        # Add asset states in logical color grouping order
+        context["asset_states"] = [
+            # Green - Available
+            (AssetStates.AVAILABLE, AssetStates.AVAILABLE.label),
+            # Blue - Maintenance/Review
+            (AssetStates.UNDER_REVIEW, AssetStates.UNDER_REVIEW.label),
+            (AssetStates.MAINTENANCE_IN_HOUSE, AssetStates.MAINTENANCE_IN_HOUSE.label),
+            (AssetStates.MAINTENANCE_EXTERNAL, AssetStates.MAINTENANCE_EXTERNAL.label),
+            # Yellow - Active/Issued
+            (AssetStates.ISSUED_UNPROCESSED, AssetStates.ISSUED_UNPROCESSED.label),
+            (AssetStates.ISSUED_LOAN, AssetStates.ISSUED_LOAN.label),
+            (AssetStates.ISSUED_RENT, AssetStates.ISSUED_RENT.label),
+            # Dark - Final/Completed
+            (AssetStates.SOLD, AssetStates.SOLD.label),
+            (AssetStates.AMORTIZED, AssetStates.AMORTIZED.label),
+            # Red - Problem
+            (AssetStates.UNKNOWN, AssetStates.UNKNOWN.label),
+            # Gray - Placeholder/Pending
+            (AssetStates.PLACEHOLDER, AssetStates.PLACEHOLDER.label),
+            (AssetStates.TO_BE_DELIVERED, AssetStates.TO_BE_DELIVERED.label),
+        ]
 
         # Add current filter values
         context["current_filters"] = {
             "q": self.request.GET.get("q", ""),
-            "category": self.request.GET.get("category", ""),
-            "status": self.request.GET.get("status", ""),
-            "location": self.request.GET.get("location", ""),
-            "collection": self.request.GET.get("collection", ""),
+            "categories": self.request.GET.getlist("category"),
+            "statuses": self.request.GET.getlist("status"),
+            "locations": self.request.GET.getlist("location"),
+            "collections": self.request.GET.getlist("collection"),
             "min_value": self.request.GET.get("min_value", ""),
             "max_value": self.request.GET.get("max_value", ""),
         }
@@ -144,11 +200,6 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
             super()
             .get_queryset()
             .select_related("category", "location", "collection", "size")
-            .prefetch_related(
-                "journal_document_lines",
-                "estimate_document_lines",
-                "recurring_sales_invoice_document_lines",
-            )
         )
 
     def get_context_data(self, **kwargs):
@@ -178,12 +229,94 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
             document__state__in=["open", "late", "accepted"],
         )
 
+        # Add form data for status update in logical color grouping order
+        context["asset_states"] = [
+            # Green - Available
+            (AssetStates.AVAILABLE, AssetStates.AVAILABLE.label),
+            # Blue - Maintenance/Review
+            (AssetStates.UNDER_REVIEW, AssetStates.UNDER_REVIEW.label),
+            (AssetStates.MAINTENANCE_IN_HOUSE, AssetStates.MAINTENANCE_IN_HOUSE.label),
+            (AssetStates.MAINTENANCE_EXTERNAL, AssetStates.MAINTENANCE_EXTERNAL.label),
+            # Yellow - Active/Issued
+            (AssetStates.ISSUED_UNPROCESSED, AssetStates.ISSUED_UNPROCESSED.label),
+            (AssetStates.ISSUED_LOAN, AssetStates.ISSUED_LOAN.label),
+            (AssetStates.ISSUED_RENT, AssetStates.ISSUED_RENT.label),
+            # Dark - Final/Completed
+            (AssetStates.SOLD, AssetStates.SOLD.label),
+            (AssetStates.AMORTIZED, AssetStates.AMORTIZED.label),
+            # Red - Problem
+            (AssetStates.UNKNOWN, AssetStates.UNKNOWN.label),
+            # Gray - Placeholder/Pending
+            (AssetStates.PLACEHOLDER, AssetStates.PLACEHOLDER.label),
+            (AssetStates.TO_BE_DELIVERED, AssetStates.TO_BE_DELIVERED.label),
+        ]
+        context["locations"] = Location.objects.all().order_by("order", "name")
+
         return context
 
     def post(self, request, *args, **kwargs):
         asset = self.get_object()
         data = request.POST
 
+        # Handle remark creation
+        if data.get("action") == "add_remark":
+            new_remark = data.get("new_remark", "").strip()
+            if new_remark:
+                Remark.objects.create(asset=asset, remark=new_remark)
+                messages.success(request, "Remark added successfully")
+            else:
+                messages.error(request, "Please enter a remark")
+            return redirect(request.path)
+
+        # Handle status update
+        if data.get("action") == "update_status":
+            updated_fields = []
+
+            # Update local status
+            new_local_status = data.get("new_local_status", "").strip()
+            if new_local_status and new_local_status != asset.local_status:
+                asset.local_status = new_local_status
+                updated_fields.append("status")
+
+            # Update location
+            new_location_id = data.get("new_location", "").strip()
+            if new_location_id:
+                try:
+                    new_location = Location.objects.get(pk=new_location_id)
+                    if new_location != asset.location:
+                        asset.location = new_location
+                        updated_fields.append("location")
+                except Location.DoesNotExist:
+                    messages.error(request, "Invalid location selected")
+                    return redirect(request.path)
+
+            # Update location number
+            new_location_nr = data.get("new_location_nr", "").strip()
+            if new_location_nr:
+                try:
+                    new_location_nr_int = int(new_location_nr)
+                    if new_location_nr_int != asset.location_nr:
+                        asset.location_nr = new_location_nr_int
+                        updated_fields.append("location number")
+                except ValueError:
+                    messages.error(request, "Invalid location number")
+                    return redirect(request.path)
+            elif new_location_nr == "" and asset.location_nr is not None:
+                # Clear location number if empty string provided
+                asset.location_nr = None
+                updated_fields.append("location number (cleared)")
+
+            if updated_fields:
+                asset.save()
+                messages.success(
+                    request, f"Updated {', '.join(updated_fields)} successfully"
+                )
+            else:
+                messages.info(request, "No changes made")
+
+            return redirect(request.path)
+
+        # Handle file uploads
         try:
             filepond_ids = data.getlist("filepond")
         except KeyError:
@@ -256,3 +389,43 @@ class AssetDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     def get_success_url(self):
         messages.success(self.request, f'Asset "{self.object.name}" has been deleted.')
         return super().get_success_url()
+
+
+class AssetAutocompleteView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get("q", "").strip()
+
+        if len(query) < 2:
+            return JsonResponse([], safe=False)
+
+        assets = (
+            Asset.objects.filter(name__icontains=query)
+            .select_related("category", "size", "location")
+            .distinct()[:10]
+        )
+
+        suggestions = []
+        for asset in assets:
+            suggestions.append(
+                {
+                    "id": str(asset.id),
+                    "name": asset.name,
+                    "category": asset.category.name_singular
+                    if asset.category
+                    else None,
+                    "size": str(asset.size) if asset.size else None,
+                    "location": str(asset.location) if asset.location else None,
+                    "location_nr": asset.location_nr,
+                    "created_at": asset.created_at.strftime("%d-%m-%Y")
+                    if asset.created_at
+                    else None,
+                    "purchase_value": float(asset.purchase_value)
+                    if asset.purchase_value
+                    else 0,
+                    "listing_price": float(asset.listing_price)
+                    if asset.listing_price
+                    else 0,
+                }
+            )
+
+        return JsonResponse(suggestions, safe=False)

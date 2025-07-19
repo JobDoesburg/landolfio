@@ -1,31 +1,36 @@
 {% extends "page.html" %}
-{% load static %}
+{% load static i18n %}
 
 {% block header %}
     <h2 class="text-center">Landolfio</h2>
     <p class="lead text-center">
-        Inventory management
+        {% translate "Inventory management" %}
     </p>
 {% endblock %}
 
 {% block content %}
     <form action="{% url 'inventory_frontend:list' %}" method="get">
         <div class="position-relative mb-4">
-            <input type="text" name="q" class="form-control form-control-lg shadow-sm"
-                   placeholder="Search {{ total_assets|default:'0' }} assets...">
+            <input type="text" name="q" id="search-input" class="form-control form-control-lg shadow-sm"
+                   placeholder="{% blocktranslate with count=total_assets|default:'0' %}Search {{ count }} assets...{% endblocktranslate %}"
+                   autocomplete="off">
+            <div id="autocomplete-suggestions" class="position-absolute w-100 mt-1 bg-white border rounded shadow-lg" style="z-index: 1000; display: none; max-height: 400px; overflow-y: auto;"></div>
             <button type="submit" class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2">
                 <i class="fas fa-search text-muted"></i>
             </button>
         </div>
 
         <!-- New Asset Button -->
-        <div class="d-flex justify-content-center mb-3">
+        <div class="d-flex justify-content-center gap-2 mb-3">
             <a href="{% url 'inventory_frontend:create' %}" class="btn btn-success">
-                <i class="fas fa-plus me-2"></i>New Asset
+                <i class="fas fa-plus me-2"></i>{% translate "New Asset" %}
+            </a>
+            <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary" title="Settings">
+                <i class="fas fa-cog me-2"></i>{% translate "Admin" %}
             </a>
         </div>
 
-        <p class="text-muted text-center mb-3">Or immediately go to...</p>
+        <p class="text-muted text-center mb-3">{% translate "Or immediately go to..." %}</p>
 
         <!-- Categories -->
         <div class="d-flex flex-wrap gap-2 justify-content-center mb-3">
@@ -57,4 +62,162 @@
             {% endfor %}
         </div>
     </form>
+{% endblock %}
+
+{% block body_js %}
+<script>
+console.log('Index page: JavaScript is loading!');
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Index page: DOMContentLoaded fired');
+    
+    // Autocomplete functionality
+    const searchInput = document.getElementById('search-input');
+    const suggestionsDiv = document.getElementById('autocomplete-suggestions');
+    
+    console.log('Index page autocomplete elements:', {
+        searchInput: !!searchInput,
+        suggestionsDiv: !!suggestionsDiv
+    });
+
+    if (searchInput && suggestionsDiv) {
+        let autocompleteTimeout;
+        
+        // Cookie helper function for autocomplete
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function fetchSuggestions(query) {
+            console.log('Index page: Fetching suggestions for:', query);
+            if (query.length < 2) {
+                suggestionsDiv.style.display = 'none';
+                return;
+            }
+
+            // Get CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+
+            fetch(`{% url 'inventory_frontend:autocomplete' %}?q=${encodeURIComponent(query)}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrfToken,
+                    'Content-Type': 'application/json',
+                }
+            })
+                .then(response => {
+                    console.log('Index page: Autocomplete response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(suggestions => {
+                    console.log('Index page: Autocomplete suggestions:', suggestions);
+                    if (suggestions && suggestions.length > 0) {
+                        showSuggestions(suggestions);
+                    } else {
+                        suggestionsDiv.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Index page: Autocomplete error:', error);
+                    suggestionsDiv.style.display = 'none';
+                });
+        }
+
+        function showSuggestions(suggestions) {
+            suggestionsDiv.innerHTML = '';
+            suggestions.forEach(suggestion => {
+                const div = document.createElement('div');
+                div.className = 'p-3 border-bottom';
+                div.style.cursor = 'pointer';
+                
+                // Create rich suggestion HTML
+                let locationText = '';
+                if (suggestion.location) {
+                    locationText = suggestion.location;
+                    if (suggestion.location_nr) {
+                        locationText += ` #${suggestion.location_nr}`;
+                    }
+                }
+                
+                // Check customer mode
+                const isCustomerMode = getCookie('customer_mode') === 'true';
+                
+                div.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div class="flex-grow-1">
+                            <div class="fw-bold text-dark">${suggestion.name}</div>
+                            <div class="small text-muted d-flex gap-2 flex-wrap">
+                                ${suggestion.category ? `<span class="badge bg-primary">${suggestion.category}</span>` : ''}
+                                ${suggestion.size ? `<span class="badge bg-secondary">${suggestion.size}</span>` : ''}
+                                ${locationText ? `<span class="text-muted">${locationText}</span>` : ''}
+                                ${!isCustomerMode && suggestion.created_at ? `<span class="text-muted">Created: ${suggestion.created_at}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="text-end ms-2">
+                            ${!isCustomerMode ? `<div class="small text-muted purchase-price">Purchase: €${suggestion.purchase_value.toFixed(0)}</div>` : ''}
+                            <div class="fw-bold text-success">€${suggestion.listing_price.toFixed(0)}</div>
+                        </div>
+                    </div>
+                `;
+                
+                div.addEventListener('click', function() {
+                    console.log('Index page: Suggestion clicked:', suggestion);
+                    suggestionsDiv.style.display = 'none';
+                    // Navigate directly to detail page
+                    window.location.href = `/new/${suggestion.id}/`;
+                });
+                
+                div.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#f8f9fa';
+                });
+                
+                div.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                });
+                
+                suggestionsDiv.appendChild(div);
+            });
+            suggestionsDiv.style.display = 'block';
+        }
+
+        searchInput.addEventListener('input', function() {
+            console.log('Index page: Search input changed:', this.value);
+            clearTimeout(autocompleteTimeout);
+            autocompleteTimeout = setTimeout(() => {
+                fetchSuggestions(this.value.trim());
+            }, 300);
+        });
+
+        searchInput.addEventListener('focus', function() {
+            if (this.value.trim().length >= 2) {
+                fetchSuggestions(this.value.trim());
+            }
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+
+        console.log('Index page: Autocomplete setup complete');
+    }
+});
+</script>
 {% endblock %}

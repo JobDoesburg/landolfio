@@ -1,0 +1,17 @@
+{% extends "page.html" %}
+{% load static %}
+
+{% block header %}
+    <h2 class="text-center">Landolfio</h2>
+    <p class="lead text-center">
+        Inventory management
+    </p>
+{% endblock %}
+
+{% block content %}
+    <div class="text-center">
+        <a href="{% url 'inventory_frontend:search' %}" class="btn btn-primary btn-lg">
+            <i class="fas fa-sign-in-alt me-2"></i>Login
+        </a>
+    </div>
+{% endblock %}
