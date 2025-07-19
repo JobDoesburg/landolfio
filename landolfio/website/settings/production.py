@@ -53,6 +53,9 @@ MEDIA_ROOT = os.environ.get("DJANGO_MEDIA_ROOT")
 DJANGO_DRF_FILEPOND_UPLOAD_TMP = os.path.join(MEDIA_ROOT, "filepond-temp-uploads")
 DJANGO_DRF_FILEPOND_ALLOW_EXTERNAL_UPLOAD_DIR = True
 
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+DJANGO_DRF_FILEPOND_STORAGES_BACKEND = "storages.backends.s3boto3.S3Boto3Storage"
+
 # We do this in our reverse proxy, no need to do it here
 SECURE_SSL_REDIRECT = False
 
