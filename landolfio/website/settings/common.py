@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     "admin_reorder",
     "autocompletefilter",
     "django_drf_filepond",
+    "storages",
     "ninox_import",
     "accounting",
     "inventory",
@@ -261,9 +262,26 @@ AWS_S3_REGION_NAME = os.environ.get("AWS_S3_REGION_NAME")
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_S3_FILE_OVERWRITE = False
 if AWS_STORAGE_BUCKET_NAME is not None:
-    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    # Configure S3 storage for Django 5.0+
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
     DJANGO_DRF_FILEPOND_STORAGES_BACKEND = "storages.backends.s3boto3.S3Boto3Storage"
 else:
+    # Use local file storage
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
     DJANGO_DRF_FILEPOND_STORAGES_BACKEND = "django.core.files.storage.FileSystemStorage"
     DJANGO_DRF_FILEPOND_FILE_STORE_PATH = os.path.join(MEDIA_ROOT, "stored_uploads")
 

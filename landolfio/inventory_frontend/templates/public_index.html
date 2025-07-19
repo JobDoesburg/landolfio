@@ -1,17 +1,17 @@
 {% extends "page.html" %}
-{% load static %}
+{% load static i18n %}
 
 {% block header %}
     <h2 class="text-center">Landolfio</h2>
     <p class="lead text-center">
-        Inventory management
+        {% translate "Inventory management" %}
     </p>
 {% endblock %}
 
 {% block content %}
     <div class="text-center">
         <a href="{% url 'inventory_frontend:search' %}" class="btn btn-primary btn-lg">
-            <i class="fas fa-sign-in-alt me-2"></i>Login
+            <i class="fas fa-sign-in-alt me-2"></i>{% translate "Login" %}
         </a>
     </div>
 {% endblock %}
