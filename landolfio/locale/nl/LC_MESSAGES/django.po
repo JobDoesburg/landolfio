@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-20 10:33+0200\n"
-"PO-Revision-Date: 2025-07-20 10:46+0200\n"
+"POT-Creation-Date: 2025-07-20 10:54+0200\n"
+"PO-Revision-Date: 2025-07-20 10:57+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -82,6 +82,8 @@ msgstr "Vraagprijs"
 #: inventory_frontend/templates/create.html:104
 #: inventory_frontend/templates/detail.html:134
 #: inventory_frontend/templates/detail.html:186
+#: inventory_frontend/templates/detail.html:396
+#: inventory_frontend/templates/detail.html:426
 #: inventory_frontend/templates/list.html:137
 #: inventory_frontend/templates/list.html:302
 #: inventory_frontend/templates/update.html:109
@@ -113,11 +115,16 @@ msgstr "Verwijder"
 msgid "Admin"
 msgstr "Admin"
 
+#: inventory_frontend/templates/detail.html:55
+msgid "Accounting Errors"
+msgstr "Boekhoudkundige fouten"
+
 #: inventory_frontend/templates/detail.html:67
 msgid "Overview"
 msgstr "Overzicht"
 
 #: inventory_frontend/templates/detail.html:70
+#: inventory_frontend/templates/detail.html:269
 msgid "Attachments"
 msgstr "Bijlagen"
 
@@ -201,10 +208,92 @@ msgstr "Plaats een nieuwe opmerking…"
 msgid "Add"
 msgstr "Toevoegen"
 
+#: inventory_frontend/templates/detail.html:290
+msgid "No attachments yet"
+msgstr "Nog geen bijlagen"
+
 #: inventory_frontend/templates/detail.html:305
 #: inventory_frontend/templates/detail.html:711
 msgid "Upload"
 msgstr "Uploaden"
+
+#: inventory_frontend/templates/detail.html:320
+msgid "Balance Summary"
+msgstr "Balans overzicht"
+
+#: inventory_frontend/templates/detail.html:331
+msgid "Total Assets Value"
+msgstr "Totaal waarde activa"
+
+#: inventory_frontend/templates/detail.html:335
+msgid "Margin Assets Value"
+msgstr "Marge activa waarde"
+
+#: inventory_frontend/templates/detail.html:339
+msgid "Purchase Value"
+msgstr "Aankoopprijs"
+
+#: inventory_frontend/templates/detail.html:349
+msgid "Revenue & Costs"
+msgstr "Omzet en kosten"
+
+#: inventory_frontend/templates/detail.html:360
+msgid "Total Revenue"
+msgstr "Totaal omzet"
+
+#: inventory_frontend/templates/detail.html:364
+msgid "Direct Costs"
+msgstr "Directe kosten"
+
+#: inventory_frontend/templates/detail.html:368
+msgid "Total Expenses"
+msgstr "Totale kosten"
+
+#: inventory_frontend/templates/detail.html:372
+msgid "Total Profit"
+msgstr "Totale winst"
+
+#: inventory_frontend/templates/detail.html:388
+msgid "Rental Agreements"
+msgstr "Huurovereenkomsten"
+
+#: inventory_frontend/templates/detail.html:393
+#: inventory_frontend/templates/detail.html:423
+#: inventory_frontend/templates/detail.html:465
+msgid "Date"
+msgstr "Datum"
+
+#: inventory_frontend/templates/detail.html:394
+#: inventory_frontend/templates/detail.html:424
+#: inventory_frontend/templates/detail.html:466
+msgid "Description"
+msgstr "Omschrijving"
+
+#: inventory_frontend/templates/detail.html:395
+#: inventory_frontend/templates/detail.html:425
+#: inventory_frontend/templates/list.html:169
+msgid "Price"
+msgstr "Prijs"
+
+#: inventory_frontend/templates/detail.html:418
+msgid "Loan Agreements"
+msgstr "Leenovereenkomsten"
+
+#: inventory_frontend/templates/detail.html:449
+msgid "No active agreements"
+msgstr "Geen actieve overeenkomsten"
+
+#: inventory_frontend/templates/detail.html:467
+msgid "Account"
+msgstr "Account"
+
+#: inventory_frontend/templates/detail.html:468
+msgid "Amount"
+msgstr "Waarde"
+
+#: inventory_frontend/templates/detail.html:486
+msgid "No transaction history"
+msgstr "Geen transactiegeschiedenis"
 
 #: inventory_frontend/templates/detail.html:500
 #: inventory_frontend/templates/detail.html:511
@@ -384,10 +473,6 @@ msgstr "Locaties"
 #: inventory_frontend/templates/list.html:114
 msgid "Collections"
 msgstr "Collecties"
-
-#: inventory_frontend/templates/list.html:169
-msgid "Price"
-msgstr "Prijs"
 
 #: inventory_frontend/templates/list.html:182
 msgid "Min"

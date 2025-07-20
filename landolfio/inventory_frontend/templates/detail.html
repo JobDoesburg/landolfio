@@ -52,7 +52,7 @@
     <!-- Status Alerts -->
     {% if asset.accounting_errors %}
     <div class="alert alert-danger mb-4">
-        <h5 class="alert-heading">Accounting Errors:</h5>
+        <h5 class="alert-heading">{% translate "Accounting Errors" %}:</h5>
         <ul class="mb-0">
             {% for error in asset.accounting_errors %}
                 <li>{{ error }}</li>
@@ -266,7 +266,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Attachments</h5>
+                            <h5 class="card-title mb-0">{% translate "Attachments" %}</h5>
                         </div>
                         <div class="card-body">
                             {% if asset.attachments.exists %}
@@ -287,7 +287,7 @@
                             {% else %}
                                 <div class="text-center py-5 text-muted mb-4">
                                     <i class="fas fa-images fa-3x mb-3"></i>
-                                    <h5>No attachments yet</h5>
+                                    <h5>{% translate "No attachments yet" %}</h5>
                                 </div>
                             {% endif %}
 
@@ -317,7 +317,7 @@
                 <div class="col-md-6">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Balance Summary</h5>
+                            <h5 class="card-title mb-0">{% translate "Balance Summary" %}</h5>
                         </div>
                         <div class="card-body">
                             <table class="table">
@@ -328,15 +328,15 @@
                                 </tr>
                                 {% endfor %}
                                 <tr class="border-top">
-                                    <td class="text-muted">Total Assets Value:</td>
+                                    <td class="text-muted">{% translate "Total Assets Value" %}:</td>
                                     <td class="text-end">€{{ asset.total_assets_value|default:0|floatformat:2 }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted">Margin Assets Value:</td>
+                                    <td class="text-muted">{% translate "Margin Assets Value" %}:</td>
                                     <td class="text-end">€{{ asset.total_margin_assets_value|default:0|floatformat:2 }}</td>
                                 </tr>
                                 <tr class="table-light purchase-price">
-                                    <td class="text-muted"><strong>Purchase Value:</strong></td>
+                                    <td class="text-muted"><strong>{% translate "Purchase Value" %}:</strong></td>
                                     <td class="text-end"><strong>€{{ asset.purchase_value|default:0|floatformat:2 }}</strong></td>
                                 </tr>
                             </table>
@@ -346,7 +346,7 @@
                 <div class="col-md-6">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h5 class="card-title mb-0">Revenue & Costs</h5>
+                            <h5 class="card-title mb-0">{% translate "Revenue & Costs" %}</h5>
                         </div>
                         <div class="card-body">
                             <table class="table">
@@ -357,19 +357,19 @@
                                 </tr>
                                 {% endfor %}
                                 <tr class="border-top">
-                                    <td class="text-muted">Total Revenue:</td>
+                                    <td class="text-muted">{% translate "Total Revenue" %}:</td>
                                     <td class="text-end">€{{ asset.total_revenue_value|default:0|floatformat:2 }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted">Direct Costs:</td>
+                                    <td class="text-muted">{% translate "Direct Costs" %}:</td>
                                     <td class="text-end">€{{ asset.total_direct_costs_value|default:0|floatformat:2 }}</td>
                                 </tr>
                                 <tr>
-                                    <td class="text-muted">Total Expenses:</td>
+                                    <td class="text-muted">{% translate "Total Expenses" %}:</td>
                                     <td class="text-end">€{{ asset.total_expenses_value|default:0|floatformat:2 }}</td>
                                 </tr>
                                 <tr class="table-info">
-                                    <td class="text-muted"><strong>Total Profit:</strong></td>
+                                    <td class="text-muted"><strong>{% translate "Total Profit" %}:</strong></td>
                                     <td class="text-end"><strong>€{{ asset.total_profit|default:0|floatformat:2 }}</strong></td>
                                 </tr>
                             </table>
@@ -385,15 +385,15 @@
                 <div class="col-12">
                     {% if asset.has_rental_agreement or asset.has_loan_agreement %}
                         {% if asset.has_rental_agreement %}
-                            <h5 class="mb-3">Rental Agreements</h5>
+                            <h5 class="mb-3">{% translate "Rental Agreements" %}</h5>
                             <div class="table-responsive mb-4">
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Date</th>
-                                            <th>Description</th>
-                                            <th>Price</th>
-                                            <th>Status</th>
+                                            <th>{% translate "Date" %}</th>
+                                            <th>{% translate "Description" %}</th>
+                                            <th>{% translate "Price" %}</th>
+                                            <th>{% translate "Status" %}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -415,15 +415,15 @@
                         {% endif %}
 
                         {% if asset.has_loan_agreement %}
-                            <h5 class="mb-3">Loan Agreements</h5>
+                            <h5 class="mb-3">{% translate "Loan Agreements" %}</h5>
                             <div class="table-responsive">
                                 <table class="table table-hover">
                                     <thead>
                                         <tr>
-                                            <th>Date</th>
-                                            <th>Description</th>
-                                            <th>Price</th>
-                                            <th>Status</th>
+                                            <th>{% translate "Date" %}</th>
+                                            <th>{% translate "Description" %}</th>
+                                            <th>{% translate "Price" %}</th>
+                                            <th>{% translate "Status" %}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -446,7 +446,7 @@
                     {% else %}
                         <div class="text-center py-5 text-muted">
                             <i class="fas fa-file-contract fa-3x mb-3"></i>
-                            <h5>No active agreements</h5>
+                            <h5>{% translate "No active agreements" %}</h5>
                         </div>
                     {% endif %}
                 </div>
@@ -462,10 +462,10 @@
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Description</th>
-                                        <th>Account</th>
-                                        <th class="text-end">Amount</th>
+                                        <th>{% translate "Date" %}</th>
+                                        <th>{% translate "Description" %}</th>
+                                        <th>{% translate "Account" %}</th>
+                                        <th class="text-end">{% translate "Amount" %}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -483,7 +483,7 @@
                     {% else %}
                         <div class="text-center py-5 text-muted">
                             <i class="fas fa-history fa-3x mb-3"></i>
-                            <h5>No transaction history</h5>
+                            <h5>{% translate "No transaction history" %}</h5>
                         </div>
                     {% endif %}
                 </div>
