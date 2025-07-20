@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-21 16:33+0100\n"
+"POT-Creation-Date: 2025-07-19 20:43+0200\n"
 "PO-Revision-Date: 2023-02-21 13:40+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -18,20 +18,20 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: new_customers/admin.py:25 new_customers/templates/register-customer.html:5
+#: new_customers/admin.py:26 new_customers/templates/register-customer.html:5
 msgid "New customer"
 msgstr "Nieuwe klant"
 
-#: new_customers/admin.py:45
+#: new_customers/admin.py:46
 msgid "(Re)send SEPA mandate request"
 msgstr "Verstuur nieuw SEPA mandaat verzoek"
 
-#: new_customers/admin.py:47
+#: new_customers/admin.py:48
 msgid "Are you sure you want to send the customer a new SEPA mandate request?"
 msgstr ""
 "Weet je zeker dat je de klant een nieuw SEPA mandaat verzoek wilt sturen?"
 
-#: new_customers/admin.py:56
+#: new_customers/admin.py:57
 msgid "View contact on Moneybird"
 msgstr "Bekijk contact op Moneybird"
 
@@ -166,11 +166,11 @@ msgstr ""
 #: new_customers/templates/register-customer-success.html:17
 #: new_customers/templates/register-customer.html:16
 msgid ""
-"If you have any questions, please contact us at <a href=\"mailto:"
-"contact@vofdoesburg.nl\">contact@vofdoesburg.nl</a>."
+"If you have any questions, please contact us at <a "
+"href=\"mailto:contact@vofdoesburg.nl\">contact@vofdoesburg.nl</a>."
 msgstr ""
-"Neem bij vragen contact met ons op via <a href=\"mailto:contact@vofdoesburg."
-"nl\">contact@vofdoesburg.nl</a>."
+"Neem bij vragen contact met ons op via <a "
+"href=\"mailto:contact@vofdoesburg.nl\">contact@vofdoesburg.nl</a>."
 
 #: new_customers/templates/register-customer-success.html:10
 msgid "Registration successful"

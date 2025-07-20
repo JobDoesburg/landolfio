@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-16 14:46+0200\n"
+"POT-Creation-Date: 2025-07-19 20:43+0200\n"
 "PO-Revision-Date: 2023-02-21 13:40+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -59,7 +59,7 @@ msgstr "Te verwijderen van Moneybird"
 msgid "Delete this object from Moneybird when syncing."
 msgstr "Verwijder dit object van Moneybird bij synchronisatie."
 
-#: moneybird/models.py:211
+#: moneybird/models.py:230
 msgid "Moneybird version"
 msgstr "Moneybird versie"
 

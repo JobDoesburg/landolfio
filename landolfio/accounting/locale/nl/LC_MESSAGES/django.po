@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-21 13:37+0100\n"
-"PO-Revision-Date: 2023-02-21 13:38+0100\n"
+"POT-Creation-Date: 2025-07-19 20:43+0200\n"
+"PO-Revision-Date: 2025-07-20 10:47+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.6\n"
 
 #: accounting/admin/contact.py:72
 msgid "Contact details"
@@ -197,8 +197,7 @@ msgstr "facturen url"
 #: accounting/models/contact.py:199 accounting/models/contact.py:206
 #: accounting/models/contact.py:213
 msgid "Contact must either have a company name, or first and last name."
-msgstr ""
-"Contact moet ofwel een bedrijfsnaam, ofwel een voor- en achternaam hebben."
+msgstr "Contact moet ofwel een bedrijfsnaam, ofwel een voor- en achternaam hebben."
 
 #: accounting/models/contact.py:232
 msgid "Fill in all SEPA fields if SEPA mandate is active."
@@ -235,7 +234,8 @@ msgstr "documentstijl"
 msgid "document styles"
 msgstr "documentstijlen"
 
-#: accounting/models/estimate.py:35 accounting/models/sales_invoice.py:29
+#: accounting/models/estimate.py:35 accounting/models/estimate.py:123
+#: accounting/models/sales_invoice.py:29 accounting/models/sales_invoice.py:132
 msgid "draft"
 msgstr "concept"
 
@@ -427,7 +427,8 @@ msgstr "product"
 #: accounting/models/estimate.py:187 accounting/models/product.py:59
 #: accounting/models/purchase_document.py:108
 #: accounting/models/recurring_sales_invoice.py:158
-#: accounting/models/sales_invoice.py:177 accounting/models/tax_rate.py:37
+#: accounting/models/sales_invoice.py:177 accounting/models/tax_rate.py:34
+#: accounting/models/tax_rate.py:37
 msgid "tax rate"
 msgstr "btw-tarief"
 
@@ -713,18 +714,19 @@ msgid "last date"
 msgstr "laatste datum"
 
 #: accounting/models/recurring_sales_invoice.py:93
-msgid ""
-"{_('Every')} {self.frequency_type} {_('since')} {self.start_date} {_('to')} "
-"{self.contact}"
-msgid_plural ""
-"{_('Every')} {self.frequency} {self.frequency_type} {_('since')} {self."
-"start_date} {_('to')} {self.contact}"
-msgstr[0] ""
-"{_(‘Iedere’)} {self.frequency_type} {_(‘sinds’)} {self.start_date} "
-"{_(‘tot’)} {self.contact}"
-msgstr[1] ""
-"{_(‘Iedere’)} {self.frequency} {self.frequency_type} {_(‘sinds’)} {self."
-"start_date} {_(‘tot’)} {self.contact}"
+#: accounting/models/recurring_sales_invoice.py:94
+msgid "Every"
+msgstr "Iedere"
+
+#: accounting/models/recurring_sales_invoice.py:93
+#: accounting/models/recurring_sales_invoice.py:94
+msgid "since"
+msgstr "sinds"
+
+#: accounting/models/recurring_sales_invoice.py:93
+#: accounting/models/recurring_sales_invoice.py:94
+msgid "to"
+msgstr "tot"
 
 #: accounting/models/recurring_sales_invoice.py:99
 #: accounting/models/subscription.py:52
@@ -807,6 +809,10 @@ msgstr "einddatum"
 msgid "cancelled at"
 msgstr "geannuleerd op"
 
+#: accounting/models/subscription.py:57
+msgid "for"
+msgstr "voor"
+
 #: accounting/models/subscription.py:60
 msgid "subscription"
 msgstr "abonnement"
@@ -842,3 +848,8 @@ msgstr "is incasso"
 #: accounting/models/workflow.py:38
 msgid "workflows"
 msgstr "workflows"
+
+#~ msgid "{_('Every')} {self.frequency_type} {_('since')} {self.start_date} {_('to')} {self.contact}"
+#~ msgid_plural "{_('Every')} {self.frequency} {self.frequency_type} {_('since')} {self.start_date} {_('to')} {self.contact}"
+#~ msgstr[0] "{_(‘Iedere’)} {self.frequency_type} {_(‘sinds’)} {self.start_date} {_(‘tot’)} {self.contact}"
+#~ msgstr[1] "{_(‘Iedere’)} {self.frequency} {self.frequency_type} {_(‘sinds’)} {self.start_date} {_(‘tot’)} {self.contact}"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-21 16:33+0100\n"
+"POT-Creation-Date: 2025-07-19 20:43+0200\n"
 "PO-Revision-Date: 2023-02-21 16:34+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -26,11 +26,11 @@ msgstr "Geavanceerde opties"
 msgid "Assets"
 msgstr "Eigendommen"
 
-#: tickets/admin.py:171
+#: tickets/admin.py:169
 msgid "Close ticket"
 msgstr "Sluit ticket"
 
-#: tickets/admin.py:183
+#: tickets/admin.py:181
 msgid "Reopen ticket"
 msgstr "Heropen ticket"
 

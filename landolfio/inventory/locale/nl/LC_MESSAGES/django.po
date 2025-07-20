@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-21 16:33+0100\n"
+"POT-Creation-Date: 2025-07-19 20:43+0200\n"
 "PO-Revision-Date: 2023-02-21 13:39+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -18,89 +18,97 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: inventory/admin.py:119
+#: inventory/admin.py:177
 msgid "Name"
 msgstr "Naam"
 
-#: inventory/admin.py:135
+#: inventory/admin.py:195
 msgid "Financial"
 msgstr "Financieel"
 
-#: inventory/admin.py:232
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:57
+#: inventory/admin.py:286
+msgid "nr"
+msgstr ""
+
+#: inventory/admin.py:294 inventory/models/attachment.py:34
+msgid "attachments"
+msgstr "bijlagen"
+
+#: inventory/admin.py:302
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:63
 msgid "margin"
 msgstr "marge"
 
-#: inventory/admin.py:240
+#: inventory/admin.py:310
 msgid "not margin"
 msgstr "niet-marge"
 
-#: inventory/admin.py:248 inventory/models/asset.py:62
-#: inventory/models/asset.py:74
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:59
+#: inventory/admin.py:318 inventory/models/asset.py:65
+#: inventory/models/asset.py:77
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:65
 msgid "sold"
 msgstr "verkocht"
 
-#: inventory/admin.py:256
+#: inventory/admin.py:326
 msgid "sold margin"
 msgstr "verkocht marge"
 
-#: inventory/admin.py:264
+#: inventory/admin.py:334
 msgid "sold non margin"
 msgstr "verkocht niet-marge"
 
-#: inventory/admin.py:272
+#: inventory/admin.py:342
 msgid "purchased asset"
 msgstr "ingekocht"
 
-#: inventory/admin.py:280
+#: inventory/admin.py:350
 msgid "purchased asset margin"
 msgstr "ingekocht marge"
 
-#: inventory/admin.py:288
+#: inventory/admin.py:358
 msgid "purchased asset non margin"
 msgstr "ingekocht niet-marge"
 
-#: inventory/admin.py:296
+#: inventory/admin.py:366
 msgid "purchased amortized"
 msgstr "afgeschreven bij aankoop"
 
-#: inventory/admin.py:304 inventory/models/collection.py:7
+#: inventory/admin.py:374 inventory/models/collection.py:7
 msgid "commerce"
 msgstr "handelsgoed"
 
-#: inventory/admin.py:312 inventory/models/asset.py:61
-#: inventory/models/asset.py:73
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:58
+#: inventory/admin.py:382 inventory/models/asset.py:64
+#: inventory/models/asset.py:76
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:64
 msgid "amortized"
 msgstr "afgeschreven"
 
-#: inventory/admin.py:320
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:60
+#: inventory/admin.py:390
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:66
 msgid "rented"
 msgstr "verhuurd"
 
-#: inventory/admin.py:328
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:61
+#: inventory/admin.py:398
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:67
 msgid "has rental agreement"
 msgstr "heeft huurovereenkomst"
 
-#: inventory/admin.py:336
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:62
+#: inventory/admin.py:406
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:68
 msgid "has loan agreement"
 msgstr "heeft leenovereenkomst"
 
-#: inventory/admin.py:349 inventory/models/asset.py:640
+#: inventory/admin.py:413 inventory/models/asset.py:684
 #: inventory/models/asset_on_document_line.py:19
 #: inventory/models/asset_on_document_line.py:69
 #: inventory/models/asset_on_document_line.py:117
 #: inventory/models/asset_on_document_line.py:165
-#: inventory/models/attachment.py:15 inventory/models/remarks.py:9
+#: inventory/models/attachment.py:17 inventory/models/remarks.py:9
 msgid "asset"
 msgstr "eigendom"
 
-#: inventory/admin.py:502 inventory/admin.py:533 inventory/admin.py:566
-#: inventory/models/asset.py:641
+#: inventory/admin.py:575 inventory/admin.py:606 inventory/admin.py:639
+#: inventory/models/asset.py:685
 msgid "assets"
 msgstr "eigendommen"
 
@@ -118,18 +126,17 @@ msgstr "Afbeelding"
 msgid "workflow"
 msgstr "workflow"
 
-#: inventory/admin_inlines.py:58
+#: inventory/admin_inlines.py:58 inventory/admin_inlines.py:65
 msgid "View on Moneybird"
 msgstr "Bekijk op Moneybird"
 
 #: inventory/admin_inlines.py:71
 #: inventory/templates/admin/inventory/asset/view_asset/includes/journal_documents.html:23
-#: inventory/templates/admin/inventory/asset/view_asset/includes/ledger_accounts.html:13
 #: inventory/templates/admin/inventory/asset/view_asset/includes/recurring_sales_invoices.html:24
 msgid "ledger account"
 msgstr "boekrekening"
 
-#: inventory/admin_inlines.py:75 inventory/models/remarks.py:12
+#: inventory/admin_inlines.py:75 inventory/models/remarks.py:13
 #: inventory/templates/admin/inventory/asset/view_asset/includes/estimates.html:18
 #: inventory/templates/admin/inventory/asset/view_asset/includes/journal_documents.html:18
 #: inventory/templates/admin/inventory/asset/view_asset/includes/remarks.html:7
@@ -176,154 +183,182 @@ msgstr "Actief"
 msgid "🗂 Inventory"
 msgstr "🗂 Inventaris"
 
-#: inventory/models/asset.py:51 inventory/models/asset.py:66
+#: inventory/models/asset.py:54 inventory/models/asset.py:69
 msgid "unknown"
 msgstr "onbekend"
 
-#: inventory/models/asset.py:52
+#: inventory/models/asset.py:55
 msgid "placeholder"
 msgstr "placeholder"
 
-#: inventory/models/asset.py:53
+#: inventory/models/asset.py:56
 msgid "to be delivered"
 msgstr "nog niet geleverd"
 
-#: inventory/models/asset.py:54
+#: inventory/models/asset.py:57
 msgid "under review"
 msgstr "onder beoordeling"
 
-#: inventory/models/asset.py:55
+#: inventory/models/asset.py:58
 msgid "maintenance in house"
 msgstr "reparatie in huis"
 
-#: inventory/models/asset.py:56
+#: inventory/models/asset.py:59
 msgid "maintenance external"
 msgstr "reparatie extern"
 
-#: inventory/models/asset.py:57 inventory/models/asset.py:67
+#: inventory/models/asset.py:60 inventory/models/asset.py:70
 msgid "available"
 msgstr "beschikbaar"
 
-#: inventory/models/asset.py:58
+#: inventory/models/asset.py:61
 msgid "issued unprocessed"
 msgstr "uitgegeven onverwerkt"
 
-#: inventory/models/asset.py:59 inventory/models/asset.py:71
+#: inventory/models/asset.py:62 inventory/models/asset.py:74
 msgid "issued rent"
 msgstr "verhuurd"
 
-#: inventory/models/asset.py:60 inventory/models/asset.py:72
+#: inventory/models/asset.py:63 inventory/models/asset.py:75
 msgid "issued loan"
 msgstr "uitgeleend"
 
-#: inventory/models/asset.py:69
+#: inventory/models/asset.py:72
 msgid "available or amortized"
 msgstr "beschikbaar of afgeschreven"
 
-#: inventory/models/asset.py:78
+#: inventory/models/asset.py:82
+msgid "Name must be uppercase"
+msgstr ""
+
+#: inventory/models/asset.py:86
 #: inventory/templates/admin/inventory/asset/overview/index.html:33
 msgid "created at"
 msgstr "aangemaakt op"
 
-#: inventory/models/asset.py:79
-msgid "ID"
-msgstr "Nummer"
+#: inventory/models/asset.py:87
+#, fuzzy
+#| msgid "created at"
+msgid "updated at"
+msgstr "aangemaakt op"
 
-#: inventory/models/asset.py:85 inventory/models/category.py:8
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:38
+#: inventory/models/asset.py:89
+#: inventory/templates/admin/inventory/asset/view_asset/includes/estimates.html:17
+#: inventory/templates/admin/inventory/asset/view_asset/includes/journal_documents.html:17
+msgid "id"
+msgstr "nummer"
+
+#: inventory/models/asset.py:92 inventory/models/category.py:13
+#: inventory/models/category.py:37 inventory/models/collection.py:6
+#: inventory/models/location.py:13 inventory/models/location.py:30
+msgid "name"
+msgstr "naam"
+
+#: inventory/models/asset.py:104 inventory/models/category.py:8
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:44
 msgid "category"
 msgstr "categorie"
 
-#: inventory/models/asset.py:88 inventory/models/category.py:32
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:39
+#: inventory/models/asset.py:107 inventory/models/category.py:32
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:45
 msgid "size"
 msgstr "maat"
 
-#: inventory/models/asset.py:95 inventory/models/location.py:25
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:41
+#: inventory/models/asset.py:114 inventory/models/location.py:25
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:47
 msgid "location"
 msgstr "locatie"
 
-#: inventory/models/asset.py:98 inventory/models/collection.py:16
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:40
+#: inventory/models/asset.py:117
+#, fuzzy
+#| msgid "location"
+msgid "location nr"
+msgstr "locatie"
+
+#: inventory/models/asset.py:120 inventory/models/collection.py:16
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:46
 msgid "collection"
 msgstr "collectie"
 
-#: inventory/models/asset.py:102
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:42
+#: inventory/models/asset.py:124
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:48
 msgid "listing price"
 msgstr "vraagprijs"
 
-#: inventory/models/asset.py:111
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:43
+#: inventory/models/asset.py:133
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:49
 msgid "local status"
 msgstr "lokale status"
 
-#: inventory/models/asset.py:118
+#: inventory/models/asset.py:140
 msgid "journal document lines"
 msgstr "boekregels"
 
-#: inventory/models/asset.py:123
+#: inventory/models/asset.py:145
 msgid "estimate document lines"
 msgstr "offerte-documentregels"
 
-#: inventory/models/asset.py:128
+#: inventory/models/asset.py:150
 msgid "recurring sales invoice document lines"
 msgstr "periodieke factuurregels"
 
-#: inventory/models/asset.py:533
+#: inventory/models/asset.py:153
+msgid "raw data"
+msgstr ""
+
+#: inventory/models/asset.py:577
 msgid "Sold and rented"
 msgstr "Verkocht en verhuurd"
 
-#: inventory/models/asset.py:535
+#: inventory/models/asset.py:579
 msgid "Sold and not amortized"
 msgstr "Verkocht en niet afgeschreven"
 
-#: inventory/models/asset.py:537
+#: inventory/models/asset.py:581
 msgid "Rented and not rental agreement"
 msgstr "Verhuurd zonder huurovereenkomst"
 
-#: inventory/models/asset.py:539
+#: inventory/models/asset.py:583
 msgid "Rented and loan agreement"
 msgstr "Verhuurd met leenovereenkomst"
 
-#: inventory/models/asset.py:541
+#: inventory/models/asset.py:585
 msgid "Rental agreement and not rented"
 msgstr "Huurovereenkomst maar niet verhuurd"
 
-#: inventory/models/asset.py:543
+#: inventory/models/asset.py:587
 msgid "Rental agreement and loan agreement"
 msgstr "Huurovereenkomst en leenovereenkomst"
 
-#: inventory/models/asset.py:545
+#: inventory/models/asset.py:589
 msgid "Multiple loan agreements"
 msgstr "Meerdere leenovereenkomsten"
 
-#: inventory/models/asset.py:547
+#: inventory/models/asset.py:591
 msgid "Multiple rental agreements"
 msgstr "Meerdere huurovereenkomsten"
 
-#: inventory/models/asset.py:550
+#: inventory/models/asset.py:594
 msgid "Amortized above 450 euro"
 msgstr "Afgeschreven boven 450 euro"
 
-#: inventory/models/asset.py:554
+#: inventory/models/asset.py:598
 msgid "Sold and not commerce"
 msgstr "Verkocht en geen handelsgoed"
 
-#: inventory/models/asset.py:556
+#: inventory/models/asset.py:600
 msgid "Rented and not commerce"
 msgstr "Verhuurd en geen handelsgoed"
 
-#: inventory/models/asset.py:558
+#: inventory/models/asset.py:602
 msgid "Rental agreement and not commerce"
 msgstr "Huurovereenkomst en geen handelsgoed"
 
-#: inventory/models/asset.py:561
+#: inventory/models/asset.py:605
 msgid "Margin asset on non-margin ledgers"
 msgstr "Margegoed op niet-marge boekrekeningen"
 
-#: inventory/models/asset.py:564
+#: inventory/models/asset.py:608
 msgid "Accounting status incompatible with local status"
 msgstr "Boekhoudkundige status incompatibel met lokale status"
 
@@ -340,6 +375,15 @@ msgstr "eigendom op boekingsregel"
 #: inventory/models/asset_on_document_line.py:55
 msgid "assets on journal document lines"
 msgstr "eigendommen op boekingsregels"
+
+#: inventory/models/asset_on_document_line.py:61
+#: inventory/models/asset_on_document_line.py:109
+#: inventory/models/asset_on_document_line.py:157
+#: inventory/models/asset_on_document_line.py:185
+#, fuzzy
+#| msgid "open"
+msgid "on"
+msgstr "open"
 
 #: inventory/models/asset_on_document_line.py:102
 msgid "asset on estimate document line"
@@ -369,28 +413,22 @@ msgstr "eigendom-abonnement"
 msgid "assets subscriptions"
 msgstr "eigendom-abonnementen"
 
-#: inventory/models/attachment.py:20 inventory/models/attachment.py:28
+#: inventory/models/attachment.py:22 inventory/models/attachment.py:33
 msgid "attachment"
 msgstr "bijlage"
 
-#: inventory/models/attachment.py:22
+#: inventory/models/attachment.py:26
 msgid "upload date"
 msgstr "uploaddatum"
 
-#: inventory/models/attachment.py:29
-msgid "attachments"
-msgstr "bijlagen"
+#: inventory/models/attachment.py:30
+msgid "from"
+msgstr ""
 
 #: inventory/models/category.py:9 inventory/models/category.py:40
 #: inventory/templates/admin/inventory/asset/overview/includes/categories_module.html:6
 msgid "categories"
 msgstr "categorieën"
-
-#: inventory/models/category.py:13 inventory/models/category.py:37
-#: inventory/models/collection.py:6 inventory/models/location.py:13
-#: inventory/models/location.py:30
-msgid "name"
-msgstr "naam"
 
 #: inventory/models/category.py:20
 msgid "name singular"
@@ -424,14 +462,32 @@ msgstr "locatiegroepen"
 msgid "locations"
 msgstr "locaties"
 
-#: inventory/models/remarks.py:11 inventory/models/remarks.py:18
+#: inventory/models/remarks.py:11 inventory/models/remarks.py:23
 #: inventory/templates/admin/inventory/asset/view_asset/includes/remarks.html:8
 msgid "remark"
 msgstr "opmerking"
 
-#: inventory/models/remarks.py:19
+#: inventory/models/remarks.py:18 inventory/models/remarks.py:20
+#, fuzzy
+#| msgid "Remarks"
+msgid "Remark on"
+msgstr "Opmerkingen"
+
+#: inventory/models/remarks.py:24
 msgid "remarks"
 msgstr "opmerkingen"
+
+#: inventory/templates/admin/inventory/asset/overview/includes/categories_module.html:15
+#, fuzzy
+#| msgid "categories"
+msgid "No categories"
+msgstr "categorieën"
+
+#: inventory/templates/admin/inventory/asset/overview/includes/collections_module.html:15
+#, fuzzy
+#| msgid "collections"
+msgid "No collections"
+msgstr "collecties"
 
 #: inventory/templates/admin/inventory/asset/overview/includes/index-nav-sidebar.html:2
 msgid "Toggle navigation"
@@ -444,6 +500,12 @@ msgstr "Start met typen om te filteren…"
 #: inventory/templates/admin/inventory/asset/overview/includes/index-nav-sidebar.html:6
 msgid "Filter navigation items"
 msgstr "Filter navigatie"
+
+#: inventory/templates/admin/inventory/asset/overview/includes/locations_module.html:15
+#, fuzzy
+#| msgid "locations"
+msgid "No locations"
+msgstr "locaties"
 
 #: inventory/templates/admin/inventory/asset/overview/index.html:8
 #: inventory/templates/admin/inventory/asset/view_asset/view_asset.html:36
@@ -464,7 +526,7 @@ msgid "Close"
 msgstr "Sluit"
 
 #: inventory/templates/admin/inventory/asset/view_asset/includes/attachments.html:20
-#: inventory/templates/admin/inventory/asset/view_asset/includes/attachments.html:77
+#: inventory/templates/admin/inventory/asset/view_asset/includes/attachments.html:83
 msgid "Next"
 msgstr "Volgende"
 
@@ -500,15 +562,15 @@ msgstr "Fout tijdens het laden van AJAX: geen toegang"
 msgid "Error Loading Page"
 msgstr "Fout tijdens het laden van pagina"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/attachments.html:61
+#: inventory/templates/admin/inventory/asset/view_asset/includes/attachments.html:67
 msgid "Attachment"
 msgstr "Bijlage"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/attachments.html:78
+#: inventory/templates/admin/inventory/asset/view_asset/includes/attachments.html:84
 msgid "Previous slide"
 msgstr "Vorige slide"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/attachments.html:79
+#: inventory/templates/admin/inventory/asset/view_asset/includes/attachments.html:85
 #, python-format
 msgid "Go to slide %%d"
 msgstr "Ga naar slide %%d"
@@ -517,14 +579,10 @@ msgstr "Ga naar slide %%d"
 msgid "Estimates"
 msgstr "Offertes"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/estimates.html:17
-#: inventory/templates/admin/inventory/asset/view_asset/includes/journal_documents.html:17
-msgid "id"
-msgstr "nummer"
-
 #: inventory/templates/admin/inventory/asset/view_asset/includes/estimates.html:23
 #: inventory/templates/admin/inventory/asset/view_asset/includes/journal_documents.html:22
 #: inventory/templates/admin/inventory/asset/view_asset/includes/ledger_accounts.html:14
+#: inventory/templates/admin/inventory/asset/view_asset/includes/ledger_accounts.html:34
 #: inventory/templates/admin/inventory/asset/view_asset/includes/recurring_sales_invoices.html:23
 msgid "total"
 msgstr "totaal"
@@ -533,93 +591,93 @@ msgstr "totaal"
 msgid "No estimates"
 msgstr "Geen offertes"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:44
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:86
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:46
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:88
 msgid "Upload"
 msgstr "Uploaden"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:65
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:67
 msgid "Drag & Drop your files or"
 msgstr "Sleep bestanden hiernaartoe of"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:65
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:67
 msgid "Browse"
 msgstr "Klik hier en selecteer"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:66
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:68
 msgid "Field contains invalid files"
 msgstr "Veld bevat invalide bestanden"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:67
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:69
 msgid "Waiting for size"
 msgstr "Wachten op bestandsgrootte"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:68
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:70
 msgid "Size not available"
 msgstr "Bestandsgrootte niet beschikbaar"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:69
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:71
 msgid "Loading"
 msgstr "Aan het laden"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:70
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:72
 msgid "Error during load"
 msgstr "Fout tijdens het laden"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:71
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:73
 msgid "Uploading"
 msgstr "Aan het uploaden"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:72
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:74
 msgid "Upload complete"
 msgstr "Uploaden voltooid"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:73
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:75
 msgid "Upload cancelled"
 msgstr "Uploaden gecanceld"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:74
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:76
 msgid "Error during upload"
 msgstr "Fout tijdens uploaden"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:75
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:77
 msgid "Error during revert"
 msgstr "Fout tijdens ongedaan maken"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:76
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:78
 msgid "Error during remove"
 msgstr "Fout tijdens verwijderen"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:77
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:79
 msgid "tap to cancel"
 msgstr "tik om te annuleren"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:78
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:80
 msgid "tap to retry"
 msgstr "tik om opnieuw te proberen"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:79
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:81
 msgid "tap to undo"
 msgstr "tik om ongedaan te maken"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:80
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:82
 msgid "Remove"
 msgstr "Verwijder"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:81
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:83
 msgid "Abort"
 msgstr "Stop"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:82
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:85
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:84
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:87
 msgid "Retry"
 msgstr "Probeer opnieuw"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:83
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:85
 msgid "Cancel"
 msgstr "Annuleer"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:84
+#: inventory/templates/admin/inventory/asset/view_asset/includes/file_upload.html:86
 msgid "Undo"
 msgstr "Ongedaan maken"
 
@@ -635,8 +693,26 @@ msgstr "Geen boekingen"
 msgid "Ledger accounts"
 msgstr "Boekrekeningen"
 
+#: inventory/templates/admin/inventory/asset/view_asset/includes/ledger_accounts.html:13
+#, fuzzy
+#| msgid "Cancel"
+msgid "balance"
+msgstr "Annuleer"
+
 #: inventory/templates/admin/inventory/asset/view_asset/includes/ledger_accounts.html:25
-msgid "Not on ledger accounts"
+#, fuzzy
+#| msgid "Not an image"
+msgid "Not on balance"
+msgstr "Geen afbeelding"
+
+#: inventory/templates/admin/inventory/asset/view_asset/includes/ledger_accounts.html:33
+msgid "results"
+msgstr ""
+
+#: inventory/templates/admin/inventory/asset/view_asset/includes/ledger_accounts.html:45
+#, fuzzy
+#| msgid "Not on ledger accounts"
+msgid "Not on results ledger accounts"
 msgstr "Komt niet op boekrekeningen voor"
 
 #: inventory/templates/admin/inventory/asset/view_asset/includes/recurring_sales_invoices.html:13
@@ -667,35 +743,57 @@ msgstr "Opmerkingen"
 msgid "No remarks"
 msgstr "Geen opmerkingen"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/remarks.html:27
+#: inventory/templates/admin/inventory/asset/view_asset/includes/remarks.html:29
+#, fuzzy
+#| msgid "status"
+msgid "New status"
+msgstr "status"
+
+#: inventory/templates/admin/inventory/asset/view_asset/includes/remarks.html:32
+#, fuzzy
+#| msgid "location"
+msgid "New location"
+msgstr "locatie"
+
+#: inventory/templates/admin/inventory/asset/view_asset/includes/remarks.html:35
+#, fuzzy
+#| msgid "location"
+msgid "Location nr."
+msgstr "locatie"
+
+#: inventory/templates/admin/inventory/asset/view_asset/includes/remarks.html:38
 msgid "Add remark"
 msgstr "Voeg opmerking toe"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:36
+#: inventory/templates/admin/inventory/asset/view_asset/includes/remarks.html:39
+msgid "Save"
+msgstr ""
+
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:42
 msgid "Edit"
 msgstr "Wijzigen"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:44
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:50
 msgid "accounting status"
 msgstr "boekhoudkundige status"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:46
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:52
 msgid "accounting errors"
 msgstr "boekhoudkundige fouten"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:66
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:72
 msgid "assets value"
 msgstr "voorraadwaarde"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:67
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:73
 msgid "purchase value"
 msgstr "aankoopwaarde"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:68
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:74
 msgid "total expenses"
 msgstr "totaal kosten"
 
-#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:69
+#: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:75
 msgid "total revenue"
 msgstr "totale omzet"
 
@@ -726,6 +824,9 @@ msgstr "open"
 #: inventory/templates/admin/inventory/asset/view_asset/includes/tickets.html:31
 msgid "No tickets"
 msgstr "Geen tickets"
+
+#~ msgid "ID"
+#~ msgstr "Nummer"
 
 #~ msgid "Workflow"
 #~ msgstr "Workflow"

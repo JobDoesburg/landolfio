@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-21 16:33+0100\n"
+"POT-Creation-Date: 2025-07-19 20:43+0200\n"
 "PO-Revision-Date: 2023-02-21 13:41+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -18,11 +18,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: new_rental_customers/admin.py:22
+#: new_rental_customers/admin.py:24
 msgid "New rental customer"
 msgstr "Nieuwe huurder"
 
-#: new_rental_customers/admin.py:44
+#: new_rental_customers/admin.py:46
 msgid "Create draft agreement"
 msgstr "Maak concept-overeenkomst"
 
@@ -174,11 +174,11 @@ msgstr ""
 
 #: new_rental_customers/templates/register-rental-customer.html:17
 msgid ""
-"If you have any questions, please contact us at <a href=\"mailto:"
-"contact@vofdoesburg.nl\">contact@vofdoesburg.nl</a>."
+"If you have any questions, please contact us at <a "
+"href=\"mailto:contact@vofdoesburg.nl\">contact@vofdoesburg.nl</a>."
 msgstr ""
-"Neem bij vragen contact met ons op via <a href=\"mailto:contact@vofdoesburg."
-"nl\">contact@vofdoesburg.nl</a>."
+"Neem bij vragen contact met ons op via <a "
+"href=\"mailto:contact@vofdoesburg.nl\">contact@vofdoesburg.nl</a>."
 
 #: new_rental_customers/templates/register-rental-customer.html:26
 msgid "Contact details"
