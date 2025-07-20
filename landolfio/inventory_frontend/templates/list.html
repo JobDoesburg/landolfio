@@ -1,5 +1,5 @@
 {% extends "page-no-header.html" %}
-{% load static i18n %}
+{% load static i18n l10n dict_extras %}
 
 {% block header %}
     <!-- Search Header -->
@@ -40,6 +40,21 @@
                     {% if request.GET.q %}
                         <input type="hidden" name="q" value="{{ request.GET.q }}">
                     {% endif %}
+                    
+                    <!-- Preserve property filters -->
+                    {% for property in all_properties %}
+                        {% for value in property.current_values %}
+                            <input type="hidden" name="{{ property.slug }}" value="{{ value }}">
+                        {% endfor %}
+                        {% if property.property_type == 'number' %}
+                            {% if property.current_min %}
+                                <input type="hidden" name="{{ property.slug }}_min" value="{{ property.current_min }}">
+                            {% endif %}
+                            {% if property.current_max %}
+                                <input type="hidden" name="{{ property.slug }}_max" value="{{ property.current_max }}">
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
 
                     <!-- Category Multi-Select -->
                     <div class="dropdown">
@@ -166,7 +181,7 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-primary dropdown-toggle rounded-pill d-flex align-items-center gap-2" data-bs-toggle="dropdown" style="min-width: 200px;">
                             <span class="value-display">
-                                {% translate "Price" %}: €{{ request.GET.min_value|default:"0" }} - €{{ request.GET.max_value|default:"10000" }}
+                                {% translate "Price" %}: €{{ request.GET.min_value|default:"0"|floatformat:0|localize }} - €{{ request.GET.max_value|default:"10000"|floatformat:0|localize }}
                             </span>
                         </button>
                         <div class="dropdown-menu p-3" style="width: 300px;">
@@ -179,9 +194,101 @@
                                    value="{{ request.GET.max_value|default:'10000' }}"
                                    id="valueMax">
                             <div class="d-flex justify-content-between value-labels small text-muted">
-                                <div>{% translate "Min" %}: €<span id="valueMinLabel">{{ request.GET.min_value|default:"0" }}</span></div>
-                                <div>{% translate "Max" %}: €<span id="valueMaxLabel">{{ request.GET.max_value|default:"10000" }}</span></div>
+                                <div>{% translate "Min" %}: €<span id="valueMinLabel">{{ request.GET.min_value|default:"0"|floatformat:0|localize }}</span></div>
+                                <div>{% translate "Max" %}: €<span id="valueMaxLabel">{{ request.GET.max_value|default:"10000"|floatformat:0|localize }}</span></div>
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Properties Filter -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" style="min-width: 150px;">
+                            {% translate "Properties" %}
+                            {% if current_filters.property_count > 0 %}
+                                <span class="badge bg-primary ms-1">{{ current_filters.property_count }}</span>
+                            {% endif %}
+                        </button>
+                        <div class="dropdown-menu p-2" style="width: 350px; max-height: 400px; overflow-y: auto;">
+                            {% for property in all_properties %}
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold small">{{ property.name }} 
+                                        <span class="text-muted">({{ property.category.name }})</span>
+                                    </label>
+                                    
+                                    {% if property.property_type == 'dropdown' %}
+                                        <div style="max-height: 120px; overflow-y: auto; border: 1px solid #ced4da; border-radius: 0.375rem; padding: 0.25rem;">
+                                            {% for option in property.get_dropdown_options %}
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" 
+                                                           name="{{ property.slug }}" 
+                                                           value="{{ option }}" 
+                                                           id="property-{{ property.slug }}-{{ forloop.counter }}"
+                                                           {% if option in property.current_values %}checked{% endif %}
+                                                           onchange="updateFilters()">
+                                                    <label class="form-check-label small" for="property-{{ property.slug }}-{{ forloop.counter }}">
+                                                        {{ option }}
+                                                    </label>
+                                                </div>
+                                            {% endfor %}
+                                            {% if not property.get_dropdown_options %}
+                                                <div class="text-muted small text-center py-2">
+                                                    <em>{% translate "No options available" %}</em>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% elif property.property_type == 'number' %}
+                                        <div class="row g-1">
+                                            <div class="col-6">
+                                                {% if property.unit %}
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="number" class="form-control" 
+                                                               name="{{ property.slug }}_min" 
+                                                               placeholder="{% translate 'Min' %}" step="0.01"
+                                                               value="{{ property.current_min }}"
+                                                               onchange="updateFilters()">
+                                                        <span class="input-group-text">{{ property.unit }}</span>
+                                                    </div>
+                                                {% else %}
+                                                    <input type="number" class="form-control form-control-sm" 
+                                                           name="{{ property.slug }}_min" 
+                                                           placeholder="{% translate 'Min' %}" step="0.01"
+                                                           value="{{ property.current_min }}"
+                                                           onchange="updateFilters()">
+                                                {% endif %}
+                                            </div>
+                                            <div class="col-6">
+                                                {% if property.unit %}
+                                                    <div class="input-group input-group-sm">
+                                                        <input type="number" class="form-control" 
+                                                               name="{{ property.slug }}_max" 
+                                                               placeholder="{% translate 'Max' %}" step="0.01"
+                                                               value="{{ property.current_max }}"
+                                                               onchange="updateFilters()">
+                                                        <span class="input-group-text">{{ property.unit }}</span>
+                                                    </div>
+                                                {% else %}
+                                                    <input type="number" class="form-control form-control-sm" 
+                                                           name="{{ property.slug }}_max" 
+                                                           placeholder="{% translate 'Max' %}" step="0.01"
+                                                           value="{{ property.current_max }}"
+                                                           onchange="updateFilters()">
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% else %}
+                                    <input type="text" class="form-control form-control-sm" 
+                                           name="{{ property.slug }}" 
+                                           placeholder="{% translate 'Contains text...' %}"
+                                           value="{{ property.current_values.0|default:'' }}"
+                                           onchange="updateFilters()">
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                            {% if not all_properties %}
+                                <div class="text-muted small text-center py-3">
+                                    <em>{% translate "No properties configured yet" %}</em>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
 
@@ -189,6 +296,7 @@
                     <a href="{% url 'inventory_frontend:list' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}" class="btn btn-outline-secondary rounded-pill">
                         <i class="fas fa-times"></i> {% translate "Clear" %}
                     </a>
+                    
                     </form>
                 </div>
                 
@@ -223,11 +331,17 @@
                     <div class="card h-100">
                         <div class="row g-0">
                             <div class="col-auto">
-                                <div style="width: 120px; height: 160px;">
+                                <div style="width: 120px; height: 160px;" class="position-relative">
                                     <img src="{% if asset.attachments.first %}{{ asset.attachments.first.attachment.url }}{% else %}{% static 'img/page.jpg' %}{% endif %}"
                                          alt="Asset placeholder"
                                          class="img-fluid rounded-start w-100 h-100"
                                          style="object-fit: cover;">
+                                    {% if asset.attachments.count > 1 %}
+                                        <span class="position-absolute bottom-0 end-0 badge bg-dark bg-opacity-75 text-white m-1" 
+                                              style="font-size: 0.6rem; border-radius: 0.25rem;">
+                                            <i class="fas fa-camera me-1"></i>{{ asset.attachments.count }}
+                                        </span>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col">
@@ -309,10 +423,18 @@
                         {% for asset in assets %}
                             <tr class="clickable-row" data-href="{% url 'inventory_frontend:detail' asset.id %}" style="cursor: pointer;">
                                 <td>
-                                    <img src="{% if asset.attachments.first %}{{ asset.attachments.first.attachment.url }}{% else %}{% static 'img/page.jpg' %}{% endif %}"
-                                         alt="Asset thumbnail"
-                                         class="img-thumbnail"
-                                         style="width: 50px; height: 50px; object-fit: cover;">
+                                    <div class="position-relative d-inline-block">
+                                        <img src="{% if asset.attachments.first %}{{ asset.attachments.first.attachment.url }}{% else %}{% static 'img/page.jpg' %}{% endif %}"
+                                             alt="Asset thumbnail"
+                                             class="img-thumbnail"
+                                             style="width: 50px; height: 50px; object-fit: cover;">
+                                        {% if asset.attachments.count > 1 %}
+                                            <span class="position-absolute bottom-0 end-0 badge bg-dark bg-opacity-75 text-white" 
+                                                  style="font-size: 0.5rem; border-radius: 0.2rem; margin: 2px;">
+                                                <i class="fas fa-camera me-1"></i>{{ asset.attachments.count }}
+                                            </span>
+                                        {% endif %}
+                                    </div>
                                 </td>
                                 <td>
                                     <strong>{{ asset.name }}</strong>
@@ -440,208 +562,247 @@
 
 {% block body_js %}
 <script>
-console.log('JavaScript is loading!');
+console.log('List.html JavaScript loading...');
 
-// Define updateFilters globally first
-window.updateFilters = function() {
-    console.log('updateFilters called');
+// Make sure updateFilters is available immediately
+function updateFilters() {
     const form = document.getElementById('filter-form');
-    if (form) {
-        console.log('Submitting filter form');
-        form.submit();
-    } else {
-        console.warn('Filter form not found');
+    if (!form) {
+        console.error('filter-form not found');
+        return;
     }
-};
-
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOMContentLoaded fired - starting initialization');
     
-    // 1. VIEW TOGGLE FUNCTIONALITY
-    console.log('Setting up view toggle...');
+    // Clean up hidden property filter inputs to ensure only current values are sent
+    const hiddenPropertyInputs = form.querySelectorAll('input[type="hidden"]');
+    hiddenPropertyInputs.forEach(input => {
+        // Remove hidden inputs for property slugs (but keep search query)
+        if (input.name !== 'q' && input.name !== 'csrfmiddlewaretoken') {
+            input.remove();
+        }
+    });
+    
+    // Remove empty form inputs to clean up URL parameters
+    const formInputs = form.querySelectorAll('input, select');
+    formInputs.forEach(input => {
+        if (input.type === 'hidden') return; // Skip hidden inputs
+        
+        if (input.type === 'checkbox' && !input.checked) {
+            input.disabled = true;
+        } else if (input.type !== 'checkbox' && input.type !== 'range' && (!input.value || input.value.trim() === '')) {
+            input.disabled = true;
+        } else if (input.type === 'range') {
+            // Disable range inputs with default values
+            if ((input.name === 'min_value' && input.value === '0') ||
+                (input.name === 'max_value' && input.value === '10000')) {
+                input.disabled = true;
+            }
+        }
+    });
+    
+    form.submit();
+}
+
+// Make toggleLocationGroup available globally  
+function toggleLocationGroup(groupId) {
+    const groupCheckbox = document.getElementById(`location-group-${groupId}`);
+    const locationCheckboxes = document.querySelectorAll(`input[data-group-id="${groupId}"].location-checkbox`);
+    
+    if (!groupCheckbox) {
+        console.error('Group checkbox not found:', `location-group-${groupId}`);
+        return;
+    }
+    
+    const isChecked = groupCheckbox.checked;
+    
+    // Set all locations in this group to match the group checkbox state
+    locationCheckboxes.forEach(checkbox => {
+        checkbox.checked = isChecked;
+    });
+    
+    // Update filters
+    updateFilters();
+}
+
+/**
+ * Initialize page functionality
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    initializeViewToggle();
+    initializeMultiSelectFilters();
+    initializePriceRangeSliders();
+    initializeAutocomplete();
+    initializeClickableRows();
+    initializeLocationGroups();
+});
+
+/**
+ * View toggle functionality (grid/list)
+ */
+function initializeViewToggle() {
     const gridViewBtn = document.getElementById('grid-view-btn');
     const listViewBtn = document.getElementById('list-view-btn');
     const gridView = document.getElementById('grid-view');
     const tableView = document.getElementById('table-view');
-    
-    console.log('View elements found:', {
-        gridViewBtn: !!gridViewBtn,
-        listViewBtn: !!listViewBtn,
-        gridView: !!gridView,
-        tableView: !!tableView
-    });
 
-    if (gridViewBtn && listViewBtn && gridView && tableView) {
-        gridViewBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Grid view clicked');
-            gridView.classList.remove('d-none');
-            tableView.classList.add('d-none');
-            gridViewBtn.classList.add('active');
-            listViewBtn.classList.remove('active');
-            localStorage.setItem('preferred-view', 'grid');
-        });
-
-        listViewBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('List view clicked');
-            gridView.classList.add('d-none');
-            tableView.classList.remove('d-none');
-            listViewBtn.classList.add('active');
-            gridViewBtn.classList.remove('active');
-            localStorage.setItem('preferred-view', 'table');
-        });
-
-        // Restore preferred view
-        const preferredView = localStorage.getItem('preferred-view');
-        if (preferredView === 'table') {
-            listViewBtn.click();
-        }
-        console.log('View toggle setup complete');
-    } else {
-        console.error('View toggle elements not found');
+    if (!gridViewBtn || !listViewBtn || !gridView || !tableView) {
+        console.warn('View toggle elements not found');
+        return;
     }
 
-    // 2. MULTI-SELECT FILTER FUNCTIONALITY
-    console.log('Setting up multi-select filters...');
+    gridViewBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        gridView.classList.remove('d-none');
+        tableView.classList.add('d-none');
+        gridViewBtn.classList.add('active');
+        listViewBtn.classList.remove('active');
+        localStorage.setItem('preferred-view', 'grid');
+    });
 
+    listViewBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        gridView.classList.add('d-none');
+        tableView.classList.remove('d-none');
+        listViewBtn.classList.add('active');
+        gridViewBtn.classList.remove('active');
+        localStorage.setItem('preferred-view', 'table');
+    });
+
+    // Restore preferred view
+    const preferredView = localStorage.getItem('preferred-view');
+    if (preferredView === 'table') {
+        listViewBtn.click();
+    }
+}
+
+/**
+ * Multi-select filter functionality
+ */
+function initializeMultiSelectFilters() {
     // Keep filter dropdowns open when clicking checkboxes
     document.querySelectorAll('.dropdown-menu').forEach(dropdown => {
         dropdown.addEventListener('click', function(e) {
-            if (e.target.matches('input[type="checkbox"]') || e.target.matches('.form-check-label') || e.target.matches('.form-check')) {
+            if (e.target.matches('input[type="checkbox"]') || 
+                e.target.matches('.form-check-label') || 
+                e.target.matches('.form-check')) {
                 e.stopPropagation();
             }
         });
     });
-    console.log('Multi-select filters setup complete');
+}
 
-    // 3. PRICE RANGE FUNCTIONALITY
-    console.log('Setting up price range...');
+/**
+ * Price range slider functionality
+ */
+function initializePriceRangeSliders() {
     const valueMin = document.getElementById('valueMin');
     const valueMax = document.getElementById('valueMax');
     const valueMinLabel = document.getElementById('valueMinLabel');
     const valueMaxLabel = document.getElementById('valueMaxLabel');
     const valueDisplay = document.querySelector('.value-display');
 
-    console.log('Price range elements found:', {
-        valueMin: !!valueMin,
-        valueMax: !!valueMax,
-        valueMinLabel: !!valueMinLabel,
-        valueMaxLabel: !!valueMaxLabel,
-        valueDisplay: !!valueDisplay
-    });
+    if (!valueMin || !valueMax || !valueMinLabel || !valueMaxLabel || !valueDisplay) return;
 
-    if (valueMin && valueMax && valueMinLabel && valueMaxLabel && valueDisplay) {
-        function updateValueLabels() {
-            const minValue = Number(valueMin.value).toLocaleString();
-            const maxValue = Number(valueMax.value).toLocaleString();
-            valueMinLabel.textContent = minValue;
-            valueMaxLabel.textContent = maxValue;
-            valueDisplay.textContent = `Price: €${minValue} - €${maxValue}`;
-        }
-
-        function updateForm() {
-            const form = document.getElementById('filter-form');
-            if (form) {
-                console.log('Submitting form due to price change');
-                form.submit();
-            }
-        }
-
-        let timeout;
-        valueMin.addEventListener('input', function() {
-            console.log('Price min changed:', this.value);
-            if (parseInt(valueMin.value) > parseInt(valueMax.value)) {
-                valueMin.value = valueMax.value;
-            }
-            updateValueLabels();
-            clearTimeout(timeout);
-            timeout = setTimeout(updateForm, 500);
-        });
-
-        valueMax.addEventListener('input', function() {
-            console.log('Price max changed:', this.value);
-            if (parseInt(valueMax.value) < parseInt(valueMin.value)) {
-                valueMax.value = valueMin.value;
-            }
-            updateValueLabels();
-            clearTimeout(timeout);
-            timeout = setTimeout(updateForm, 500);
-        });
-
-        // Keep dropdown open while interacting with sliders
-        document.querySelectorAll('.dropdown').forEach(dropdown => {
-            dropdown.addEventListener('click', function(e) {
-                if (e.target.matches('input[type="range"]')) {
-                    e.stopPropagation();
-                }
-            });
-        });
-
-        console.log('Price range setup complete');
+    function updateValueLabels() {
+        const minValue = Number(valueMin.value).toLocaleString('nl-NL');
+        const maxValue = Number(valueMax.value).toLocaleString('nl-NL');
+        valueMinLabel.textContent = minValue;
+        valueMaxLabel.textContent = maxValue;
+        valueDisplay.textContent = '{% translate "Price" %}: €' + minValue + ' - €' + maxValue;
     }
 
-    // 4. AUTOCOMPLETE FUNCTIONALITY
-    console.log('Setting up autocomplete...');
+    function updateForm() {
+        const form = document.getElementById('filter-form');
+        if (form) {
+            form.submit();
+        }
+    }
+
+    let timeout;
+    valueMin.addEventListener('input', function() {
+        if (parseInt(valueMin.value) > parseInt(valueMax.value)) {
+            valueMin.value = valueMax.value;
+        }
+        updateValueLabels();
+        clearTimeout(timeout);
+        timeout = setTimeout(updateForm, 500);
+    });
+
+    valueMax.addEventListener('input', function() {
+        if (parseInt(valueMax.value) < parseInt(valueMin.value)) {
+            valueMax.value = valueMin.value;
+        }
+        updateValueLabels();
+        clearTimeout(timeout);
+        timeout = setTimeout(updateForm, 500);
+    });
+
+    // Keep dropdown open while interacting with sliders
+    document.querySelectorAll('.dropdown').forEach(dropdown => {
+        dropdown.addEventListener('click', function(e) {
+            if (e.target.matches('input[type="range"]')) {
+                e.stopPropagation();
+            }
+        });
+    });
+
+    // Initialize with current values
+    updateValueLabels();
+}
+
+/**
+ * Autocomplete functionality
+ */
+function initializeAutocomplete() {
     const searchInput = document.getElementById('search-input');
     const suggestionsDiv = document.getElementById('autocomplete-suggestions');
 
-    console.log('Autocomplete elements found:', {
-        searchInput: !!searchInput,
-        suggestionsDiv: !!suggestionsDiv
-    });
+    if (!searchInput || !suggestionsDiv) return;
 
-    if (searchInput && suggestionsDiv) {
-        let autocompleteTimeout;
-        
-        // Cookie helper function for autocomplete
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
+    let autocompleteTimeout;
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
                 }
             }
-            return cookieValue;
+        }
+        return cookieValue;
+    }
+
+    function fetchSuggestions(query) {
+        if (query.length < 2) {
+            suggestionsDiv.style.display = 'none';
+            return;
         }
 
-        function fetchSuggestions(query) {
-            console.log('Fetching suggestions for:', query);
-            if (query.length < 2) {
-                suggestionsDiv.style.display = 'none';
-                return;
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+        
+        fetch('{% url 'inventory_frontend:autocomplete' %}?q=' + encodeURIComponent(query), {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json',
             }
-
-            // Get CSRF token
-            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
-            
-            fetch(`{% url 'inventory_frontend:autocomplete' %}?q=${encodeURIComponent(query)}`, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': csrfToken,
-                    'Content-Type': 'application/json',
-                }
-            })
-                .then(response => {
-                    console.log('Autocomplete response status:', response.status);
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(suggestions => {
-                    console.log('Autocomplete suggestions:', suggestions);
-                    if (suggestions && suggestions.length > 0) {
-                        showSuggestions(suggestions);
-                    } else {
-                        suggestionsDiv.style.display = 'none';
-                    }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(suggestions => {
+            if (suggestions && suggestions.length > 0) {
+                showSuggestions(suggestions);
+            } else {
+                suggestionsDiv.style.display = 'none';
+            }
                 })
                 .catch(error => {
                     console.error('Autocomplete error:', error);
@@ -668,29 +829,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Check customer mode
                 const isCustomerMode = getCookie('customer_mode') === 'true';
                 
-                div.innerHTML = `
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div class="flex-grow-1">
-                            <div class="fw-bold text-dark">${suggestion.name}</div>
-                            <div class="small text-muted d-flex gap-2 flex-wrap">
-                                ${suggestion.category ? `<span class="badge bg-primary">${suggestion.category}</span>` : ''}
-                                ${suggestion.size ? `<span class="badge bg-secondary">${suggestion.size}</span>` : ''}
-                                ${locationText ? `<span class="text-muted">${locationText}</span>` : ''}
-                                ${!isCustomerMode && suggestion.created_at ? `<span class="text-muted">Created: ${suggestion.created_at}</span>` : ''}
-                            </div>
-                        </div>
-                        <div class="text-end ms-2">
-                            ${!isCustomerMode ? `<div class="small text-muted purchase-price">Purchase: €${suggestion.purchase_value.toFixed(0)}</div>` : ''}
-                            <div class="fw-bold text-success">€${suggestion.listing_price.toFixed(0)}</div>
-                        </div>
-                    </div>
-                `;
+                // Build HTML without template literals to avoid conflicts
+                let html = '<div class="d-flex justify-content-between align-items-start">';
+                html += '<div class="flex-grow-1">';
+                html += '<div class="fw-bold text-dark">' + suggestion.name + '</div>';
+                html += '<div class="small text-muted d-flex gap-2 flex-wrap">';
+                
+                if (suggestion.category) {
+                    html += '<span class="badge bg-primary">' + suggestion.category + '</span>';
+                }
+                if (suggestion.size) {
+                    html += '<span class="badge bg-secondary">' + suggestion.size + '</span>';
+                }
+                if (locationText) {
+                    html += '<span class="text-muted">' + locationText + '</span>';
+                }
+                if (!isCustomerMode && suggestion.created_at) {
+                    html += '<span class="text-muted">Created: ' + suggestion.created_at + '</span>';
+                }
+                
+                html += '</div></div>';
+                html += '<div class="text-end ms-2">';
+                
+                if (!isCustomerMode) {
+                    html += '<div class="small text-muted purchase-price">Purchase: €' + suggestion.purchase_value.toFixed(0) + '</div>';
+                }
+                html += '<div class="fw-bold text-success">€' + suggestion.listing_price.toFixed(0) + '</div>';
+                html += '</div></div>';
+                
+                div.innerHTML = html;
                 
                 div.addEventListener('click', function() {
-                    console.log('Suggestion clicked:', suggestion);
                     suggestionsDiv.style.display = 'none';
-                    // Navigate directly to detail page
-                    window.location.href = `/new/${suggestion.id}/`;
+                    window.location.href = '/new/' + suggestion.id + '/';
                 });
                 
                 div.addEventListener('mouseenter', function() {
@@ -706,12 +877,16 @@ document.addEventListener('DOMContentLoaded', function() {
             suggestionsDiv.style.display = 'block';
         }
 
+        // Set up input event listener
         searchInput.addEventListener('input', function() {
-            console.log('Search input changed:', this.value);
+            const query = this.value.trim();
             clearTimeout(autocompleteTimeout);
-            autocompleteTimeout = setTimeout(() => {
-                fetchSuggestions(this.value.trim());
-            }, 300);
+            
+            if (query.length >= 2) {
+                autocompleteTimeout = setTimeout(() => fetchSuggestions(query), 300);
+            } else {
+                suggestionsDiv.style.display = 'none';
+            }
         });
 
         searchInput.addEventListener('focus', function() {
@@ -726,19 +901,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 suggestionsDiv.style.display = 'none';
             }
         });
+}
 
-        console.log('Autocomplete setup complete');
-    }
-
-    // 5. CLICKABLE TABLE ROWS
-    console.log('Setting up clickable table rows...');
+/**
+ * Clickable table rows functionality
+ */
+function initializeClickableRows() {
     const clickableRows = document.querySelectorAll('.clickable-row');
     
     clickableRows.forEach(row => {
         row.addEventListener('click', function() {
             const href = this.getAttribute('data-href');
             if (href) {
-                console.log('Navigating to:', href);
                 window.location.href = href;
             }
         });
@@ -755,39 +929,22 @@ document.addEventListener('DOMContentLoaded', function() {
             this.style.transform = '';
         });
     });
-    
-    console.log(`Set up ${clickableRows.length} clickable table rows`);
+}
 
-    // 6. LOCATION GROUP FUNCTIONALITY
-    console.log('Setting up location group functionality...');
-    
+/**
+ * Location group functionality
+ */
+function initializeLocationGroups() {
     // Initialize location group states on page load
     document.querySelectorAll('.location-group-checkbox').forEach(groupCheckbox => {
         const groupId = groupCheckbox.getAttribute('data-group-id');
         updateLocationGroupState(groupId);
     });
-    
-    console.log('Location group functionality setup complete');
-
-    console.log('All initialization complete');
-});
-
-// Location group toggle functions (defined globally)
-function toggleLocationGroup(groupId) {
-    console.log('Toggling location group:', groupId);
-    const groupCheckbox = document.getElementById(`location-group-${groupId}`);
-    const locationCheckboxes = document.querySelectorAll(`input[data-group-id="${groupId}"].location-checkbox`);
-    
-    const isChecked = groupCheckbox.checked;
-    
-    // Set all locations in this group to match the group checkbox state
-    locationCheckboxes.forEach(checkbox => {
-        checkbox.checked = isChecked;
-    });
-    
-    // Update filters
-    updateFilters();
 }
+
+/**
+ * Location group state management
+ */
 
 function updateLocationGroupState(groupId) {
     const groupCheckbox = document.getElementById(`location-group-${groupId}`);

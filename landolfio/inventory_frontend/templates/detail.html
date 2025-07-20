@@ -1,17 +1,76 @@
 {% extends "page-no-header.html" %}
-{% load static i18n %}
+{% load static i18n l10n %}
+
 
 {% block header %}
-<div class="d-flex justify-content-between align-items-start py-4">
-    <!-- Left side with fixed width -->
-    <div style="width: 25vw"> <!-- Adjust width to match the widest button group possible -->
-        <a href="javascript:history.back()" class="btn btn-outline-secondary">
+<!-- Mobile layout: stacked -->
+<div class="d-block d-lg-none py-3">
+    <!-- Buttons row -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ back_url }}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-arrow-left me-1 d-inline"></i><span class="d-none d-sm-inline">{% translate "Back" %}</span>
+            </a>
+            <div class="position-relative" style="width: 150px;">
+                <input type="text" id="detail-search-input-mobile" class="form-control"
+                       placeholder="{% translate 'Search...' %}" style="height: 31px;"
+                       autocomplete="off">
+                <div id="detail-autocomplete-suggestions-mobile" class="position-absolute w-100 mt-1 bg-white border rounded shadow-lg" style="z-index: 1000; display: none; max-height: 300px; overflow-y: auto;"></div>
+                <i class="fas fa-search position-absolute top-50 end-0 translate-middle-y me-2 text-muted" style="pointer-events: none; font-size: 0.75rem;"></i>
+            </div>
+        </div>
+        <div class="btn-group btn-group-sm">
+            <a href="{% url 'inventory_frontend:update' asset.pk %}" class="btn btn-outline-primary">
+                <i class="fas fa-edit me-1 d-inline"></i><span class="d-none d-sm-inline">{% translate "Edit" %}</span>
+            </a>
+            {% if perms.inventory.delete_asset %}
+            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                <i class="fas fa-trash me-1 d-inline"></i><span class="d-none d-sm-inline">{% translate "Delete" %}</span>
+            </button>
+            {% endif %}
+            <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-cog me-1 d-inline"></i><span class="d-none d-sm-inline">{% translate "Admin" %}</span>
+            </a>
+        </div>
+    </div>
+    <!-- Asset name and info -->
+    <div class="text-center">
+        <h2 class="mb-2">{{ asset.name }}</h2>
+        <p class="text-muted mb-1">
+            <span class="badge bg-primary">{{ asset.category.name }}</span>
+            {% if asset.size %}
+                <span class="badge bg-secondary">{{ asset.size }}</span>
+            {% endif %}
+        </p>
+        <p class="text-muted mb-0">
+            {% if asset.location %}
+                <span>
+                    {{ asset.location }}
+                    {% if asset.location_nr %}#{{ asset.location_nr }}{% endif %}
+                </span>
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+<!-- Desktop/tablet layout: same line -->
+<div class="d-none d-lg-flex align-items-start py-4">
+    <!-- Left side - same width as right side -->
+    <div class="d-flex justify-content-start align-items-center gap-2" style="flex: 0 0 auto; min-width: 300px;">
+        <a href="{{ back_url }}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i>{% translate "Back" %}
         </a>
+        <div class="position-relative" style="width: 200px;">
+            <input type="text" id="detail-search-input" class="form-control"
+                   placeholder="{% translate 'Search assets...' %}" style="height: 38px;"
+                   autocomplete="off">
+            <div id="detail-autocomplete-suggestions" class="position-absolute w-100 mt-1 bg-white border rounded shadow-lg" style="z-index: 1000; display: none; max-height: 400px; overflow-y: auto;"></div>
+            <i class="fas fa-search position-absolute top-50 end-0 translate-middle-y me-2 text-muted" style="pointer-events: none;"></i>
+        </div>
     </div>
 
     <!-- Center content -->
-    <div class="text-center flex-grow-1">
+    <div class="text-center flex-grow-1 mx-3">
         <h2 class="mb-0">{{ asset.name }}</h2>
         <p class="text-muted mb-1">
             <span class="badge bg-primary">{{ asset.category.name }}</span>
@@ -29,9 +88,9 @@
         </p>
     </div>
 
-    <!-- Right side with same fixed width -->
-    <div style="width: 25vw" class="d-flex justify-content-end"> <!-- Same width as left side -->
-        <div class="btn-group">
+    <!-- Right side buttons - same width as left side -->
+    <div class="d-flex justify-content-end" style="flex: 0 0 auto; min-width: 300px;">
+        <div class="d-flex gap-2">
             <a href="{% url 'inventory_frontend:update' asset.pk %}" class="btn btn-outline-primary">
                 <i class="fas fa-edit me-2"></i>{% translate "Edit" %}
             </a>
@@ -158,7 +217,7 @@
                                 </tr>
                                 <tr>
                                     <td class="text-muted">{% translate "Listing Price" %}:</td>
-                                    <td>€{{ asset.listing_price|default:0|floatformat:2 }}</td>
+                                    <td>€{{ asset.listing_price|default:0|floatformat:2|localize }}</td>
                                 </tr>
                                 <tr>
                                     <td class="text-muted">{% translate "Commerce" %}:</td>
@@ -167,6 +226,76 @@
                             </table>
                         </div>
                     </div>
+                    
+                    <!-- Editable Asset Properties Card -->
+                    {% if asset_properties %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{% translate "Properties" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" action="{% url 'inventory_frontend:detail' asset.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="update_properties">
+                                
+                                {% for prop_data in asset_properties %}
+                                <div class="row mb-3">
+                                    <div class="col-sm-4">
+                                        <label class="form-label">
+                                            <strong>{{ prop_data.property.name }}</strong>
+                                        </label>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        {% if prop_data.property.property_type == 'dropdown' %}
+                                            <select class="form-control" name="property_{{ prop_data.property.slug }}" data-property-type="dropdown">
+                                                <option value="">— {% translate "Select" %} —</option>
+                                                {% for option in prop_data.property.get_dropdown_options %}
+                                                    <option value="{{ option }}" {% if prop_data.current_value == option %}selected{% endif %}>{{ option }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        {% elif prop_data.property.property_type == 'number' %}
+                                            {% if prop_data.property.unit %}
+                                                <div class="input-group">
+                                                    <input type="number" 
+                                                           step="0.01" 
+                                                           class="form-control" 
+                                                           name="property_{{ prop_data.property.slug }}" 
+                                                           value="{{ prop_data.current_value }}"
+                                                           data-property-type="number"
+                                                           placeholder="{% translate 'Enter number' %}">
+                                                    <span class="input-group-text">{{ prop_data.property.unit }}</span>
+                                                </div>
+                                            {% else %}
+                                                <input type="number" 
+                                                       step="0.01" 
+                                                       class="form-control" 
+                                                       name="property_{{ prop_data.property.slug }}" 
+                                                       value="{{ prop_data.current_value }}"
+                                                       data-property-type="number"
+                                                       placeholder="{% translate 'Enter number' %}">
+                                            {% endif %}
+                                        {% else %}
+                                            <input type="text" 
+                                                   class="form-control property-autocomplete" 
+                                                   name="property_{{ prop_data.property.slug }}" 
+                                                   value="{{ prop_data.current_value }}"
+                                                   data-property-id="{{ prop_data.property.slug }}"
+                                                   data-property-type="string"
+                                                   placeholder="{% translate 'Enter text' %}">
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                {% endfor %}
+                                
+                                <div class="mt-3">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>{% translate "Save Properties" %}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
                 
                 <!-- Right Column -->
@@ -324,20 +453,20 @@
                                 {% for ledger_account, value in asset.get_balance_ledger_account_amounts.items %}
                                 <tr>
                                     <td class="text-muted">{{ ledger_account.name }}:</td>
-                                    <td class="text-end">€{{ value|floatformat:2 }}</td>
+                                    <td class="text-end">€{{ value|floatformat:2|localize }}</td>
                                 </tr>
                                 {% endfor %}
                                 <tr class="border-top">
                                     <td class="text-muted">{% translate "Total Assets Value" %}:</td>
-                                    <td class="text-end">€{{ asset.total_assets_value|default:0|floatformat:2 }}</td>
+                                    <td class="text-end">€{{ asset.total_assets_value|default:0|floatformat:2|localize }}</td>
                                 </tr>
                                 <tr>
                                     <td class="text-muted">{% translate "Margin Assets Value" %}:</td>
-                                    <td class="text-end">€{{ asset.total_margin_assets_value|default:0|floatformat:2 }}</td>
+                                    <td class="text-end">€{{ asset.total_margin_assets_value|default:0|floatformat:2|localize }}</td>
                                 </tr>
                                 <tr class="table-light purchase-price">
                                     <td class="text-muted"><strong>{% translate "Purchase Value" %}:</strong></td>
-                                    <td class="text-end"><strong>€{{ asset.purchase_value|default:0|floatformat:2 }}</strong></td>
+                                    <td class="text-end"><strong>€{{ asset.purchase_value|default:0|floatformat:2|localize }}</strong></td>
                                 </tr>
                             </table>
                         </div>
@@ -353,24 +482,24 @@
                                 {% for ledger_account, value in asset.get_results_ledger_account_amounts.items %}
                                 <tr>
                                     <td class="text-muted">{{ ledger_account.name }}:</td>
-                                    <td class="text-end">€{{ value|floatformat:2 }}</td>
+                                    <td class="text-end">€{{ value|floatformat:2|localize }}</td>
                                 </tr>
                                 {% endfor %}
                                 <tr class="border-top">
                                     <td class="text-muted">{% translate "Total Revenue" %}:</td>
-                                    <td class="text-end">€{{ asset.total_revenue_value|default:0|floatformat:2 }}</td>
+                                    <td class="text-end">€{{ asset.total_revenue_value|default:0|floatformat:2|localize }}</td>
                                 </tr>
                                 <tr>
                                     <td class="text-muted">{% translate "Direct Costs" %}:</td>
-                                    <td class="text-end">€{{ asset.total_direct_costs_value|default:0|floatformat:2 }}</td>
+                                    <td class="text-end">€{{ asset.total_direct_costs_value|default:0|floatformat:2|localize }}</td>
                                 </tr>
                                 <tr>
                                     <td class="text-muted">{% translate "Total Expenses" %}:</td>
-                                    <td class="text-end">€{{ asset.total_expenses_value|default:0|floatformat:2 }}</td>
+                                    <td class="text-end">€{{ asset.total_expenses_value|default:0|floatformat:2|localize }}</td>
                                 </tr>
                                 <tr class="table-info">
                                     <td class="text-muted"><strong>{% translate "Total Profit" %}:</strong></td>
-                                    <td class="text-end"><strong>€{{ asset.total_profit|default:0|floatformat:2 }}</strong></td>
+                                    <td class="text-end"><strong>€{{ asset.total_profit|default:0|floatformat:2|localize }}</strong></td>
                                 </tr>
                             </table>
                         </div>
@@ -402,7 +531,7 @@
                                                 <tr>
                                                     <td>{{ line.document.estimate_date|date:"d-m-Y" }}</td>
                                                     <td>{{ line.description }}</td>
-                                                    <td>€{{ line.price|floatformat:2 }}</td>
+                                                    <td>€{{ line.price|floatformat:2|localize }}</td>
                                                     <td>
                                                         <span class="badge bg-primary">{{ line.document.get_state_display }}</span>
                                                     </td>
@@ -432,7 +561,7 @@
                                                 <tr>
                                                     <td>{{ line.document.estimate_date|date:"d-m-Y" }}</td>
                                                     <td>{{ line.description }}</td>
-                                                    <td>€{{ line.price|floatformat:2 }}</td>
+                                                    <td>€{{ line.price|floatformat:2|localize }}</td>
                                                     <td>
                                                         <span class="badge bg-primary">{{ line.document.get_state_display }}</span>
                                                     </td>
@@ -469,12 +598,12 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for line in journal_history %}
+                                    {% for line in journal_history|dictsortreversed:"date" %}
                                         <tr>
-                                            <td>{{ line.document_line.date|date:"d-m-Y" }}</td>
+                                            <td>{{ line.date|date:"d-m-Y" }}</td>
                                             <td>{{ line.document_line.description }}</td>
                                             <td>{{ line.document_line.ledger_account.name }}</td>
-                                            <td class="text-end">€{{ line.value|floatformat:2 }}</td>
+                                            <td class="text-end">€{{ line.value|floatformat:2|localize }}</td>
                                         </tr>
                                     {% endfor %}
                                 </tbody>
@@ -489,6 +618,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 
     <!-- Delete Modal -->
@@ -712,5 +842,414 @@
                 });
             }
         });
+    </script>
+    
+    <!-- Property Autocomplete Script -->
+    <script>
+        /**
+         * Property Autocomplete System
+         * Provides autocomplete functionality for string-type asset properties
+         */
+        
+        /**
+         * Initialize autocomplete for all property inputs
+         */
+        function initPropertyAutocomplete() {
+            const propertyInputs = document.querySelectorAll('.property-autocomplete');
+            
+            if (propertyInputs.length === 0) {
+                return;
+            }
+            
+            propertyInputs.forEach(function(input) {
+                // Skip if already initialized
+                if (input.hasAttribute('data-autocomplete-initialized')) {
+                    return;
+                }
+                input.setAttribute('data-autocomplete-initialized', 'true');
+                
+                setupAutocompleteForInput(input);
+            });
+        }
+        
+        /**
+         * Setup autocomplete functionality for a single input
+         * @param {HTMLInputElement} input - The input element to enhance
+         */
+        function setupAutocompleteForInput(input) {
+            const propertyId = input.dataset.propertyId;
+            let timeoutId;
+            let currentSuggestions = [];
+            
+            // Create suggestions container
+            const suggestionsContainer = createSuggestionsContainer();
+            
+            // Position dropdown relative to input
+            function positionDropdown() {
+                const rect = input.getBoundingClientRect();
+                suggestionsContainer.style.top = rect.bottom + 'px';
+                suggestionsContainer.style.left = rect.left + 'px';
+                suggestionsContainer.style.width = rect.width + 'px';
+            }
+            
+            // Fetch and display suggestions
+            function fetchSuggestions(query) {
+                const url = `{% url 'inventory_frontend:property_autocomplete' %}?query=${encodeURIComponent(query)}&property_id=${propertyId}`;
+                
+                return fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        currentSuggestions = data || [];
+                        renderSuggestions(currentSuggestions, suggestionsContainer, input, positionDropdown);
+                    })
+                    .catch(error => {
+                        console.error('Autocomplete error:', error);
+                        suggestionsContainer.style.display = 'none';
+                    });
+            }
+            
+            // Event listeners
+            setupInputEventListeners(input, suggestionsContainer, fetchSuggestions, positionDropdown, timeoutId);
+            setupKeyboardNavigation(input, suggestionsContainer);
+            setupWindowEventListeners(suggestionsContainer, positionDropdown);
+        }
+        
+        /**
+         * Create and return a suggestions container element
+         */
+        function createSuggestionsContainer() {
+            const container = document.createElement('div');
+            container.className = 'autocomplete-suggestions';
+            container.style.cssText = `
+                position: fixed;
+                z-index: 9999;
+                background: white;
+                border: 1px solid #ced4da;
+                border-radius: 0.375rem;
+                max-height: 200px;
+                overflow-y: auto;
+                display: none;
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+                min-width: 200px;
+            `;
+            document.body.appendChild(container);
+            return container;
+        }
+        
+        /**
+         * Setup input event listeners for autocomplete
+         */
+        function setupInputEventListeners(input, container, fetchSuggestions, positionDropdown, timeoutId) {
+            // Input typing
+            input.addEventListener('input', function(e) {
+                clearTimeout(timeoutId);
+                const query = this.value.trim();
+                
+                if (query.length < 1) {
+                    container.style.display = 'none';
+                    return;
+                }
+                
+                timeoutId = setTimeout(() => fetchSuggestions(query), 300);
+            });
+            
+            // Focus/blur handling
+            input.addEventListener('blur', function() {
+                setTimeout(() => container.style.display = 'none', 150);
+            });
+            
+            input.addEventListener('focus', function() {
+                if (currentSuggestions.length > 0 && this.value.trim().length > 0) {
+                    positionDropdown();
+                    container.style.display = 'block';
+                }
+            });
+        }
+        
+        /**
+         * Setup keyboard navigation for autocomplete
+         */
+        function setupKeyboardNavigation(input, container) {
+            input.addEventListener('keydown', function(e) {
+                const suggestions = container.querySelectorAll('.autocomplete-suggestion');
+                const selectedSuggestion = container.querySelector('.autocomplete-suggestion.selected');
+                
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        navigateDown(suggestions, selectedSuggestion);
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        navigateUp(suggestions, selectedSuggestion);
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        if (selectedSuggestion) {
+                            input.value = selectedSuggestion.textContent;
+                            container.style.display = 'none';
+                        }
+                        break;
+                    case 'Escape':
+                        container.style.display = 'none';
+                        break;
+                }
+            });
+        }
+        
+        /**
+         * Navigate down in suggestions list
+         */
+        function navigateDown(suggestions, selectedSuggestion) {
+            if (selectedSuggestion) {
+                selectedSuggestion.classList.remove('selected');
+                const next = selectedSuggestion.nextElementSibling;
+                if (next) {
+                    next.classList.add('selected');
+                } else {
+                    suggestions[0]?.classList.add('selected');
+                }
+            } else {
+                suggestions[0]?.classList.add('selected');
+            }
+        }
+        
+        /**
+         * Navigate up in suggestions list
+         */
+        function navigateUp(suggestions, selectedSuggestion) {
+            if (selectedSuggestion) {
+                selectedSuggestion.classList.remove('selected');
+                const prev = selectedSuggestion.previousElementSibling;
+                if (prev) {
+                    prev.classList.add('selected');
+                } else {
+                    suggestions[suggestions.length - 1]?.classList.add('selected');
+                }
+            } else {
+                suggestions[suggestions.length - 1]?.classList.add('selected');
+            }
+        }
+        
+        /**
+         * Setup window event listeners for repositioning
+         */
+        function setupWindowEventListeners(container, positionDropdown) {
+            window.addEventListener('scroll', function() {
+                if (container.style.display === 'block') {
+                    positionDropdown();
+                }
+            });
+            
+            window.addEventListener('resize', function() {
+                if (container.style.display === 'block') {
+                    positionDropdown();
+                }
+            });
+        }
+        
+        /**
+         * Render suggestions in the container
+         */
+        function renderSuggestions(suggestions, container, input, positionDropdown) {
+            container.innerHTML = '';
+            
+            if (!suggestions || suggestions.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            suggestions.forEach(function(suggestion) {
+                const div = createSuggestionElement(suggestion, container, input);
+                container.appendChild(div);
+            });
+            
+            positionDropdown();
+            container.style.display = 'block';
+        }
+        
+        /**
+         * Create a single suggestion element
+         */
+        function createSuggestionElement(suggestion, container, input) {
+            const div = document.createElement('div');
+            div.className = 'autocomplete-suggestion';
+            div.style.cssText = `
+                padding: 0.75rem;
+                cursor: pointer;
+                border-bottom: 1px solid #e9ecef;
+                background: white;
+                transition: background-color 0.15s ease-in-out;
+            `;
+            div.textContent = suggestion.value || suggestion;
+            
+            // Mouse events
+            div.addEventListener('mouseenter', function() {
+                container.querySelectorAll('.autocomplete-suggestion').forEach(s => s.classList.remove('selected'));
+                this.classList.add('selected');
+                this.style.backgroundColor = '#e9ecef';
+            });
+            
+            div.addEventListener('mouseleave', function() {
+                this.classList.remove('selected');
+                this.style.backgroundColor = 'white';
+            });
+            
+            div.addEventListener('mousedown', function(e) {
+                e.preventDefault(); // Prevent blur event
+            });
+            
+            div.addEventListener('click', function() {
+                input.value = suggestion.value || suggestion;
+                container.style.display = 'none';
+                input.focus();
+            });
+            
+            return div;
+        }
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize with a small delay to ensure everything is rendered
+            setTimeout(initPropertyAutocomplete, 500);
+            
+            // Initialize search autocomplete
+            initSearchAutocomplete();
+        });
+        
+        /**
+         * Search Autocomplete System
+         * Provides autocomplete functionality for the search bar in detail view header
+         */
+        function initSearchAutocomplete() {
+            // Set up autocomplete for both desktop and mobile search inputs
+            setupSearchInput('detail-search-input', 'detail-autocomplete-suggestions');
+            setupSearchInput('detail-search-input-mobile', 'detail-autocomplete-suggestions-mobile');
+        }
+        
+        function setupSearchInput(inputId, suggestionsId) {
+            const searchInput = document.getElementById(inputId);
+            const suggestionsDiv = document.getElementById(suggestionsId);
+            
+            if (!searchInput || !suggestionsDiv) return;
+            
+            let autocompleteTimeout;
+            
+            // Fetch suggestions from API
+            function fetchSuggestions(query) {
+                if (query.length < 2) {
+                    suggestionsDiv.style.display = 'none';
+                    return;
+                }
+                
+                fetch(`{% url 'inventory_frontend:autocomplete' %}?q=${encodeURIComponent(query)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(suggestions => {
+                        if (suggestions && suggestions.length > 0) {
+                            showSuggestions(suggestions, suggestionsDiv);
+                        } else {
+                            suggestionsDiv.style.display = 'none';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Search autocomplete error:', error);
+                        suggestionsDiv.style.display = 'none';
+                    });
+            }
+            
+            // Display suggestions
+            function showSuggestions(suggestions, container) {
+                container.innerHTML = '';
+                suggestions.forEach(suggestion => {
+                    const div = document.createElement('div');
+                    div.className = 'p-2 border-bottom';
+                    div.style.cursor = 'pointer';
+                    
+                    // Create suggestion HTML
+                    let locationText = '';
+                    if (suggestion.location) {
+                        locationText = suggestion.location;
+                        if (suggestion.location_nr) {
+                            locationText += ` #${suggestion.location_nr}`;
+                        }
+                    }
+                    
+                    div.innerHTML = `
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <div class="fw-bold text-dark small">${suggestion.name}</div>
+                                <div class="text-muted" style="font-size: 0.7rem;">
+                                    ${suggestion.category ? `<span class="badge bg-primary me-1" style="font-size: 0.6rem;">${suggestion.category}</span>` : ''}
+                                    ${suggestion.size ? `<span class="badge bg-secondary me-1" style="font-size: 0.6rem;">${suggestion.size}</span>` : ''}
+                                    ${locationText ? `<span class="text-muted">${locationText}</span>` : ''}
+                                </div>
+                            </div>
+                            <div class="text-end ms-2">
+                                <div class="fw-bold text-success small">€${suggestion.listing_price.toFixed(0)}</div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    div.addEventListener('click', function() {
+                        // Navigate to the selected asset
+                        window.location.href = `/new/${suggestion.id}/`;
+                    });
+                    
+                    div.addEventListener('mouseenter', function() {
+                        this.style.backgroundColor = '#f8f9fa';
+                    });
+                    
+                    div.addEventListener('mouseleave', function() {
+                        this.style.backgroundColor = '';
+                    });
+                    
+                    container.appendChild(div);
+                });
+                container.style.display = 'block';
+            }
+            
+            // Event listeners
+            searchInput.addEventListener('input', function() {
+                clearTimeout(autocompleteTimeout);
+                autocompleteTimeout = setTimeout(() => {
+                    fetchSuggestions(this.value.trim());
+                }, 300);
+            });
+            
+            searchInput.addEventListener('focus', function() {
+                if (this.value.trim().length >= 2) {
+                    fetchSuggestions(this.value.trim());
+                }
+            });
+            
+            // Hide suggestions when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                    suggestionsDiv.style.display = 'none';
+                }
+            });
+            
+            // Handle Enter key
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const query = this.value.trim();
+                    if (query) {
+                        // Navigate to list view with search query
+                        window.location.href = `{% url 'inventory_frontend:list' %}?q=${encodeURIComponent(query)}`;
+                    }
+                }
+            });
+        }
     </script>
 {% endblock %}

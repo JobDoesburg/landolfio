@@ -1,5 +1,6 @@
 from django.contrib import messages
 from django.shortcuts import redirect
+from django.urls import reverse
 from django.views.generic import ListView, DetailView, CreateView
 from django.db.models import Q
 from django.http import JsonResponse
@@ -9,14 +10,16 @@ from django.views import View
 
 from inventory.models.asset import Asset, AssetStates
 from inventory.models.asset_on_document_line import AssetOnJournalDocumentLine
+from inventory.models.asset_property import AssetProperty, AssetPropertyValue
 from inventory.models.attachment import Attachment, attachments_directory_path
 from inventory.models.category import Category
 from inventory.models.collection import Collection
 from inventory.models.location import Location
 from inventory.models.remarks import Remark
+from accounting.models import JournalDocumentLine
 from inventory_frontend.forms import AssetForm
 
-from django.db.models import Count
+from django.db.models import Count, Prefetch
 from django.views.generic import TemplateView
 from django.views.generic.edit import DeleteView
 from django.urls import reverse_lazy
@@ -80,43 +83,239 @@ class AssetListView(LoginRequiredMixin, ListView):
         max_value = self.request.GET.get("max_value")
 
         # Apply filters
-        if search_query:
+        if search_query and search_query.strip():
             queryset = queryset.filter(
-                Q(name__icontains=search_query)
-                | Q(category__name__icontains=search_query)
+                Q(name__icontains=search_query.strip())
+                | Q(category__name__icontains=search_query.strip())
             )
 
         if categories:
             # Filter non-empty values
-            categories = [cat for cat in categories if cat]
+            categories = [cat for cat in categories if cat.strip()]
             if categories:
                 queryset = queryset.filter(category_id__in=categories)
 
         if statuses:
             # Filter non-empty values
-            statuses = [stat for stat in statuses if stat]
+            statuses = [stat for stat in statuses if stat.strip()]
             if statuses:
                 queryset = queryset.filter(local_status__in=statuses)
 
         if locations:
             # Filter non-empty values
-            locations = [loc for loc in locations if loc]
+            locations = [loc for loc in locations if loc.strip()]
             if locations:
                 queryset = queryset.filter(location_id__in=locations)
 
         if collections:
             # Filter non-empty values
-            collections = [col for col in collections if col]
+            collections = [col for col in collections if col.strip()]
             if collections:
                 queryset = queryset.filter(collection_id__in=collections)
 
-        if min_value:
-            queryset = queryset.filter(listing_price__gte=min_value)
+        if min_value and min_value.strip():
+            try:
+                min_val = float(min_value)
+                # Only apply filter if min_value is greater than 0 (not default)
+                if min_val > 0:
+                    queryset = queryset.filter(listing_price__gte=min_val)
+            except (ValueError, TypeError):
+                pass
 
-        if max_value:
-            queryset = queryset.filter(listing_price__lte=max_value)
+        if max_value and max_value.strip():
+            try:
+                max_val = float(max_value)
+                # Only apply filter if max_value is less than 10000 (not default)
+                if max_val < 10000:
+                    queryset = queryset.filter(listing_price__lte=max_val)
+            except (ValueError, TypeError):
+                pass
+
+        # Apply property filters
+        property_filters = self._get_property_filters()
+        for property_filter in property_filters:
+            queryset = queryset.filter(property_filter)
 
         return queryset.select_related("category", "location", "collection", "size")
+
+    def _parse_property_parameters(self):
+        """Parse property-related parameters from the request."""
+        property_params = {}
+        
+        for param_name, param_values in self.request.GET.lists():
+            try:
+                if param_name.endswith(('_min', '_max')):
+                    self._handle_numeric_property_param(param_name, param_values, property_params)
+                else:
+                    self._handle_property_param(param_name, param_values, property_params)
+            except (ValueError, TypeError, AssetProperty.DoesNotExist):
+                continue
+        
+        return property_params
+    
+    def _handle_numeric_property_param(self, param_name, param_values, property_params):
+        """Handle numeric property range parameters (min/max)."""
+        property_slug = param_name.replace('_min', '').replace('_max', '')
+        range_type = 'min' if param_name.endswith('_min') else 'max'
+        
+        property_obj = AssetProperty.objects.get(slug=property_slug)
+        property_id = property_obj.id
+        
+        if property_id not in property_params:
+            property_params[property_id] = {'type': 'number', 'obj': property_obj}
+        
+        for param_value in param_values:
+            if param_value.strip():
+                property_params[property_id][range_type] = float(param_value)
+                break
+    
+    def _handle_property_param(self, param_name, param_values, property_params):
+        """Handle string and dropdown property parameters."""
+        property_obj = AssetProperty.objects.get(slug=param_name)
+        property_id = property_obj.id
+        
+        non_empty_values = [v for v in param_values if v.strip()]
+        if non_empty_values:
+            property_params[property_id] = {
+                'type': property_obj.property_type,
+                'values': non_empty_values,
+                'obj': property_obj
+            }
+    
+    def _build_property_filters(self, property_params):
+        """Build Django Q objects for property filtering."""
+        filters = []
+        
+        for property_id, params in property_params.items():
+            property_type = params['type']
+            
+            if property_type == 'number':
+                filter_q = self._build_numeric_filter(property_id, params)
+            elif property_type == 'dropdown':
+                filter_q = self._build_dropdown_filter(property_id, params)
+            else:  # string
+                filter_q = self._build_string_filter(property_id, params)
+            
+            if filter_q:
+                filters.append(filter_q)
+        
+        return filters
+    
+    def _build_numeric_filter(self, property_id, params):
+        """Build filter for numeric properties."""
+        has_min = 'min' in params
+        has_max = 'max' in params
+        
+        if has_min or has_max:
+            return (
+                Q(property_values__property_id=property_id) &
+                Q(property_values__value__regex=r'^[0-9]+\.?[0-9]*$') &
+                ~Q(property_values__value='')
+            )
+        return None
+    
+    def _build_dropdown_filter(self, property_id, params):
+        """Build filter for dropdown properties."""
+        values = params.get('values', [])
+        if not values:
+            return None
+        
+        value_filters = Q()
+        for value in values:
+            value_filters |= Q(property_values__value__exact=value)
+        
+        return Q(property_values__property_id=property_id) & value_filters
+    
+    def _build_string_filter(self, property_id, params):
+        """Build filter for string properties."""
+        values = params.get('values', [])
+        if not values:
+            return None
+        
+        return (
+            Q(property_values__property_id=property_id) &
+            Q(property_values__value__icontains=values[0])
+        )
+    
+    def _get_property_filters(self):
+        """Extract and build property filter conditions from request parameters."""
+        property_params = self._parse_property_parameters()
+        return self._build_property_filters(property_params)
+    
+    def _get_properties_with_current_values(self):
+        """Get all properties with their current filter values attached."""
+        properties = AssetProperty.objects.select_related("category").order_by("category__name", "order", "name")
+        
+        for prop in properties:
+            prop.current_values = self.request.GET.getlist(prop.slug)
+            
+            # For numeric properties, also add min/max values
+            if prop.property_type == 'number':
+                prop.current_min = self.request.GET.get(f"{prop.slug}_min", "")
+                prop.current_max = self.request.GET.get(f"{prop.slug}_max", "")
+        
+        return properties
+    
+    def _parse_property_filters_for_display(self):
+        """Parse property filters for display in context."""
+        property_filters = {}
+        
+        for param_name, param_value in self.request.GET.items():
+            if not param_value.strip():
+                continue
+            
+            try:
+                property_obj = self._get_property_from_param(param_name)
+                if property_obj:
+                    self._add_display_filter(property_filters, param_name, param_value, property_obj)
+            except AssetProperty.DoesNotExist:
+                continue
+        
+        return property_filters
+    
+    def _get_property_from_param(self, param_name):
+        """Extract property object from parameter name."""
+        if param_name.endswith(('_min', '_max')):
+            property_slug = param_name.replace('_min', '').replace('_max', '')
+            return AssetProperty.objects.get(slug=property_slug)
+        else:
+            return AssetProperty.objects.get(slug=param_name)
+    
+    def _add_display_filter(self, property_filters, param_name, param_value, property_obj):
+        """Add filter to display filters dictionary."""
+        property_id = property_obj.id
+        
+        if param_name.endswith(('_min', '_max')):
+            range_type = 'min' if param_name.endswith('_min') else 'max'
+            if property_id not in property_filters:
+                property_filters[property_id] = {}
+            property_filters[property_id][range_type] = param_value
+        else:
+            property_filters[property_id] = param_value
+    
+    def _count_active_property_filters(self):
+        """Count the number of active property filters."""
+        count = 0
+        
+        for key, value in self.request.GET.items():
+            if not value.strip():
+                continue
+            
+            try:
+                # Check if it's a direct property slug
+                AssetProperty.objects.get(slug=key)
+                count += 1
+            except AssetProperty.DoesNotExist:
+                # Check if it's a min/max parameter
+                if key.endswith(('_min', '_max')):
+                    property_slug = key.replace('_min', '').replace('_max', '')
+                    try:
+                        AssetProperty.objects.get(slug=property_slug)
+                        count += 1
+                    except AssetProperty.DoesNotExist:
+                        pass
+        
+        return count
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -175,6 +374,13 @@ class AssetListView(LoginRequiredMixin, ListView):
             (AssetStates.TO_BE_DELIVERED, AssetStates.TO_BE_DELIVERED.label),
         ]
 
+        # Get all properties for the filter dropdown with current values
+        context["all_properties"] = self._get_properties_with_current_values()
+
+        # Parse property filters for display
+        property_filters = self._parse_property_filters_for_display()
+        property_filter_count = self._count_active_property_filters()
+
         # Add current filter values
         context["current_filters"] = {
             "q": self.request.GET.get("q", ""),
@@ -184,6 +390,8 @@ class AssetListView(LoginRequiredMixin, ListView):
             "collections": self.request.GET.getlist("collection"),
             "min_value": self.request.GET.get("min_value", ""),
             "max_value": self.request.GET.get("max_value", ""),
+            "properties": property_filters,
+            "property_count": property_filter_count,
         }
 
         return context
@@ -254,7 +462,49 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
         context["journal_history"] = (
             AssetOnJournalDocumentLine.objects.filter(asset=asset)
             .select_related("document_line__ledger_account")
+            .prefetch_related(
+                Prefetch(
+                    "document_line",
+                    queryset=JournalDocumentLine.objects.select_subclasses()
+                )
+            )
         )
+
+        # Add asset properties
+        category_properties = AssetProperty.objects.filter(
+            category=asset.category
+        ).order_by("order", "name")
+        
+        # Get existing property values for this asset
+        existing_values = {
+            pv.property_id: pv 
+            for pv in AssetPropertyValue.objects.filter(asset=asset)
+            .select_related("property")
+        }
+        
+        # Create a list of properties with their current values
+        properties_with_values = []
+        for prop in category_properties:
+            value_obj = existing_values.get(prop.id)
+            properties_with_values.append({
+                'property': prop,
+                'value_obj': value_obj,
+                'current_value': value_obj.value if value_obj else '',
+                'formatted_value': value_obj.get_formatted_value() if value_obj else '',
+            })
+        
+        context["asset_properties"] = properties_with_values
+
+        # Build back URL to list view with preserved parameters
+        back_url = reverse('inventory_frontend:list')
+        referer = self.request.META.get('HTTP_REFERER', '')
+        
+        # If coming from list view, preserve the query parameters
+        if '/list/' in referer and '?' in referer:
+            query_params = referer.split('?', 1)[1]
+            back_url += '?' + query_params
+        
+        context["back_url"] = back_url
 
         return context
 
@@ -319,6 +569,62 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
                 messages.info(request, "No changes made")
 
             return redirect(request.path)
+
+        # Handle property updates
+        if data.get("action") == "update_properties":
+            updated_properties = self._update_asset_properties(asset, data)
+            
+            if updated_properties:
+                messages.success(
+                    request, 
+                    f"Updated properties: {', '.join(updated_properties)}"
+                )
+            else:
+                messages.info(request, "No property changes made")
+            
+            return redirect(request.path)
+    
+    def _update_asset_properties(self, asset, data):
+        """Update asset property values from form data."""
+        updated_properties = []
+        category_properties = AssetProperty.objects.filter(category=asset.category)
+        
+        for prop in category_properties:
+            field_name = f"property_{prop.slug}"
+            new_value = data.get(field_name, "").strip()
+            
+            if new_value:
+                updated_properties.extend(self._set_property_value(asset, prop, new_value))
+            else:
+                updated_properties.extend(self._clear_property_value(asset, prop))
+        
+        return updated_properties
+    
+    def _set_property_value(self, asset, prop, new_value):
+        """Set or update a property value for an asset."""
+        property_value, created = AssetPropertyValue.objects.get_or_create(
+            asset=asset,
+            property=prop,
+            defaults={'value': new_value}
+        )
+        
+        if created:
+            return [prop.name]
+        elif property_value.value != new_value:
+            property_value.value = new_value
+            property_value.save()
+            return [prop.name]
+        
+        return []
+    
+    def _clear_property_value(self, asset, prop):
+        """Clear/delete a property value for an asset."""
+        try:
+            property_value = AssetPropertyValue.objects.get(asset=asset, property=prop)
+            property_value.delete()
+            return [f"{prop.name} (cleared)"]
+        except AssetPropertyValue.DoesNotExist:
+            return []
 
         # Handle file uploads
         try:
@@ -431,5 +737,35 @@ class AssetAutocompleteView(LoginRequiredMixin, View):
                     else 0,
                 }
             )
+
+        return JsonResponse(suggestions, safe=False)
+
+
+class PropertyValueAutocompleteView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get("query", request.GET.get("q", "")).strip()
+        property_id = request.GET.get("property_id", "").strip()
+
+        if len(query) < 1 or not property_id:
+            return JsonResponse([], safe=False)
+
+        try:
+            property_obj = AssetProperty.objects.get(slug=property_id)
+        except AssetProperty.DoesNotExist:
+            return JsonResponse([], safe=False)
+
+        # Get distinct values for this property from assets in the same category that match the query
+        values = (
+            AssetPropertyValue.objects.filter(
+                property=property_obj,
+                asset__category=property_obj.category,  # Only from same category
+                value__icontains=query
+            )
+            .values_list("value", flat=True)
+            .distinct()
+            .order_by("value")[:10]
+        )
+
+        suggestions = [{"value": value} for value in values if value]
 
         return JsonResponse(suggestions, safe=False)

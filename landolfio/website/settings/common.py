@@ -95,13 +95,19 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
-# LANGUAGE_CODE = "nl"
+LANGUAGE_CODE = "nl"
 
 TIME_ZONE = "Europe/Amsterdam"
 
 USE_I18N = True
 
 USE_L10N = True
+
+USE_THOUSAND_SEPARATOR = True
+
+# Number formatting
+THOUSAND_SEPARATOR = '.'
+DECIMAL_SEPARATOR = ','
 
 USE_TZ = True
 
@@ -171,10 +177,12 @@ ADMIN_REORDER = (
         "label": gettext_lazy("🗂 inventory settings"),
         "models": (
             "inventory.Collection",
-            "inventory.AssetCategory",
-            "inventory.AssetSize",
-            "inventory.AssetLocation",
-            "inventory.AssetLocationGroup",
+            "inventory.Category",
+            "inventory.AssetProperty",
+            "inventory.AssetPropertyValue",
+            "inventory.Size",
+            "inventory.Location",
+            "inventory.LocationGroup",
             "inventory.Attachment",
         ),
     },
