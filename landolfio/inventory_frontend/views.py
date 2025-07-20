@@ -254,7 +254,6 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
         context["journal_history"] = (
             AssetOnJournalDocumentLine.objects.filter(asset=asset)
             .select_related("document_line__ledger_account")
-            .order_by("-document_line__document__date")
         )
 
         return context
