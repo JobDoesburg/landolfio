@@ -400,7 +400,7 @@
                                         {% for line in asset.estimate_document_lines.all %}
                                             {% if line.document.workflow.is_rental %}
                                                 <tr>
-                                                    <td>{{ line.document.created_at|date:"d-m-Y" }}</td>
+                                                    <td>{{ line.document.estimate_date|date:"d-m-Y" }}</td>
                                                     <td>{{ line.description }}</td>
                                                     <td>€{{ line.price|floatformat:2 }}</td>
                                                     <td>
@@ -430,7 +430,7 @@
                                         {% for line in asset.estimate_document_lines.all %}
                                             {% if line.document.workflow.is_loan %}
                                                 <tr>
-                                                    <td>{{ line.document.created_at|date:"d-m-Y" }}</td>
+                                                    <td>{{ line.document.estimate_date|date:"d-m-Y" }}</td>
                                                     <td>{{ line.description }}</td>
                                                     <td>€{{ line.price|floatformat:2 }}</td>
                                                     <td>
@@ -471,7 +471,7 @@
                                 <tbody>
                                     {% for line in journal_history %}
                                         <tr>
-                                            <td>{{ line.document_line.document.date|date:"d-m-Y" }}</td>
+                                            <td>{{ line.document_line.date|date:"d-m-Y" }}</td>
                                             <td>{{ line.document_line.description }}</td>
                                             <td>{{ line.document_line.ledger_account.name }}</td>
                                             <td class="text-end">€{{ line.value|floatformat:2 }}</td>

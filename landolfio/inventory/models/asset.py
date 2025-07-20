@@ -662,14 +662,14 @@ class Asset(models.Model):
     @property
     def last_accounting_description(self):
         latest_asset_agreement = self.estimate_document_lines.latest(
-            "document__created_at"
+            "document__estimate_date"
         )
         return latest_asset_agreement.description
 
     @property
     def last_accounting_price(self):
         latest_asset_agreement = self.estimate_document_lines.latest(
-            "document__created_at"
+            "document__estimate_date"
         )
         return latest_asset_agreement.price
 
