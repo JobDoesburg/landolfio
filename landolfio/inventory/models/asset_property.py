@@ -13,14 +13,14 @@ class AssetPropertyType(models.TextChoices):
 
 class AssetProperty(models.Model):
     """
-    Defines a property that can be assigned to assets of a specific category.
+    Defines a property that can be assigned to assets of multiple categories.
     """
 
-    category = models.ForeignKey(
+    categories = models.ManyToManyField(
         "Category",
-        on_delete=models.CASCADE,
         related_name="properties",
-        verbose_name=_("category"),
+        verbose_name=_("categories"),
+        help_text=_("Categories this property applies to"),
     )
     name = models.CharField(
         max_length=100,
@@ -33,9 +33,7 @@ class AssetProperty(models.Model):
         blank=True,
         null=True,
         verbose_name=_("slug"),
-        help_text=_(
-            "URL-friendly version with category prefix (e.g., 'electronics-color', 'furniture-weight')"
-        ),
+        help_text=_("URL-friendly version of property name (e.g., 'color', 'weight')"),
     )
     property_type = models.CharField(
         max_length=20,
@@ -65,11 +63,13 @@ class AssetProperty(models.Model):
     class Meta:
         verbose_name = _("asset property")
         verbose_name_plural = _("asset properties")
-        unique_together = [("category", "name")]
-        ordering = ["category", "order", "name"]
+        ordering = ["name", "order"]
 
     def __str__(self):
-        return f"{self.category.name} - {self.name}"
+        category_names = ", ".join([cat.name for cat in self.categories.all()[:3]])
+        if self.categories.count() > 3:
+            category_names += "..."
+        return f"{self.name} ({category_names})"
 
     def clean(self):
         super().clean()
@@ -116,15 +116,9 @@ class AssetProperty(models.Model):
         return []
 
     def _generate_slug(self):
-        """Generate a category-prefixed slug from the property name."""
-        if not self.category:
-            raise ValidationError(
-                {"category": _("Category is required to generate slug")}
-            )
-
-        category_slug = slugify(self.category.name_singular)
+        """Generate a slug from the property name."""
         property_slug = slugify(self.name)
-        return f"{category_slug}-{property_slug}"
+        return property_slug
 
     def save(self, *args, **kwargs):
         # Auto-generate slug if not provided
@@ -168,14 +162,10 @@ class AssetPropertyValue(models.Model):
     def clean(self):
         super().clean()
 
-        # Validate that the property belongs to the asset's category
-        if self.asset.category != self.property.category:
+        # Validate that the property applies to the asset's category
+        if self.asset.category not in self.property.categories.all():
             raise ValidationError(
-                {
-                    "property": _(
-                        "Property must belong to the same category as the asset"
-                    )
-                }
+                {"property": _("Property must apply to the asset's category")}
             )
 
         # Validate value based on property type

@@ -136,7 +136,55 @@ class AssetListView(LoginRequiredMixin, ListView):
         for property_filter in property_filters:
             queryset = queryset.filter(property_filter)
 
+        # Apply numeric range filters separately
+        queryset = self._apply_numeric_range_filters(queryset)
+
         return queryset.select_related("category", "location", "collection", "size")
+
+    def _apply_numeric_range_filters(self, queryset):
+        """Apply numeric range filters using proper numeric comparison."""
+        from django.db.models import DecimalField
+        from django.db.models.functions import Cast
+
+        for param_name, param_values in self.request.GET.lists():
+            if param_name.endswith(("_min", "_max")):
+                try:
+                    property_slug = param_name.replace("_min", "").replace("_max", "")
+                    property_obj = AssetProperty.objects.get(slug=property_slug)
+
+                    if property_obj.property_type == "number":
+                        range_type = "min" if param_name.endswith("_min") else "max"
+
+                        for param_value in param_values:
+                            if param_value.strip():
+                                numeric_value = float(param_value)
+
+                                # Apply range filter using Cast for proper numeric comparison
+                                if range_type == "min":
+                                    queryset = queryset.filter(
+                                        property_values__property=property_obj,
+                                        property_values__value__regex=r"^[0-9]+\.?[0-9]*$",
+                                    ).extra(
+                                        where=[
+                                            "CAST(inventory_assetpropertyvalue.value AS DECIMAL(10,2)) >= %s"
+                                        ],
+                                        params=[numeric_value],
+                                    )
+                                else:  # max
+                                    queryset = queryset.filter(
+                                        property_values__property=property_obj,
+                                        property_values__value__regex=r"^[0-9]+\.?[0-9]*$",
+                                    ).extra(
+                                        where=[
+                                            "CAST(inventory_assetpropertyvalue.value AS DECIMAL(10,2)) <= %s"
+                                        ],
+                                        params=[numeric_value],
+                                    )
+                                break
+                except (ValueError, TypeError, AssetProperty.DoesNotExist):
+                    continue
+
+        return queryset
 
     def _parse_property_parameters(self):
         """Parse property-related parameters from the request."""
@@ -210,13 +258,19 @@ class AssetListView(LoginRequiredMixin, ListView):
         has_min = "min" in params
         has_max = "max" in params
 
-        if has_min or has_max:
-            return (
-                Q(property_values__property_id=property_id)
-                & Q(property_values__value__regex=r"^[0-9]+\.?[0-9]*$")
-                & ~Q(property_values__value="")
-            )
-        return None
+        if not (has_min or has_max):
+            return None
+
+        # Base filter for valid numeric values
+        base_filter = (
+            Q(property_values__property_id=property_id)
+            & Q(property_values__value__regex=r"^[0-9]+\.?[0-9]*$")
+            & ~Q(property_values__value="")
+        )
+
+        # For range filtering, we need to do post-processing since we store numeric values as strings
+        # We'll return the base filter and let the get_queryset method handle the range logic
+        return base_filter
 
     def _build_dropdown_filter(self, property_id, params):
         """Build filter for dropdown properties."""
@@ -247,8 +301,8 @@ class AssetListView(LoginRequiredMixin, ListView):
 
     def _get_properties_with_current_values(self):
         """Get all properties with their current filter values attached."""
-        properties = AssetProperty.objects.select_related("category").order_by(
-            "category__name", "order", "name"
+        properties = AssetProperty.objects.prefetch_related("categories").order_by(
+            "name", "order"
         )
 
         for prop in properties:
@@ -481,7 +535,7 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
 
         # Add asset properties
         category_properties = AssetProperty.objects.filter(
-            category=asset.category
+            categories=asset.category
         ).order_by("order", "name")
 
         # Get existing property values for this asset
@@ -600,7 +654,7 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
     def _update_asset_properties(self, asset, data):
         """Update asset property values from form data."""
         updated_properties = []
-        category_properties = AssetProperty.objects.filter(category=asset.category)
+        category_properties = AssetProperty.objects.filter(categories=asset.category)
 
         for prop in category_properties:
             field_name = f"property_{prop.slug}"
@@ -767,11 +821,11 @@ class PropertyValueAutocompleteView(LoginRequiredMixin, View):
         except AssetProperty.DoesNotExist:
             return JsonResponse([], safe=False)
 
-        # Get distinct values for this property from assets in the same category that match the query
+        # Get distinct values for this property from assets in categories that use this property
         values = (
             AssetPropertyValue.objects.filter(
                 property=property_obj,
-                asset__category=property_obj.category,  # Only from same category
+                asset__category__in=property_obj.categories.all(),  # Only from categories that use this property
                 value__icontains=query,
             )
             .values_list("value", flat=True)

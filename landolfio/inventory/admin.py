@@ -57,9 +57,9 @@ class AssetPropertyValueInline(admin.TabularInline):
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "property" and hasattr(self, "parent_obj"):
-            # Filter properties by the asset's category
+            # Filter properties that apply to the asset's category
             kwargs["queryset"] = AssetProperty.objects.filter(
-                category=self.parent_obj.category
+                categories=self.parent_obj.category
             )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
@@ -669,18 +669,23 @@ class RecurringSalesInvoiceDocumentLineAdmin(
 class AssetPropertyAdmin(admin.ModelAdmin):
     """Admin interface for managing asset properties."""
 
-    list_display = ["name", "category", "property_type", "unit", "order"]
+    list_display = ["name", "get_categories", "property_type", "unit", "order"]
     list_filter = [
-        "category",
+        "categories",
         "property_type",
     ]
-    search_fields = ["name", "category__name"]
-    ordering = ["category", "order", "name"]
+    search_fields = ["name", "categories__name"]
+    ordering = ["name", "order"]
+
+    def get_categories(self, obj):
+        return ", ".join([cat.name for cat in obj.categories.all()])
+
+    get_categories.short_description = _("Categories")
 
     fieldsets = (
         (
             _("Basic Information"),
-            {"fields": ("category", "name", "property_type", "order")},
+            {"fields": ("categories", "name", "property_type", "order")},
         ),
         (
             _("Type-Specific Settings"),
@@ -728,8 +733,8 @@ class AssetPropertyValueAdmin(admin.ModelAdmin):
 
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "property" and hasattr(request, "_asset_category"):
-            # Filter properties by category if we know the asset's category
+            # Filter properties that apply to the category if we know the asset's category
             kwargs["queryset"] = AssetProperty.objects.filter(
-                category=request._asset_category
+                categories=request._asset_category
             )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
