@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (searchInput && suggestionsDiv) {
         let autocompleteTimeout;
+        let selectedIndex = -1;
         
         // Cookie helper function for autocomplete
         function getCookie(name) {
@@ -140,10 +141,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         function showSuggestions(suggestions) {
             suggestionsDiv.innerHTML = '';
-            suggestions.forEach(suggestion => {
+            selectedIndex = -1; // Reset selection
+            suggestions.forEach((suggestion, index) => {
                 const div = document.createElement('div');
-                div.className = 'p-3 border-bottom';
+                div.className = 'p-3 border-bottom autocomplete-suggestion';
                 div.style.cursor = 'pointer';
+                div.dataset.index = index;
                 
                 // Create rich suggestion HTML
                 let locationText = '';
@@ -183,16 +186,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 div.addEventListener('mouseenter', function() {
-                    this.style.backgroundColor = '#f8f9fa';
+                    selectedIndex = parseInt(this.dataset.index);
+                    updateSelection();
                 });
                 
                 div.addEventListener('mouseleave', function() {
-                    this.style.backgroundColor = '';
+                    // Keep the selection if it's keyboard selected, otherwise clear
+                    if (selectedIndex !== parseInt(this.dataset.index)) {
+                        this.style.backgroundColor = '';
+                    }
                 });
                 
                 suggestionsDiv.appendChild(div);
             });
             suggestionsDiv.style.display = 'block';
+        }
+
+        function updateSelection() {
+            const suggestions = suggestionsDiv.querySelectorAll('.autocomplete-suggestion');
+            suggestions.forEach((suggestion, index) => {
+                if (index === selectedIndex) {
+                    suggestion.style.backgroundColor = '#e3f2fd';
+                    suggestion.scrollIntoView({ block: 'nearest' });
+                } else {
+                    suggestion.style.backgroundColor = '';
+                }
+            });
+        }
+
+        function selectCurrentSuggestion() {
+            const suggestions = suggestionsDiv.querySelectorAll('.autocomplete-suggestion');
+            if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
+                const selectedSuggestion = suggestions[selectedIndex];
+                selectedSuggestion.click();
+            }
         }
 
         searchInput.addEventListener('input', function() {
@@ -206,6 +233,37 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.addEventListener('focus', function() {
             if (this.value.trim().length >= 2) {
                 fetchSuggestions(this.value.trim());
+            }
+        });
+
+        // Add keyboard navigation
+        searchInput.addEventListener('keydown', function(e) {
+            const suggestions = suggestionsDiv.querySelectorAll('.autocomplete-suggestion');
+            const isVisible = suggestionsDiv.style.display === 'block' && suggestions.length > 0;
+
+            if (!isVisible) return;
+
+            switch(e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    selectedIndex = selectedIndex < suggestions.length - 1 ? selectedIndex + 1 : 0;
+                    updateSelection();
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    selectedIndex = selectedIndex > 0 ? selectedIndex - 1 : suggestions.length - 1;
+                    updateSelection();
+                    break;
+                case 'Enter':
+                    if (selectedIndex >= 0) {
+                        e.preventDefault();
+                        selectCurrentSuggestion();
+                    }
+                    break;
+                case 'Escape':
+                    suggestionsDiv.style.display = 'none';
+                    selectedIndex = -1;
+                    break;
             }
         });
 

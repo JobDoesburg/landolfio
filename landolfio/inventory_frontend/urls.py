@@ -18,7 +18,11 @@ urlpatterns = [
     path("search/", AssetSearchView.as_view(), name="search"),
     path("list/", AssetListView.as_view(), name="list"),
     path("autocomplete/", AssetAutocompleteView.as_view(), name="autocomplete"),
-    path("property-autocomplete/", PropertyValueAutocompleteView.as_view(), name="property_autocomplete"),
+    path(
+        "property-autocomplete/",
+        PropertyValueAutocompleteView.as_view(),
+        name="property_autocomplete",
+    ),
     path("<uuid:pk>/", AssetDetailView.as_view(), name="detail"),
     path("create/", AssetCreateView.as_view(), name="create"),
     path("asset/<uuid:pk>/update/", AssetUpdateView.as_view(), name="update"),

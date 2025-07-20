@@ -47,15 +47,16 @@ from moneybird.admin import MoneybirdResourceModelAdmin
 
 class AssetPropertyValueInline(admin.TabularInline):
     """Inline for editing asset property values directly on the asset."""
+
     model = AssetPropertyValue
     extra = 0
-    fields = ['property', 'value']
-    
+    fields = ["property", "value"]
+
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related('property')
-    
+        return super().get_queryset(request).select_related("property")
+
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "property" and hasattr(self, 'parent_obj'):
+        if db_field.name == "property" and hasattr(self, "parent_obj"):
             # Filter properties by the asset's category
             kwargs["queryset"] = AssetProperty.objects.filter(
                 category=self.parent_obj.category
@@ -667,66 +668,66 @@ class RecurringSalesInvoiceDocumentLineAdmin(
 @admin.register(AssetProperty)
 class AssetPropertyAdmin(admin.ModelAdmin):
     """Admin interface for managing asset properties."""
-    list_display = [
-        'name', 
-        'category', 
-        'property_type', 
-        'unit', 
-        'order'
-    ]
+
+    list_display = ["name", "category", "property_type", "unit", "order"]
     list_filter = [
-        'category',
-        'property_type',
+        "category",
+        "property_type",
     ]
-    search_fields = ['name', 'category__name']
-    ordering = ['category', 'order', 'name']
-    
+    search_fields = ["name", "category__name"]
+    ordering = ["category", "order", "name"]
+
     fieldsets = (
-        (_('Basic Information'), {
-            'fields': ('category', 'name', 'property_type', 'order')
-        }),
-        (_('Type-Specific Settings'), {
-            'fields': ('unit', 'dropdown_options'),
-            'description': _('Unit is used for numeric properties. Dropdown options should be a JSON array like ["Option 1", "Option 2"]')
-        }),
+        (
+            _("Basic Information"),
+            {"fields": ("category", "name", "property_type", "order")},
+        ),
+        (
+            _("Type-Specific Settings"),
+            {
+                "fields": ("unit", "dropdown_options"),
+                "description": _(
+                    'Unit is used for numeric properties. Dropdown options should be a JSON array like ["Option 1", "Option 2"]'
+                ),
+            },
+        ),
     )
-    
+
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
         # Add help text for dropdown options
-        if 'dropdown_options' in form.base_fields:
-            form.base_fields['dropdown_options'].widget.attrs.update({
-                'placeholder': '["Red", "Blue", "Green"]',
-                'rows': 3,
-            })
+        if "dropdown_options" in form.base_fields:
+            form.base_fields["dropdown_options"].widget.attrs.update(
+                {
+                    "placeholder": '["Red", "Blue", "Green"]',
+                    "rows": 3,
+                }
+            )
         return form
 
 
 @admin.register(AssetPropertyValue)
 class AssetPropertyValueAdmin(admin.ModelAdmin):
     """Admin interface for managing individual asset property values."""
-    list_display = ['asset', 'property', 'value', 'get_formatted_value']
+
+    list_display = ["asset", "property", "value", "get_formatted_value"]
     list_filter = [
-        ('asset__category', AutocompleteListFilter),
-        ('property', AutocompleteListFilter),
-        'property__property_type',
+        ("asset__category", AutocompleteListFilter),
+        ("property", AutocompleteListFilter),
+        "property__property_type",
     ]
-    search_fields = [
-        'asset__name', 
-        'property__name', 
-        'value'
-    ]
-    autocomplete_fields = ['asset', 'property']
-    
+    search_fields = ["asset__name", "property__name", "value"]
+    autocomplete_fields = ["asset", "property"]
+
     def get_queryset(self, request):
-        return super().get_queryset(request).select_related(
-            'asset', 
-            'property', 
-            'asset__category'
+        return (
+            super()
+            .get_queryset(request)
+            .select_related("asset", "property", "asset__category")
         )
-    
+
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
-        if db_field.name == "property" and hasattr(request, '_asset_category'):
+        if db_field.name == "property" and hasattr(request, "_asset_category"):
             # Filter properties by category if we know the asset's category
             kwargs["queryset"] = AssetProperty.objects.filter(
                 category=request._asset_category

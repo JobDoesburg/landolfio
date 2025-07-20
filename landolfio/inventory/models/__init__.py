@@ -16,7 +16,7 @@ __all__ = [
     "Asset",
     "AssetStates",
     "AssetOnJournalDocumentLine",
-    "AssetOnEstimateDocumentLine", 
+    "AssetOnEstimateDocumentLine",
     "AssetOnRecurringSalesInvoiceDocumentLine",
     "AssetSubscription",
     "AssetProperty",

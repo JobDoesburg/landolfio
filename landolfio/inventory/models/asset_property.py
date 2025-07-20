@@ -15,6 +15,7 @@ class AssetProperty(models.Model):
     """
     Defines a property that can be assigned to assets of a specific category.
     """
+
     category = models.ForeignKey(
         "Category",
         on_delete=models.CASCADE,
@@ -24,7 +25,7 @@ class AssetProperty(models.Model):
     name = models.CharField(
         max_length=100,
         verbose_name=_("property name"),
-        help_text=_("The name of this property (e.g., 'Color', 'Weight', 'Material')")
+        help_text=_("The name of this property (e.g., 'Color', 'Weight', 'Material')"),
     )
     slug = models.SlugField(
         max_length=100,
@@ -32,7 +33,9 @@ class AssetProperty(models.Model):
         blank=True,
         null=True,
         verbose_name=_("slug"),
-        help_text=_("URL-friendly version with category prefix (e.g., 'electronics-color', 'furniture-weight')")
+        help_text=_(
+            "URL-friendly version with category prefix (e.g., 'electronics-color', 'furniture-weight')"
+        ),
     )
     property_type = models.CharField(
         max_length=20,
@@ -44,17 +47,19 @@ class AssetProperty(models.Model):
         max_length=20,
         blank=True,
         verbose_name=_("unit"),
-        help_text=_("Unit for numeric properties (e.g., 'kg', 'cm', 'V')")
+        help_text=_("Unit for numeric properties (e.g., 'kg', 'cm', 'V')"),
     )
     dropdown_options = models.TextField(
         blank=True,
         verbose_name=_("dropdown options"),
-        help_text=_("JSON array of options for dropdown properties (e.g., [\"Red\", \"Blue\", \"Green\"])")
+        help_text=_(
+            'JSON array of options for dropdown properties (e.g., ["Red", "Blue", "Green"])'
+        ),
     )
     order = models.PositiveIntegerField(
         default=0,
         verbose_name=_("display order"),
-        help_text=_("Order in which properties are displayed")
+        help_text=_("Order in which properties are displayed"),
     )
 
     class Meta:
@@ -68,24 +73,34 @@ class AssetProperty(models.Model):
 
     def clean(self):
         super().clean()
-        
+
         # Validate dropdown options
         if self.property_type == AssetPropertyType.DROPDOWN:
             if not self.dropdown_options:
-                raise ValidationError({
-                    'dropdown_options': _('Dropdown options are required for dropdown properties')
-                })
+                raise ValidationError(
+                    {
+                        "dropdown_options": _(
+                            "Dropdown options are required for dropdown properties"
+                        )
+                    }
+                )
             try:
                 options = json.loads(self.dropdown_options)
-                if not isinstance(options, list) or not all(isinstance(opt, str) for opt in options):
-                    raise ValidationError({
-                        'dropdown_options': _('Dropdown options must be a JSON array of strings')
-                    })
+                if not isinstance(options, list) or not all(
+                    isinstance(opt, str) for opt in options
+                ):
+                    raise ValidationError(
+                        {
+                            "dropdown_options": _(
+                                "Dropdown options must be a JSON array of strings"
+                            )
+                        }
+                    )
             except json.JSONDecodeError:
-                raise ValidationError({
-                    'dropdown_options': _('Invalid JSON format for dropdown options')
-                })
-        
+                raise ValidationError(
+                    {"dropdown_options": _("Invalid JSON format for dropdown options")}
+                )
+
         # Validate unit for numeric properties
         if self.property_type == AssetPropertyType.NUMBER and not self.unit:
             # Unit is optional for numeric properties, just a suggestion
@@ -103,17 +118,19 @@ class AssetProperty(models.Model):
     def _generate_slug(self):
         """Generate a category-prefixed slug from the property name."""
         if not self.category:
-            raise ValidationError({'category': _('Category is required to generate slug')})
-        
+            raise ValidationError(
+                {"category": _("Category is required to generate slug")}
+            )
+
         category_slug = slugify(self.category.name_singular)
         property_slug = slugify(self.name)
         return f"{category_slug}-{property_slug}"
-    
+
     def save(self, *args, **kwargs):
         # Auto-generate slug if not provided
         if not self.slug:
             self.slug = self._generate_slug()
-        
+
         self.full_clean()
         super().save(*args, **kwargs)
 
@@ -122,6 +139,7 @@ class AssetPropertyValue(models.Model):
     """
     Stores the actual value of a property for a specific asset.
     """
+
     asset = models.ForeignKey(
         "Asset",
         on_delete=models.CASCADE,
@@ -136,7 +154,7 @@ class AssetPropertyValue(models.Model):
     )
     value = models.TextField(
         verbose_name=_("value"),
-        help_text=_("The value of this property for this asset")
+        help_text=_("The value of this property for this asset"),
     )
 
     class Meta:
@@ -149,28 +167,36 @@ class AssetPropertyValue(models.Model):
 
     def clean(self):
         super().clean()
-        
+
         # Validate that the property belongs to the asset's category
         if self.asset.category != self.property.category:
-            raise ValidationError({
-                'property': _('Property must belong to the same category as the asset')
-            })
-        
+            raise ValidationError(
+                {
+                    "property": _(
+                        "Property must belong to the same category as the asset"
+                    )
+                }
+            )
+
         # Validate value based on property type
         if self.property.property_type == AssetPropertyType.NUMBER:
             try:
                 float(self.value)
             except (ValueError, TypeError):
-                raise ValidationError({
-                    'value': _('Value must be a valid number for numeric properties')
-                })
-        
+                raise ValidationError(
+                    {"value": _("Value must be a valid number for numeric properties")}
+                )
+
         elif self.property.property_type == AssetPropertyType.DROPDOWN:
             options = self.property.get_dropdown_options()
             if self.value not in options:
-                raise ValidationError({
-                    'value': _('Value must be one of the allowed dropdown options: {}').format(', '.join(options))
-                })
+                raise ValidationError(
+                    {
+                        "value": _(
+                            "Value must be one of the allowed dropdown options: {}"
+                        ).format(", ".join(options))
+                    }
+                )
 
     def save(self, *args, **kwargs):
         self.full_clean()
@@ -178,6 +204,9 @@ class AssetPropertyValue(models.Model):
 
     def get_formatted_value(self):
         """Return the value formatted with unit if applicable."""
-        if self.property.property_type == AssetPropertyType.NUMBER and self.property.unit:
+        if (
+            self.property.property_type == AssetPropertyType.NUMBER
+            and self.property.unit
+        ):
             return f"{self.value} {self.property.unit}"
         return self.value
