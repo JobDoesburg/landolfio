@@ -1,15 +1,14 @@
 from django.contrib import messages
 from django.shortcuts import redirect
-from django.views.generic import ListView, DetailView, CreateView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView, DetailView, CreateView
 from django.db.models import Q
 from django.http import JsonResponse
-from django.urls import reverse_lazy
 from django_drf_filepond.api import store_upload
 from django_drf_filepond.models import TemporaryUpload
 from django.views import View
 
 from inventory.models.asset import Asset, AssetStates
+from inventory.models.asset_on_document_line import AssetOnJournalDocumentLine
 from inventory.models.attachment import Attachment, attachments_directory_path
 from inventory.models.category import Category
 from inventory.models.collection import Collection
@@ -251,6 +250,12 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
             (AssetStates.TO_BE_DELIVERED, AssetStates.TO_BE_DELIVERED.label),
         ]
         context["locations"] = Location.objects.all().order_by("order", "name")
+
+        context["journal_history"] = (
+            AssetOnJournalDocumentLine.objects.filter(asset=asset)
+            .select_related("document_line__document", "document_line__ledger_account")
+            .order_by("-document_line__document__date")
+        )
 
         return context
 

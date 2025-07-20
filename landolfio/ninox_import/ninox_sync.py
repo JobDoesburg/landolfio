@@ -194,9 +194,9 @@ class NinoxImporter:
             response.raise_for_status()
             self._logger.info(f"Got response: {response}")
         except HTTPError as http_err:
-            print(f"HTTP error occurred: {http_err}")
+            self._logger.error(f"HTTP error occurred: {http_err}")
         except Exception as err:
-            print(f"Other error occurred: {err}")
+            self._logger.error(f"Other error occurred: {err}")
         else:
             if stream:
                 return response
