@@ -49,7 +49,7 @@ class AssetSearchView(LoginRequiredMixin, TemplateView):
         # Get categories with counts
         context["categories"] = Category.objects.annotate(
             asset_count=Count("asset")
-        ).order_by("-asset_count")[:5]
+        ).order_by("-asset_count")
 
         # Get locations with counts
         context["locations"] = Location.objects.annotate(
