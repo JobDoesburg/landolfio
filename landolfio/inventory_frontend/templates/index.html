@@ -34,7 +34,7 @@
 
         <!-- Categories -->
         <div class="d-flex flex-wrap gap-2 justify-content-center mb-3">
-            {% for category in categories|slice:":5" %}
+            {% for category in categories %}
                 <a href="{% url 'inventory_frontend:list' %}?category={{ category.id }}" class="btn btn-outline-primary rounded-pill">
                     {{ category.name }}
                     <span class="badge bg-primary ms-1">{{ category.asset_count }}</span>
