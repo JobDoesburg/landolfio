@@ -46,10 +46,27 @@ class AssetSearchView(LoginRequiredMixin, TemplateView):
         # Get total number of assets
         context["total_assets"] = Asset.objects.count()
 
-        # Get categories with counts
-        context["categories"] = Category.objects.annotate(
+        # Get categories with counts and their sizes
+        from inventory.models.category import Size
+        categories = Category.objects.annotate(
             asset_count=Count("asset")
-        ).order_by("-asset_count")
+        ).order_by("-asset_count").prefetch_related('size_set')
+        
+        # Add size information with asset counts for each category
+        for category in categories:
+            category.sizes_with_counts = []
+            for size in category.size_set.all().order_by('order', 'name'):
+                size_asset_count = Asset.objects.filter(
+                    category=category, 
+                    size=size
+                ).count()
+                if size_asset_count > 0:  # Only include sizes that have assets
+                    category.sizes_with_counts.append({
+                        'size': size,
+                        'asset_count': size_asset_count
+                    })
+        
+        context["categories"] = categories
 
         # Get locations with counts
         context["locations"] = Location.objects.annotate(
@@ -76,6 +93,7 @@ class AssetListView(LoginRequiredMixin, ListView):
         # Get filter parameters (support multiple values)
         search_query = self.request.GET.get("q")
         categories = self.request.GET.getlist("category")
+        sizes = self.request.GET.getlist("size")
         statuses = self.request.GET.getlist("status")
         locations = self.request.GET.getlist("location")
         collections = self.request.GET.getlist("collection")
@@ -94,6 +112,12 @@ class AssetListView(LoginRequiredMixin, ListView):
             categories = [cat for cat in categories if cat.strip()]
             if categories:
                 queryset = queryset.filter(category_id__in=categories)
+
+        if sizes:
+            # Filter non-empty values
+            sizes = [size for size in sizes if size.strip()]
+            if sizes:
+                queryset = queryset.filter(size_id__in=sizes)
 
         if statuses:
             # Filter non-empty values
@@ -391,6 +415,12 @@ class AssetListView(LoginRequiredMixin, ListView):
             asset_count=Count("asset")
         ).order_by("name")
 
+        # Get sizes with counts
+        from inventory.models.category import Size
+        context["sizes"] = Size.objects.annotate(
+            asset_count=Count("asset")
+        ).order_by("order", "name")
+
         # Get locations grouped by location group with counts
         from inventory.models.location import LocationGroup
         from django.db.models import Prefetch
@@ -448,6 +478,7 @@ class AssetListView(LoginRequiredMixin, ListView):
         context["current_filters"] = {
             "q": self.request.GET.get("q", ""),
             "categories": self.request.GET.getlist("category"),
+            "sizes": self.request.GET.getlist("size"),
             "statuses": self.request.GET.getlist("status"),
             "locations": self.request.GET.getlist("location"),
             "collections": self.request.GET.getlist("collection"),

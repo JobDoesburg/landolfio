@@ -23,12 +23,6 @@
             {% block main %}{% endblock %}
         </main>
         
-        <!-- Customer Mode Toggle Footer -->
-        <div class="fixed-bottom d-flex justify-content-start p-3" style="pointer-events: none;">
-            <button type="button" id="customer-mode-toggle" class="btn btn-outline-secondary" style="pointer-events: all; width: 40px; height: 40px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;">
-                <i class="fas fa-eye" id="customer-mode-icon"></i>
-            </button>
-        </div>
         
         {% block body_js %}{% endblock %}
         {% bootstrap_javascript %}
@@ -68,23 +62,29 @@
         }
 
         function updateCustomerModeUI(isCustomerMode) {
-            const icon = document.getElementById('customer-mode-icon');
-            const button = document.getElementById('customer-mode-toggle');
+            // Handle both ID and class selectors for different pages
+            const buttons = [
+                document.getElementById('customer-mode-toggle'),
+                ...document.querySelectorAll('.customer-mode-toggle')
+            ].filter(btn => btn);
             
-            if (isCustomerMode) {
-                icon.className = 'fas fa-eye-slash';
-                button.className = 'btn btn-primary';
-                button.style.cssText = 'pointer-events: all; width: 40px; height: 40px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;';
-            } else {
-                icon.className = 'fas fa-eye';
-                button.className = 'btn btn-outline-secondary';
-                button.style.cssText = 'pointer-events: all; width: 40px; height: 40px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;';
-            }
+            buttons.forEach(button => {
+                button.className = isCustomerMode ? 'btn btn-secondary' : 'btn btn-outline-secondary';
+                // Preserve additional classes like title attribute
+                if (button.hasAttribute('title')) {
+                    button.className += ' customer-mode-toggle';
+                }
+            });
         }
 
         function updatePriceDisplay(isCustomerMode) {
             const purchasePrices = document.querySelectorAll('.purchase-price');
             purchasePrices.forEach(element => {
+                element.style.display = isCustomerMode ? 'none' : '';
+            });
+            
+            const customerModeHideElements = document.querySelectorAll('.customer-mode-hide');
+            customerModeHideElements.forEach(element => {
                 element.style.display = isCustomerMode ? 'none' : '';
             });
         }
@@ -95,8 +95,15 @@
             updateCustomerModeUI(isCustomerMode);
             updatePriceDisplay(isCustomerMode);
             
-            // Add click event listener
-            document.getElementById('customer-mode-toggle').addEventListener('click', toggleCustomerMode);
+            // Add click event listeners for all customer mode toggles
+            const toggles = [
+                document.getElementById('customer-mode-toggle'),
+                ...document.querySelectorAll('.customer-mode-toggle')
+            ].filter(btn => btn);
+            
+            toggles.forEach(toggle => {
+                toggle.addEventListener('click', toggleCustomerMode);
+            });
         });
         </script>
     </body>

@@ -8,29 +8,34 @@
     <!-- Buttons row -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-flex align-items-center gap-2">
-            <a href="{{ back_url }}" class="btn btn-outline-secondary btn-sm">
-                <i class="fas fa-arrow-left me-1 d-inline"></i><span class="d-none d-sm-inline">{% translate "Back" %}</span>
+            <a href="{{ back_url }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-sm-1 d-inline"></i><span class="d-none d-sm-inline">{% translate "Back" %}</span>
             </a>
             <div class="position-relative" style="width: 150px;">
                 <input type="text" id="detail-search-input-mobile" class="form-control"
-                       placeholder="{% translate 'Search...' %}" style="height: 31px;"
+                       placeholder="{% translate 'Search...' %}"
                        autocomplete="off">
                 <div id="detail-autocomplete-suggestions-mobile" class="position-absolute w-100 mt-1 bg-white border rounded shadow-lg" style="z-index: 1000; display: none; max-height: 300px; overflow-y: auto;"></div>
-                <i class="fas fa-search position-absolute top-50 end-0 translate-middle-y me-2 text-muted" style="pointer-events: none; font-size: 0.75rem;"></i>
+                <i class="fas fa-search position-absolute top-50 end-0 translate-middle-y me-2 text-muted" style="pointer-events: none;"></i>
             </div>
         </div>
-        <div class="btn-group btn-group-sm">
+        <div class="btn-group">
             <a href="{% url 'inventory_frontend:update' asset.pk %}" class="btn btn-outline-primary">
-                <i class="fas fa-edit me-1 d-inline"></i><span class="d-none d-sm-inline">{% translate "Edit" %}</span>
+                <i class="fas fa-edit me-sm-1 d-inline"></i><span class="d-none d-sm-inline">{% translate "Edit" %}</span>
             </a>
             {% if perms.inventory.delete_asset %}
             <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                <i class="fas fa-trash me-1 d-inline"></i><span class="d-none d-sm-inline">{% translate "Delete" %}</span>
+                <i class="fas fa-trash me-sm-1 d-inline"></i><span class="d-none d-sm-inline">{% translate "Delete" %}</span>
             </button>
             {% endif %}
+        </div>
+        <div class="btn-group">
             <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
-                <i class="fas fa-cog me-1 d-inline"></i><span class="d-none d-sm-inline">{% translate "Admin" %}</span>
+                <i class="fas fa-cog"></i>
             </a>
+            <button type="button" class="btn btn-outline-secondary customer-mode-toggle" title="{% translate 'Toggle Customer Mode' %}">
+                <i class="fas fa-user-tie"></i>
+            </button>
         </div>
     </div>
     <!-- Asset name and info -->
@@ -56,7 +61,7 @@
 <!-- Desktop/tablet layout: same line -->
 <div class="d-none d-lg-flex align-items-start py-4">
     <!-- Left side - same width as right side -->
-    <div class="d-flex justify-content-start align-items-center gap-2" style="flex: 0 0 auto; min-width: 300px;">
+    <div class="d-flex justify-content-start align-items-center gap-2" style="flex: 0 0 auto; min-width: 350px;">
         <a href="{{ back_url }}" class="btn btn-outline-secondary">
             <i class="fas fa-arrow-left me-2"></i>{% translate "Back" %}
         </a>
@@ -89,19 +94,26 @@
     </div>
 
     <!-- Right side buttons - same width as left side -->
-    <div class="d-flex justify-content-end" style="flex: 0 0 auto; min-width: 300px;">
+    <div class="d-flex justify-content-end" style="flex: 0 0 auto; min-width: 350px;">
         <div class="d-flex gap-2">
-            <a href="{% url 'inventory_frontend:update' asset.pk %}" class="btn btn-outline-primary">
-                <i class="fas fa-edit me-2"></i>{% translate "Edit" %}
-            </a>
-            {% if perms.inventory.delete_asset %}
-            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                <i class="fas fa-trash me-2"></i>{% translate "Delete" %}
-            </button>
-            {% endif %}
-            <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
-                <i class="fas fa-cog me-2"></i>{% translate "Admin" %}
-            </a>
+            <div class="btn-group" role="group">
+                <a href="{% url 'inventory_frontend:update' asset.pk %}" class="btn btn-outline-primary">
+                    <i class="fas fa-edit me-2"></i>{% translate "Edit" %}
+                </a>
+                {% if perms.inventory.delete_asset %}
+                <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                    <i class="fas fa-trash me-2"></i>{% translate "Delete" %}
+                </button>
+                {% endif %}
+            </div>
+            <div class="btn-group" role="group">
+                <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-cog"></i>
+                </a>
+                <button type="button" class="btn btn-outline-secondary customer-mode-toggle" title="{% translate 'Toggle Customer Mode' %}">
+                    <i class="fas fa-user-tie"></i>
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -172,15 +184,15 @@
                                         {% if asset.location_nr %}#{{ asset.location_nr }}{% endif %}
                                     </td>
                                 </tr>
-                                <tr>
+                                <tr class="customer-mode-hide">
                                     <td class="text-muted">{% translate "Collection" %}:</td>
                                     <td>{{ asset.collection.name }}</td>
                                 </tr>
-                                <tr class="purchase-price">
+                                <tr class="purchase-price customer-mode-hide">
                                     <td class="text-muted">{% translate "Created" %}:</td>
                                     <td>{{ asset.created_at|date:"d-m-Y H:i" }}</td>
                                 </tr>
-                                <tr>
+                                <tr class="customer-mode-hide">
                                     <td class="text-muted">{% translate "Last Updated" %}:</td>
                                     <td>{{ asset.updated_at|date:"d-m-Y H:i" }}</td>
                                 </tr>
@@ -746,17 +758,24 @@
             return cookieValue;
         }
 
+        function setCookie(name, value, days = 30) {
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+            document.cookie = name + "=" + value + ";" + expires + ";path=/";
+        }
+
         // Adjust layout on page load
         document.addEventListener('DOMContentLoaded', function() {
             adjustOverviewLayout();
-        });
-
-        // Listen for customer mode changes (if the toggle is clicked)
-        document.addEventListener('click', function(e) {
-            if (e.target.id === 'customer-mode-toggle' || e.target.closest('#customer-mode-toggle')) {
-                // Small delay to allow cookie to be set
-                setTimeout(adjustOverviewLayout, 100);
-            }
+            
+            // Listen for customer mode changes and adjust layout
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('.customer-mode-toggle') || e.target.closest('.customer-mode-toggle')) {
+                    // Small delay to allow cookie to be set by base template handler
+                    setTimeout(adjustOverviewLayout, 100);
+                }
+            });
         });
         
         Fancybox.bind('[data-fancybox="gallery"]', {

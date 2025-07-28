@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-20 23:02+0200\n"
+"POT-Creation-Date: 2025-07-28 15:41+0200\n"
 "PO-Revision-Date: 2023-02-21 13:39+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -103,7 +103,7 @@ msgstr "heeft leenovereenkomst"
 #: inventory/models/asset_on_document_line.py:69
 #: inventory/models/asset_on_document_line.py:117
 #: inventory/models/asset_on_document_line.py:165
-#: inventory/models/asset_property.py:147 inventory/models/attachment.py:17
+#: inventory/models/asset_property.py:141 inventory/models/attachment.py:17
 #: inventory/models/remarks.py:9
 msgid "asset"
 msgstr "eigendom"
@@ -113,15 +113,21 @@ msgstr "eigendom"
 msgid "assets"
 msgstr "eigendommen"
 
-#: inventory/admin.py:682
+#: inventory/admin.py:683
+#, fuzzy
+#| msgid "categories"
+msgid "Categories"
+msgstr "categorieën"
+
+#: inventory/admin.py:687
 msgid "Basic Information"
 msgstr ""
 
-#: inventory/admin.py:686
+#: inventory/admin.py:691
 msgid "Type-Specific Settings"
 msgstr ""
 
-#: inventory/admin.py:690
+#: inventory/admin.py:695
 msgid ""
 "Unit is used for numeric properties. Dropdown options should be a JSON array "
 "like [\"Option 1\", \"Option 2\"]"
@@ -181,7 +187,7 @@ msgstr "contact"
 #: inventory/models/asset_on_document_line.py:78
 #: inventory/models/asset_on_document_line.py:126
 #: inventory/models/asset_on_document_line.py:174
-#: inventory/models/asset_property.py:156
+#: inventory/models/asset_property.py:150
 msgid "value"
 msgstr "waarde"
 
@@ -270,8 +276,7 @@ msgstr "nummer"
 msgid "name"
 msgstr "naam"
 
-#: inventory/models/asset.py:104 inventory/models/asset_property.py:23
-#: inventory/models/category.py:8
+#: inventory/models/asset.py:104 inventory/models/category.py:8
 #: inventory/templates/admin/inventory/asset/view_asset/includes/sidebar.html:44
 msgid "category"
 msgstr "categorie"
@@ -442,6 +447,18 @@ msgstr ""
 msgid "Dropdown"
 msgstr ""
 
+#: inventory/models/asset_property.py:22 inventory/models/category.py:9
+#: inventory/models/category.py:40
+#: inventory/templates/admin/inventory/asset/overview/includes/categories_module.html:6
+msgid "categories"
+msgstr "categorieën"
+
+#: inventory/models/asset_property.py:23
+#, fuzzy
+#| msgid "assets value"
+msgid "Categories this property applies to"
+msgstr "voorraadwaarde"
+
 #: inventory/models/asset_property.py:27
 msgid "property name"
 msgstr ""
@@ -454,47 +471,45 @@ msgstr ""
 msgid "slug"
 msgstr ""
 
-#: inventory/models/asset_property.py:37
-msgid ""
-"URL-friendly version with category prefix (e.g., 'electronics-color', "
-"'furniture-weight')"
+#: inventory/models/asset_property.py:36
+msgid "URL-friendly version of property name (e.g., 'color', 'weight')"
 msgstr ""
 
-#: inventory/models/asset_property.py:44
+#: inventory/models/asset_property.py:42
 msgid "property type"
 msgstr ""
 
-#: inventory/models/asset_property.py:49
+#: inventory/models/asset_property.py:47
 msgid "unit"
 msgstr ""
 
-#: inventory/models/asset_property.py:50
+#: inventory/models/asset_property.py:48
 msgid "Unit for numeric properties (e.g., 'kg', 'cm', 'V')"
 msgstr ""
 
-#: inventory/models/asset_property.py:54
+#: inventory/models/asset_property.py:52
 msgid "dropdown options"
 msgstr ""
 
-#: inventory/models/asset_property.py:56
+#: inventory/models/asset_property.py:54
 msgid ""
 "JSON array of options for dropdown properties (e.g., [\"Red\", \"Blue\", "
 "\"Green\"])"
 msgstr ""
 
-#: inventory/models/asset_property.py:61
+#: inventory/models/asset_property.py:59
 msgid "display order"
 msgstr ""
 
-#: inventory/models/asset_property.py:62
+#: inventory/models/asset_property.py:60
 msgid "Order in which properties are displayed"
 msgstr ""
 
-#: inventory/models/asset_property.py:66
+#: inventory/models/asset_property.py:64
 msgid "asset property"
 msgstr ""
 
-#: inventory/models/asset_property.py:67
+#: inventory/models/asset_property.py:65
 #, fuzzy
 #| msgid "assets subscriptions"
 msgid "asset properties"
@@ -512,39 +527,35 @@ msgstr ""
 msgid "Invalid JSON format for dropdown options"
 msgstr ""
 
-#: inventory/models/asset_property.py:122
-msgid "Category is required to generate slug"
-msgstr ""
-
-#: inventory/models/asset_property.py:153
+#: inventory/models/asset_property.py:147
 msgid "property"
 msgstr ""
 
-#: inventory/models/asset_property.py:157
+#: inventory/models/asset_property.py:151
 msgid "The value of this property for this asset"
 msgstr ""
 
-#: inventory/models/asset_property.py:161
+#: inventory/models/asset_property.py:155
 #, fuzzy
 #| msgid "assets value"
 msgid "asset property value"
 msgstr "voorraadwaarde"
 
-#: inventory/models/asset_property.py:162
+#: inventory/models/asset_property.py:156
 #, fuzzy
 #| msgid "assets value"
 msgid "asset property values"
 msgstr "voorraadwaarde"
 
-#: inventory/models/asset_property.py:176
-msgid "Property must belong to the same category as the asset"
+#: inventory/models/asset_property.py:168
+msgid "Property must apply to the asset's category"
 msgstr ""
 
-#: inventory/models/asset_property.py:187
+#: inventory/models/asset_property.py:177
 msgid "Value must be a valid number for numeric properties"
 msgstr ""
 
-#: inventory/models/asset_property.py:196
+#: inventory/models/asset_property.py:186
 msgid "Value must be one of the allowed dropdown options: {}"
 msgstr ""
 
@@ -559,11 +570,6 @@ msgstr "uploaddatum"
 #: inventory/models/attachment.py:30
 msgid "from"
 msgstr ""
-
-#: inventory/models/category.py:9 inventory/models/category.py:40
-#: inventory/templates/admin/inventory/asset/overview/includes/categories_module.html:6
-msgid "categories"
-msgstr "categorieën"
 
 #: inventory/models/category.py:20
 msgid "name singular"

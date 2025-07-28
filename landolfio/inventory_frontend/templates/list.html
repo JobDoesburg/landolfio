@@ -2,40 +2,91 @@
 {% load static i18n l10n dict_extras %}
 
 {% block header %}
-    <!-- Search Header -->
-    <div class="row py-4">
-        <div class="col">
-            <form action="{% url 'inventory_frontend:list' %}" method="get" class="d-flex gap-3 align-items-center">
-                <a href="{% url 'inventory_frontend:search' %}">
-                    <img src="{% static 'img/logo.png' %}" alt="Logo" class="img-fluid" style="max-height: 48px;">
+    <!-- Mobile Search Header -->
+    <div class="d-block d-lg-none py-3">
+        <form action="{% url 'inventory_frontend:list' %}" method="get" class="d-flex gap-2 align-items-center">
+            <a href="{% url 'inventory_frontend:search' %}">
+                <img src="{% static 'img/logo.png' %}" alt="Logo" class="img-fluid" style="max-height: 32px;">
+            </a>
+            <div class="flex-grow-1 position-relative">
+                <input type="text" name="q" id="search-input-mobile" class="form-control"
+                       placeholder="{% translate 'Search...' %}"
+                       value="{{ request.GET.q|default:'' }}"
+                       autocomplete="off">
+                <div id="autocomplete-suggestions-mobile" class="position-absolute w-100 mt-1 bg-white border rounded shadow-lg" style="z-index: 1000; display: none; max-height: 300px; overflow-y: auto;"></div>
+                <button type="submit" class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2">
+                    <i class="fas fa-search text-muted"></i>
+                </button>
+            </div>
+            <a href="{% url 'inventory_frontend:create' %}" class="btn btn-success">
+                <i class="fas fa-plus"></i>
+            </a>
+            <div class="btn-group" role="group">
+                <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-cog"></i>
                 </a>
-                <div class="flex-grow-1 position-relative">
-                    <input type="text" name="q" id="search-input" class="form-control"
-                           placeholder="{% translate 'Search assets...' %}"
-                           value="{{ request.GET.q|default:'' }}"
-                           autocomplete="off">
-                    <div id="autocomplete-suggestions" class="position-absolute w-100 mt-1 bg-white border rounded shadow-lg" style="z-index: 1000; display: none; max-height: 400px; overflow-y: auto;"></div>
-                    <button type="submit" class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2">
-                        <i class="fas fa-search text-muted"></i>
+                <button type="button" class="btn btn-outline-secondary customer-mode-toggle" title="{% translate 'Toggle Customer Mode' %}">
+                    <i class="fas fa-user-tie"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Desktop Search Header -->
+    <div class="d-none d-lg-block py-4">
+        <form action="{% url 'inventory_frontend:list' %}" method="get" class="d-flex gap-3 align-items-center">
+            <a href="{% url 'inventory_frontend:search' %}">
+                <img src="{% static 'img/logo.png' %}" alt="Logo" class="img-fluid" style="max-height: 38px;">
+            </a>
+            <div class="flex-grow-1 position-relative">
+                <input type="text" name="q" id="search-input" class="form-control"
+                       placeholder="{% translate 'Search...' %}"
+                       value="{{ request.GET.q|default:'' }}"
+                       autocomplete="off">
+                <div id="autocomplete-suggestions" class="position-absolute w-100 mt-1 bg-white border rounded shadow-lg" style="z-index: 1000; display: none; max-height: 400px; overflow-y: auto;"></div>
+                <button type="submit" class="btn btn-link position-absolute top-50 end-0 translate-middle-y me-2">
+                    <i class="fas fa-search text-muted"></i>
+                </button>
+            </div>
+            <a href="{% url 'inventory_frontend:create' %}" class="btn btn-success">
+                <i class="fas fa-plus me-2"></i>{% translate "New" %}
+            </a>
+            <div class="btn-group" role="group">
+                <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-cog"></i>
+                </a>
+                <button type="button" class="btn btn-outline-secondary customer-mode-toggle" title="{% translate 'Toggle Customer Mode' %}">
+                    <i class="fas fa-user-tie"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Mobile Filter Toggle Row -->
+    <div class="row mb-2 d-md-none">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <button class="btn btn-outline-secondary" type="button" onclick="toggleFilters()">
+                    <i class="fas fa-filter me-2"></i>{% translate "Filters" %}
+                </button>
+                <div class="btn-group" role="group">
+                    <button type="button" id="grid-view-btn-mobile" class="btn btn-outline-primary active">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <button type="button" id="list-view-btn-mobile" class="btn btn-outline-primary">
+                        <i class="fas fa-list"></i>
                     </button>
                 </div>
-                <a href="{% url 'inventory_frontend:create' %}" class="btn btn-success">
-                    <i class="fas fa-plus me-2"></i>{% translate "New" %}
-                </a>
-                <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
-                    <i class="fas fa-cog me-2"></i>{% translate "Admin" %}
-                </a>
-            </form>
+            </div>
         </div>
     </div>
 
-    <!-- Filters -->
-    <div class="row mb-4">
+    <!-- Filters and Controls Row -->
+    <div class="row mb-2">
         <div class="col">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <!-- Filter Form -->
-                <div class="collapse d-md-block flex-grow-1" id="filter-collapse">
-                    <form method="get" id="filter-form" class="d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
+            <div class="d-flex justify-content-between align-items-center gap-3">
+                <!-- Single Filter Form (responsive) -->
+                <form method="get" id="filter-collapse" class="d-md-flex flex-wrap gap-2 flex-grow-1 mb-4">
                     <!-- Preserve search query -->
                     {% if request.GET.q %}
                         <input type="hidden" name="q" value="{{ request.GET.q }}">
@@ -58,7 +109,7 @@
 
                     <!-- Category Multi-Select -->
                     <div class="dropdown">
-                        <button class="btn btn-outline-primary dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" style="min-width: 150px;">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             {% translate "Categories" %}
                             {% if current_filters.categories %}
                                 <span class="badge bg-primary ms-1">{{ current_filters.categories|length }}</span>
@@ -79,9 +130,37 @@
                         </div>
                     </div>
 
+                    <!-- Size Multi-Select -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            {% translate "Sizes" %}
+                            {% if current_filters.sizes %}
+                                <span class="badge bg-primary ms-1">{{ current_filters.sizes|length }}</span>
+                            {% endif %}
+                        </button>
+                        <div class="dropdown-menu p-2" style="width: 200px; max-height: 300px; overflow-y: auto;">
+                            {% for size in sizes %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="size" value="{{ size.id }}" 
+                                           id="size-{{ size.id }}" 
+                                           {% if size.id|stringformat:"s" in current_filters.sizes %}checked{% endif %}
+                                           onchange="updateFilters()">
+                                    <label class="form-check-label" for="size-{{ size.id }}">
+                                        {{ size.name }} ({{ size.asset_count }})
+                                    </label>
+                                </div>
+                            {% endfor %}
+                            {% if not sizes %}
+                                <div class="text-muted small text-center py-2">
+                                    <em>{% translate "No sizes available" %}</em>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
                     <!-- Location Multi-Select -->
                     <div class="dropdown">
-                        <button class="btn btn-outline-primary dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" style="min-width: 150px;">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             {% translate "Locations" %}
                             {% if current_filters.locations %}
                                 <span class="badge bg-primary ms-1">{{ current_filters.locations|length }}</span>
@@ -125,7 +204,7 @@
 
                     <!-- Collection Multi-Select -->
                     <div class="dropdown">
-                        <button class="btn btn-outline-primary dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" style="min-width: 150px;">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             {% translate "Collections" %}
                             {% if current_filters.collections %}
                                 <span class="badge bg-primary ms-1">{{ current_filters.collections|length }}</span>
@@ -148,7 +227,7 @@
 
                     <!-- Status Multi-Select -->
                     <div class="dropdown">
-                        <button class="btn btn-outline-primary dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" style="min-width: 150px;">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             {% translate "Status" %}
                             {% if current_filters.statuses %}
                                 <span class="badge bg-primary ms-1">{{ current_filters.statuses|length }}</span>
@@ -179,7 +258,7 @@
 
                     <!-- Price Range -->
                     <div class="dropdown">
-                        <button class="btn btn-outline-primary dropdown-toggle rounded-pill d-flex align-items-center gap-2" data-bs-toggle="dropdown" style="min-width: 200px;">
+                        <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown">
                             <span class="value-display">
                                 {% translate "Price" %}: €{{ request.GET.min_value|default:"0"|floatformat:0|localize }} - €{{ request.GET.max_value|default:"10000"|floatformat:0|localize }}
                             </span>
@@ -202,7 +281,7 @@
 
                     <!-- Properties Filter -->
                     <div class="dropdown">
-                        <button class="btn btn-outline-primary dropdown-toggle rounded-pill" type="button" data-bs-toggle="dropdown" style="min-width: 150px;">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                             {% translate "Properties" %}
                             {% if current_filters.property_count > 0 %}
                                 <span class="badge bg-primary ms-1">{{ current_filters.property_count }}</span>
@@ -298,34 +377,59 @@
                         </div>
                     </div>
 
-                    <!-- Clear Filters -->
-                    <a href="{% url 'inventory_frontend:list' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}" class="btn btn-outline-secondary rounded-pill">
-                        <i class="fas fa-times"></i> {% translate "Clear" %}
-                    </a>
-                    
-                    </form>
-                </div>
-                
-                <!-- View Toggle and Mobile Filter Toggle -->
-                <div class="d-flex align-items-center gap-2">
-                    <!-- View Toggle -->
-                    <div class="btn-group" role="group">
-                        <button type="button" id="grid-view-btn" class="btn btn-outline-primary active">
-                            <i class="fas fa-th-large"></i><span class="d-none d-md-inline ms-1">{% translate "Grid" %}</span>
-                        </button>
-                        <button type="button" id="list-view-btn" class="btn btn-outline-primary">
-                            <i class="fas fa-list"></i><span class="d-none d-md-inline ms-1">{% translate "List" %}</span>
-                        </button>
-                    </div>
-                    
-                    <!-- Mobile Filter Toggle -->
-                    <button class="btn btn-outline-secondary d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#filter-collapse">
-                        <i class="fas fa-filter"></i>
+                    <!-- Clear Filters (only show if filters are active) -->
+                    {% if current_filters.categories or current_filters.sizes or current_filters.locations or current_filters.collections or current_filters.statuses or current_filters.min_value or current_filters.max_value or current_filters.property_count > 0 %}
+                        <a href="{% url 'inventory_frontend:list' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times"></i> {% translate "Clear" %}
+                        </a>
+                    {% endif %}
+                </form>
+
+                <!-- View Toggle -->
+                <div class="btn-group d-none d-md-flex mb-4" role="group">
+                    <button type="button" id="grid-view-btn" class="btn btn-outline-primary active">
+                        <i class="fas fa-th-large"></i><span class="ms-1">{% translate "Grid" %}</span>
+                    </button>
+                    <button type="button" id="list-view-btn" class="btn btn-outline-primary">
+                        <i class="fas fa-list"></i><span class="ms-1">{% translate "List" %}</span>
                     </button>
                 </div>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block extrastyle %}
+<style>
+    /* Always use flex layout for filter form */
+    #filter-collapse {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        transition: height 0.3s ease;
+    }
+    
+    /* Only hide overflow during animation on mobile */
+    @media (max-width: 767.98px) {
+        #filter-collapse.animating {
+            overflow: hidden;
+        }
+    }
+    
+    /* On desktop, always show */
+    @media (min-width: 768px) {
+        #filter-collapse {
+            display: flex !important;
+            height: auto !important;
+        }
+    }
+    
+    /* Mobile hidden state - applied by JavaScript after initialization */
+    #filter-collapse.mobile-hidden {
+        display: none;
+        height: 0;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -402,7 +506,7 @@
                                         </div>
                                     </div>
                                     <div class="mt-auto d-flex justify-content-between align-items-end">
-                                        <div class="text-muted purchase-price" style="font-size: 0.75rem;">
+                                        <div class="text-muted purchase-price customer-mode-hide" style="font-size: 0.75rem;">
                                             {% translate "Created" %}:<br>{{ asset.created_at|date:"d-m-Y" }}
                                         </div>
                                         <div>
@@ -451,7 +555,7 @@
                             {% endfor %}
                             <th class="purchase-price">{% translate "Purchase Price" %}</th>
                             <th>{% translate "Listing Price" %}</th>
-                            <th class="purchase-price">{% translate "Created" %}</th>
+                            <th class="purchase-price customer-mode-hide">{% translate "Created" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -462,7 +566,7 @@
                                         <img src="{% if asset.attachments.first %}{{ asset.attachments.first.attachment.url }}{% else %}{% static 'img/page.jpg' %}{% endif %}"
                                              alt="Asset thumbnail"
                                              class="img-thumbnail"
-                                             style="width: 50px; height: 50px; object-fit: cover;">
+                                             style="width: 64px; height: 64px; object-fit: cover;">
                                         {% if asset.attachments.count > 1 %}
                                             <span class="position-absolute bottom-0 end-0 badge bg-dark bg-opacity-75 text-white" 
                                                   style="font-size: 0.5rem; border-radius: 0.2rem; margin: 2px;">
@@ -516,7 +620,7 @@
                                 {% endfor %}
                                 <td class="purchase-price">€{{ asset.purchase_value|default:0|floatformat:0 }}</td>
                                 <td><strong>€{{ asset.listing_price|default:0|floatformat:0 }}</strong></td>
-                                <td class="purchase-price">
+                                <td class="purchase-price customer-mode-hide">
                                     <small>{{ asset.created_at|date:"d-m-Y" }}</small>
                                 </td>
                             </tr>
@@ -613,34 +717,89 @@
 <script>
 console.log('List.html JavaScript loading...');
 
+// Initialize mobile filter visibility
+function initializeMobileFilters() {
+    const form = document.getElementById('filter-collapse');
+    if (!form) return;
+    
+    // On mobile, hide the form after Bootstrap initialization
+    if (window.innerWidth < 768) {
+        form.classList.add('mobile-hidden');
+    }
+}
+
+// Custom filter toggle function
+function toggleFilters() {
+    const form = document.getElementById('filter-collapse');
+    if (!form) return;
+    
+    const isHidden = form.classList.contains('mobile-hidden') || 
+                     form.style.height === '0px' || 
+                     form.style.display === 'none';
+    
+    if (isHidden) {
+        // Show: remove hidden class and animate
+        form.classList.remove('mobile-hidden');
+        form.classList.add('animating');
+        form.style.display = 'flex';
+        form.style.height = '0px';
+        
+        // Get the natural height
+        const scrollHeight = form.scrollHeight;
+        
+        // Trigger reflow then animate
+        requestAnimationFrame(() => {
+            form.style.height = scrollHeight + 'px';
+        });
+        
+        // Reset height to auto after animation
+        setTimeout(() => {
+            form.style.height = 'auto';
+            form.classList.remove('animating');
+        }, 300);
+    } else {
+        // Hide: set explicit height, then animate to 0
+        form.classList.add('animating');
+        form.style.height = form.offsetHeight + 'px';
+        
+        requestAnimationFrame(() => {
+            form.style.height = '0px';
+        });
+        
+        // Hide completely after animation
+        setTimeout(() => {
+            form.style.display = 'none';
+            form.classList.add('mobile-hidden');
+            form.classList.remove('animating');
+        }, 300);
+    }
+}
+
 // Make sure updateFilters is available immediately
 function updateFilters() {
-    const form = document.getElementById('filter-form');
+    const form = document.getElementById('filter-collapse');
     if (!form) {
-        console.error('filter-form not found');
+        console.error('filter-collapse not found');
         return;
     }
     
-    // Clean up hidden property filter inputs to ensure only current values are sent
+    // Clean up and submit form
     const hiddenPropertyInputs = form.querySelectorAll('input[type="hidden"]');
     hiddenPropertyInputs.forEach(input => {
-        // Remove hidden inputs for property slugs (but keep search query)
         if (input.name !== 'q' && input.name !== 'csrfmiddlewaretoken') {
             input.remove();
         }
     });
     
-    // Remove empty form inputs to clean up URL parameters
     const formInputs = form.querySelectorAll('input, select');
     formInputs.forEach(input => {
-        if (input.type === 'hidden') return; // Skip hidden inputs
+        if (input.type === 'hidden') return;
         
         if (input.type === 'checkbox' && !input.checked) {
             input.disabled = true;
         } else if (input.type !== 'checkbox' && input.type !== 'range' && (!input.value || input.value.trim() === '')) {
             input.disabled = true;
         } else if (input.type === 'range') {
-            // Disable range inputs with default values
             if ((input.name === 'min_value' && input.value === '0') ||
                 (input.name === 'max_value' && input.value === '10000')) {
                 input.disabled = true;
@@ -766,6 +925,7 @@ function toggleLocationGroup(groupId) {
  * Initialize page functionality
  */
 document.addEventListener('DOMContentLoaded', function() {
+    initializeMobileFilters();
     initializeViewToggle();
     initializeMultiSelectFilters();
     initializePriceRangeSliders();
@@ -781,36 +941,92 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeViewToggle() {
     const gridViewBtn = document.getElementById('grid-view-btn');
     const listViewBtn = document.getElementById('list-view-btn');
+    const gridViewBtnMobile = document.getElementById('grid-view-btn-mobile');
+    const listViewBtnMobile = document.getElementById('list-view-btn-mobile');
     const gridView = document.getElementById('grid-view');
     const tableView = document.getElementById('table-view');
 
-    if (!gridViewBtn || !listViewBtn || !gridView || !tableView) {
-        console.warn('View toggle elements not found');
+    if (!gridView || !tableView) {
+        console.warn('View elements not found');
         return;
     }
 
-    gridViewBtn.addEventListener('click', function(e) {
-        e.preventDefault();
+    function switchToGridView() {
         gridView.classList.remove('d-none');
         tableView.classList.add('d-none');
-        gridViewBtn.classList.add('active');
-        listViewBtn.classList.remove('active');
+        
+        // Update both desktop and mobile buttons
+        if (gridViewBtn) {
+            gridViewBtn.classList.add('active');
+        }
+        if (listViewBtn) {
+            listViewBtn.classList.remove('active');
+        }
+        if (gridViewBtnMobile) {
+            gridViewBtnMobile.classList.add('active');
+        }
+        if (listViewBtnMobile) {
+            listViewBtnMobile.classList.remove('active');
+        }
+        
         localStorage.setItem('preferred-view', 'grid');
-    });
+    }
 
-    listViewBtn.addEventListener('click', function(e) {
-        e.preventDefault();
+    function switchToListView() {
         gridView.classList.add('d-none');
         tableView.classList.remove('d-none');
-        listViewBtn.classList.add('active');
-        gridViewBtn.classList.remove('active');
+        
+        // Update both desktop and mobile buttons
+        if (gridViewBtn) {
+            gridViewBtn.classList.remove('active');
+        }
+        if (listViewBtn) {
+            listViewBtn.classList.add('active');
+        }
+        if (gridViewBtnMobile) {
+            gridViewBtnMobile.classList.remove('active');
+        }
+        if (listViewBtnMobile) {
+            listViewBtnMobile.classList.add('active');
+        }
+        
         localStorage.setItem('preferred-view', 'table');
-    });
+    }
+
+    // Add event listeners for desktop buttons
+    if (gridViewBtn) {
+        gridViewBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchToGridView();
+        });
+    }
+
+    if (listViewBtn) {
+        listViewBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchToListView();
+        });
+    }
+
+    // Add event listeners for mobile buttons
+    if (gridViewBtnMobile) {
+        gridViewBtnMobile.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchToGridView();
+        });
+    }
+
+    if (listViewBtnMobile) {
+        listViewBtnMobile.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchToListView();
+        });
+    }
 
     // Restore preferred view
     const preferredView = localStorage.getItem('preferred-view');
     if (preferredView === 'table') {
-        listViewBtn.click();
+        switchToListView();
     }
 }
 
@@ -851,7 +1067,7 @@ function initializePriceRangeSliders() {
     }
 
     function updateForm() {
-        const form = document.getElementById('filter-form');
+        const form = document.getElementById('filter-collapse');
         if (form) {
             form.submit();
         }

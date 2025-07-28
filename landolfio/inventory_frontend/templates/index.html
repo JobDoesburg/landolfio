@@ -35,16 +35,22 @@
         <!-- Categories -->
         <div class="mb-3">
             <div class="text-center mb-2">
-                <small class="text-muted">
+                <small class="text-muted text-uppercase">
                     {% translate "Categories" %}
                 </small>
             </div>
             <div class="d-flex flex-wrap gap-2 justify-content-center">
                 {% for category in categories %}
-                    <a href="{% url 'inventory_frontend:list' %}?category={{ category.id }}" class="btn btn-outline-primary rounded-pill">
-                        {{ category.name }}
-                        <span class="badge bg-primary ms-1">{{ category.asset_count }}</span>
-                    </a>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'inventory_frontend:list' %}?category={{ category.id }}" class="btn btn-outline-primary">
+                            {{ category.name }}
+                        </a>
+                        {% for size_data in category.sizes_with_counts %}
+                            <a href="{% url 'inventory_frontend:list' %}?category={{ category.id }}&size={{ size_data.size.id }}" class="btn btn-outline-secondary">
+                                {{ size_data.size.name }}
+                            </a>
+                        {% endfor %}
+                    </div>
                 {% endfor %}
             </div>
         </div>
@@ -52,15 +58,14 @@
         <!-- Locations -->
         <div class="mb-3">
             <div class="text-center mb-2">
-                <small class="text-muted">
+                <small class="text-muted text-uppercase">
                     {% translate "Locations" %}
                 </small>
             </div>
             <div class="d-flex flex-wrap gap-2 justify-content-center">
-                {% for location in locations|slice:":5" %}
-                    <a href="{% url 'inventory_frontend:list' %}?location={{ location.id }}" class="btn btn-outline-primary rounded-pill">
+                {% for location in locations %}
+                    <a href="{% url 'inventory_frontend:list' %}?location={{ location.id }}" class="btn btn-outline-primary">
                         {{ location.name }}
-                        <span class="badge bg-primary ms-1">{{ location.asset_count }}</span>
                     </a>
                 {% endfor %}
             </div>
@@ -69,15 +74,14 @@
         <!-- Collections -->
         <div class="mb-3">
             <div class="text-center mb-2">
-                <small class="text-muted">
+                <small class="text-muted text-uppercase">
                     {% translate "Collections" %}
                 </small>
             </div>
             <div class="d-flex flex-wrap gap-2 justify-content-center">
-                {% for collection in collections|slice:":5" %}
-                    <a href="{% url 'inventory_frontend:list' %}?collection={{ collection.id }}" class="btn btn-outline-primary rounded-pill">
+                {% for collection in collections %}
+                    <a href="{% url 'inventory_frontend:list' %}?collection={{ collection.id }}" class="btn btn-outline-primary">
                         {{ collection.name }}
-                        <span class="badge bg-primary ms-1">{{ collection.asset_count }}</span>
                     </a>
                 {% endfor %}
             </div>
