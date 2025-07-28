@@ -33,33 +33,54 @@
         <p class="text-muted text-center mb-3">{% translate "Or immediately go to..." %}</p>
 
         <!-- Categories -->
-        <div class="d-flex flex-wrap gap-2 justify-content-center mb-3">
-            {% for category in categories %}
-                <a href="{% url 'inventory_frontend:list' %}?category={{ category.id }}" class="btn btn-outline-primary rounded-pill">
-                    {{ category.name }}
-                    <span class="badge bg-primary ms-1">{{ category.asset_count }}</span>
-                </a>
-            {% endfor %}
+        <div class="mb-3">
+            <div class="text-center mb-2">
+                <small class="text-muted">
+                    {% translate "Categories" %}
+                </small>
+            </div>
+            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                {% for category in categories %}
+                    <a href="{% url 'inventory_frontend:list' %}?category={{ category.id }}" class="btn btn-outline-primary rounded-pill">
+                        {{ category.name }}
+                        <span class="badge bg-primary ms-1">{{ category.asset_count }}</span>
+                    </a>
+                {% endfor %}
+            </div>
         </div>
 
         <!-- Locations -->
-        <div class="d-flex flex-wrap gap-2 justify-content-center mb-3">
-            {% for location in locations|slice:":5" %}
-                <a href="{% url 'inventory_frontend:list' %}?location={{ location.id }}" class="btn btn-outline-primary rounded-pill">
-                    {{ location.name }}
-                    <span class="badge bg-primary ms-1">{{ location.asset_count }}</span>
-                </a>
-            {% endfor %}
+        <div class="mb-3">
+            <div class="text-center mb-2">
+                <small class="text-muted">
+                    {% translate "Locations" %}
+                </small>
+            </div>
+            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                {% for location in locations|slice:":5" %}
+                    <a href="{% url 'inventory_frontend:list' %}?location={{ location.id }}" class="btn btn-outline-primary rounded-pill">
+                        {{ location.name }}
+                        <span class="badge bg-primary ms-1">{{ location.asset_count }}</span>
+                    </a>
+                {% endfor %}
+            </div>
         </div>
 
         <!-- Collections -->
-        <div class="d-flex flex-wrap gap-2 justify-content-center mb-3">
-            {% for collection in collections|slice:":5" %}
-                <a href="{% url 'inventory_frontend:list' %}?collection={{ collection.id }}" class="btn btn-outline-primary rounded-pill">
-                    {{ collection.name }}
-                    <span class="badge bg-primary ms-1">{{ collection.asset_count }}</span>
-                </a>
-            {% endfor %}
+        <div class="mb-3">
+            <div class="text-center mb-2">
+                <small class="text-muted">
+                    {% translate "Collections" %}
+                </small>
+            </div>
+            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                {% for collection in collections|slice:":5" %}
+                    <a href="{% url 'inventory_frontend:list' %}?collection={{ collection.id }}" class="btn btn-outline-primary rounded-pill">
+                        {{ collection.name }}
+                        <span class="badge bg-primary ms-1">{{ collection.asset_count }}</span>
+                    </a>
+                {% endfor %}
+            </div>
         </div>
     </form>
 {% endblock %}
