@@ -48,24 +48,25 @@ class AssetSearchView(LoginRequiredMixin, TemplateView):
 
         # Get categories with counts and their sizes
         from inventory.models.category import Size
-        categories = Category.objects.annotate(
-            asset_count=Count("asset")
-        ).order_by("-asset_count").prefetch_related('size_set')
-        
+
+        categories = (
+            Category.objects.annotate(asset_count=Count("asset"))
+            .order_by("-asset_count")
+            .prefetch_related("size_set")
+        )
+
         # Add size information with asset counts for each category
         for category in categories:
             category.sizes_with_counts = []
-            for size in category.size_set.all().order_by('order', 'name'):
+            for size in category.size_set.all().order_by("order", "name"):
                 size_asset_count = Asset.objects.filter(
-                    category=category, 
-                    size=size
+                    category=category, size=size
                 ).count()
                 if size_asset_count > 0:  # Only include sizes that have assets
-                    category.sizes_with_counts.append({
-                        'size': size,
-                        'asset_count': size_asset_count
-                    })
-        
+                    category.sizes_with_counts.append(
+                        {"size": size, "asset_count": size_asset_count}
+                    )
+
         context["categories"] = categories
 
         # Get locations with counts
@@ -417,9 +418,10 @@ class AssetListView(LoginRequiredMixin, ListView):
 
         # Get sizes with counts
         from inventory.models.category import Size
-        context["sizes"] = Size.objects.annotate(
-            asset_count=Count("asset")
-        ).order_by("order", "name")
+
+        context["sizes"] = Size.objects.annotate(asset_count=Count("asset")).order_by(
+            "order", "name"
+        )
 
         # Get locations grouped by location group with counts
         from inventory.models.location import LocationGroup
