@@ -9,6 +9,8 @@ from .views import (
     AssetUpdateView,
     AssetAutocompleteView,
     PropertyValueAutocompleteView,
+    AttachmentDeleteView,
+    AttachmentReorderView,
 )
 
 app_name = "inventory_frontend"
@@ -27,4 +29,14 @@ urlpatterns = [
     path("create/", AssetCreateView.as_view(), name="create"),
     path("asset/<uuid:pk>/update/", AssetUpdateView.as_view(), name="update"),
     path("asset/<uuid:pk>/delete/", AssetDeleteView.as_view(), name="delete"),
+    path(
+        "<uuid:asset_pk>/attachment/<int:attachment_pk>/delete/",
+        AttachmentDeleteView.as_view(),
+        name="attachment_delete",
+    ),
+    path(
+        "<uuid:asset_pk>/attachments/reorder/",
+        AttachmentReorderView.as_view(),
+        name="attachment_reorder",
+    ),
 ]

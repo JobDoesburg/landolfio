@@ -411,16 +411,27 @@
                         </div>
                         <div class="card-body">
                             {% if asset.attachments.exists %}
-                                <div class="row g-3 mb-4">
+                                <div class="row g-3 mb-4" id="attachments-gallery">
                                     {% for photo in asset.attachments.all %}
-                                        <div class="col-6 col-md-4 col-lg-3">
-                                            <div class="position-relative" style="aspect-ratio: 1;">
+                                        <div class="col-6 col-md-4 col-lg-3" data-attachment-id="{{ photo.pk }}">
+                                            <div class="position-relative attachment-item" style="aspect-ratio: 1;">
                                                 <img src="{{ photo.attachment.url }}"
                                                      data-fancybox="gallery"
                                                      data-caption="{{ photo.upload_date}} · {{ photo.attachment.name }}"
                                                      alt="{{ photo.attachment.name }}"
                                                      class="img-fluid rounded w-100 h-100"
                                                      style="object-fit: cover; cursor: pointer;"/>
+                                                <div class="attachment-controls position-absolute top-0 end-0 p-2">
+                                                    <button class="btn btn-sm btn-danger delete-attachment-btn" 
+                                                            data-attachment-id="{{ photo.pk }}"
+                                                            title="{% translate 'Delete attachment' %}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="drag-handle position-absolute top-0 start-0 p-2" 
+                                                     title="{% translate 'Drag to reorder' %}">
+                                                    <i class="fas fa-grip-vertical text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);"></i>
+                                                </div>
                                             </div>
                                         </div>
                                     {% endfor %}
@@ -668,6 +679,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"/>
 
     <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 {% endblock %}
 
 {% block extrastyle %}
@@ -716,6 +728,45 @@
         }
         .filepond--credits {
             display: none;
+        }
+        
+        .attachment-item {
+            transition: transform 0.2s ease;
+        }
+        
+        .attachment-item:hover {
+            transform: scale(1.02);
+        }
+        
+        .attachment-controls {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+        
+        .attachment-item:hover .attachment-controls {
+            opacity: 1;
+        }
+        
+        .drag-handle {
+            opacity: 0.7;
+            cursor: grab;
+            transition: opacity 0.2s ease;
+        }
+        
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        
+        .attachment-item:hover .drag-handle {
+            opacity: 1;
+        }
+        
+        .sortable-ghost {
+            opacity: 0.5;
+        }
+        
+        .sortable-drag {
+            transform: rotate(5deg);
         }
     </style>
 {% endblock %}
@@ -860,6 +911,162 @@
                     labelButtonProcessItem: "{% translate 'Upload' %}",
                 });
             }
+        });
+        
+        // Attachment Management Functions
+        function initAttachmentFeatures() {
+            // Initialize drag-and-drop reordering
+            const galleryElement = document.getElementById('attachments-gallery');
+            if (galleryElement) {
+                new Sortable(galleryElement, {
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    dragClass: 'sortable-drag',
+                    handle: '.drag-handle',
+                    onEnd: function(evt) {
+                        const attachmentIds = Array.from(galleryElement.children).map(item => 
+                            item.getAttribute('data-attachment-id')
+                        );
+                        updateAttachmentOrder(attachmentIds);
+                    }
+                });
+            }
+            
+            // Initialize delete buttons
+            const deleteButtons = document.querySelectorAll('.delete-attachment-btn');
+            deleteButtons.forEach(button => {
+                button.removeEventListener('click', handleDeleteClick);
+                button.addEventListener('click', handleDeleteClick);
+            });
+        }
+        
+        function handleDeleteClick(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const attachmentId = this.getAttribute('data-attachment-id');
+            if (confirm('{% translate "Are you sure you want to delete this attachment?" %}')) {
+                deleteAttachment(attachmentId);
+            }
+        }
+        
+        function updateAttachmentOrder(attachmentIds) {
+            const csrfToken = getCsrfToken();
+            if (!csrfToken) return;
+            
+            fetch('{% url "inventory_frontend:attachment_reorder" asset.pk %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+                body: JSON.stringify({
+                    attachment_ids: attachmentIds
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success) {
+                    location.reload();
+                }
+            })
+            .catch(() => location.reload());
+        }
+        
+        function deleteAttachment(attachmentId) {
+            const csrfToken = getCsrfToken();
+            if (!csrfToken) return;
+            
+            const deleteUrl = `{% url "inventory_frontend:attachment_delete" asset.pk 0 %}`.replace('0', attachmentId);
+            
+            fetch(deleteUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const attachmentElement = document.querySelector(`[data-attachment-id="${attachmentId}"]`);
+                    if (attachmentElement) {
+                        attachmentElement.remove();
+                    }
+                    
+                    const gallery = document.getElementById('attachments-gallery');
+                    if (gallery && gallery.children.length === 0) {
+                        location.reload();
+                    }
+                } else {
+                    alert('{% translate "Error deleting attachment. Please try again." %}');
+                }
+            })
+            .catch(() => {
+                alert('{% translate "Error deleting attachment. Please try again." %}');
+            });
+        }
+        
+        function getCsrfToken() {
+            const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfInput) return csrfInput.value;
+            
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                const [name, value] = cookie.trim().split('=');
+                if (name === 'csrftoken') return value;
+            }
+            
+            const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+            if (csrfMeta) return csrfMeta.getAttribute('content');
+            
+            return null;
+        }
+        
+        // Tab Memory Management
+        function initTabMemory() {
+            const tabs = document.querySelectorAll('#assetTabs .nav-link');
+            const tabContents = document.querySelectorAll('.tab-pane');
+            
+            // Get saved tab from localStorage, default to 'overview'
+            const savedTab = localStorage.getItem('assetDetailActiveTab') || 'overview';
+            
+            // Set active tab based on saved preference
+            tabs.forEach(tab => {
+                const targetId = tab.getAttribute('href').substring(1);
+                if (targetId === savedTab) {
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(tc => tc.classList.remove('show', 'active'));
+                    
+                    // Add active class to current tab and content
+                    tab.classList.add('active');
+                    const targetContent = document.getElementById(targetId);
+                    if (targetContent) {
+                        targetContent.classList.add('show', 'active');
+                    }
+                }
+            });
+            
+            // Save tab selection when clicked
+            tabs.forEach(tab => {
+                tab.addEventListener('shown.bs.tab', function() {
+                    const targetId = this.getAttribute('href').substring(1);
+                    localStorage.setItem('assetDetailActiveTab', targetId);
+                    
+                    // Reinitialize attachment features when attachments tab is shown
+                    if (targetId === 'attachments') {
+                        setTimeout(initAttachmentFeatures, 100);
+                    }
+                });
+            });
+        }
+        
+        // Initialize attachment functionality
+        setTimeout(initAttachmentFeatures, 500);
+        
+        // Initialize tab memory and attachment features
+        document.addEventListener('DOMContentLoaded', function() {
+            initTabMemory();
         });
     </script>
     

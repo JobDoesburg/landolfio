@@ -25,6 +25,11 @@ class Attachment(models.Model):
     upload_date = models.DateField(
         auto_now_add=True, verbose_name=_("upload date"), max_length=255
     )
+    order = models.PositiveIntegerField(
+        default=0,
+        verbose_name=_("order"),
+        help_text=_("Order in which attachments are displayed"),
+    )
 
     def __str__(self):
         return f"{self.attachment} {_('from')} {self.asset}"
@@ -32,7 +37,7 @@ class Attachment(models.Model):
     class Meta:
         verbose_name = _("attachment")
         verbose_name_plural = _("attachments")
-        ordering = ["upload_date"]
+        ordering = ["order", "upload_date"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

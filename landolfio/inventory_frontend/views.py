@@ -1,12 +1,13 @@
 from django.contrib import messages
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.views.generic import ListView, DetailView, CreateView
-from django.db.models import Q
+from django.db.models import Q, Max
 from django.http import JsonResponse
 from django_drf_filepond.api import store_upload
 from django_drf_filepond.models import TemporaryUpload
 from django.views import View
+import json
 
 from inventory.models.asset import Asset, AssetStates
 from inventory.models.asset_on_document_line import AssetOnJournalDocumentLine
@@ -684,6 +685,44 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
 
             return redirect(request.path)
 
+        # Handle file uploads
+        try:
+            filepond_ids = data.getlist("filepond")
+        except KeyError:
+            filepond_ids = []
+
+        if not isinstance(filepond_ids, list):
+            filepond_ids = []
+
+        stored_uploads = []
+        for upload_id in filepond_ids:
+            if upload_id == "":
+                continue
+
+            try:
+                tu = TemporaryUpload.objects.get(upload_id=upload_id)
+            except TemporaryUpload.DoesNotExist:
+                messages.error(request, f"Upload with id {upload_id} does not exist")
+                continue
+
+            # Get the next order value for this asset
+            max_order = asset.attachments.aggregate(Max("order"))["order__max"] or 0
+
+            attachment = Attachment(asset=asset, order=max_order + 1)
+            stored_upload = store_upload(
+                upload_id, attachments_directory_path(attachment, tu.upload_name)
+            )
+            attachment.attachment = stored_upload.file
+            attachment.save()
+            stored_uploads.append(upload_id)
+
+        if stored_uploads:
+            messages.success(
+                request, f"Successfully uploaded {len(stored_uploads)} files"
+            )
+
+        return redirect(request.path)
+
     def _update_asset_properties(self, asset, data):
         """Update asset property values from form data."""
         updated_properties = []
@@ -725,41 +764,6 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
             return [f"{prop.name} (cleared)"]
         except AssetPropertyValue.DoesNotExist:
             return []
-
-        # Handle file uploads
-        try:
-            filepond_ids = data.getlist("filepond")
-        except KeyError:
-            filepond_ids = []
-
-        if not isinstance(filepond_ids, list):
-            filepond_ids = []
-
-        stored_uploads = []
-        for upload_id in filepond_ids:
-            if upload_id == "":
-                continue
-
-            try:
-                tu = TemporaryUpload.objects.get(upload_id=upload_id)
-            except TemporaryUpload.DoesNotExist:
-                messages.error(request, f"Upload with id {upload_id} does not exist")
-                continue
-
-            attachment = Attachment(asset=asset)
-            stored_upload = store_upload(
-                upload_id, attachments_directory_path(attachment, tu.upload_name)
-            )
-            attachment.attachment = stored_upload.file
-            attachment.save()
-            stored_uploads.append(upload_id)
-
-        if stored_uploads:
-            messages.success(
-                request, f"Successfully uploaded {len(stored_uploads)} files"
-            )
-
-        return redirect(request.path)
 
 
 class AssetCreateView(LoginRequiredMixin, CreateView):
@@ -869,3 +873,41 @@ class PropertyValueAutocompleteView(LoginRequiredMixin, View):
         suggestions = [{"value": value} for value in values if value]
 
         return JsonResponse(suggestions, safe=False)
+
+
+class AttachmentDeleteView(LoginRequiredMixin, View):
+    def post(self, request, asset_pk, attachment_pk):
+        asset = get_object_or_404(Asset, pk=asset_pk)
+        attachment = get_object_or_404(Attachment, pk=attachment_pk, asset=asset)
+
+        try:
+            attachment.delete()
+            messages.success(request, "Attachment deleted successfully")
+        except Exception as e:
+            messages.error(request, f"Error deleting attachment: {str(e)}")
+
+        return JsonResponse({"success": True})
+
+
+class AttachmentReorderView(LoginRequiredMixin, View):
+    def post(self, request, asset_pk):
+        asset = get_object_or_404(Asset, pk=asset_pk)
+
+        try:
+            data = json.loads(request.body)
+            attachment_ids = data.get("attachment_ids", [])
+
+            # Update the order of each attachment
+            for index, attachment_id in enumerate(attachment_ids):
+                try:
+                    attachment = Attachment.objects.get(pk=attachment_id, asset=asset)
+                    attachment.order = index
+                    attachment.save()
+                except Attachment.DoesNotExist:
+                    continue
+
+            return JsonResponse({"success": True})
+
+        except Exception as e:
+            messages.error(request, f"Error reordering attachments: {str(e)}")
+            return JsonResponse({"success": False, "error": str(e)})

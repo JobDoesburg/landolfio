@@ -16,7 +16,6 @@ urlpatterns = [
     path("scan/", include("scantags.urls")),
     path("new/", include("inventory_frontend.urls")),
     path("admin/", RedirectView.as_view(url="/admin/"), name="admin"),
-    re_path(r"^media/", views.protected_ask_reverse_proxy),
     path("", RedirectView.as_view(url="/new/"), name="home"),
 ]
 urlpatterns += (path("customer/", include("new_customers.urls")),)
@@ -26,6 +25,7 @@ if settings.DEBUG:
     import debug_toolbar
 
     urlpatterns += [path("__debug__/", include(debug_toolbar.urls))]
-    urlpatterns += static(
-        settings.MEDIA_URL, document_root=settings.MEDIA_ROOT
-    )  # Remove the square brackets
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+    # In production, use protected media serving (though we use S3 for media files, so this is not strictly necessary)
+    urlpatterns += [re_path(r"^media/", views.protected_ask_reverse_proxy)]
