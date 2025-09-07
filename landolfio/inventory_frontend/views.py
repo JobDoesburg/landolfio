@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
@@ -785,7 +786,11 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
 
         # Try to create on Moneybird if required fields are present
         asset = self.object
-        if asset.start_date and asset.purchase_value_asset:
+        if (
+            settings.AUTO_CREATE_ASSET_ON_MONEYBIRD
+            and asset.start_date
+            and asset.purchase_value_asset
+        ):
             try:
                 asset.create_on_moneybird()
                 messages.success(

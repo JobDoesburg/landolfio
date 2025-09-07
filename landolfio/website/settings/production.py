@@ -106,3 +106,5 @@ EMAIL_HOST_PASSWORD = os.environ.get("SMTP_PASSWORD", None)
 EMAIL_DEFAULT_SENDER = os.environ.get("SMTP_FROM", None)
 DEFAULT_FROM_EMAIL = os.environ.get("SMTP_FROM_EMAIL", None)
 SERVER_EMAIL = os.environ.get("SMTP_FROM", None)
+
+AUTO_CREATE_ASSET_ON_MONEYBIRD = False
