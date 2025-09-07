@@ -246,11 +246,9 @@ class Asset(models.Model):
     def get_asset_ledger_account_id(self):
         """Get the appropriate ledger account ID based on margin status."""
         if self.is_margin_asset:
-            return getattr(settings, "MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID", None)
+            return str(settings.MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID)
         else:
-            return getattr(
-                settings, "MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID", None
-            )
+            return str(settings.MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID)
 
     def refresh_from_moneybird(self):
         """Refresh asset data from Moneybird API if moneybird_asset_id is set."""
@@ -304,9 +302,7 @@ class Asset(models.Model):
             self.current_value = moneybird_data["current_value"]
 
         if "ledger_account_id" in moneybird_data:
-            margin_account = getattr(
-                settings, "MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID", None
-            )
+            margin_account = settings.MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID
             if margin_account:
                 self.is_margin_asset = str(moneybird_data["ledger_account_id"]) == str(
                     margin_account
@@ -423,7 +419,7 @@ class Asset(models.Model):
             moneybird_data = mb.update_asset(
                 asset_id=self.moneybird_asset_id,
                 name=asset_name,
-                ledger_account_id=int(ledger_account_id) if ledger_account_id else None,
+                ledger_account_id=ledger_account_id if ledger_account_id else None,
                 purchase_date=start_date_str,
                 purchase_value=float(self.purchase_value_asset)
                 if self.purchase_value_asset
