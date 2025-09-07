@@ -128,7 +128,7 @@ class Asset(models.Model):
 
     raw_data = models.JSONField(verbose_name=_("raw data"), null=True, blank=True)
 
-    moneybird_asset_id = models.IntegerField(
+    moneybird_asset_id = models.BigIntegerField(
         verbose_name=_("Moneybird asset ID"),
         null=True,
         blank=True,
@@ -365,7 +365,7 @@ class Asset(models.Model):
 
             moneybird_data = mb.create_asset(
                 name=asset_name,
-                ledger_account_id=ledger_account_id,
+                ledger_account_id=int(ledger_account_id),
                 purchase_value=float(self.purchase_value_asset),
                 start_date=start_date_str,
             )
