@@ -26,7 +26,7 @@
             <i class="fas fa-exclamation-triangle me-2"></i>{% translate "Proceed with Care" %}
         </h6>
         <p class="mb-0">
-            {% translate "Changing asset details may cause invalid accounting records or other inconsistencies. Please ensure any modifications align with your accounting requirements and business processes." %}
+            {% translate "Changing asset details may have unexpected consequences for accounting records. Please ensure any modifications align with your accounting requirements and business processes." %}
         </p>
     </div>
 
@@ -106,7 +106,10 @@
                     <!-- Listing Price -->
                     <div class="col-md-6">
                         <label for="{{ form.listing_price.id_for_label }}" class="form-label">{% translate "Listing Price" %}</label>
-                        {{ form.listing_price }}
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            {{ form.listing_price }}
+                        </div>
                         {% if form.listing_price.errors %}
                             <div class="invalid-feedback d-block">
                                 {{ form.listing_price.errors|join:", " }}
@@ -191,12 +194,62 @@
 </div>
 {% endblock %}
 
-{% block extra_js %}
+{% block body_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Add Bootstrap classes to all form inputs
+    // Status select color functionality (copied from detail page)
+    const statusSelect = document.querySelector('#id_local_status');
+    
+    if (statusSelect) {
+        // Set initial color
+        setStatusColor();
+        
+        // Update color on change
+        statusSelect.addEventListener('change', setStatusColor);
+        
+        function setStatusColor() {
+            const selectedOption = statusSelect.options[statusSelect.selectedIndex];
+            const color = selectedOption.dataset.color ? selectedOption.dataset.color.trim() : '';
+            
+            // Clear all previous Bootstrap background and text color classes
+            statusSelect.className = statusSelect.className.replace(/\bbg-\w+/g, '').replace(/\btext-\w+/g, '').trim();
+            
+            // Ensure form-control and status-select classes remain
+            if (!statusSelect.classList.contains('form-control')) {
+                statusSelect.classList.add('form-control');
+            }
+            if (!statusSelect.classList.contains('status-select')) {
+                statusSelect.classList.add('status-select');
+            }
+            
+            // Add appropriate Bootstrap classes based on status
+            if (color === 'success') {
+                statusSelect.classList.add('bg-success', 'text-white');
+            } else if (color === 'warning') {
+                statusSelect.classList.add('bg-warning', 'text-dark');
+            } else if (color === 'info') {
+                statusSelect.classList.add('bg-info', 'text-white');
+            } else if (color === 'secondary') {
+                statusSelect.classList.add('bg-secondary', 'text-white');
+            } else if (color === 'dark') {
+                statusSelect.classList.add('bg-dark', 'text-white');
+            } else if (color === 'danger') {
+                statusSelect.classList.add('bg-danger', 'text-white');
+            } else if (color === 'primary') {
+                statusSelect.classList.add('bg-primary', 'text-white');
+            } else {
+                // Default styling for unknown status
+                statusSelect.classList.add('bg-light', 'text-dark');
+            }
+        }
+    }
+    
+    // Add Bootstrap classes to all form inputs (after status select processing)
     document.querySelectorAll('input, select').forEach(function(element) {
-        element.classList.add('form-control');
+        // Don't add form-control to checkboxes - they should use form-check-input
+        if (element.type !== 'checkbox' && !element.classList.contains('form-control')) {
+            element.classList.add('form-control');
+        }
     });
 });
 </script>

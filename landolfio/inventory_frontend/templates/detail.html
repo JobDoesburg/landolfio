@@ -1,6 +1,7 @@
 {% extends "page-no-header.html" %}
 {% load static i18n l10n %}
 
+{% block title %}{{ asset.name }} · {% endblock %}
 
 {% block header %}
 <!-- Mobile layout: stacked -->
@@ -416,11 +417,15 @@
                             <td class="form-label small text-muted">{% translate "Purchase Value" %}:</td>
                             <td>€{{ asset.purchase_value_asset|default:0|floatformat:2|localize }}</td>
                         </tr>
+                        {% if asset.collection.commerce %}
+                        <tr class="customer-mode-hide">
+                            <td class="form-label small text-muted">{% translate "Source Documents" %}:</td>
+                            <td>{% if asset.sources_count == 0 %}{% translate "None" %}{% else %}{{ asset.sources_count }}{% endif %}</td>
+                        </tr>
                         <tr class="customer-mode-hide">
                             <td class="form-label small text-muted">{% translate "Current Value" %}:</td>
                             <td>€{{ asset.current_value|default:0|floatformat:2|localize }}</td>
                         </tr>
-                        {% if asset.collection.commerce %}
                         <tr>
                             <td class="form-label small text-muted">{% translate "Margin" %}:</td>
                             <td>
@@ -497,7 +502,7 @@
                     {% endif %}
                     
                     <!-- Save Button -->
-                    <div class="mt-4 pt-3 border-top">
+                    <div class="mt-4 pt-3 text-end">
                         <button type="submit" class="btn btn-success">
                             <i class="fas fa-save me-2"></i>{% translate "Save Changes" %}
                         </button>
@@ -525,7 +530,19 @@
                                         <div class="flex-grow-1">
                                             <p class="mb-1">{{ remark.remark }}</p>
                                         </div>
-                                        <small class="text-muted">{{ remark.date|date:"d-m-Y" }}</small>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <small class="text-muted">{{ remark.date|date:"d-m-Y" }}</small>
+                                            <form method="post" action="{% url 'inventory_frontend:detail' asset.pk %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="delete_remark">
+                                                <input type="hidden" name="remark_id" value="{{ remark.id }}">
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" 
+                                                        onclick="return confirm('{% translate "Are you sure you want to delete this remark?" %}')"
+                                                        title="{% translate 'Delete remark' %}">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             {% endfor %}

@@ -621,6 +621,20 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
                 messages.error(request, "Please enter a remark")
             return redirect(request.path)
 
+        # Handle remark deletion
+        if data.get("action") == "delete_remark":
+            remark_id = data.get("remark_id")
+            if remark_id:
+                try:
+                    remark = Remark.objects.get(id=remark_id, asset=asset)
+                    remark.delete()
+                    messages.success(request, "Remark deleted successfully")
+                except Remark.DoesNotExist:
+                    messages.error(request, "Remark not found")
+            else:
+                messages.error(request, "Invalid remark ID")
+            return redirect(request.path)
+
         # Handle unified form updates (status, location, listing price, and properties)
         if data.get("action") in ["update_status", "update_all"]:
             updated_items = []
@@ -780,8 +794,7 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy("inventory_frontend:list")
 
     def form_valid(self, form):
-        # Set default status for new assets
-        form.instance.local_status = AssetStates.PLACEHOLDER
+        # Default values are now handled in the form's __init__ method
         response = super().form_valid(form)
 
         # Try to create on Moneybird if required fields are present
@@ -823,6 +836,42 @@ class AssetUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     form_class = AssetForm
     template_name = "update.html"
     success_message = "Asset was updated successfully"
+
+    def form_valid(self, form):
+        # Check if Moneybird-related fields have changed
+        moneybird_fields = [
+            "name",
+            "start_date",
+            "is_margin_asset",
+            "purchase_value_asset",
+        ]
+        original_asset = Asset.objects.get(pk=self.object.pk)
+
+        response = super().form_valid(form)
+
+        # If asset is linked to Moneybird and relevant fields changed, update Moneybird
+        if self.object.moneybird_asset_id:
+            fields_changed = []
+            for field in moneybird_fields:
+                old_value = getattr(original_asset, field)
+                new_value = getattr(self.object, field)
+                if old_value != new_value:
+                    fields_changed.append(field)
+
+            if fields_changed:
+                try:
+                    self.object.update_on_moneybird()
+                    messages.success(
+                        self.request,
+                        f"Asset updated successfully and synchronized with Moneybird. Changed fields: {', '.join(fields_changed)}",
+                    )
+                except Exception as e:
+                    messages.warning(
+                        self.request,
+                        f"Asset updated successfully, but failed to sync with Moneybird: {str(e)}",
+                    )
+
+        return response
 
     def get_success_url(self):
         return reverse_lazy("inventory_frontend:detail", kwargs={"pk": self.object.pk})

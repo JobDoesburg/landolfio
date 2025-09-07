@@ -543,15 +543,14 @@
                                             <!-- Status Badges Row -->
                                             <div class="d-flex gap-1 justify-content-end">
                                                 <span class="badge 
-                                                {% if asset.is_disposed %}bg-warning
-                                                {% elif asset.local_status == 'available' %}bg-success
+                                                {% if asset.local_status == 'available' %}bg-success
                                                 {% elif asset.local_status == 'issued_rent' or asset.local_status == 'issued_loan' or asset.local_status == 'issued_unprocessed' %}bg-warning
                                                 {% elif asset.local_status == 'maintenance_in_house' or asset.local_status == 'maintenance_external' or asset.local_status == 'under_review' %}bg-info
                                                 {% elif asset.local_status == 'placeholder' or asset.local_status == 'to_be_delivered' %}bg-secondary
-                                                {% elif asset.local_status == 'sold' or asset.local_status == 'amortized' %}bg-dark
+                                                {% elif asset.local_status == 'sold' or asset.local_status == 'amortized' or asset.is_disposed %}bg-dark
                                                 {% elif asset.local_status == 'unknown' %}bg-danger
                                                 {% else %}bg-primary{% endif %}" style="font-size: 0.6rem;">
-                                                    {{ asset.local_status }}
+                                                    {{ asset.get_local_status_display }}
                                                 </span>
                                                 {% if asset.collection.commerce and asset.moneybird_asset_id %}
                                                     <span class="badge bg-{{ asset.financial_status_color }} customer-mode-hide" style="font-size: 0.6rem;">
@@ -668,7 +667,6 @@
                             <th>{% translate "Status" %}</th>
                             <th class="customer-mode-hide">{% translate "Accounting status" %}</th>
                             <th class="customer-mode-hide">{% translate "Purchase Price" %}</th>
-                            <th class="customer-mode-hide">{% translate "Moneybird" %}</th>
                             <th class="customer-mode-hide">{% translate "Start Date" %}</th>
                             <th class="customer-mode-hide">{% translate "Created" %}</th>
                         </tr>
@@ -725,18 +723,18 @@
                                 <td>
                                     <div class="d-flex flex-column gap-1">
                                         <span class="badge
-                                        {% if asset.is_disposed %}bg-warning
-                                        {% elif asset.local_status == 'available' %}bg-success
+                                        {% if asset.local_status == 'available' %}bg-success
                                         {% elif asset.local_status == 'issued_rent' or asset.local_status == 'issued_loan' or asset.local_status == 'issued_unprocessed' %}bg-warning
                                         {% elif asset.local_status == 'maintenance_in_house' or asset.local_status == 'maintenance_external' or asset.local_status == 'under_review' %}bg-info
                                         {% elif asset.local_status == 'placeholder' or asset.local_status == 'to_be_delivered' %}bg-secondary
-                                        {% elif asset.local_status == 'sold' or asset.local_status == 'amortized' %}bg-dark
+                                        {% elif asset.local_status == 'sold' or asset.local_status == 'amortized' or asset.is_disposed %}bg-dark
                                         {% elif asset.local_status == 'unknown' %}bg-danger
                                         {% else %}bg-primary{% endif %}" style="font-size: 0.7rem;">
-                                            {{ asset.local_status }}
+                                            {{ asset.get_local_status_display }}
                                         </span>
                                     </div>
                                 </td>
+
                                 <td class="customer-mode-hide">
                                     {% if asset.collection.commerce %}
                                         {% if asset.moneybird_asset_id %}
@@ -744,21 +742,10 @@
                                                 <span class="badge bg-{{ asset.financial_status_color }}" style="font-size: 0.65rem;">
                                                     {{ asset.financial_status_display|title }}
                                                 </span>
+                                                <a href="{{ asset.moneybird_asset_url }}" target="_blank" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();" style="font-size: 0.65rem;">
+                                                    <i class="fas fa-external-link-alt"></i> {{ asset.moneybird_asset_name|truncatechars:18 }}
+                                                </a>
                                             </div>
-                                        {% else %}
-                                            <span class="text-muted">?</span>
-                                        {% endif %}
-                                    {% else %}
-                                        <span class="text-muted">—</span>
-                                    {% endif %}
-                                </td>
-                                <td class="customer-mode-hide">€{{ asset.purchase_value_asset|default:0|floatformat:0 }}</td>
-                                <td class="customer-mode-hide">
-                                    {% if asset.collection.commerce %}
-                                        {% if asset.moneybird_asset_id %}
-                                            <a href="{{ asset.moneybird_asset_url }}" target="_blank" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();">
-                                                <i class="fas fa-external-link-alt"></i> {{ asset.moneybird_asset_name|truncatechars:12 }}
-                                            </a>
                                         {% else %}
                                             <a href="{% url 'inventory_frontend:detail' asset.pk %}#moneybirdModal" class="btn btn-sm btn-outline-secondary" title="{% translate 'Connect to Moneybird' %}" onclick="event.stopPropagation();">
                                                 <i class="fas fa-link"></i>
@@ -768,6 +755,7 @@
                                         <span class="text-muted">—</span>
                                     {% endif %}
                                 </td>
+                                <td class="customer-mode-hide">€{{ asset.purchase_value_asset|default:0|floatformat:0 }}</td>
                                 <td class="customer-mode-hide">
                                     {% if asset.start_date %}
                                         <small>{{ asset.start_date|date:"d-m-Y" }}</small>

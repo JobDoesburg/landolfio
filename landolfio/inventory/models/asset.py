@@ -10,7 +10,7 @@ from django.db.models import (
     Count,
 )
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext
 
 from inventory.moneybird import MoneybirdAssetService
 
@@ -192,30 +192,63 @@ class Asset(models.Model):
         return self.get_disposal_display() if self.disposal else None
 
     @property
+    def is_financially_unlinked(self):
+        """Check if asset is financially unlinked based on sources in Moneybird data."""
+        if not self.moneybird_data or not isinstance(self.moneybird_data, dict):
+            return True
+
+        sources = self.moneybird_data.get("sources", [])
+        return not sources or len(sources) == 0
+
+    @property
+    def sources_count(self):
+        """Get the number of source documents linked to this asset in Moneybird."""
+        if not self.moneybird_data or not isinstance(self.moneybird_data, dict):
+            return 0
+
+        sources = self.moneybird_data.get("sources", [])
+        return len(sources)
+
+    @property
     def financial_status(self):
         """Get the financial status for badge display."""
+        # Determine base status first
+        base_status = None
+        base_color = None
+
         # If there's a disposal, use disposal-based status
         if self.disposal:
             if self.disposal == "sold":
-                return {"status": "sold", "color": "dark"}
+                base_status = gettext("sold")
+                base_color = "dark"
             elif self.disposal == "out_of_use":
-                return {"status": "out of use", "color": "black"}
+                base_status = gettext("out of use")
+                base_color = "black"
             elif self.disposal == "private_withdrawal":
-                return {"status": "private withdrawal", "color": "primary"}
+                base_status = gettext("private withdrawal")
+                base_color = "primary"
             elif self.disposal == "divested":
-                return {"status": "divested", "color": "black"}
-
-        # No disposal, check current value
-        current_val = self.current_value or 0
-        if current_val == 0:
-            # Active depreciated (no margin suffix)
-            return {"status": "active depreciated", "color": "success"}
+                base_status = gettext("divested")
+                base_color = "black"
         else:
-            # Active (with potential margin suffix)
-            base_status = "active"
-            if self.is_margin_asset:
-                base_status += " - margin"
-            return {"status": base_status, "color": "success"}
+            # No disposal, check current value
+            current_val = self.current_value or 0
+            if current_val == 0:
+                # Active depreciated (no margin suffix)
+                base_status = gettext("active depreciated")
+                base_color = "success"
+            else:
+                # Active (with potential margin suffix)
+                base_status = gettext("active")
+                if self.is_margin_asset:
+                    base_status += " - " + gettext("margin")
+                base_color = "success"
+
+        # If financially unlinked, append warning but keep original color
+        if self.is_financially_unlinked:
+            base_status += " ⚠"
+
+        return {"status": base_status, "color": base_color}
 
     @property
     def financial_status_display(self):
@@ -226,9 +259,17 @@ class Asset(models.Model):
     def financial_status_color(self):
         """Get the Bootstrap color class for financial status."""
         color = self.financial_status["color"]
-        if color == "black":
-            return "dark"  # Bootstrap doesn't have bg-black, use dark
-        return color
+        # Map custom colors to Bootstrap classes
+        color_map = {
+            "black": "dark",
+            "green": "success",
+            "yellow": "warning",
+            "blue": "primary",
+            "red": "danger",
+            "grey": "secondary",
+            "gray": "secondary",
+        }
+        return color_map.get(color, color)
 
     objects = QueryablePropertiesManager()
 
