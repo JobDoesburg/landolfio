@@ -5,9 +5,4 @@ from .ledger_account import *
 from .product import *
 from .project import *
 from .contact import *
-from .sales_invoice import *
-from .purchase_document import *
-from .general_journal_document import *
-from .recurring_sales_invoice import *
 from .subscription import *
-from .estimate import *

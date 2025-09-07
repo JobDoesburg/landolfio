@@ -14,6 +14,9 @@ class AssetForm(forms.ModelForm):
             "location_nr",
             "listing_price",
             "local_status",
+            "purchase_value_asset",
+            "start_date",
+            "is_margin_asset",
         ]
         widgets = {
             "name": forms.TextInput(attrs={"class": "form-control"}),
@@ -26,6 +29,13 @@ class AssetForm(forms.ModelForm):
                 attrs={"class": "form-control", "step": "0.01"}
             ),
             "local_status": forms.Select(attrs={"class": "form-control"}),
+            "purchase_value_asset": forms.NumberInput(
+                attrs={"class": "form-control", "step": "0.01"}
+            ),
+            "start_date": forms.DateInput(
+                attrs={"class": "form-control", "type": "date"}
+            ),
+            "is_margin_asset": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -35,3 +45,6 @@ class AssetForm(forms.ModelForm):
         self.fields["location"].required = False
         self.fields["location_nr"].required = False
         self.fields["listing_price"].required = False
+        self.fields["purchase_value_asset"].required = False
+        self.fields["start_date"].required = False
+        self.fields["is_margin_asset"].required = False

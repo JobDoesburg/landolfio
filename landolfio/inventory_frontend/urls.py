@@ -11,6 +11,13 @@ from .views import (
     PropertyValueAutocompleteView,
     AttachmentDeleteView,
     AttachmentReorderView,
+    AssetCreateMoneybirdView,
+    AssetLinkMoneybirdView,
+    AssetUnlinkMoneybirdView,
+    AssetDeleteMoneybirdView,
+    AssetRefreshMoneybirdView,
+    AssetUpdateMoneybirdView,
+    AssetDisposeMoneybirdView,
 )
 
 app_name = "inventory_frontend"
@@ -38,5 +45,40 @@ urlpatterns = [
         "<uuid:asset_pk>/attachments/reorder/",
         AttachmentReorderView.as_view(),
         name="attachment_reorder",
+    ),
+    path(
+        "asset/<uuid:pk>/create-moneybird/",
+        AssetCreateMoneybirdView.as_view(),
+        name="create_moneybird",
+    ),
+    path(
+        "asset/<uuid:pk>/link-moneybird/",
+        AssetLinkMoneybirdView.as_view(),
+        name="link_moneybird",
+    ),
+    path(
+        "asset/<uuid:pk>/unlink-moneybird/",
+        AssetUnlinkMoneybirdView.as_view(),
+        name="unlink_moneybird",
+    ),
+    path(
+        "asset/<uuid:pk>/delete-moneybird/",
+        AssetDeleteMoneybirdView.as_view(),
+        name="delete_moneybird",
+    ),
+    path(
+        "asset/<uuid:pk>/refresh-moneybird/",
+        AssetRefreshMoneybirdView.as_view(),
+        name="refresh_moneybird",
+    ),
+    path(
+        "asset/<uuid:pk>/update-moneybird/",
+        AssetUpdateMoneybirdView.as_view(),
+        name="update_moneybird",
+    ),
+    path(
+        "asset/<uuid:pk>/dispose-moneybird/",
+        AssetDisposeMoneybirdView.as_view(),
+        name="dispose_moneybird",
     ),
 ]

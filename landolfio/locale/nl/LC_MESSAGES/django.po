@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-28 15:41+0200\n"
-"PO-Revision-Date: 2025-07-28 15:42+0200\n"
+"POT-Creation-Date: 2025-09-07 12:56+0200\n"
+"PO-Revision-Date: 2025-09-07 12:59+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -35,70 +35,91 @@ msgid "Create a new asset in the inventory"
 msgstr "Maak een nieuw eigendom in het inventaris"
 
 #: inventory_frontend/templates/create.html:27
-#: inventory_frontend/templates/detail.html:167
-#: inventory_frontend/templates/list.html:543
-#: inventory_frontend/templates/update.html:32
+#: inventory_frontend/templates/detail.html:309
+#: inventory_frontend/templates/list.html:655
+#: inventory_frontend/templates/update.html:42
 msgid "Name"
 msgstr "Naam"
 
 #: inventory_frontend/templates/create.html:38
-#: inventory_frontend/templates/detail.html:171
-#: inventory_frontend/templates/list.html:544
-#: inventory_frontend/templates/update.html:43
+#: inventory_frontend/templates/detail.html:313
+#: inventory_frontend/templates/list.html:656
+#: inventory_frontend/templates/update.html:53
 msgid "Category"
 msgstr "Categorie"
 
 #: inventory_frontend/templates/create.html:49
-#: inventory_frontend/templates/detail.html:176
-#: inventory_frontend/templates/update.html:54
+#: inventory_frontend/templates/detail.html:318
+#: inventory_frontend/templates/update.html:64
 msgid "Size"
 msgstr "Maat"
 
 #: inventory_frontend/templates/create.html:60
-#: inventory_frontend/templates/detail.html:188
-#: inventory_frontend/templates/update.html:65
+#: inventory_frontend/templates/detail.html:323
+#: inventory_frontend/templates/update.html:75
 msgid "Collection"
 msgstr "Collectie"
 
 #: inventory_frontend/templates/create.html:71
-#: inventory_frontend/templates/detail.html:181
-#: inventory_frontend/templates/detail.html:336
-#: inventory_frontend/templates/list.html:545
-#: inventory_frontend/templates/update.html:76
+#: inventory_frontend/templates/detail.html:355
+#: inventory_frontend/templates/list.html:657
+#: inventory_frontend/templates/update.html:86
 msgid "Location"
 msgstr "Locatie"
 
 #: inventory_frontend/templates/create.html:82
-#: inventory_frontend/templates/update.html:87
+#: inventory_frontend/templates/update.html:97
 msgid "Location Number"
 msgstr "Locatie nummer"
 
 #: inventory_frontend/templates/create.html:93
-#: inventory_frontend/templates/detail.html:231
-#: inventory_frontend/templates/list.html:557
-#: inventory_frontend/templates/update.html:98
+#: inventory_frontend/templates/detail.html:432
+#: inventory_frontend/templates/list.html:658
+#: inventory_frontend/templates/update.html:108
 msgid "Listing Price"
 msgstr "Vraagprijs"
 
 #: inventory_frontend/templates/create.html:104
-#: inventory_frontend/templates/detail.html:205
-#: inventory_frontend/templates/detail.html:327
-#: inventory_frontend/templates/detail.html:537
-#: inventory_frontend/templates/detail.html:567
+#: inventory_frontend/templates/detail.html:345
+#: inventory_frontend/templates/detail.html:405
 #: inventory_frontend/templates/list.html:231
-#: inventory_frontend/templates/list.html:546
-#: inventory_frontend/templates/update.html:109
+#: inventory_frontend/templates/list.html:668
+#: inventory_frontend/templates/update.html:119
 msgid "Status"
 msgstr "Status"
 
-#: inventory_frontend/templates/create.html:125
-#: inventory_frontend/templates/detail.html:650
-#: inventory_frontend/templates/detail.html:857
+#: inventory_frontend/templates/create.html:115
+#: inventory_frontend/templates/detail.html:412
 #: inventory_frontend/templates/update.html:130
+msgid "Purchase Value"
+msgstr "Aankoopprijs"
+
+#: inventory_frontend/templates/create.html:129
+#: inventory_frontend/templates/list.html:672
+#: inventory_frontend/templates/update.html:144
+msgid "Start Date"
+msgstr "Inkoopdatum"
+
+#: inventory_frontend/templates/create.html:143
+#: inventory_frontend/templates/update.html:158
+msgid "Margin Asset"
+msgstr "Margegoed"
+
+#: inventory_frontend/templates/create.html:146
+#: inventory_frontend/templates/update.html:161
+msgid "Check if this is a used good subject to margin taxation"
+msgstr ""
+"Vink aan als dit een gebruikt voorwerp is waarop de margeregeling van "
+"toepassing is"
+
+#: inventory_frontend/templates/create.html:168
+#: inventory_frontend/templates/detail.html:627
+#: inventory_frontend/templates/detail.html:891
+#: inventory_frontend/templates/update.html:183
 msgid "Cancel"
 msgstr "Annuleer"
 
-#: inventory_frontend/templates/create.html:126
+#: inventory_frontend/templates/create.html:169
 msgid "Create Asset"
 msgstr "Maak eigendom"
 
@@ -115,6 +136,7 @@ msgstr "Wijzig"
 
 #: inventory_frontend/templates/detail.html:28
 #: inventory_frontend/templates/detail.html:105
+#: inventory_frontend/templates/detail.html:232
 msgid "Delete"
 msgstr "Verwijder"
 
@@ -129,353 +151,436 @@ msgstr "Wissel klantmodus"
 msgid "Search assets..."
 msgstr "Zoek eigendommen…"
 
-#: inventory_frontend/templates/detail.html:126
-msgid "Accounting Errors"
-msgstr "Boekhoudkundige fouten"
+#: inventory_frontend/templates/detail.html:129
+msgid "Manage Moneybird Connection"
+msgstr "Beheer Moneybird-koppeling"
 
-#: inventory_frontend/templates/detail.html:138
-msgid "Overview"
-msgstr "Overzicht"
+#: inventory_frontend/templates/detail.html:131
+#: inventory_frontend/templates/list.html:609
+#: inventory_frontend/templates/list.html:759
+msgid "Connect to Moneybird"
+msgstr "Koppel met Moneybird"
 
-#: inventory_frontend/templates/detail.html:141
-#: inventory_frontend/templates/detail.html:410
-msgid "Attachments"
-msgstr "Bijlagen"
+#: inventory_frontend/templates/detail.html:142
+msgid "Currently linked to"
+msgstr "Gekoppeld aan"
 
-#: inventory_frontend/templates/detail.html:144
-msgid "Financials"
-msgstr "Financieel"
+#: inventory_frontend/templates/detail.html:143
+msgid "This asset is synchronized with Moneybird"
+msgstr "Dit eigendom is gesynchroniseerd met Moneybird"
 
-#: inventory_frontend/templates/detail.html:147
-msgid "Agreements"
-msgstr "Overeenkomsten"
+#: inventory_frontend/templates/detail.html:151
+msgid "View"
+msgstr "Bekijken"
 
-#: inventory_frontend/templates/detail.html:150
-msgid "History"
-msgstr "Geschiedenis"
+#: inventory_frontend/templates/detail.html:158
+msgid "Refresh"
+msgstr "Verversen"
 
-#: inventory_frontend/templates/detail.html:162
+#: inventory_frontend/templates/detail.html:166
+msgid "Update"
+msgstr "Updaten"
+
+#: inventory_frontend/templates/detail.html:175
+msgid "Dispose Asset"
+msgstr "Eigendom afschrijven"
+
+#: inventory_frontend/templates/detail.html:176
+msgid "Dispose this asset with automatic value adjustment if needed."
+msgstr ""
+"Schrijf dit eigendom af met een automatische waardeverandering indien nodig."
+
+#: inventory_frontend/templates/detail.html:182
+msgid "Are you sure you want to dispose this asset as sold?"
+msgstr "Weet je zeker dat je dit eigendom als verkocht wil afschrijven?"
+
+#: inventory_frontend/templates/detail.html:183
+msgid "Sell"
+msgstr "Verkopen"
+
+#: inventory_frontend/templates/detail.html:191
+msgid "Are you sure you want to dispose this asset as private withdrawal?"
+msgstr "Weet je zeker dat je dit eigendom privé wil onttrekken?"
+
+#: inventory_frontend/templates/detail.html:192
+msgid "Private Withdraw"
+msgstr "Privé onttrekken"
+
+#: inventory_frontend/templates/detail.html:200
+msgid "Are you sure you want to dispose this asset as out of use?"
+msgstr "Weet je zeker dat je dit eigendom buiten gebruik wil stellen?"
+
+#: inventory_frontend/templates/detail.html:201
+msgid "Out of Use"
+msgstr "Buiten gebruik stellen"
+
+#: inventory_frontend/templates/detail.html:209
+msgid "Are you sure you want to divest this asset?"
+msgstr "Weet je zeker dat je deze bijlage wil desinvesteren?"
+
+#: inventory_frontend/templates/detail.html:210
+msgid "Divest"
+msgstr "Desinvesteren"
+
+#: inventory_frontend/templates/detail.html:223
+msgid "Are you sure you want to unlink this asset from Moneybird?"
+msgstr "Weet je zeker dat je dit eigendom wilt ontkoppelen van Moneybird?"
+
+#: inventory_frontend/templates/detail.html:224
+msgid "Unlink"
+msgstr "Ontkoppelen"
+
+#: inventory_frontend/templates/detail.html:231
+msgid ""
+"Are you sure you want to DELETE this asset from Moneybird? This action "
+"cannot be undone!"
+msgstr ""
+"Weet je zeker dat je dit eigendom wil VERWIJDEREN in Moneybird? Dit kan niet "
+"ongedaan worden gemaakt!"
+
+#: inventory_frontend/templates/detail.html:241
+msgid "Option 1: Create New Asset on Moneybird"
+msgstr "Optie 1: Maak een nieuwe bezitting aan op Moneybird."
+
+#: inventory_frontend/templates/detail.html:242
+msgid "Creates a new asset record on Moneybird and links it automatically."
+msgstr ""
+"Maakt een nieuwe bezitting aan in Moneybird en koppelt deze automatisch."
+
+#: inventory_frontend/templates/detail.html:247
+msgid "Create on Moneybird"
+msgstr "Maak aan in Moneybird"
+
+#: inventory_frontend/templates/detail.html:253
+msgid "Missing required data"
+msgstr "Vereiste gegevens missen"
+
+#: inventory_frontend/templates/detail.html:254
+msgid ""
+"Start date and purchase value are required to create a new asset on "
+"Moneybird."
+msgstr ""
+"Inkoopdatum en aanschafwaarde zijn verplicht om een nieuwe bezitting aan te "
+"maken in Moneybird."
+
+#: inventory_frontend/templates/detail.html:262
+msgid "Option 2: Link to Existing Moneybird Asset"
+msgstr "Optie 2: koppel een bestaande Moneybird bezitting"
+
+#: inventory_frontend/templates/detail.html:263
+msgid "Connect this asset to an existing asset record on Moneybird."
+msgstr "Koppel dit eigendom aan een bestaande bezitting in Moneybird."
+
+#: inventory_frontend/templates/detail.html:267
+msgid "Moneybird Asset ID"
+msgstr "Moneybird bezitting ID"
+
+#: inventory_frontend/templates/detail.html:268
+msgid "Enter Moneybird Asset ID"
+msgstr "Voer Moneybird bezitting ID in"
+
+#: inventory_frontend/templates/detail.html:269
+msgid "You can find this ID in the Moneybird asset URL or overview page."
+msgstr ""
+"Je kunt dit ID vinden in de Moneybird bezitting URL of overzichtspagina."
+
+#: inventory_frontend/templates/detail.html:272
+msgid "Link to Existing Asset"
+msgstr "Link aan bestaande bezitting"
+
+#: inventory_frontend/templates/detail.html:288
+msgid "Asset Status"
+msgstr "Status"
+
+#: inventory_frontend/templates/detail.html:289
+msgid "This asset has been disposed"
+msgstr "Dit eigendom is afgeschreven"
+
+#: inventory_frontend/templates/detail.html:298
+msgid "Details"
+msgstr "Details"
+
+#: inventory_frontend/templates/detail.html:306
 msgid "Basic Information"
 msgstr "Basisgegevens"
 
-#: inventory_frontend/templates/detail.html:183
-msgid "Not specified"
+#: inventory_frontend/templates/detail.html:327
+msgid "Purchased"
+msgstr "Aangeschaft"
+
+#: inventory_frontend/templates/detail.html:332
+msgid "Not set"
 msgstr "Niet gespecificeerd"
 
-#: inventory_frontend/templates/detail.html:192
-#: inventory_frontend/templates/list.html:510
-#: inventory_frontend/templates/list.html:558
+#: inventory_frontend/templates/detail.html:337
+#: inventory_frontend/templates/list.html:673
 msgid "Created"
 msgstr "Aangemaakt"
 
-#: inventory_frontend/templates/detail.html:196
-msgid "Last Updated"
-msgstr "Laatste update"
+#: inventory_frontend/templates/detail.html:341
+msgid "Updated"
+msgstr "Geupdate"
 
-#: inventory_frontend/templates/detail.html:210
-msgid "Local Status"
-msgstr "Lokale status"
+#: inventory_frontend/templates/detail.html:359
+msgid "Select location"
+msgstr "Kies locatie"
 
-#: inventory_frontend/templates/detail.html:223
-msgid "Accounting Status"
-msgstr "Boekhoudkundige status"
+#: inventory_frontend/templates/detail.html:373
+msgid "Financial"
+msgstr "Financieel"
 
-#: inventory_frontend/templates/detail.html:235
+#: inventory_frontend/templates/detail.html:376
 msgid "Commerce"
 msgstr "Handelsgoed"
 
-#: inventory_frontend/templates/detail.html:236
+#: inventory_frontend/templates/detail.html:377
+#: inventory_frontend/templates/detail.html:424
 msgid "Yes"
 msgstr "Ja"
 
-#: inventory_frontend/templates/detail.html:236
+#: inventory_frontend/templates/detail.html:377
+#: inventory_frontend/templates/detail.html:426
 msgid "No"
 msgstr "Nee"
 
-#: inventory_frontend/templates/detail.html:246
+#: inventory_frontend/templates/detail.html:381
+#: inventory_frontend/templates/list.html:671
+msgid "Moneybird"
+msgstr "Moneybird"
+
+#: inventory_frontend/templates/detail.html:388
+msgid "Manage Moneybird connection"
+msgstr "Beheer Moneybird-koppeling"
+
+#: inventory_frontend/templates/detail.html:394
+msgid "Not linked"
+msgstr "Niet gekoppeld"
+
+#: inventory_frontend/templates/detail.html:396
+msgid "Connect"
+msgstr "Koppel"
+
+#: inventory_frontend/templates/detail.html:416
+msgid "Current Value"
+msgstr "Balanswaarde"
+
+#: inventory_frontend/templates/detail.html:421
+msgid "Margin"
+msgstr "Marge"
+
+#: inventory_frontend/templates/detail.html:444
 #: inventory_frontend/templates/list.html:285
 msgid "Properties"
 msgstr "Eigenschappen"
 
-#: inventory_frontend/templates/detail.html:263
+#: inventory_frontend/templates/detail.html:455
 msgid "Select"
 msgstr "Selecteer"
 
-#: inventory_frontend/templates/detail.html:277
-#: inventory_frontend/templates/detail.html:287
+#: inventory_frontend/templates/detail.html:469
+#: inventory_frontend/templates/detail.html:479
 msgid "Enter number"
 msgstr "Voer waarde in"
 
-#: inventory_frontend/templates/detail.html:296
+#: inventory_frontend/templates/detail.html:488
 msgid "Enter text"
 msgstr "Voer tekst in"
 
-#: inventory_frontend/templates/detail.html:304
-msgid "Save Properties"
-msgstr "Eigenschappen opslaan"
+#: inventory_frontend/templates/detail.html:498
+#: inventory_frontend/templates/update.html:184
+msgid "Save Changes"
+msgstr "Bewaar wijzigingen"
 
-#: inventory_frontend/templates/detail.html:318
-#: inventory_frontend/templates/detail.html:351
-msgid "Update"
-msgstr "Update"
-
-#: inventory_frontend/templates/detail.html:329
-#: inventory_frontend/templates/detail.html:338
-msgid "No change"
-msgstr "Niet wijzigingen"
-
-#: inventory_frontend/templates/detail.html:345
-msgid "Nr"
-msgstr "Nr"
-
-#: inventory_frontend/templates/detail.html:360
+#: inventory_frontend/templates/detail.html:513
 msgid "Remarks"
 msgstr "Opmerkingen"
 
-#: inventory_frontend/templates/detail.html:378
+#: inventory_frontend/templates/detail.html:531
 msgid "No remarks yet"
 msgstr "Nog geen opmerkingen"
 
-#: inventory_frontend/templates/detail.html:389
+#: inventory_frontend/templates/detail.html:542
 msgid "Enter new remark here..."
 msgstr "Plaats een nieuwe opmerking…"
 
-#: inventory_frontend/templates/detail.html:393
+#: inventory_frontend/templates/detail.html:546
 msgid "Add"
 msgstr "Toevoegen"
 
-#: inventory_frontend/templates/detail.html:431
+#: inventory_frontend/templates/detail.html:558
+msgid "Attachments"
+msgstr "Bijlagen"
+
+#: inventory_frontend/templates/detail.html:575
+msgid "Delete attachment"
+msgstr "Verwijder bijlage"
+
+#: inventory_frontend/templates/detail.html:580
+msgid "Drag to reorder"
+msgstr "Sleep om te herordenen"
+
+#: inventory_frontend/templates/detail.html:590
 msgid "No attachments yet"
 msgstr "Nog geen bijlagen"
 
-#: inventory_frontend/templates/detail.html:446
-#: inventory_frontend/templates/detail.html:860
+#: inventory_frontend/templates/detail.html:605
+#: inventory_frontend/templates/detail.html:894
 msgid "Upload"
 msgstr "Uploaden"
 
-#: inventory_frontend/templates/detail.html:461
-msgid "Balance Summary"
-msgstr "Balans overzicht"
-
-#: inventory_frontend/templates/detail.html:472
-msgid "Total Assets Value"
-msgstr "Totaal waarde activa"
-
-#: inventory_frontend/templates/detail.html:476
-msgid "Margin Assets Value"
-msgstr "Marge activa waarde"
-
-#: inventory_frontend/templates/detail.html:480
-msgid "Purchase Value"
-msgstr "Aankoopprijs"
-
-#: inventory_frontend/templates/detail.html:490
-msgid "Revenue & Costs"
-msgstr "Omzet en kosten"
-
-#: inventory_frontend/templates/detail.html:501
-msgid "Total Revenue"
-msgstr "Totaal omzet"
-
-#: inventory_frontend/templates/detail.html:505
-msgid "Direct Costs"
-msgstr "Directe kosten"
-
-#: inventory_frontend/templates/detail.html:509
-msgid "Total Expenses"
-msgstr "Totale kosten"
-
-#: inventory_frontend/templates/detail.html:513
-msgid "Total Profit"
-msgstr "Totale winst"
-
-#: inventory_frontend/templates/detail.html:529
-msgid "Rental Agreements"
-msgstr "Huurovereenkomsten"
-
-#: inventory_frontend/templates/detail.html:534
-#: inventory_frontend/templates/detail.html:564
-#: inventory_frontend/templates/detail.html:606
-msgid "Date"
-msgstr "Datum"
-
-#: inventory_frontend/templates/detail.html:535
-#: inventory_frontend/templates/detail.html:565
-#: inventory_frontend/templates/detail.html:607
-msgid "Description"
-msgstr "Omschrijving"
-
-#: inventory_frontend/templates/detail.html:536
-#: inventory_frontend/templates/detail.html:566
-#: inventory_frontend/templates/list.html:263
-#: inventory_frontend/templates/list.html:1067
-msgid "Price"
-msgstr "Prijs"
-
-#: inventory_frontend/templates/detail.html:559
-msgid "Loan Agreements"
-msgstr "Leenovereenkomsten"
-
-#: inventory_frontend/templates/detail.html:590
-msgid "No active agreements"
-msgstr "Geen actieve overeenkomsten"
-
-#: inventory_frontend/templates/detail.html:608
-msgid "Account"
-msgstr "Account"
-
-#: inventory_frontend/templates/detail.html:609
-msgid "Amount"
-msgstr "Waarde"
-
-#: inventory_frontend/templates/detail.html:627
-msgid "No transaction history"
-msgstr "Geen transactiegeschiedenis"
-
-#: inventory_frontend/templates/detail.html:642
-#: inventory_frontend/templates/detail.html:653
+#: inventory_frontend/templates/detail.html:619
+#: inventory_frontend/templates/detail.html:630
 msgid "Delete Asset"
 msgstr "Verwijder eigendom"
 
-#: inventory_frontend/templates/detail.html:646
+#: inventory_frontend/templates/detail.html:623
 #, python-format
 msgid "Are you sure you want to delete \"%(name)s\"?"
 msgstr "Weet je zeker dat je \"%(name)s\" wil verwijderen?"
 
-#: inventory_frontend/templates/detail.html:647
+#: inventory_frontend/templates/detail.html:624
 msgid "This action cannot be undone."
 msgstr "Dit kan niet ongedaan worden gemaakt."
 
-#: inventory_frontend/templates/detail.html:796
+#: inventory_frontend/templates/detail.html:830
 msgid "Close"
 msgstr "Sluiten"
 
-#: inventory_frontend/templates/detail.html:797
-#: inventory_frontend/templates/detail.html:812
+#: inventory_frontend/templates/detail.html:831
+#: inventory_frontend/templates/detail.html:846
 msgid "Next"
 msgstr "Volgende"
 
-#: inventory_frontend/templates/detail.html:798
+#: inventory_frontend/templates/detail.html:832
 msgid "Previous"
 msgstr "Vorige"
 
-#: inventory_frontend/templates/detail.html:799
+#: inventory_frontend/templates/detail.html:833
 msgid "You can close this modal content with the ESC key"
 msgstr "Je kunt dit scherm sluiten met de ESC toets"
 
-#: inventory_frontend/templates/detail.html:800
+#: inventory_frontend/templates/detail.html:834
 msgid "Something Went Wrong, Please Try Again Later"
 msgstr "Er ging iets mis, probeer later opnieuw"
 
-#: inventory_frontend/templates/detail.html:801
+#: inventory_frontend/templates/detail.html:835
 msgid "Image Not Found"
 msgstr "Afbeelding niet gevonden"
 
-#: inventory_frontend/templates/detail.html:802
+#: inventory_frontend/templates/detail.html:836
 msgid "HTML Element Not Found"
 msgstr "HTML element niet gevonden"
 
-#: inventory_frontend/templates/detail.html:803
+#: inventory_frontend/templates/detail.html:837
 msgid "Error Loading AJAX : Not Found"
 msgstr "Fout tijdens laden AJAX: Niet gevonden"
 
-#: inventory_frontend/templates/detail.html:804
+#: inventory_frontend/templates/detail.html:838
 msgid "Error Loading AJAX : Forbidden"
 msgstr "Fout tijdens laden AJAX: Verboden"
 
-#: inventory_frontend/templates/detail.html:805
+#: inventory_frontend/templates/detail.html:839
 msgid "Error Loading Page"
 msgstr "Fout tijdens laden pagina"
 
-#: inventory_frontend/templates/detail.html:813
+#: inventory_frontend/templates/detail.html:847
 msgid "Previous slide"
 msgstr "Vorige slide"
 
-#: inventory_frontend/templates/detail.html:814
+#: inventory_frontend/templates/detail.html:848
 #, python-format
 msgid "Go to slide %%d"
 msgstr "Ga naar slide %%d"
 
-#: inventory_frontend/templates/detail.html:839
+#: inventory_frontend/templates/detail.html:873
 msgid "Drag & Drop your files or"
 msgstr "Sleep bestanden hierheen of"
 
-#: inventory_frontend/templates/detail.html:839
+#: inventory_frontend/templates/detail.html:873
 msgid "Browse"
 msgstr "Kies en selecteer"
 
-#: inventory_frontend/templates/detail.html:840
+#: inventory_frontend/templates/detail.html:874
 msgid "Field contains invalid files"
 msgstr "Bevat ongeldige bestanden"
 
-#: inventory_frontend/templates/detail.html:841
+#: inventory_frontend/templates/detail.html:875
 msgid "Waiting for size"
 msgstr "Wachten op grootte"
 
-#: inventory_frontend/templates/detail.html:842
+#: inventory_frontend/templates/detail.html:876
 msgid "Size not available"
 msgstr "Grootte niet beschikbaar"
 
-#: inventory_frontend/templates/detail.html:843
+#: inventory_frontend/templates/detail.html:877
 msgid "Loading"
 msgstr "Laden"
 
-#: inventory_frontend/templates/detail.html:844
+#: inventory_frontend/templates/detail.html:878
 msgid "Error during load"
 msgstr "Fout tijdens laden"
 
-#: inventory_frontend/templates/detail.html:845
+#: inventory_frontend/templates/detail.html:879
 msgid "Uploading"
 msgstr "Uploaden"
 
-#: inventory_frontend/templates/detail.html:846
+#: inventory_frontend/templates/detail.html:880
 msgid "Upload complete"
 msgstr "Upload voltooid"
 
-#: inventory_frontend/templates/detail.html:847
+#: inventory_frontend/templates/detail.html:881
 msgid "Upload cancelled"
 msgstr "Upload geannuleerd"
 
-#: inventory_frontend/templates/detail.html:848
+#: inventory_frontend/templates/detail.html:882
 msgid "Error during upload"
 msgstr "Fout tijdens uploaden"
 
-#: inventory_frontend/templates/detail.html:849
+#: inventory_frontend/templates/detail.html:883
 msgid "Error during revert"
 msgstr "Fout tijdens terugzetten"
 
-#: inventory_frontend/templates/detail.html:850
+#: inventory_frontend/templates/detail.html:884
 msgid "Error during remove"
 msgstr "Fout tijdens verwijderen"
 
-#: inventory_frontend/templates/detail.html:851
+#: inventory_frontend/templates/detail.html:885
 msgid "tap to cancel"
 msgstr "tap om te annuleren"
 
-#: inventory_frontend/templates/detail.html:852
+#: inventory_frontend/templates/detail.html:886
 msgid "tap to retry"
 msgstr "tap om opnieuw te proberen"
 
-#: inventory_frontend/templates/detail.html:853
+#: inventory_frontend/templates/detail.html:887
 msgid "tap to undo"
 msgstr "tap om ongedaan te maken"
 
-#: inventory_frontend/templates/detail.html:854
+#: inventory_frontend/templates/detail.html:888
 msgid "Remove"
 msgstr "Verwijderen"
 
-#: inventory_frontend/templates/detail.html:855
+#: inventory_frontend/templates/detail.html:889
 msgid "Abort"
 msgstr "Annuleren"
 
-#: inventory_frontend/templates/detail.html:856
-#: inventory_frontend/templates/detail.html:859
+#: inventory_frontend/templates/detail.html:890
+#: inventory_frontend/templates/detail.html:893
 msgid "Retry"
 msgstr "Opnieuw proberen"
 
-#: inventory_frontend/templates/detail.html:858
+#: inventory_frontend/templates/detail.html:892
 msgid "Undo"
 msgstr "Ongedaan maken"
+
+#: inventory_frontend/templates/detail.html:931
+msgid "Are you sure you want to delete this attachment?"
+msgstr "Weet je zeker dat je deze bijlage wil verwijderen?"
+
+#: inventory_frontend/templates/detail.html:984
+#: inventory_frontend/templates/detail.html:988
+msgid "Error deleting attachment. Please try again."
+msgstr "Fout tijdens verwijderen van bijlage. Probeer opnieuw."
 
 #: inventory_frontend/templates/index.html:7
 #: inventory_frontend/templates/public_index.html:7
@@ -526,6 +631,11 @@ msgstr "Maten"
 msgid "No sizes available"
 msgstr "Geen maten beschikbaar"
 
+#: inventory_frontend/templates/list.html:263
+#: inventory_frontend/templates/list.html:1218
+msgid "Price"
+msgstr "Prijs"
+
 #: inventory_frontend/templates/list.html:276
 #: inventory_frontend/templates/list.html:331
 #: inventory_frontend/templates/list.html:339
@@ -562,31 +672,35 @@ msgstr "Rooster"
 msgid "List"
 msgstr "Lijst"
 
-#: inventory_frontend/templates/list.html:526
-#: inventory_frontend/templates/list.html:634
+#: inventory_frontend/templates/list.html:638
+#: inventory_frontend/templates/list.html:785
 msgid "No assets found"
 msgstr "Geen eigendommen gevonden"
 
-#: inventory_frontend/templates/list.html:528
-#: inventory_frontend/templates/list.html:636
+#: inventory_frontend/templates/list.html:640
+#: inventory_frontend/templates/list.html:787
 #, python-format
 msgid "No results found for \"%(query)s\""
 msgstr "Geen eigendommen gevonden voor \"%(query)s\""
 
-#: inventory_frontend/templates/list.html:530
-#: inventory_frontend/templates/list.html:638
+#: inventory_frontend/templates/list.html:642
+#: inventory_frontend/templates/list.html:789
 msgid "Clear all filters"
 msgstr "Wis alle filters"
 
-#: inventory_frontend/templates/list.html:542
+#: inventory_frontend/templates/list.html:654
 msgid "Image"
 msgstr "Afbeelding"
 
-#: inventory_frontend/templates/list.html:556
+#: inventory_frontend/templates/list.html:669
+msgid "Accounting status"
+msgstr "Boekhoudkundige status"
+
+#: inventory_frontend/templates/list.html:670
 msgid "Purchase Price"
 msgstr "Aankoopprijs"
 
-#: inventory_frontend/templates/list.html:710
+#: inventory_frontend/templates/list.html:861
 #, python-format
 msgid "Page %(current)s of %(total)s (%(count)s total items)"
 msgstr "Pagina %(current)s van %(total)s (%(count)s items)"
@@ -600,10 +714,95 @@ msgstr "Login"
 msgid "Edit %(name)s"
 msgstr "Wijzig %(name)s"
 
-#: inventory_frontend/templates/update.html:131
-msgid "Save Changes"
-msgstr "Bewaar wijzigingen"
+#: inventory_frontend/templates/update.html:26
+msgid "Proceed with Care"
+msgstr "Let op"
+
+#: inventory_frontend/templates/update.html:29
+msgid ""
+"Changing asset details may cause invalid accounting records or other "
+"inconsistencies. Please ensure any modifications align with your accounting "
+"requirements and business processes."
+msgstr ""
+"Het veranderen van deze gegevens van inconsistente boekhouding veroorzaken. "
+"Zorg ervoor dat alle wijzigingen correct worden doorgevoerd in de "
+"boekhouding."
 
 #: ninox_import/apps.py:9
 msgid "Ninox import"
 msgstr "Ninox import"
+
+#~ msgid "Active"
+#~ msgstr "Actief"
+
+#~ msgid "Accounting Errors"
+#~ msgstr "Boekhoudkundige fouten"
+
+#~ msgid "Overview"
+#~ msgstr "Overzicht"
+
+#~ msgid "Agreements"
+#~ msgstr "Overeenkomsten"
+
+#~ msgid "History"
+#~ msgstr "Geschiedenis"
+
+#~ msgid "Last Updated"
+#~ msgstr "Laatste update"
+
+#~ msgid "Local Status"
+#~ msgstr "Lokale status"
+
+#~ msgid "Save Properties"
+#~ msgstr "Eigenschappen opslaan"
+
+#~ msgid "No change"
+#~ msgstr "Niet wijzigingen"
+
+#~ msgid "Nr"
+#~ msgstr "Nr"
+
+#~ msgid "Balance Summary"
+#~ msgstr "Balans overzicht"
+
+#~ msgid "Total Assets Value"
+#~ msgstr "Totaal waarde activa"
+
+#~ msgid "Revenue & Costs"
+#~ msgstr "Omzet en kosten"
+
+#~ msgid "Total Revenue"
+#~ msgstr "Totaal omzet"
+
+#~ msgid "Direct Costs"
+#~ msgstr "Directe kosten"
+
+#~ msgid "Total Expenses"
+#~ msgstr "Totale kosten"
+
+#~ msgid "Total Profit"
+#~ msgstr "Totale winst"
+
+#~ msgid "Rental Agreements"
+#~ msgstr "Huurovereenkomsten"
+
+#~ msgid "Date"
+#~ msgstr "Datum"
+
+#~ msgid "Description"
+#~ msgstr "Omschrijving"
+
+#~ msgid "Loan Agreements"
+#~ msgstr "Leenovereenkomsten"
+
+#~ msgid "No active agreements"
+#~ msgstr "Geen actieve overeenkomsten"
+
+#~ msgid "Account"
+#~ msgstr "Account"
+
+#~ msgid "Amount"
+#~ msgstr "Waarde"
+
+#~ msgid "No transaction history"
+#~ msgstr "Geen transactiegeschiedenis"

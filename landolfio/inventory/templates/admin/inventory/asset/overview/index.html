@@ -30,7 +30,7 @@
                         <br>
                         <span class="mini quiet">{{ asset.category.name_singular }} · {{ asset.collection }} · {{ asset.size }}</span>
                         <br>
-                        <span class="mini quiet">{% translate "created at"|capfirst %} {{ asset.created_at }}</span>
+                        <span class="mini quiet">{% translate "start date"|capfirst %} {{ asset.start_date|default:asset.created_at }}</span>
                     </li>
                 {% endfor %}
              </ul>

@@ -47,31 +47,16 @@
         <li><strong>{% translate "location"|capfirst %}:</strong> {{ asset.location|default_if_none:"-" }}{% if asset.location_nr and asset.location %} - {{ asset.location_nr }}{% endif %}</li>
         <li><strong>{% translate "listing price"|capfirst %}:</strong> {{ asset.listing_price|default_if_none:"-" }}</li>
         <li><strong>{% translate "local status"|capfirst %}:</strong> {{ asset.local_status|default_if_none:"-" }}</li>
-        <li><strong>{% translate "accounting status"|capfirst %}:</strong> {{ asset.accounting_status|default_if_none:"-" }}</li>
-        {% if asset.check_moneybird_errors %}
-            <li><strong>{% translate "accounting errors"|capfirst %}:</strong>
-                <ul>
-                    {% for error in asset.accounting_errors %}
-                        <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-            </li>
-        {% endif %}
+        {% if asset.start_date %}<li><strong>{% translate "start date"|capfirst %}:</strong> {{ asset.start_date }}</li>{% endif %}
+        {% if asset.moneybird_asset_id %}<li><strong>{% translate "Moneybird Asset"|capfirst %}:</strong> {% if asset.moneybird_asset_url %}<a href="{{ asset.moneybird_asset_url }}" target="_blank">{{ asset.moneybird_asset_id }}</a>{% else %}{{ asset.moneybird_asset_id }}{% endif %}</li>{% endif %}
     </ul>
     <hr>
     <ul>
-        <li><strong>{% translate "margin"|capfirst %}:</strong> <img src="{% if asset.is_margin %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
-        <li><strong>{% translate "amortized"|capfirst %}:</strong> <img src="{% if asset.amortized %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
-        <li><strong>{% translate "sold"|capfirst %}:</strong> <img src="{% if asset.sold %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
-        <li><strong>{% translate "rented"|capfirst %}:</strong> <img src="{% if asset.is_rented %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
-        <li><strong>{% translate "has rental agreement"|capfirst %}:</strong> <img src="{% if asset.has_rental_agreement %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
-        <li><strong>{% translate "has loan agreement"|capfirst %}:</strong> <img src="{% if asset.has_loan_agreement %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
+        <li><strong>{% translate "margin"|capfirst %}:</strong> <img src="{% if asset.is_margin_asset %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon"></li>
+        <li><strong>{% translate "disposed"|capfirst %}:</strong> <img src="{% if asset.is_disposed %}{% static 'admin/img/icon-yes.svg' %}{% else %}{% static 'admin/img/icon-no.svg' %}{% endif %}" alt="None" class="sidebar-icon">{% if asset.is_disposed %} ({{ asset.disposal_reason_display }}){% endif %}</li>
     </ul>
     <hr>
     <ul>
-        <li><strong>{% translate "assets value"|capfirst %}:</strong> {{ asset.total_assets_value|default_if_none:"" }} </li>
-        <li><strong>{% translate "purchase value"|capfirst %}:</strong> {{ asset.purchase_value|default_if_none:"" }} </li>
-        <li><strong>{% translate "total expenses"|capfirst %}:</strong> {{ asset.total_expenses_value|default_if_none:"" }} </li>
-        <li><strong>{% translate "total revenue"|capfirst %}:</strong> {{ asset.total_revenue_value|default_if_none:"" }} </li>
+        <li><strong>{% translate "purchase value"|capfirst %}:</strong> {{ asset.purchase_value_asset|default_if_none:"" }} </li>
     </ul>
 </div>

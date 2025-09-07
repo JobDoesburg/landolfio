@@ -510,28 +510,24 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         asset = self.object
 
+        # Refresh from Moneybird if linked
+        if asset.moneybird_asset_id:
+            try:
+                asset.refresh_from_moneybird()
+            except Exception as e:
+                messages.warning(
+                    self.request,
+                    f"Failed to refresh asset data from Moneybird: {str(e)}",
+                )
+
         # Add financial data
         context["financial_data"] = {
-            "purchase_value": asset.purchase_value,
-            "sales_profit": asset.sales_profit,
-            "total_profit": asset.total_profit,
-            "total_revenue": asset.total_revenue_value,
-            "total_expenses": asset.total_expenses_value,
-            "total_direct_costs": asset.total_direct_costs_value,
+            "purchase_value": asset.purchase_value_asset,
         }
 
         # Add status information
-        context["accounting_status"] = asset.accounting_status
-        context["accounting_errors"] = asset.accounting_errors
-        context["is_rented"] = asset.is_rented
-        context["has_rental_agreement"] = asset.has_rental_agreement
-        context["has_loan_agreement"] = asset.has_loan_agreement
-
-        # Add related documents
-        context["rental_agreements"] = asset.estimate_document_lines.filter(
-            document__workflow__is_rental=True,
-            document__state__in=["open", "late", "accepted"],
-        )
+        context["is_disposed"] = asset.is_disposed
+        context["disposal_reason"] = asset.disposal_reason_display
 
         # Add form data for status update in logical color grouping order
         context["asset_states"] = [
@@ -624,15 +620,15 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
                 messages.error(request, "Please enter a remark")
             return redirect(request.path)
 
-        # Handle status update
-        if data.get("action") == "update_status":
-            updated_fields = []
+        # Handle unified form updates (status, location, listing price, and properties)
+        if data.get("action") in ["update_status", "update_all"]:
+            updated_items = []
 
             # Update local status
             new_local_status = data.get("new_local_status", "").strip()
             if new_local_status and new_local_status != asset.local_status:
                 asset.local_status = new_local_status
-                updated_fields.append("status")
+                updated_items.append("status")
 
             # Update location
             new_location_id = data.get("new_location", "").strip()
@@ -641,7 +637,7 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
                     new_location = Location.objects.get(pk=new_location_id)
                     if new_location != asset.location:
                         asset.location = new_location
-                        updated_fields.append("location")
+                        updated_items.append("location")
                 except Location.DoesNotExist:
                     messages.error(request, "Invalid location selected")
                     return redirect(request.path)
@@ -653,35 +649,45 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
                     new_location_nr_int = int(new_location_nr)
                     if new_location_nr_int != asset.location_nr:
                         asset.location_nr = new_location_nr_int
-                        updated_fields.append("location number")
+                        updated_items.append("location number")
                 except ValueError:
                     messages.error(request, "Invalid location number")
                     return redirect(request.path)
             elif new_location_nr == "" and asset.location_nr is not None:
                 # Clear location number if empty string provided
                 asset.location_nr = None
-                updated_fields.append("location number (cleared)")
+                updated_items.append("location number (cleared)")
 
-            if updated_fields:
-                asset.save()
+            # Update listing price
+            listing_price = data.get("listing_price", "").strip()
+            if listing_price:
+                try:
+                    new_listing_price = float(listing_price)
+                    if new_listing_price != (asset.listing_price or 0):
+                        asset.listing_price = new_listing_price
+                        updated_items.append("listing price")
+                except ValueError:
+                    messages.error(request, "Invalid listing price")
+                    return redirect(request.path)
+            elif listing_price == "" and asset.listing_price is not None:
+                # Clear listing price if empty string provided
+                asset.listing_price = None
+                updated_items.append("listing price (cleared)")
+
+            # Handle property updates
+            updated_properties = self._update_asset_properties(asset, data)
+            updated_items.extend(updated_properties)
+
+            # Save asset changes
+            asset.save()
+
+            # Show success message
+            if updated_items:
                 messages.success(
-                    request, f"Updated {', '.join(updated_fields)} successfully"
+                    request, f"Updated {', '.join(updated_items)} successfully"
                 )
             else:
                 messages.info(request, "No changes made")
-
-            return redirect(request.path)
-
-        # Handle property updates
-        if data.get("action") == "update_properties":
-            updated_properties = self._update_asset_properties(asset, data)
-
-            if updated_properties:
-                messages.success(
-                    request, f"Updated properties: {', '.join(updated_properties)}"
-                )
-            else:
-                messages.info(request, "No property changes made")
 
             return redirect(request.path)
 
@@ -775,7 +781,29 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         # Set default status for new assets
         form.instance.local_status = AssetStates.PLACEHOLDER
-        return super().form_valid(form)
+        response = super().form_valid(form)
+
+        # Try to create on Moneybird if required fields are present
+        asset = self.object
+        if asset.start_date and asset.purchase_value_asset:
+            try:
+                asset.create_on_moneybird()
+                messages.success(
+                    self.request,
+                    f'Asset "{asset.name}" created successfully and pushed to Moneybird.',
+                )
+            except Exception as e:
+                messages.warning(
+                    self.request,
+                    f'Asset "{asset.name}" created successfully, but failed to push to Moneybird: {str(e)}',
+                )
+        else:
+            messages.success(
+                self.request,
+                f'Asset "{asset.name}" created successfully. Add start date and purchase value to sync with Moneybird.',
+            )
+
+        return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -833,12 +861,14 @@ class AssetAutocompleteView(LoginRequiredMixin, View):
                     "created_at": asset.created_at.strftime("%d-%m-%Y")
                     if asset.created_at
                     else None,
-                    "purchase_value": float(asset.purchase_value)
-                    if asset.purchase_value
+                    "purchase_value": float(asset.purchase_value_asset)
+                    if asset.purchase_value_asset
                     else 0,
                     "listing_price": float(asset.listing_price)
                     if asset.listing_price
                     else 0,
+                    "is_disposed": asset.is_disposed,
+                    "disposal_reason": asset.disposal_reason_display,
                 }
             )
 
@@ -911,3 +941,370 @@ class AttachmentReorderView(LoginRequiredMixin, View):
         except Exception as e:
             messages.error(request, f"Error reordering attachments: {str(e)}")
             return JsonResponse({"success": False, "error": str(e)})
+
+
+class AssetCreateMoneybirdView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        asset = get_object_or_404(Asset, pk=pk)
+
+        # Check if asset is already linked to Moneybird
+        if asset.moneybird_asset_id:
+            messages.warning(
+                request, f'Asset "{asset.name}" is already linked to Moneybird.'
+            )
+            return redirect(
+                request.META.get("HTTP_REFERER", reverse("inventory_frontend:list"))
+            )
+
+        # Check if required fields are present
+        if not asset.start_date or not asset.purchase_value_asset:
+            messages.error(
+                request,
+                f'Asset "{asset.name}" is missing required fields (start date and purchase value) for Moneybird creation.',
+            )
+            return redirect(
+                request.META.get("HTTP_REFERER", reverse("inventory_frontend:list"))
+            )
+
+        try:
+            asset.create_on_moneybird()
+            messages.success(
+                request,
+                f'Asset "{asset.name}" has been successfully created on Moneybird.',
+            )
+        except Exception as e:
+            messages.error(
+                request, f'Failed to create asset "{asset.name}" on Moneybird: {str(e)}'
+            )
+
+        return redirect(
+            request.META.get("HTTP_REFERER", reverse("inventory_frontend:list"))
+        )
+
+
+class AssetLinkMoneybirdView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        asset = get_object_or_404(Asset, pk=pk)
+
+        # Check if asset is already linked to Moneybird
+        if asset.moneybird_asset_id:
+            messages.warning(
+                request, f'Asset "{asset.name}" is already linked to Moneybird.'
+            )
+            return redirect(
+                request.META.get(
+                    "HTTP_REFERER",
+                    reverse("inventory_frontend:detail", kwargs={"pk": pk}),
+                )
+            )
+
+        # Get the Moneybird asset ID from form
+        moneybird_asset_id = request.POST.get("moneybird_asset_id")
+        if not moneybird_asset_id:
+            messages.error(request, "Please provide a valid Moneybird Asset ID.")
+            return redirect(
+                request.META.get(
+                    "HTTP_REFERER",
+                    reverse("inventory_frontend:detail", kwargs={"pk": pk}),
+                )
+            )
+
+        try:
+            # Convert to integer and validate
+            moneybird_asset_id = int(moneybird_asset_id)
+
+            # Check if this Moneybird ID is already linked to another asset
+            existing_asset = Asset.objects.filter(
+                moneybird_asset_id=moneybird_asset_id
+            ).first()
+            if existing_asset and existing_asset != asset:
+                messages.error(
+                    request,
+                    f'Moneybird Asset ID {moneybird_asset_id} is already linked to asset "{existing_asset.name}".',
+                )
+                return redirect(
+                    request.META.get(
+                        "HTTP_REFERER",
+                        reverse("inventory_frontend:detail", kwargs={"pk": pk}),
+                    )
+                )
+
+            # Link the asset
+            asset.moneybird_asset_id = moneybird_asset_id
+            asset.save(update_fields=["moneybird_asset_id"])
+
+            # Try to refresh data from Moneybird
+            try:
+                asset.refresh_from_moneybird()
+                messages.success(
+                    request,
+                    f'Asset "{asset.name}" has been successfully linked to Moneybird Asset {moneybird_asset_id} and data has been refreshed.',
+                )
+            except Exception as refresh_error:
+                messages.warning(
+                    request,
+                    f'Asset "{asset.name}" has been linked to Moneybird Asset {moneybird_asset_id}, but failed to refresh data: {str(refresh_error)}',
+                )
+
+        except ValueError:
+            messages.error(
+                request, "Please provide a valid numeric Moneybird Asset ID."
+            )
+        except Exception as e:
+            messages.error(
+                request, f'Failed to link asset "{asset.name}" to Moneybird: {str(e)}'
+            )
+
+        return redirect(
+            request.META.get(
+                "HTTP_REFERER", reverse("inventory_frontend:detail", kwargs={"pk": pk})
+            )
+        )
+
+
+class AssetUnlinkMoneybirdView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        asset = get_object_or_404(Asset, pk=pk)
+
+        # Check if asset is linked to Moneybird
+        if not asset.moneybird_asset_id:
+            messages.warning(
+                request, f'Asset "{asset.name}" is not linked to Moneybird.'
+            )
+            return redirect(
+                request.META.get(
+                    "HTTP_REFERER",
+                    reverse("inventory_frontend:detail", kwargs={"pk": pk}),
+                )
+            )
+
+        try:
+            old_moneybird_id = asset.moneybird_asset_id
+            asset.moneybird_asset_id = None
+            asset.moneybird_data = None
+            asset.save(update_fields=["moneybird_asset_id", "moneybird_data"])
+            messages.success(
+                request,
+                f'Asset "{asset.name}" has been unlinked from Moneybird Asset {old_moneybird_id}.',
+            )
+        except Exception as e:
+            messages.error(
+                request,
+                f'Failed to unlink asset "{asset.name}" from Moneybird: {str(e)}',
+            )
+
+        return redirect(
+            request.META.get(
+                "HTTP_REFERER", reverse("inventory_frontend:detail", kwargs={"pk": pk})
+            )
+        )
+
+
+class AssetDeleteMoneybirdView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        asset = get_object_or_404(Asset, pk=pk)
+
+        # Check if asset is linked to Moneybird
+        if not asset.moneybird_asset_id:
+            messages.warning(
+                request, f'Asset "{asset.name}" is not linked to Moneybird.'
+            )
+            return redirect(
+                request.META.get(
+                    "HTTP_REFERER",
+                    reverse("inventory_frontend:detail", kwargs={"pk": pk}),
+                )
+            )
+
+        try:
+            old_moneybird_name = asset.moneybird_asset_name
+            asset.delete_from_moneybird()
+            messages.success(
+                request,
+                f'Asset "{old_moneybird_name}" has been successfully deleted from Moneybird and unlinked.',
+            )
+        except Exception as e:
+            messages.error(
+                request,
+                f'Failed to delete asset "{asset.name}" from Moneybird: {str(e)}',
+            )
+
+        return redirect(
+            request.META.get(
+                "HTTP_REFERER", reverse("inventory_frontend:detail", kwargs={"pk": pk})
+            )
+        )
+
+
+class AssetRefreshMoneybirdView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        asset = get_object_or_404(Asset, pk=pk)
+
+        # Check if asset is linked to Moneybird
+        if not asset.moneybird_asset_id:
+            messages.warning(
+                request, f'Asset "{asset.name}" is not linked to Moneybird.'
+            )
+            return redirect(
+                request.META.get(
+                    "HTTP_REFERER",
+                    reverse("inventory_frontend:detail", kwargs={"pk": pk}),
+                )
+            )
+
+        try:
+            asset.refresh_from_moneybird()
+            messages.success(
+                request,
+                f'Asset "{asset.name}" has been successfully refreshed from Moneybird.',
+            )
+        except Exception as e:
+            messages.error(
+                request,
+                f'Failed to refresh asset "{asset.name}" from Moneybird: {str(e)}',
+            )
+
+        return redirect(
+            request.META.get(
+                "HTTP_REFERER", reverse("inventory_frontend:detail", kwargs={"pk": pk})
+            )
+        )
+
+
+class AssetUpdateMoneybirdView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        asset = get_object_or_404(Asset, pk=pk)
+
+        # Check if asset is linked to Moneybird
+        if not asset.moneybird_asset_id:
+            messages.warning(
+                request, f'Asset "{asset.name}" is not linked to Moneybird.'
+            )
+            return redirect(
+                request.META.get(
+                    "HTTP_REFERER",
+                    reverse("inventory_frontend:detail", kwargs={"pk": pk}),
+                )
+            )
+
+        try:
+            asset.update_on_moneybird()
+            messages.success(
+                request,
+                f'Asset "{asset.name}" has been successfully updated on Moneybird with current local data.',
+            )
+        except Exception as e:
+            messages.error(
+                request, f'Failed to update asset "{asset.name}" on Moneybird: {str(e)}'
+            )
+
+        return redirect(
+            request.META.get(
+                "HTTP_REFERER", reverse("inventory_frontend:detail", kwargs={"pk": pk})
+            )
+        )
+
+
+class AssetDisposeMoneybirdView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        asset = get_object_or_404(Asset, pk=pk)
+
+        # Check if asset is linked to Moneybird
+        if not asset.moneybird_asset_id:
+            messages.warning(
+                request, f'Asset "{asset.name}" is not linked to Moneybird.'
+            )
+            return redirect(
+                request.META.get(
+                    "HTTP_REFERER",
+                    reverse("inventory_frontend:detail", kwargs={"pk": pk}),
+                )
+            )
+
+        # Check if asset is already disposed
+        if asset.is_disposed:
+            messages.warning(request, f'Asset "{asset.name}" is already disposed.')
+            return redirect(
+                request.META.get(
+                    "HTTP_REFERER",
+                    reverse("inventory_frontend:detail", kwargs={"pk": pk}),
+                )
+            )
+
+        # Get disposal reason from form
+        disposal_reason = request.POST.get("disposal_reason")
+        if not disposal_reason or disposal_reason not in [
+            "out_of_use",
+            "sold",
+            "private_withdrawal",
+            "divested",
+        ]:
+            messages.error(request, "Invalid disposal reason.")
+            return redirect(
+                request.META.get(
+                    "HTTP_REFERER",
+                    reverse("inventory_frontend:detail", kwargs={"pk": pk}),
+                )
+            )
+
+        try:
+            # Use today's date for disposal
+            from datetime import date
+
+            disposal_date = date.today()
+
+            # TODO: This logic should be refactored once we determine the correct accounting approach
+            # Currently using different methods based on disposal reason for proper accounting treatment
+
+            if disposal_reason in ["sold", "private_withdrawal"]:
+                # TODO: For sold/private withdrawal, we should use divestment value change
+                # This goes to "boekresultaat" (book result) account instead of "afschrijvingen" (depreciation)
+                # Divestment automatically creates disposal, so no separate disposal call needed
+
+                if disposal_reason == "private_withdrawal":
+                    # TODO: For private withdrawal, asset should be moved to a private collection
+                    # This means finding/creating a non-commerce collection and transferring the asset
+                    # The asset would then become a private asset (collection.commerce = False)
+                    pass
+
+                asset.create_divestment_value_change_on_moneybird(disposal_date)
+                messages.success(
+                    request,
+                    f'Asset "{asset.name}" has been successfully divested on Moneybird as {disposal_reason.replace("_", " ")}.',
+                )
+            else:
+                # For out_of_use and divested, use the manual value change + disposal approach
+                # First, check if we need to create a value change to zero out the asset
+                current_value = asset.current_value or 0
+                if current_value != 0:
+                    # Create a manual value change to reduce the asset value to zero
+                    value_change_amount = -1 * float(current_value)
+                    description = f"Manual value change before disposal ({disposal_reason.replace('_', ' ')})"
+
+                    asset.create_manual_value_change_on_moneybird(
+                        change_date=disposal_date,
+                        amount=value_change_amount,
+                        description=description,
+                        externally_booked=False,
+                    )
+
+                    # Refresh asset data to get updated current_value
+                    asset.refresh_from_moneybird()
+
+                # Now dispose the asset
+                asset.dispose_on_moneybird(disposal_date, disposal_reason)
+                messages.success(
+                    request,
+                    f'Asset "{asset.name}" has been successfully disposed on Moneybird as {disposal_reason.replace("_", " ")}.',
+                )
+        except Exception as e:
+            messages.error(
+                request,
+                f'Failed to dispose asset "{asset.name}" on Moneybird: {str(e)}',
+            )
+
+        return redirect(
+            request.META.get(
+                "HTTP_REFERER", reverse("inventory_frontend:detail", kwargs={"pk": pk})
+            )
+        )

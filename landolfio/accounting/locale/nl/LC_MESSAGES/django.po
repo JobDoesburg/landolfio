@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-19 20:43+0200\n"
+"POT-Creation-Date: 2025-09-07 12:56+0200\n"
 "PO-Revision-Date: 2025-07-20 10:47+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -33,18 +33,6 @@ msgstr "SEPA"
 #: accounting/admin/contact.py:118
 msgid "Moneybird"
 msgstr "Moneybird"
-
-#: accounting/admin/sales_invoice.py:99
-msgid "Send invoice"
-msgstr "Verstuur factuur"
-
-#: accounting/admin/sales_invoice.py:114
-msgid "Resend invoice"
-msgstr "Verstuur factuur opnieuw"
-
-#: accounting/admin/sales_invoice.py:128
-msgid "View on moneybird"
-msgstr "Bekijk op Moneybird"
 
 #: accounting/api/views.py:12
 msgid "The database was successfully updated."
@@ -197,7 +185,8 @@ msgstr "facturen url"
 #: accounting/models/contact.py:199 accounting/models/contact.py:206
 #: accounting/models/contact.py:213
 msgid "Contact must either have a company name, or first and last name."
-msgstr "Contact moet ofwel een bedrijfsnaam, ofwel een voor- en achternaam hebben."
+msgstr ""
+"Contact moet ofwel een bedrijfsnaam, ofwel een voor- en achternaam hebben."
 
 #: accounting/models/contact.py:232
 msgid "Fill in all SEPA fields if SEPA mandate is active."
@@ -849,7 +838,24 @@ msgstr "is incasso"
 msgid "workflows"
 msgstr "workflows"
 
-#~ msgid "{_('Every')} {self.frequency_type} {_('since')} {self.start_date} {_('to')} {self.contact}"
-#~ msgid_plural "{_('Every')} {self.frequency} {self.frequency_type} {_('since')} {self.start_date} {_('to')} {self.contact}"
-#~ msgstr[0] "{_(‘Iedere’)} {self.frequency_type} {_(‘sinds’)} {self.start_date} {_(‘tot’)} {self.contact}"
-#~ msgstr[1] "{_(‘Iedere’)} {self.frequency} {self.frequency_type} {_(‘sinds’)} {self.start_date} {_(‘tot’)} {self.contact}"
+#~ msgid "Send invoice"
+#~ msgstr "Verstuur factuur"
+
+#~ msgid "Resend invoice"
+#~ msgstr "Verstuur factuur opnieuw"
+
+#~ msgid "View on moneybird"
+#~ msgstr "Bekijk op Moneybird"
+
+#~ msgid ""
+#~ "{_('Every')} {self.frequency_type} {_('since')} {self.start_date} "
+#~ "{_('to')} {self.contact}"
+#~ msgid_plural ""
+#~ "{_('Every')} {self.frequency} {self.frequency_type} {_('since')} "
+#~ "{self.start_date} {_('to')} {self.contact}"
+#~ msgstr[0] ""
+#~ "{_(‘Iedere’)} {self.frequency_type} {_(‘sinds’)} {self.start_date} "
+#~ "{_(‘tot’)} {self.contact}"
+#~ msgstr[1] ""
+#~ "{_(‘Iedere’)} {self.frequency} {self.frequency_type} {_(‘sinds’)} "
+#~ "{self.start_date} {_(‘tot’)} {self.contact}"

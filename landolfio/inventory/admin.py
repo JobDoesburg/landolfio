@@ -21,17 +21,9 @@ from django_admin_multi_select_filter.filters import (
     MultiSelectRelatedFieldListFilter,
 )
 
-from accounting.models import (
-    EstimateDocumentLine,
-    JournalDocumentLine,
-    RecurringSalesInvoiceDocumentLine,
-)
 from inventory.admin_inlines import (
     RemarkInline,
     AttachmentInlineAdmin,
-    AssetOnRecurringSalesInvoiceDocumentLineInline,
-    AssetOnEstimateDocumentLineInline,
-    AssetOnJournalDocumentLineInline,
 )
 from inventory.admin_views import ViewAssetView, AssetOverviewView
 from inventory.models.asset import (
@@ -42,7 +34,6 @@ from inventory.models.attachment import Attachment
 from inventory.models.category import Category, Size
 from inventory.models.collection import Collection
 from inventory.models.location import Location, LocationGroup
-from moneybird.admin import MoneybirdResourceModelAdmin
 
 
 class AssetPropertyValueInline(admin.TabularInline):
@@ -136,17 +127,12 @@ class AssetAdmin(
         "listing_price",
         # "accounting_status",
         "local_status",
-        "is_margin",
-        "is_amortized",
+        "is_margin_asset_display",
+        "is_disposed_display",
+        "disposal_reason",
         "attachment_count",
-        # "accounting_errors",
-        # "total_assets_value",
-        # "total_direct_costs_value",
-        # "total_expenses_value",
-        # "total_revenue_value",
-        # "purchase_value",
-        # "sales_profit",
-        # "total_profit",
+        "start_date",
+        "moneybird_asset_link",
     )
 
     list_filter = (
@@ -157,15 +143,8 @@ class AssetAdmin(
         ("location", MultiSelectRelatedFieldListFilter),
         ("location__location_group", MultiSelectRelatedFieldListFilter),
         ("listing_price", ListingPriceSliderFilter),
-        # "accounting_status",
-        "is_sold",
-        "is_margin",
-        "is_purchased_asset",
-        "is_purchased_amortized",
-        "is_amortized",
-        "has_rental_agreement",
-        "has_loan_agreement",
-        "is_rented",
+        "is_margin_asset",
+        "disposal",
     )
 
     search_fields = [
@@ -177,19 +156,7 @@ class AssetAdmin(
         "tickets__contact__company_name",
         "category__name",
         "size__name",
-        # "location__name",
-        # "location__location_group__name",
         "collection__name",
-        # "journal_document_lines__description",
-        # "journal_document_lines__contact__first_name",
-        # "estimate_document_lines__description",
-        # "estimate_document_lines__document__contact__first_name",
-        # "estimate_document_lines__document__contact__last_name",
-        # "estimate_document_lines__document__contact__company_name",
-        # "recurring_sales_invoice_document_lines__description",
-        # "recurring_sales_invoice_document_lines__document__contact__first_name",
-        # "recurring_sales_invoice_document_lines__document__contact__last_name",
-        # "recurring_sales_invoice_document_lines__document__contact__company_name",
     ]
 
     fieldsets = [
@@ -205,9 +172,13 @@ class AssetAdmin(
                     "location_nr",
                     "collection",
                     "local_status",
-                    "accounting_status",
-                    "accounting_errors",
                     "listing_price",
+                    "created_at",
+                    "start_date",
+                    "moneybird_asset_id",
+                    "moneybird_asset_url",
+                    "is_margin_asset",
+                    "purchase_value_asset",
                 ],
             },
         ),
@@ -215,37 +186,7 @@ class AssetAdmin(
             _("Financial"),
             {
                 "fields": [
-                    "total_assets_value",
-                    "total_margin_assets_value",
-                    "total_non_margin_assets_value",
-                    "total_direct_costs_value",
-                    "total_margin_direct_costs_value",
-                    "total_non_margin_direct_costs_value",
-                    "total_expenses_value",
-                    "total_purchase_expenses",
-                    "total_other_expenses",
-                    "total_revenue_value",
-                    "total_sales_revenue",
-                    "total_sales_revenue_margin",
-                    "total_sales_revenue_non_margin",
-                    "total_other_revenue",
-                    "purchase_value",
-                    "sales_profit",
-                    "total_profit",
-                    "is_margin",
-                    "is_non_margin",
-                    "is_sold",
-                    "is_sold_as_margin",
-                    "is_sold_as_non_margin",
-                    "is_purchased_asset",
-                    "is_purchased_asset_as_margin",
-                    "is_purchased_asset_as_non_margin",
-                    "is_purchased_amortized",
-                    "is_amortized",
-                    "is_commerce",
-                    "has_rental_agreement",
-                    "has_loan_agreement",
-                    "is_rented",
+                    "disposal",
                 ],
                 "classes": ("collapse",),
             },
@@ -254,39 +195,9 @@ class AssetAdmin(
 
     readonly_fields = (
         "id",
-        "total_assets_value",
-        "total_margin_assets_value",
-        "total_non_margin_assets_value",
-        "total_direct_costs_value",
-        "total_margin_direct_costs_value",
-        "total_non_margin_direct_costs_value",
-        "total_expenses_value",
-        "total_purchase_expenses",
-        "total_other_expenses",
-        "total_revenue_value",
-        "total_sales_revenue",
-        "total_sales_revenue_margin",
-        "total_sales_revenue_non_margin",
-        "total_other_revenue",
-        "purchase_value",
-        "sales_profit",
-        "total_profit",
-        "is_margin",
-        "is_non_margin",
-        "is_sold",
-        "is_sold_as_margin",
-        "is_sold_as_non_margin",
-        "is_purchased_asset",
-        "is_purchased_asset_as_margin",
-        "is_purchased_asset_as_non_margin",
-        "is_purchased_amortized",
-        "is_amortized",
-        "is_commerce",
-        "has_rental_agreement",
-        "has_loan_agreement",
-        "is_rented",
-        "accounting_status",
-        "accounting_errors",
+        "created_at",
+        "moneybird_asset_url",
+        "disposal",
     )
 
     autocomplete_fields = [
@@ -316,78 +227,6 @@ class AssetAdmin(
     )
     def attachment_count(self, obj):
         return obj.attachment_count
-
-    @admin.display(
-        boolean=True,
-        ordering="is_margin",
-        description=_("margin"),
-    )
-    def is_margin(self, obj):
-        return obj.is_margin
-
-    @admin.display(
-        boolean=True,
-        ordering="is_non_margin",
-        description=_("not margin"),
-    )
-    def is_non_margin(self, obj):
-        return obj.is_non_margin
-
-    @admin.display(
-        boolean=True,
-        ordering="is_sold",
-        description=_("sold"),
-    )
-    def is_sold(self, obj):
-        return obj.is_sold
-
-    @admin.display(
-        boolean=True,
-        ordering="is_sold_as_margin",
-        description=_("sold margin"),
-    )
-    def is_sold_as_margin(self, obj):
-        return obj.is_sold_as_margin
-
-    @admin.display(
-        boolean=True,
-        ordering="is_sold_as_non_margin",
-        description=_("sold non margin"),
-    )
-    def is_sold_as_non_margin(self, obj):
-        return obj.is_sold_as_non_margin
-
-    @admin.display(
-        boolean=True,
-        ordering="is_purchased_asset",
-        description=_("purchased asset"),
-    )
-    def is_purchased_asset(self, obj):
-        return obj.is_purchased_asset
-
-    @admin.display(
-        boolean=True,
-        ordering="is_purchased_asset_as_margin",
-        description=_("purchased asset margin"),
-    )
-    def is_purchased_asset_as_margin(self, obj):
-        return obj.is_purchased_asset_as_margin
-
-    @admin.display(
-        boolean=True,
-        ordering="is_purchased_asset_as_non_margin",
-        description=_("purchased asset non margin"),
-    )
-    def is_purchased_asset_as_non_margin(self, obj):
-        return obj.is_purchased_asset_as_non_margin
-
-    @admin.display(
-        boolean=True,
-        ordering="is_purchased_amortized",
-        description=_("purchased amortized"),
-    )
-    def is_purchased_amortized(self, obj):
-        return obj.is_purchased_amortized
 
     @admin.display(
         boolean=True,
@@ -437,6 +276,66 @@ class AssetAdmin(
         return format_html(
             f'<a href="{reverse("admin:inventory_asset_view", kwargs={"id": obj.id})}">{obj.name}</a>',
         )
+
+    @admin.display(
+        boolean=True,
+        ordering="is_margin_asset",
+        description=_("margin asset"),
+    )
+    def is_margin_asset_display(self, obj):
+        return obj.is_margin_asset
+
+    @admin.display(
+        ordering="start_date",
+        description=_("start date"),
+    )
+    def start_date(self, obj):
+        return obj.start_date
+
+    @admin.display(
+        description=_("Moneybird Asset"),
+    )
+    def moneybird_asset_link(self, obj):
+        if obj.moneybird_asset_id:
+            from django.conf import settings
+
+            administration_id = getattr(settings, "MONEYBIRD_ADMINISTRATION_ID", None)
+            if administration_id:
+                url = f"https://moneybird.com/{administration_id}/assets/{obj.moneybird_asset_id}"
+                return format_html(
+                    '<a href="{}" target="_blank">{}</a>', url, obj.moneybird_asset_id
+                )
+            return obj.moneybird_asset_id
+        return "-"
+
+    @admin.display(
+        description=_("Moneybird Asset URL"),
+    )
+    def moneybird_asset_url(self, obj):
+        if obj.moneybird_asset_id:
+            from django.conf import settings
+
+            administration_id = getattr(settings, "MONEYBIRD_ADMINISTRATION_ID", None)
+            if administration_id:
+                url = f"https://moneybird.com/{administration_id}/assets/{obj.moneybird_asset_id}"
+                return format_html('<a href="{}" target="_blank">{}</a>', url, url)
+            return f"Moneybird asset ID: {obj.moneybird_asset_id} (MONEYBIRD_ADMINISTRATION_ID not set)"
+        return "Not linked to Moneybird"
+
+    @admin.display(
+        boolean=True,
+        ordering="disposal",
+        description=_("disposed"),
+    )
+    def is_disposed_display(self, obj):
+        return obj.is_disposed
+
+    @admin.display(
+        ordering="disposal",
+        description=_("disposal reason"),
+    )
+    def disposal_reason(self, obj):
+        return obj.disposal_reason_display if obj.is_disposed else "-"
 
     def get_search_results(self, request, queryset, search_term):
         """Override get_search_results to always search all objects, ignoring any filters."""
@@ -564,105 +463,6 @@ class AssetLocationAdmin(admin.ModelAdmin):
 @admin.register(LocationGroup)
 class AssetLocationGroupAdmin(admin.ModelAdmin):
     search_fields = ["name"]
-
-
-@admin.register(JournalDocumentLine)
-class JournalDocumentLineAdmin(
-    AutocompleteFilterMixin, QueryablePropertiesAdmin, MoneybirdResourceModelAdmin
-):
-    list_display = (
-        "description",
-        "document",
-        "date",
-        "assets",
-        "total_amount",
-        "ledger_account",
-    )
-    list_display_links = ["description", "document", "date"]
-    search_fields = ["description", "assets__name"]
-    readonly_fields = ["assets"]
-    inlines = [AssetOnJournalDocumentLineInline]
-    list_filter = [
-        ("assets", admin.EmptyFieldListFilter),
-        ("assets__asset", AutocompleteListFilter),
-        ("assets__asset__category", AutocompleteListFilter),
-        ("ledger_account", AutocompleteListFilter),
-        "ledger_account__account_type",
-    ]
-
-    def get_queryset(self, request):
-        return super().get_queryset(request).select_subclasses()
-
-    @admin.display(description=_("assets"))
-    def assets(self, obj):
-        return ", ".join(obj.assets.values_list("name", flat=True))
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-
-@admin.register(EstimateDocumentLine)
-class EstimateDocumentLineAdmin(
-    AutocompleteFilterMixin, QueryablePropertiesAdmin, MoneybirdResourceModelAdmin
-):
-    list_display = (
-        "description",
-        "document",
-        "date",
-        "assets",
-        "total_amount",
-        "ledger_account",
-    )
-    list_display_links = ["description", "document", "date"]
-    search_fields = ["description", "assets__name"]
-    readonly_fields = ["assets"]
-    inlines = [AssetOnEstimateDocumentLineInline]
-    list_filter = [
-        ("assets", admin.EmptyFieldListFilter),
-        ("assets__asset", AutocompleteListFilter),
-        ("assets__asset__category", AutocompleteListFilter),
-        ("document__workflow", AutocompleteListFilter),
-    ]
-
-    @admin.display(description=_("assets"))
-    def assets(self, obj):
-        return ", ".join(obj.assets.values_list("name", flat=True))
-
-    def has_add_permission(self, request, obj=None):
-        return False
-
-
-@admin.register(RecurringSalesInvoiceDocumentLine)
-class RecurringSalesInvoiceDocumentLineAdmin(
-    AutocompleteFilterMixin, QueryablePropertiesAdmin, MoneybirdResourceModelAdmin
-):
-    list_display = (
-        "description",
-        "document",
-        "date",
-        "assets",
-        "total_amount",
-        "ledger_account",
-    )
-    list_display_links = ["description", "document", "date"]
-    search_fields = ["description", "assets__name"]
-    readonly_fields = ["assets"]
-    inlines = [AssetOnRecurringSalesInvoiceDocumentLineInline]
-    list_filter = [
-        ("assets", admin.EmptyFieldListFilter),
-        ("assets__asset", AutocompleteListFilter),
-        ("assets__asset__category", AutocompleteListFilter),
-        ("document__workflow", AutocompleteListFilter),
-        ("ledger_account", AutocompleteListFilter),
-        "ledger_account__account_type",
-    ]
-
-    @admin.display(description=_("assets"))
-    def assets(self, obj):
-        return ", ".join(obj.assets.values_list("name", flat=True))
-
-    def has_add_permission(self, request, obj=None):
-        return False
 
 
 @admin.register(AssetProperty)

@@ -429,6 +429,78 @@
         display: none;
         height: 0;
     }
+    
+    /* Grid card improvements */
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        height: 100%;
+    }
+    
+    /* Ensure all columns in the grid have equal height */
+    #grid-view .row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: stretch;
+    }
+    
+    #grid-view [class*="col-"] {
+        display: flex !important;
+        flex-direction: column;
+    }
+    
+    #grid-view .card {
+        flex: 1;
+        min-height: 160px;
+    }
+    
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    
+    /* Image styling - full height coverage */
+    .card .col-auto {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .card .col-auto .position-relative {
+        overflow: hidden;
+        border-radius: 0.375rem 0 0 0.375rem;
+        height: 100%;
+        display: flex;
+    }
+    
+    .card .col-auto img {
+        width: 90px;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    /* Card body should use flexbox for content distribution and match thumbnail height */
+    .card .card-body {
+        justify-content: space-between;
+        height: 100%;
+    }
+    
+    /* Ensure the column containing card body takes full height */
+    .card .row .col {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    @media (max-width: 767.98px) {
+        .card .col-auto img {
+            width: 75px;
+        }
+    }
+    
+    @media (min-width: 1200px) {
+        .card .col-auto img {
+            width: 105px;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -436,89 +508,129 @@
     <!-- Grid View -->
     <div id="grid-view" class="row g-3">
         {% for asset in assets %}
-            <div class="col-12 col-md-6 col-xl-4">
-                <a href="{% url 'inventory_frontend:detail' asset.id %}" class="text-decoration-none">
-                    <div class="card h-100">
-                        <div class="row g-0">
-                            <div class="col-auto">
-                                <div style="width: 120px; height: 160px;" class="position-relative">
-                                    <img src="{% if asset.attachments.first %}{{ asset.attachments.first.attachment.url }}{% else %}{% static 'img/page.jpg' %}{% endif %}"
-                                         alt="Asset placeholder"
-                                         class="img-fluid rounded-start w-100 h-100"
-                                         style="object-fit: cover;">
-                                    {% if asset.attachments.count > 1 %}
-                                        <span class="position-absolute bottom-0 end-0 badge bg-dark bg-opacity-75 text-white m-1" 
-                                              style="font-size: 0.6rem; border-radius: 0.25rem;">
-                                            <i class="fas fa-camera me-1"></i>{{ asset.attachments.count }}
-                                        </span>
-                                    {% endif %}
-                                </div>
+            <div class="col-12 col-md-6 col-xl-4 col-xxl-3">
+                <div class="card h-100 shadow-sm clickable-card" data-href="{% url 'inventory_frontend:detail' asset.id %}" style="cursor: pointer;">
+                    <div class="row g-0 h-100">
+                        <div class="col-auto">
+                            <div class="position-relative">
+                                <img src="{% if asset.attachments.first %}{{ asset.attachments.first.attachment.url }}{% else %}{% static 'img/page.jpg' %}{% endif %}"
+                                     alt="Asset placeholder"
+                                     class="img-fluid rounded-start"
+                                     style="object-fit: cover;">
+                                {% if asset.attachments.count > 1 %}
+                                    <span class="position-absolute bottom-0 end-0 badge bg-dark bg-opacity-75 text-white m-1" 
+                                          style="font-size: 0.55rem; border-radius: 0.25rem;">
+                                        <i class="fas fa-camera me-1"></i>{{ asset.attachments.count }}
+                                    </span>
+                                {% endif %}
                             </div>
-                            <div class="col">
-                                <div class="card-body py-2 d-flex flex-column" style="min-height: 160px;">
-                                    <div class="d-flex justify-content-between">
-                                        <div>
-                                            <h5 class="card-title mb-1">{{ asset.name }}</h5>
-                                            <p class="card-text text-muted mb-1">
-                                                <span class="badge bg-primary">{{ asset.category.name_singular }}</span>
+                        </div>
+                        <div class="col">
+                            <div class="card-body py-2 px-3 d-flex flex-column">
+                                <!-- Top Content -->
+                                <div class="flex-grow-1">
+                                    <!-- Asset Name and Badges Row -->
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <h4 class="card-title mb-0 fw-bold flex-grow-1 me-3" style="line-height: 1.2;">{{ asset.name }}</h4>
+                                        <div class="d-flex flex-column gap-1 align-items-end" style="min-width: fit-content;">
+                                            <!-- Classification Badges Row -->
+                                            <div class="d-flex gap-1 justify-content-end">
+                                                <span class="badge bg-primary" style="font-size: 0.6rem;">{{ asset.category.name_singular }}</span>
                                                 {% if asset.size %}
-                                                    <span class="badge bg-secondary">{{ asset.size }}</span>
+                                                    <span class="badge bg-secondary" style="font-size: 0.6rem;">{{ asset.size }}</span>
                                                 {% endif %}
-                                            </p>
-                                            {% if asset.location %}
-                                            <p class="card-text text-muted mb-1 small">
-                                                {{ asset.location }}
-                                                {% if asset.location_nr %}#{{ asset.location_nr }}{% endif %}
-                                            </p>
-                                            {% endif %}
-                                            
-                                            <!-- Dynamic property display -->
-                                            <div class="property-display-area">
-                                                {% for property in all_properties %}
-                                                    <div class="property-display d-none" data-property-slug="{{ property.slug }}">
-                                                        {% for prop_value in asset.property_values.all %}
-                                                            {% if prop_value.property.slug == property.slug %}
-                                                                <small class="text-muted">
-                                                                    <strong>{{ property.name }}:</strong> 
-                                                                    {% if property.property_type == 'number' and property.unit %}
-                                                                        {{ prop_value.value }} {{ property.unit }}
-                                                                    {% else %}
-                                                                        {{ prop_value.value }}
-                                                                    {% endif %}
-                                                                </small><br>
-                                                            {% endif %}
-                                                        {% endfor %}
-                                                    </div>
-                                                {% endfor %}
+                                            </div>
+                                            <!-- Status Badges Row -->
+                                            <div class="d-flex gap-1 justify-content-end">
+                                                <span class="badge 
+                                                {% if asset.is_disposed %}bg-warning
+                                                {% elif asset.local_status == 'available' %}bg-success
+                                                {% elif asset.local_status == 'issued_rent' or asset.local_status == 'issued_loan' or asset.local_status == 'issued_unprocessed' %}bg-warning
+                                                {% elif asset.local_status == 'maintenance_in_house' or asset.local_status == 'maintenance_external' or asset.local_status == 'under_review' %}bg-info
+                                                {% elif asset.local_status == 'placeholder' or asset.local_status == 'to_be_delivered' %}bg-secondary
+                                                {% elif asset.local_status == 'sold' or asset.local_status == 'amortized' %}bg-dark
+                                                {% elif asset.local_status == 'unknown' %}bg-danger
+                                                {% else %}bg-primary{% endif %}" style="font-size: 0.6rem;">
+                                                    {{ asset.local_status }}
+                                                </span>
+                                                {% if asset.collection.commerce %}
+                                                    <span class="badge bg-{{ asset.financial_status_color }} customer-mode-hide" style="font-size: 0.6rem;">
+                                                        {{ asset.financial_status_display|title }}
+                                                    </span>
+                                                {% endif %}
                                             </div>
                                         </div>
-                                        <div class="text-end purchase-price">
-                                            <span class="badge 
-                                            {% if asset.local_status == 'available' %}bg-success
-                                            {% elif asset.local_status == 'issued_rent' or asset.local_status == 'issued_loan' or asset.local_status == 'issued_unprocessed' %}bg-warning
-                                            {% elif asset.local_status == 'maintenance_in_house' or asset.local_status == 'maintenance_external' or asset.local_status == 'under_review' %}bg-info
-                                            {% elif asset.local_status == 'placeholder' or asset.local_status == 'to_be_delivered' %}bg-secondary
-                                            {% elif asset.local_status == 'sold' or asset.local_status == 'amortized' %}bg-dark
-                                            {% elif asset.local_status == 'unknown' %}bg-danger
-                                            {% else %}bg-primary{% endif %}">
-                                                {{ asset.local_status }}
-                                            </span>
-                                        </div>
                                     </div>
-                                    <div class="mt-auto d-flex justify-content-between align-items-end">
-                                        <div class="text-muted purchase-price customer-mode-hide" style="font-size: 0.75rem;">
-                                            {% translate "Created" %}:<br>{{ asset.created_at|date:"d-m-Y" }}
+                                    
+                                    <!-- Location -->
+                                    {% if asset.location %}
+                                    <div class="text-muted small mb-1">
+                                        <i class="fas fa-map-marker-alt me-1"></i>{{ asset.location }}{% if asset.location_nr %} #{{ asset.location_nr }}{% endif %}
+                                    </div>
+                                    {% endif %}
+                                    
+                                    
+                                    <!-- Business Information Row -->
+                                    <div class="d-flex align-items-center gap-2 mb-1" style="font-size: 0.65rem;">
+                                    </div>
+                                        
+                                    <!-- Dynamic property display -->
+                                    <div class="property-display-area small">
+                                        {% for property in all_properties %}
+                                            <div class="property-display d-none" data-property-slug="{{ property.slug }}">
+                                                {% for prop_value in asset.property_values.all %}
+                                                    {% if prop_value.property.slug == property.slug %}
+                                                        <div class="text-muted mb-0" style="font-size: 0.7rem; line-height: 1.3;">
+                                                            <strong>{{ property.name }}:</strong> 
+                                                            {% if property.property_type == 'number' and property.unit %}
+                                                                {{ prop_value.value }} {{ property.unit }}
+                                                            {% else %}
+                                                                {{ prop_value.value }}
+                                                            {% endif %}
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Bottom Section -->
+                                <div class="mt-auto">
+                                    <!-- Pricing row -->
+                                    <div class="d-flex justify-content-between align-items-end">
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% if asset.collection.commerce %}
+                                                {% if asset.moneybird_asset_id %}
+                                                    <a href="{{ asset.moneybird_asset_url }}" target="_blank" class="btn btn-outline-primary btn-sm customer-mode-hide me-1" style="font-size: 0.6rem; padding: 0.15rem 0.3rem;" title="{{ asset.moneybird_asset_name }}" onclick="event.stopPropagation();">
+                                                        <i class="fas fa-external-link-alt"></i> MB
+                                                    </a>
+                                                {% else %}
+                                                    <button class="btn btn-outline-secondary btn-sm customer-mode-hide" style="font-size: 0.6rem; padding: 0.15rem 0.3rem;" title="{% translate 'Connect to Moneybird' %}" onclick="event.stopPropagation();">
+                                                        <i class="fas fa-link"></i>
+                                                    </button>
+                                                {% endif %}
+                                            {% endif %}
+                                            {% if asset.start_date %}
+                                                <div class="text-muted" style="font-size: 0.7rem;">
+                                                    <i class="fas fa-calendar me-1"></i>{{ asset.start_date|date:"d-m-Y" }}
+                                                </div>
+                                            {% endif %}
                                         </div>
-                                        <div>
-                                            <small class="purchase-price">€{{ asset.purchase_value|default:0|floatformat:0 }}</small>
-                                            <strong>€{{ asset.listing_price|default:0|floatformat:0 }}</strong>
+                                        <div class="text-end d-flex align-items-baseline gap-2">
+                                            {% if asset.purchase_value_asset %}
+                                                <small class="text-muted customer-mode-hide" style="font-size: 0.65rem;">€{{ asset.purchase_value_asset|floatformat:0 }}</small>
+                                            {% endif %}
+                                            <div class="fw-bold" style="font-size: 1.1rem; color: #198754;">
+                                                €{{ asset.listing_price|default:0|floatformat:0 }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </a>
+                </div>
             </div>
         {% empty %}
             <div class="col-12 text-center py-5">
@@ -543,7 +655,7 @@
                             <th>{% translate "Name" %}</th>
                             <th>{% translate "Category" %}</th>
                             <th>{% translate "Location" %}</th>
-                            <th class="purchase-price">{% translate "Status" %}</th>
+                            <th>{% translate "Listing Price" %}</th>
                             <!-- Dynamic property columns -->
                             {% for property in all_properties %}
                                 <th class="property-column d-none" data-property-slug="{{ property.slug }}">
@@ -553,9 +665,12 @@
                                     {% endif %}
                                 </th>
                             {% endfor %}
-                            <th class="purchase-price">{% translate "Purchase Price" %}</th>
-                            <th>{% translate "Listing Price" %}</th>
-                            <th class="purchase-price customer-mode-hide">{% translate "Created" %}</th>
+                            <th>{% translate "Status" %}</th>
+                            <th class="customer-mode-hide">{% translate "Accounting status" %}</th>
+                            <th class="customer-mode-hide">{% translate "Purchase Price" %}</th>
+                            <th class="customer-mode-hide">{% translate "Moneybird" %}</th>
+                            <th class="customer-mode-hide">{% translate "Start Date" %}</th>
+                            <th class="customer-mode-hide">{% translate "Created" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -592,18 +707,7 @@
                                         <span class="text-muted">—</span>
                                     {% endif %}
                                 </td>
-                                <td class="purchase-price">
-                                    <span class="badge 
-                                    {% if asset.local_status == 'available' %}bg-success
-                                    {% elif asset.local_status == 'issued_rent' or asset.local_status == 'issued_loan' or asset.local_status == 'issued_unprocessed' %}bg-warning
-                                    {% elif asset.local_status == 'maintenance_in_house' or asset.local_status == 'maintenance_external' or asset.local_status == 'under_review' %}bg-info
-                                    {% elif asset.local_status == 'placeholder' or asset.local_status == 'to_be_delivered' %}bg-secondary
-                                    {% elif asset.local_status == 'sold' or asset.local_status == 'amortized' %}bg-dark
-                                    {% elif asset.local_status == 'unknown' %}bg-danger
-                                    {% else %}bg-primary{% endif %}">
-                                        {{ asset.local_status }}
-                                    </span>
-                                </td>
+                                <td><strong>€{{ asset.listing_price|default:0|floatformat:0 }}</strong></td>
                                 <!-- Dynamic property data cells -->
                                 {% for property in all_properties %}
                                     <td class="property-column d-none" data-property-slug="{{ property.slug }}">
@@ -618,9 +722,56 @@
                                         {% endfor %}
                                     </td>
                                 {% endfor %}
-                                <td class="purchase-price">€{{ asset.purchase_value|default:0|floatformat:0 }}</td>
-                                <td><strong>€{{ asset.listing_price|default:0|floatformat:0 }}</strong></td>
-                                <td class="purchase-price customer-mode-hide">
+                                <td>
+                                    <div class="d-flex flex-column gap-1">
+                                        <span class="badge
+                                        {% if asset.is_disposed %}bg-warning
+                                        {% elif asset.local_status == 'available' %}bg-success
+                                        {% elif asset.local_status == 'issued_rent' or asset.local_status == 'issued_loan' or asset.local_status == 'issued_unprocessed' %}bg-warning
+                                        {% elif asset.local_status == 'maintenance_in_house' or asset.local_status == 'maintenance_external' or asset.local_status == 'under_review' %}bg-info
+                                        {% elif asset.local_status == 'placeholder' or asset.local_status == 'to_be_delivered' %}bg-secondary
+                                        {% elif asset.local_status == 'sold' or asset.local_status == 'amortized' %}bg-dark
+                                        {% elif asset.local_status == 'unknown' %}bg-danger
+                                        {% else %}bg-primary{% endif %}" style="font-size: 0.7rem;">
+                                            {{ asset.local_status }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td class="customer-mode-hide">
+                                    {% if asset.collection.commerce %}
+                                        <div class="d-flex flex-column gap-1">
+                                            <span class="badge bg-{{ asset.financial_status_color }}" style="font-size: 0.65rem;">
+                                                {{ asset.financial_status_display|title }}
+                                            </span>
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="customer-mode-hide">€{{ asset.purchase_value_asset|default:0|floatformat:0 }}</td>
+                                <td class="customer-mode-hide">
+                                    {% if asset.collection.commerce %}
+                                        {% if asset.moneybird_asset_id %}
+                                            <a href="{{ asset.moneybird_asset_url }}" target="_blank" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();">
+                                                <i class="fas fa-external-link-alt"></i> {{ asset.moneybird_asset_name|truncatechars:12 }}
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'inventory_frontend:detail' asset.pk %}#moneybirdModal" class="btn btn-sm btn-outline-secondary" title="{% translate 'Connect to Moneybird' %}" onclick="event.stopPropagation();">
+                                                <i class="fas fa-link"></i>
+                                            </a>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="customer-mode-hide">
+                                    {% if asset.start_date %}
+                                        <small>{{ asset.start_date|date:"d-m-Y" }}</small>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td class="customer-mode-hide">
                                     <small>{{ asset.created_at|date:"d-m-Y" }}</small>
                                 </td>
                             </tr>
@@ -703,7 +854,7 @@
                     </li>
                 {% endif %}
             </ul>
-            
+
             <div class="text-center mt-2">
                 <small class="text-muted">
                     {% blocktranslate with current=page_obj.number total=page_obj.paginator.num_pages count=page_obj.paginator.count %}Page {{ current }} of {{ total }} ({{ count }} total items){% endblocktranslate %}
@@ -721,7 +872,7 @@ console.log('List.html JavaScript loading...');
 function initializeMobileFilters() {
     const form = document.getElementById('filter-collapse');
     if (!form) return;
-    
+
     // On mobile, hide the form after Bootstrap initialization
     if (window.innerWidth < 768) {
         form.classList.add('mobile-hidden');
@@ -732,26 +883,26 @@ function initializeMobileFilters() {
 function toggleFilters() {
     const form = document.getElementById('filter-collapse');
     if (!form) return;
-    
-    const isHidden = form.classList.contains('mobile-hidden') || 
-                     form.style.height === '0px' || 
+
+    const isHidden = form.classList.contains('mobile-hidden') ||
+                     form.style.height === '0px' ||
                      form.style.display === 'none';
-    
+
     if (isHidden) {
         // Show: remove hidden class and animate
         form.classList.remove('mobile-hidden');
         form.classList.add('animating');
         form.style.display = 'flex';
         form.style.height = '0px';
-        
+
         // Get the natural height
         const scrollHeight = form.scrollHeight;
-        
+
         // Trigger reflow then animate
         requestAnimationFrame(() => {
             form.style.height = scrollHeight + 'px';
         });
-        
+
         // Reset height to auto after animation
         setTimeout(() => {
             form.style.height = 'auto';
@@ -761,11 +912,11 @@ function toggleFilters() {
         // Hide: set explicit height, then animate to 0
         form.classList.add('animating');
         form.style.height = form.offsetHeight + 'px';
-        
+
         requestAnimationFrame(() => {
             form.style.height = '0px';
         });
-        
+
         // Hide completely after animation
         setTimeout(() => {
             form.style.display = 'none';
@@ -782,7 +933,7 @@ function updateFilters() {
         console.error('filter-collapse not found');
         return;
     }
-    
+
     // Clean up and submit form
     const hiddenPropertyInputs = form.querySelectorAll('input[type="hidden"]');
     hiddenPropertyInputs.forEach(input => {
@@ -790,11 +941,11 @@ function updateFilters() {
             input.remove();
         }
     });
-    
+
     const formInputs = form.querySelectorAll('input, select');
     formInputs.forEach(input => {
         if (input.type === 'hidden') return;
-        
+
         if (input.type === 'checkbox' && !input.checked) {
             input.disabled = true;
         } else if (input.type !== 'checkbox' && input.type !== 'range' && (!input.value || input.value.trim() === '')) {
@@ -806,7 +957,7 @@ function updateFilters() {
             }
         }
     });
-    
+
     form.submit();
 }
 
@@ -814,7 +965,7 @@ function updateFilters() {
 function togglePropertyVisibility(propertySlug, propertyName) {
     const visibleProperties = getVisibleProperties();
     const isVisible = visibleProperties.includes(propertySlug);
-    
+
     if (isVisible) {
         // Hide property
         hideProperty(propertySlug);
@@ -824,7 +975,7 @@ function togglePropertyVisibility(propertySlug, propertyName) {
         showProperty(propertySlug);
         addToVisibleProperties(propertySlug);
     }
-    
+
     updatePropertyToggleIcons();
 }
 
@@ -832,7 +983,7 @@ function showProperty(propertySlug) {
     // Show in table view
     const tableColumns = document.querySelectorAll(`th[data-property-slug="${propertySlug}"], td[data-property-slug="${propertySlug}"]`);
     tableColumns.forEach(col => col.classList.remove('d-none'));
-    
+
     // Show in grid view
     const gridDisplays = document.querySelectorAll(`.property-display[data-property-slug="${propertySlug}"]`);
     gridDisplays.forEach(display => display.classList.remove('d-none'));
@@ -842,7 +993,7 @@ function hideProperty(propertySlug) {
     // Hide in table view
     const tableColumns = document.querySelectorAll(`th[data-property-slug="${propertySlug}"], td[data-property-slug="${propertySlug}"]`);
     tableColumns.forEach(col => col.classList.add('d-none'));
-    
+
     // Hide in grid view
     const gridDisplays = document.querySelectorAll(`.property-display[data-property-slug="${propertySlug}"]`);
     gridDisplays.forEach(display => display.classList.add('d-none'));
@@ -872,11 +1023,11 @@ function removeFromVisibleProperties(propertySlug) {
 
 function updatePropertyToggleIcons() {
     const visibleProperties = getVisibleProperties();
-    
+
     document.querySelectorAll('.property-visibility-toggle').forEach(icon => {
         const propertySlug = icon.getAttribute('data-property-slug');
         const isVisible = visibleProperties.includes(propertySlug);
-        
+
         if (isVisible) {
             icon.style.color = '#0d6efd'; // Bootstrap primary color
             icon.classList.remove('fa-eye-slash');
@@ -891,32 +1042,32 @@ function updatePropertyToggleIcons() {
 
 function initializePropertyVisibility() {
     const visibleProperties = getVisibleProperties();
-    
+
     // Apply stored visibility settings
     visibleProperties.forEach(propertySlug => {
         showProperty(propertySlug);
     });
-    
+
     updatePropertyToggleIcons();
 }
 
-// Make toggleLocationGroup available globally  
+// Make toggleLocationGroup available globally
 function toggleLocationGroup(groupId) {
     const groupCheckbox = document.getElementById(`location-group-${groupId}`);
     const locationCheckboxes = document.querySelectorAll(`input[data-group-id="${groupId}"].location-checkbox`);
-    
+
     if (!groupCheckbox) {
         console.error('Group checkbox not found:', `location-group-${groupId}`);
         return;
     }
-    
+
     const isChecked = groupCheckbox.checked;
-    
+
     // Set all locations in this group to match the group checkbox state
     locationCheckboxes.forEach(checkbox => {
         checkbox.checked = isChecked;
     });
-    
+
     // Update filters
     updateFilters();
 }
@@ -1213,6 +1364,9 @@ function initializeAutocomplete() {
                 if (!isCustomerMode) {
                     html += '<div class="small text-muted purchase-price">Purchase: €' + suggestion.purchase_value.toFixed(0) + '</div>';
                 }
+                if (suggestion.is_disposed) {
+                    html += '<div class="small text-warning">Disposed: ' + suggestion.disposal_reason + '</div>';
+                }
                 html += '<div class="fw-bold text-success">€' + suggestion.listing_price.toFixed(0) + '</div>';
                 html += '</div></div>';
                 
@@ -1341,6 +1495,27 @@ function initializeClickableRows() {
         row.addEventListener('mouseleave', function() {
             this.style.backgroundColor = '';
             this.style.transform = '';
+        });
+    });
+}
+
+/**
+ * Clickable card functionality for grid view
+ */
+function initializeClickableCards() {
+    const clickableCards = document.querySelectorAll('.clickable-card');
+    
+    clickableCards.forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Don't navigate if clicking on a button or link
+            if (e.target.closest('a, button')) {
+                return;
+            }
+            
+            const href = this.getAttribute('data-href');
+            if (href) {
+                window.location.href = href;
+            }
         });
     });
 }

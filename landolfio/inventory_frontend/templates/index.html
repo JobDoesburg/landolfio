@@ -198,6 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         </div>
                         <div class="text-end ms-2">
                             ${!isCustomerMode ? `<div class="small text-muted purchase-price">Purchase: €${suggestion.purchase_value.toFixed(0)}</div>` : ''}
+                            ${suggestion.is_disposed ? `<div class="small text-warning">Disposed: ${suggestion.disposal_reason}</div>` : ''}
                             <div class="fw-bold text-success">€${suggestion.listing_price.toFixed(0)}</div>
                         </div>
                     </div>

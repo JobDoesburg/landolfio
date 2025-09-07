@@ -1,41 +1,26 @@
 import uuid
-from decimal import Decimal
+import logging
+from datetime import datetime
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.validators import validate_slug
 from django.db import models
 from django.db.models import (
     PROTECT,
-    Sum,
     Count,
-    Q,
-    F,
 )
-from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+
+from inventory.moneybird import MoneybirdAssetService
+
+logger = logging.getLogger(__name__)
 from queryable_properties.managers import QueryablePropertiesManager
 from queryable_properties.properties import (
     RelatedExistenceCheckProperty,
     AggregateProperty,
-    AnnotationProperty,
-    ValueCheckProperty,
 )
 
-from accounting.models import (
-    JournalDocumentLine,
-    RecurringSalesInvoiceDocumentLine,
-)
-from accounting.models.ledger_account import LedgerAccountType, LedgerAccount
-from accounting.models.estimate import (
-    EstimateStates,
-    EstimateDocumentLine,
-)
-from inventory.models.asset_on_document_line import (
-    AssetOnJournalDocumentLine,
-    AssetOnEstimateDocumentLine,
-    AssetOnRecurringSalesInvoiceDocumentLine,
-)
 from inventory.models.category import Category, Size
 from inventory.models.collection import Collection
 from inventory.models.location import Location
@@ -80,6 +65,13 @@ class AccountingStates(models.TextChoices):
 def validate_uppercase(value):
     if not value.isupper():
         raise ValidationError(_("Name must be uppercase"))
+
+
+class DisposalReasons(models.TextChoices):
+    OUT_OF_USE = "out_of_use", _("out of use")
+    SOLD = "sold", _("sold")
+    PRIVATE_WITHDRAWAL = "private_withdrawal", _("private withdrawal")
+    DIVESTED = "divested", _("divested")
 
 
 class Asset(models.Model):
@@ -134,550 +126,513 @@ class Asset(models.Model):
         default=AssetStates.UNKNOWN,
     )
 
-    journal_document_lines = models.ManyToManyField(
-        JournalDocumentLine,
-        through=AssetOnJournalDocumentLine,
-        verbose_name=_("journal document lines"),
-    )
-    estimate_document_lines = models.ManyToManyField(
-        EstimateDocumentLine,
-        through=AssetOnEstimateDocumentLine,
-        verbose_name=_("estimate document lines"),
-    )
-    recurring_sales_invoice_document_lines = models.ManyToManyField(
-        RecurringSalesInvoiceDocumentLine,
-        through=AssetOnRecurringSalesInvoiceDocumentLine,
-        verbose_name=_("recurring sales invoice document lines"),
-    )
-
     raw_data = models.JSONField(verbose_name=_("raw data"), null=True, blank=True)
 
-    @property
-    def get_ledger_account_amounts(self):
-        return dict(
-            (
-                LedgerAccount.objects.get(
-                    moneybird_id=x["document_line__ledger_account__moneybird_id"]
-                ),
-                x["value__sum"],
-            )
-            for x in self.journal_document_line_assets.values(
-                "document_line__ledger_account__moneybird_id"
-            ).annotate(Sum("value"))
-        )
-
-    @property
-    def get_balance_ledger_account_amounts(self):
-        return dict(
-            filter(
-                lambda x: x[0].is_balance,
-                self.get_ledger_account_amounts.items(),
-            )
-        )
-
-    @property
-    def get_results_ledger_account_amounts(self):
-        return dict(
-            filter(
-                lambda x: x[0].is_results,
-                self.get_ledger_account_amounts.items(),
-            )
-        )
-
-    total_assets_value = AggregateProperty(
-        Sum(
-            "journal_document_line_assets__value",
-            filter=Q(
-                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.CURRENT_ASSETS
-            ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2),
+    moneybird_asset_id = models.IntegerField(
+        verbose_name=_("Moneybird asset ID"),
+        null=True,
+        blank=True,
+        unique=True,
+        help_text=_("ID of the corresponding asset in Moneybird"),
+    )
+    moneybird_data = models.JSONField(
+        verbose_name=_("Moneybird data"),
+        null=True,
+        blank=True,
+        help_text=_("Cached data from Moneybird API"),
+    )
+    start_date = models.DateField(
+        verbose_name=_("start date"),
+        null=True,
+        blank=True,
+        help_text=_("Date when the asset was put into service"),
+    )
+    is_margin_asset = models.BooleanField(
+        verbose_name=_("is margin"),
+        default=False,
+        help_text=_(
+            "From a tax perspective, is this property a used good to which the margin scheme applies (purchased from a consumer or purchased under the margin scheme)?"
         ),
     )
-    total_margin_assets_value = AggregateProperty(
-        Sum(
-            "journal_document_line_assets__value",
-            filter=Q(
-                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.CURRENT_ASSETS,
-                journal_document_line_assets__document_line__ledger_account__is_margin=True,
-            ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2),
-        )
+    purchase_value_asset = models.DecimalField(
+        verbose_name=_("purchase value"),
+        null=True,
+        blank=True,
+        max_digits=10,
+        decimal_places=2,
+        help_text=_("Purchase value of the asset"),
     )
-    total_non_margin_assets_value = AggregateProperty(
-        Sum(
-            "journal_document_line_assets__value",
-            filter=Q(
-                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.CURRENT_ASSETS,
-                journal_document_line_assets__document_line__ledger_account__is_margin=False,
-            ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2),
-        )
+    disposal = models.CharField(
+        max_length=20,
+        choices=DisposalReasons.choices,
+        blank=True,
+        null=True,
+        verbose_name=_("disposal status"),
+        help_text=_("Asset disposal reason from Moneybird data"),
     )
-
-    total_direct_costs_value = AggregateProperty(
-        Sum(
-            "journal_document_line_assets__value",
-            filter=Q(
-                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.DIRECT_COSTS
-            ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2),
-        )
-    )
-    total_margin_direct_costs_value = AggregateProperty(
-        Sum(
-            "journal_document_line_assets__value",
-            filter=Q(
-                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.DIRECT_COSTS,
-                journal_document_line_assets__document_line__ledger_account__is_margin=True,
-            ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2),
-        )
-    )
-    total_non_margin_direct_costs_value = AggregateProperty(
-        Sum(
-            "journal_document_line_assets__value",
-            filter=Q(
-                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.DIRECT_COSTS,
-                journal_document_line_assets__document_line__ledger_account__is_margin=False,
-            ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2),
-        )
-    )
-
-    total_expenses_value = AggregateProperty(
-        Sum(
-            "journal_document_line_assets__value",
-            filter=Q(
-                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.EXPENSES
-            ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2),
-        )
-    )
-    total_purchase_expenses = AggregateProperty(
-        Sum(
-            "journal_document_line_assets__value",
-            filter=Q(
-                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.EXPENSES,
-                journal_document_line_assets__document_line__ledger_account__is_purchase=True,
-            ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2),
-        )
-    )
-    total_other_expenses = AggregateProperty(
-        Sum(
-            "journal_document_line_assets__value",
-            filter=Q(
-                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.EXPENSES,
-                journal_document_line_assets__document_line__ledger_account__is_purchase=False,
-            ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2),
-        )
-    )
-
-    total_revenue_value = AggregateProperty(
-        Sum(
-            "journal_document_line_assets__value",
-            filter=Q(
-                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE
-            ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2),
-        )
-    )
-    total_sales_revenue = AggregateProperty(
-        Sum(
-            "journal_document_line_assets__value",
-            filter=Q(
-                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
-                journal_document_line_assets__document_line__ledger_account__is_sales=True,
-            ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2),
-        )
-    )
-    total_sales_revenue_margin = AggregateProperty(
-        Sum(
-            "journal_document_line_assets__value",
-            filter=Q(
-                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
-                journal_document_line_assets__document_line__ledger_account__is_sales=True,
-                journal_document_line_assets__document_line__ledger_account__is_margin=True,
-            ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2),
-        )
-    )
-    total_sales_revenue_non_margin = AggregateProperty(
-        Sum(
-            "journal_document_line_assets__value",
-            filter=Q(
-                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
-                journal_document_line_assets__document_line__ledger_account__is_sales=True,
-                journal_document_line_assets__document_line__ledger_account__is_margin=False,
-            ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2),
-        )
-    )
-    total_other_revenue = AggregateProperty(
-        Sum(
-            "journal_document_line_assets__value",
-            filter=Q(
-                journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
-                journal_document_line_assets__document_line__ledger_account__is_sales=False,
-            ),
-            output_field=models.DecimalField(max_digits=10, decimal_places=2),
-        )
-    )
-
-    is_margin = FilteredRelatedExistenceCheckProperty(
-        "journal_document_lines",
-        filter=Q(
-            Q(
-                journal_document_line_assets__document_line__ledger_account__is_margin=True
-            ),
-            Q(
-                Q(
-                    journal_document_line_assets__document_line__ledger_account__is_sales=True
-                )
-                | Q(
-                    journal_document_line_assets__document_line__ledger_account__is_purchase=True
-                )
-                | Q(
-                    journal_document_line_assets__document_line__ledger_account__is_assets_inventory=True
-                )
-            ),
-        ),
-    )
-    is_non_margin = FilteredRelatedExistenceCheckProperty(
-        "journal_document_lines",
-        filter=Q(
-            Q(
-                journal_document_line_assets__document_line__ledger_account__is_margin=False
-            ),
-            Q(
-                Q(
-                    journal_document_line_assets__document_line__ledger_account__is_sales=True
-                )
-                | Q(
-                    journal_document_line_assets__document_line__ledger_account__is_purchase=True
-                )
-                | Q(
-                    journal_document_line_assets__document_line__ledger_account__is_assets_inventory=True
-                )
-            ),
-        ),
-    )
-
-    is_sold = FilteredRelatedExistenceCheckProperty(
-        "journal_document_lines",
-        filter=Q(
-            journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
-            journal_document_line_assets__document_line__ledger_account__is_sales=True,
-        ),
-    )
-    is_sold_as_margin = FilteredRelatedExistenceCheckProperty(
-        "journal_document_lines",
-        filter=Q(
-            journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
-            journal_document_line_assets__document_line__ledger_account__is_sales=True,
-            journal_document_line_assets__document_line__ledger_account__is_margin=True,
-        ),
-    )
-    is_sold_as_non_margin = FilteredRelatedExistenceCheckProperty(
-        "journal_document_lines",
-        filter=Q(
-            journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.REVENUE,
-            journal_document_line_assets__document_line__ledger_account__is_sales=True,
-            journal_document_line_assets__document_line__ledger_account__is_margin=False,
-        ),
-    )
-
-    is_purchased_asset = FilteredRelatedExistenceCheckProperty(
-        "journal_document_lines",
-        filter=Q(
-            journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.CURRENT_ASSETS
-        ),
-    )
-    is_purchased_asset_as_margin = FilteredRelatedExistenceCheckProperty(
-        "journal_document_lines",
-        filter=Q(
-            journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.CURRENT_ASSETS,
-            journal_document_line_assets__document_line__ledger_account__is_margin=True,
-        ),
-    )
-    is_purchased_asset_as_non_margin = FilteredRelatedExistenceCheckProperty(
-        "journal_document_lines",
-        filter=Q(
-            journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.CURRENT_ASSETS,
-            journal_document_line_assets__document_line__ledger_account__is_margin=False,
-        ),
-    )
-
-    is_purchased_amortized = FilteredRelatedExistenceCheckProperty(
-        "journal_document_lines",
-        filter=Q(
-            journal_document_line_assets__document_line__ledger_account__account_type=LedgerAccountType.EXPENSES,
-            journal_document_line_assets__document_line__ledger_account__is_purchase=True,
-        ),
-    )
-
-    purchase_value = AnnotationProperty(
-        Coalesce(F("total_assets_value"), Decimal(0))
-        + Coalesce(F("total_direct_costs_value"), Decimal(0))
-        + Coalesce(F("total_purchase_expenses"), Decimal(0))
-    )
-
-    sales_profit = AnnotationProperty(
-        Coalesce(F("total_sales_revenue"), Decimal(0))
-        - Coalesce(F("purchase_value"), Decimal(0))
-    )
-
-    total_profit = AnnotationProperty(
-        Coalesce(F("total_revenue_value"), Decimal(0))
-        - Coalesce(F("total_direct_costs_value"), Decimal(0))
-        - Coalesce(F("total_expenses_value"), Decimal(0))
-    )
-
-    coalesce_total_assets_value = AnnotationProperty(
-        Coalesce(F("total_assets_value"), Decimal(0))
-    )
-
-    is_amortized = ValueCheckProperty("coalesce_total_assets_value", Decimal(0))
-
-    is_commerce = FilteredRelatedExistenceCheckProperty(
-        "collection", filter=Q(collection__commerce=True)
-    )
-
-    is_rented = FilteredRelatedExistenceCheckProperty(
-        "recurring_sales_invoice_document_lines",
-        filter=Q(
-            recurring_sales_invoice_document_lines__document__active=True,
-        ),
-    )
-
-    has_rental_agreement = FilteredRelatedExistenceCheckProperty(
-        "estimate_document_lines",
-        filter=Q(
-            estimate_document_lines__document__state__in=[
-                EstimateStates.OPEN,
-                EstimateStates.LATE,
-                EstimateStates.ACCEPTED,
-            ],
-            estimate_document_lines__document__workflow__is_rental=True,
-        ),
-    )
-    num_rental_agreements = AggregateProperty(
-        Count(
-            "estimate_document_lines",
-            filter=Q(
-                estimate_document_lines__document__state__in=[
-                    EstimateStates.OPEN,
-                    EstimateStates.LATE,
-                    EstimateStates.ACCEPTED,
-                ],
-                estimate_document_lines__document__workflow__is_rental=True,
-            ),
-        )
-    )
-
-    has_loan_agreement = FilteredRelatedExistenceCheckProperty(
-        "estimate_document_lines",
-        filter=Q(
-            estimate_document_lines__document__state__in=[
-                EstimateStates.OPEN,
-                EstimateStates.LATE,
-                EstimateStates.ACCEPTED,
-            ],
-            estimate_document_lines__document__workflow__is_loan=True,
-        ),
-    )
-
-    num_loan_agreements = AggregateProperty(
-        Count(
-            "estimate_document_lines",
-            filter=Q(
-                estimate_document_lines__document__state__in=[
-                    EstimateStates.OPEN,
-                    EstimateStates.LATE,
-                    EstimateStates.ACCEPTED,
-                ],
-                estimate_document_lines__document__workflow__is_loan=True,
-            ),
-        )
+    current_value = models.DecimalField(
+        verbose_name=_("current value"),
+        null=True,
+        blank=True,
+        max_digits=10,
+        decimal_places=2,
+        help_text=_("Current value of the asset from Moneybird"),
     )
 
     attachment_count = AggregateProperty(Count("attachments"))
 
+    @property
+    def is_disposed(self):
+        """Boolean property to check if asset has been disposed/amortized."""
+        return bool(self.disposal)
+
+    @property
+    def disposal_reason_display(self):
+        """Get human-readable disposal reason."""
+        return self.get_disposal_display() if self.disposal else None
+
+    @property
+    def financial_status(self):
+        """Get the financial status for badge display."""
+        # If there's a disposal, use disposal-based status
+        if self.disposal:
+            if self.disposal == "sold":
+                return {"status": "sold", "color": "dark"}
+            elif self.disposal == "out_of_use":
+                return {"status": "out of use", "color": "black"}
+            elif self.disposal == "private_withdrawal":
+                return {"status": "private withdrawal", "color": "primary"}
+            elif self.disposal == "divested":
+                return {"status": "divested", "color": "black"}
+
+        # No disposal, check current value
+        current_val = self.current_value or 0
+        if current_val == 0:
+            # Active depreciated (no margin suffix)
+            return {"status": "active depreciated", "color": "success"}
+        else:
+            # Active (with potential margin suffix)
+            base_status = "active"
+            if self.is_margin_asset:
+                base_status += " - margin"
+            return {"status": base_status, "color": "success"}
+
+    @property
+    def financial_status_display(self):
+        """Get the display text for financial status."""
+        return self.financial_status["status"]
+
+    @property
+    def financial_status_color(self):
+        """Get the Bootstrap color class for financial status."""
+        color = self.financial_status["color"]
+        if color == "black":
+            return "dark"  # Bootstrap doesn't have bg-black, use dark
+        return color
+
     objects = QueryablePropertiesManager()
-    # accounting_status = AnnotationProperty(
-    #     Case(
-    #         When(is_commerce=False, then=Value("-")),
-    #         When(
-    #             is_commerce=True,
-    #             is_purchased_amortized=False,
-    #             is_purchased_asset=False,
-    #             then=Value("Unknown"),
-    #         ),
-    #         When(is_sold=True, then=Value("sold")),
-    #         # When(is_amortized=True, then=Value("Amortized")),
-    #         # When(is_commerce=True, is_sold=True, is_purchased_amortized=True, is_purchased_asset=False, then=Value("Sold")),
-    #         # When(is_commerce=True, is_sold=True, is_purchased_amortized=False, is_purchased_asset=True, then=Value("Sold")),
-    #         # When(is_commerce=True, is_sold=True, is_purchased_amortized=True, is_purchased_asset=False, is_amortized=False, then=Value("Sold (error)")),
-    #         # When(is_commerce=True, is_sold=True, is_purchased_amortized=False, is_purchased_asset=True, is_amortized=False, then=Value("Sold (error)")),
-    #         # When(is_sold=True, is_amortized=False, then=Value("Sold (error)")),
-    #         When(is_rented=True, has_rental_agreement=True, then=Value("Rented")),
-    #         When(
-    #             is_rented=False,
-    #             has_rental_agreement=True,
-    #             then=Value("Rented (error)"),
-    #         ),
-    #         When(
-    #             is_rented=True,
-    #             has_rental_agreement=False,
-    #             then=Value("Rented (error)"),
-    #         ),
-    #         When(is_rented=False, has_loan_agreement=True, then=Value("Loaned")),
-    #         # When(
-    #         #     is_sold=False,
-    #         #     is_amortized=True,
-    #         #     is_purchased_amortized=False,
-    #         #     then=Value("Amortized"),
-    #         # ),
-    #         # When(
-    #         #     is_amortized=True,
-    #         #     is_purchased_amortized=True,
-    #         #     then=Value("Available or amortized"),
-    #         # ),
-    #         default=Value("Available"),
-    #     )
-    # )
-
-    is_on_journal_document_lines = RelatedExistenceCheckProperty(
-        "journal_document_lines"
-    )
-
-    @property
-    def accounting_status(self):
-        if self.is_sold:
-            return AccountingStates.SOLD
-        if self.is_rented or self.has_rental_agreement:
-            return AccountingStates.ISSUED_RENT
-        if self.has_loan_agreement:
-            return AccountingStates.ISSUED_LOAN
-        if self.is_purchased_amortized:
-            return AccountingStates.AVAILABLE_OR_AMORTIZED
-        if self.is_amortized and self.is_on_journal_document_lines:
-            return AccountingStates.AMORTIZED
-        if self.is_on_journal_document_lines:
-            return AccountingStates.AVAILABLE
-        return AccountingStates.UNKNOWN
-
-    @property
-    def accounting_errors(self):
-        errors = []
-
-        if self.is_sold and self.is_rented:
-            errors.append(_("Sold and rented"))
-        if self.is_sold and not self.is_amortized:
-            errors.append(_("Sold and not amortized"))
-        if self.is_rented and not self.has_rental_agreement:
-            errors.append(_("Rented and not rental agreement"))
-        if self.is_rented and self.has_loan_agreement:
-            errors.append(_("Rented and loan agreement"))
-        if self.has_rental_agreement and not self.is_rented:
-            errors.append(_("Rental agreement and not rented"))
-        if self.has_rental_agreement and self.has_loan_agreement:
-            errors.append(_("Rental agreement and loan agreement"))
-        if self.num_loan_agreements > 1:
-            errors.append(_("Multiple loan agreements"))
-        if self.num_rental_agreements > 1:
-            errors.append(_("Multiple rental agreements"))
-
-        if self.purchase_value > Decimal(450) and self.is_purchased_amortized:
-            errors.append(_("Amortized above 450 euro"))
-
-        if not self.is_commerce:
-            if self.is_sold:
-                errors.append(_("Sold and not commerce"))
-            if self.is_rented:
-                errors.append(_("Rented and not commerce"))
-            if self.has_rental_agreement:
-                errors.append(_("Rental agreement and not commerce"))
-
-        if self.is_margin and self.is_non_margin:
-            errors.append(_("Margin asset on non-margin ledgers"))
-
-        if not self.accounting_status_compatible_with_local_status:
-            errors.append(_("Accounting status incompatible with local status"))
-
-        if errors:
-            return errors
-        return None
-
-    @property
-    def accounting_status_compatible_with_local_status(self):
-        if not self.is_commerce and self.accounting_status != AccountingStates.UNKNOWN:
-            return False
-
-        if self.accounting_status == AccountingStates.UNKNOWN:
-            return True
-        elif self.accounting_status == AccountingStates.AVAILABLE:
-            if self.local_status in [
-                AssetStates.AVAILABLE,
-                AssetStates.MAINTENANCE_EXTERNAL,
-                AssetStates.MAINTENANCE_IN_HOUSE,
-                AssetStates.UNDER_REVIEW,
-                AssetStates.ISSUED_UNPROCESSED,
-                AssetStates.TO_BE_DELIVERED,
-                AssetStates.PLACEHOLDER,
-            ]:
-                return True
-            return False
-        elif self.accounting_status == AccountingStates.AVAILABLE_OR_AMORTIZED:
-            if self.local_status in [
-                AssetStates.AVAILABLE,
-                AssetStates.MAINTENANCE_EXTERNAL,
-                AssetStates.MAINTENANCE_IN_HOUSE,
-                AssetStates.UNDER_REVIEW,
-                AssetStates.ISSUED_UNPROCESSED,
-                AssetStates.TO_BE_DELIVERED,
-                AssetStates.AMORTIZED,
-            ]:
-                return True
-            return False
-        elif self.accounting_status == AccountingStates.ISSUED_RENT:
-            if self.local_status == AssetStates.ISSUED_RENT:
-                return True
-            return False
-        elif self.accounting_status == AccountingStates.ISSUED_LOAN:
-            if self.local_status == AssetStates.ISSUED_LOAN:
-                return True
-            return False
-        elif self.accounting_status == AccountingStates.AMORTIZED:
-            if self.local_status == AssetStates.AMORTIZED:
-                return True
-            return False
-        elif self.accounting_status == AccountingStates.SOLD:
-            if self.local_status == AssetStates.SOLD:
-                return True
-            return False
-
-    @property
-    def last_accounting_description(self):
-        latest_asset_agreement = self.estimate_document_lines.latest(
-            "document__estimate_date"
-        )
-        return latest_asset_agreement.description
-
-    @property
-    def last_accounting_price(self):
-        latest_asset_agreement = self.estimate_document_lines.latest(
-            "document__estimate_date"
-        )
-        return latest_asset_agreement.price
 
     def __str__(self):
-        return f"{self.category.name_singular} {self.name} ({self.size})"
+        category_name = self.category.name_singular if self.category else "Asset"
+        size_str = f" ({self.size})" if self.size else ""
+        return f"{category_name} {self.name}{size_str}"
+
+    def save(self, *args, **kwargs):
+        """Override save to ensure non-commerce assets are always margin assets."""
+        if self.collection and not self.collection.commerce:
+            self.is_margin_asset = True
+        super().save(*args, **kwargs)
+
+    def get_asset_ledger_account_id(self):
+        """Get the appropriate ledger account ID based on margin status."""
+        if self.is_margin_asset:
+            return getattr(settings, "MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID", None)
+        else:
+            return getattr(
+                settings, "MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID", None
+            )
+
+    def refresh_from_moneybird(self):
+        """Refresh asset data from Moneybird API if moneybird_asset_id is set."""
+        if not self.moneybird_asset_id:
+            return None
+
+        mb = MoneybirdAssetService()
+        try:
+            moneybird_data = mb.get_asset_financial_info(self.moneybird_asset_id)
+            return self._refresh_from_moneybird(moneybird_data)
+        except Exception as e:
+            # Check if it's a 404 error (asset doesn't exist on Moneybird)
+            if "404" in str(e) or "Not Found" in str(e):
+                logger.warning(
+                    f"Asset {self.id} (Moneybird ID: {self.moneybird_asset_id}) not found on Moneybird, unlinking asset and clearing Moneybird data"
+                )
+                # Clear all Moneybird-related data since the asset no longer exists
+                self.moneybird_asset_id = None
+                self.moneybird_data = None
+                self.disposal = None
+                self.current_value = None
+                # Note: We keep purchase_value_asset and start_date as they're local business data
+                self.save(
+                    update_fields=[
+                        "moneybird_asset_id",
+                        "moneybird_data",
+                        "disposal",
+                        "current_value",
+                    ]
+                )
+                return None
+            else:
+                logger.error(
+                    f"Failed to refresh Moneybird data for asset {self.id}: {e}"
+                )
+                return None
+
+    def _refresh_from_moneybird(self, moneybird_data=None):
+        """Refresh asset data with Moneybird API data."""
+        self.moneybird_data = moneybird_data
+
+        if "purchase_date" in moneybird_data:
+            self.start_date = datetime.strptime(
+                moneybird_data["purchase_date"], "%Y-%m-%d"
+            ).date()
+
+        if "purchase_value" in moneybird_data:
+            self.purchase_value_asset = moneybird_data["purchase_value"]
+
+        if "current_value" in moneybird_data:
+            self.current_value = moneybird_data["current_value"]
+
+        if "ledger_account_id" in moneybird_data:
+            margin_account = getattr(
+                settings, "MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID", None
+            )
+            if margin_account:
+                self.is_margin_asset = str(moneybird_data["ledger_account_id"]) == str(
+                    margin_account
+                )
+
+        # Check disposal data to set the disposal reason
+        if "disposal" in moneybird_data and moneybird_data["disposal"]:
+            disposal = moneybird_data["disposal"]
+            disposal_reason = disposal.get("reason")
+            # Map Moneybird disposal reasons to our choices
+            if disposal_reason in [choice[0] for choice in DisposalReasons.choices]:
+                self.disposal = disposal_reason
+            else:
+                # If unknown reason, default to out_of_use
+                self.disposal = DisposalReasons.OUT_OF_USE
+        else:
+            # No disposal data means asset is still active
+            self.disposal = None
+
+        self.save(
+            update_fields=[
+                "moneybird_data",
+                "start_date",
+                "purchase_value_asset",
+                "is_margin_asset",
+                "disposal",
+                "current_value",
+            ]
+        )
+        return moneybird_data
+
+    def create_on_moneybird(self):
+        """Create a new asset on Moneybird and store the returned asset ID."""
+
+        if not self.collection.commerce:
+            raise ValueError(
+                "Only assets in commercial collections can be pushed to Moneybird"
+            )
+
+        if self.moneybird_asset_id:
+            raise ValueError("Asset already exists on Moneybird")
+
+        if not self.start_date:
+            raise ValueError("Asset must have a start_date to push to Moneybird")
+
+        if not self.purchase_value_asset:
+            raise ValueError("Asset must have a purchase_value to push to Moneybird")
+
+        ledger_account_id = self.get_asset_ledger_account_id()
+        if not ledger_account_id:
+            raise ValueError("Cannot determine ledger account ID for asset")
+
+        mb = MoneybirdAssetService()
+        try:
+            # Use asset name as Moneybird asset name
+            asset_name = str(self)
+
+            # Convert start_date to string format
+            start_date_str = self.start_date.strftime("%Y-%m-%d")
+
+            moneybird_data = mb.create_asset(
+                name=asset_name,
+                ledger_account_id=int(ledger_account_id),
+                purchase_value=float(self.purchase_value_asset),
+                start_date=start_date_str,
+            )
+
+            # Store the Moneybird asset ID and data
+            self.moneybird_asset_id = moneybird_data["id"]
+            self.moneybird_data = moneybird_data
+            self.save(update_fields=["moneybird_asset_id", "moneybird_data"])
+
+            return moneybird_data
+        except Exception as e:
+            logger.error(f"Failed to push asset {self.id} to Moneybird: {e}")
+            raise
+
+    def delete_from_moneybird(self):
+        """Delete the asset from Moneybird."""
+        if not self.moneybird_asset_id:
+            raise ValueError("Asset is not linked to Moneybird.")
+
+        mb = MoneybirdAssetService()
+        try:
+            mb.delete_asset(self.moneybird_asset_id)
+
+            # Clear the Moneybird data from local asset
+            self.moneybird_asset_id = None
+            self.moneybird_data = None
+            self.save(update_fields=["moneybird_asset_id", "moneybird_data"])
+
+            return True
+        except Exception as e:
+            logger.error(f"Failed to delete asset {self.id} from Moneybird: {e}")
+            raise
+
+    def update_on_moneybird(self):
+        """Update the asset on Moneybird with current local data."""
+        if not self.moneybird_asset_id:
+            raise ValueError("Asset is not linked to Moneybird.")
+
+        mb = MoneybirdAssetService()
+        try:
+            # Prepare update data
+            asset_name = str(self)
+            ledger_account_id = self.get_asset_ledger_account_id()
+
+            # Convert start_date to string format if available
+            start_date_str = None
+            if self.start_date:
+                start_date_str = self.start_date.strftime("%Y-%m-%d")
+
+            # Update the asset on Moneybird
+            moneybird_data = mb.update_asset(
+                asset_id=self.moneybird_asset_id,
+                name=asset_name,
+                ledger_account_id=int(ledger_account_id) if ledger_account_id else None,
+                purchase_date=start_date_str,
+                purchase_value=float(self.purchase_value_asset)
+                if self.purchase_value_asset
+                else None,
+            )
+
+            # Update local moneybird_data with the response
+            self.moneybird_data = moneybird_data
+            self.save(update_fields=["moneybird_data"])
+
+            return moneybird_data
+        except Exception as e:
+            logger.error(f"Failed to update asset {self.id} on Moneybird: {e}")
+            raise
+
+    def dispose_on_moneybird(self, disposal_date, disposal_reason):
+        """Dispose the asset on Moneybird with given date and reason."""
+        if not self.moneybird_asset_id:
+            raise ValueError("Asset is not linked to Moneybird.")
+
+        mb = MoneybirdAssetService()
+        try:
+            # Format the date
+            date_str = (
+                disposal_date.strftime("%Y-%m-%d")
+                if hasattr(disposal_date, "strftime")
+                else disposal_date
+            )
+
+            # First check the current asset value from Moneybird
+            current_asset_data = mb.get_asset_financial_info(self.moneybird_asset_id)
+
+            # Check if asset has zero value before allowing disposal
+            current_value = current_asset_data.get("current_value", 0)
+            if current_value != "0.0":
+                raise ValueError(
+                    f"Asset cannot be disposed as it still has a value of {current_value}. The asset must be fully depreciated first."
+                )
+
+            # Dispose the asset on Moneybird
+            logger.info(f"Disposing asset {self.id} on Moneybird")
+            disposal_data = mb.dispose_asset(
+                asset_id=self.moneybird_asset_id,
+                disposal_date=date_str,
+                disposal_reason=disposal_reason,
+            )
+
+            # Update local asset data
+            self.disposal = disposal_reason
+            self.moneybird_data = disposal_data
+            self.save(update_fields=["disposal", "moneybird_data"])
+
+            return disposal_data
+        except Exception as e:
+            logger.error(f"Failed to dispose asset {self.id} on Moneybird: {e}")
+            raise
+
+    def fully_depreciate_on_moneybird(
+        self, depreciation_date, description="Full depreciation"
+    ):
+        """Fully depreciate the asset on Moneybird. This will go to the "Afschrijvingskosten" account and create an "out-of-use" disposal."""
+        if not self.moneybird_asset_id:
+            raise ValueError("Asset is not linked to Moneybird.")
+
+        mb = MoneybirdAssetService()
+        try:
+            # Format the date
+            date_str = (
+                depreciation_date.strftime("%Y-%m-%d")
+                if hasattr(depreciation_date, "strftime")
+                else depreciation_date
+            )
+
+            logger.info(f"Fully depreciating asset {self.id} on Moneybird")
+            depreciation_data = mb.fully_depreciate_asset(
+                asset_id=self.moneybird_asset_id,
+                depreciation_date=date_str,
+                description=description,
+            )
+
+            # Update local asset data
+            self.moneybird_data = depreciation_data
+            self.save(update_fields=["moneybird_data"])
+
+            return depreciation_data
+        except Exception as e:
+            logger.error(
+                f"Failed to fully depreciate asset {self.id} on Moneybird: {e}"
+            )
+            raise
+
+    def create_manual_value_change_on_moneybird(
+        self, change_date, amount, description, externally_booked=False
+    ):
+        """Create a manual value change for the asset on Moneybird. This will go to the "Afschrijvingskosten" account."""
+        if not self.moneybird_asset_id:
+            raise ValueError("Asset is not linked to Moneybird.")
+
+        mb = MoneybirdAssetService()
+        try:
+            # Format the date
+            date_str = (
+                change_date.strftime("%Y-%m-%d")
+                if hasattr(change_date, "strftime")
+                else change_date
+            )
+
+            value_change_data = mb.create_manual_value_change(
+                asset_id=self.moneybird_asset_id,
+                change_date=date_str,
+                amount=amount,
+                description=description,
+                externally_booked=externally_booked,
+            )
+
+            # Update local asset data
+            self.moneybird_data = value_change_data
+            self.save(update_fields=["moneybird_data"])
+
+            return value_change_data
+        except Exception as e:
+            logger.error(
+                f"Failed to create manual value change for asset {self.id} on Moneybird: {e}"
+            )
+            raise
+
+    def create_arbitrary_value_change_on_moneybird(
+        self, change_date, amount, description, externally_booked=False
+    ):
+        """Create an arbitrary value change for the asset on Moneybird. This will go to the "Afschrijvingskosten" account."""
+        if not self.moneybird_asset_id:
+            raise ValueError("Asset is not linked to Moneybird.")
+
+        mb = MoneybirdAssetService()
+        try:
+            # Format the date
+            date_str = (
+                change_date.strftime("%Y-%m-%d")
+                if hasattr(change_date, "strftime")
+                else change_date
+            )
+
+            value_change_data = mb.create_arbitrary_value_change(
+                asset_id=self.moneybird_asset_id,
+                change_date=date_str,
+                amount=amount,
+                description=description,
+                externally_booked=externally_booked,
+            )
+
+            # Update local asset data
+            self.moneybird_data = value_change_data
+            self.save(update_fields=["moneybird_data"])
+
+            return value_change_data
+        except Exception as e:
+            logger.error(
+                f"Failed to create arbitrary value change for asset {self.id} on Moneybird: {e}"
+            )
+            raise
+
+    def create_divestment_value_change_on_moneybird(self, change_date):
+        """Create a divestment value change for the asset on Moneybird. This will go to the "Boekresultaat" account and create a "divestment" disposal."""
+        if not self.moneybird_asset_id:
+            raise ValueError("Asset is not linked to Moneybird.")
+
+        mb = MoneybirdAssetService()
+        try:
+            # Format the date
+            date_str = (
+                change_date.strftime("%Y-%m-%d")
+                if hasattr(change_date, "strftime")
+                else change_date
+            )
+
+            value_change_data = mb.create_divestment_value_change(
+                asset_id=self.moneybird_asset_id, change_date=date_str
+            )
+
+            # Divestment automatically creates a disposal, so update disposal status
+            self.disposal = "divested"
+            self.moneybird_data = value_change_data
+            self.save(update_fields=["disposal", "moneybird_data"])
+
+            return value_change_data
+        except Exception as e:
+            logger.error(
+                f"Failed to create divestment value change for asset {self.id} on Moneybird: {e}"
+            )
+            raise
 
     def get_absolute_url(self):
         return reverse("admin:inventory_asset_view", args=[self.id])
+
+    @property
+    def moneybird_asset_url(self):
+        """Get the Moneybird asset URL if asset ID is available."""
+        if self.moneybird_asset_id:
+            administration_id = getattr(settings, "MONEYBIRD_ADMINISTRATION_ID", None)
+            if administration_id:
+                return f"https://moneybird.com/{administration_id}/assets/{self.moneybird_asset_id}"
+        return None
+
+    @property
+    def moneybird_asset_name(self):
+        """Get the asset name from Moneybird data."""
+        if self.moneybird_data and isinstance(self.moneybird_data, dict):
+            return self.moneybird_data.get("name", self.moneybird_asset_id)
+        return self.moneybird_asset_id
 
     class Meta:
         ordering = ["-created_at", "name"]

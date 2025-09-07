@@ -95,8 +95,6 @@ class TicketAdmin(AutocompleteFilterMixin, ObjectActionsMixin, admin.ModelAdmin)
         "ticket_type",
         "assets",
         "contact",
-        "estimates",
-        "sales_invoices",
         "created_by",
         "assigned_to",
     ]
