@@ -246,9 +246,9 @@ class Asset(models.Model):
     def get_asset_ledger_account_id(self):
         """Get the appropriate ledger account ID based on margin status."""
         if self.is_margin_asset:
-            return str(settings.MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID)
+            return settings.MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID
         else:
-            return str(settings.MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID)
+            return settings.MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID
 
     def refresh_from_moneybird(self):
         """Refresh asset data from Moneybird API if moneybird_asset_id is set."""
@@ -365,7 +365,7 @@ class Asset(models.Model):
 
             moneybird_data = mb.create_asset(
                 name=asset_name,
-                ledger_account_id=int(ledger_account_id),
+                ledger_account_id=ledger_account_id,
                 purchase_value=float(self.purchase_value_asset),
                 start_date=start_date_str,
             )
