@@ -553,7 +553,7 @@
                                                 {% else %}bg-primary{% endif %}" style="font-size: 0.6rem;">
                                                     {{ asset.local_status }}
                                                 </span>
-                                                {% if asset.collection.commerce %}
+                                                {% if asset.collection.commerce and asset.moneybird_asset_id %}
                                                     <span class="badge bg-{{ asset.financial_status_color }} customer-mode-hide" style="font-size: 0.6rem;">
                                                         {{ asset.financial_status_display|title }}
                                                     </span>
@@ -739,11 +739,15 @@
                                 </td>
                                 <td class="customer-mode-hide">
                                     {% if asset.collection.commerce %}
-                                        <div class="d-flex flex-column gap-1">
-                                            <span class="badge bg-{{ asset.financial_status_color }}" style="font-size: 0.65rem;">
-                                                {{ asset.financial_status_display|title }}
-                                            </span>
-                                        </div>
+                                        {% if asset.moneybird_asset_id %}
+                                            <div class="d-flex flex-column gap-1">
+                                                <span class="badge bg-{{ asset.financial_status_color }}" style="font-size: 0.65rem;">
+                                                    {{ asset.financial_status_display|title }}
+                                                </span>
+                                            </div>
+                                        {% else %}
+                                            <span class="text-muted">?</span>
+                                        {% endif %}
                                     {% else %}
                                         <span class="text-muted">—</span>
                                     {% endif %}

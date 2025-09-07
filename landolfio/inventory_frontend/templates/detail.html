@@ -401,10 +401,14 @@
                         </tr>
                         {% endif %}
                         {% if asset.collection.commerce %}
-                        <tr class="purchase-price">
+                        <tr>
                             <td class="form-label small text-muted">{% translate "Status" %}:</td>
                             <td>
+                                {% if asset.moneybird_asset_id %}
                                 <span class="badge bg-{{ asset.financial_status_color }}">{{ asset.financial_status_display|title }}</span>
+                                {% else %}
+                                <span>?</span>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endif %}
