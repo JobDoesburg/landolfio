@@ -69,8 +69,6 @@ def validate_uppercase(value):
 
 class DisposalReasons(models.TextChoices):
     OUT_OF_USE = "out_of_use", _("out of use")
-    SOLD = "sold", _("sold")
-    PRIVATE_WITHDRAWAL = "private_withdrawal", _("private withdrawal")
     DIVESTED = "divested", _("divested")
 
 
@@ -182,6 +180,33 @@ class Asset(models.Model):
     attachment_count = AggregateProperty(Count("attachments"))
 
     @property
+    def current_status(self):
+        """Get the current status from the latest StatusChange with a non-null new_status."""
+        if not hasattr(self, "_current_status_cache"):
+            try:
+                # Find the most recent status change that actually changed the status
+                latest_change = (
+                    self.status_changes.filter(new_status__isnull=False)
+                    .order_by("-status_date", "-created_at")
+                    .first()
+                )
+                self._current_status_cache = (
+                    latest_change.new_status if latest_change else self.local_status
+                )
+            except:
+                # Fallback to local_status if no status changes exist yet
+                self._current_status_cache = self.local_status
+        return self._current_status_cache
+
+    @property
+    def current_status_display(self):
+        """Get the display name for the current status."""
+        for choice_value, choice_display in AssetStates.choices:
+            if choice_value == self.current_status:
+                return choice_display
+        return self.current_status
+
+    @property
     def is_disposed(self):
         """Boolean property to check if asset has been disposed/amortized."""
         return bool(self.disposal)
@@ -218,18 +243,12 @@ class Asset(models.Model):
 
         # If there's a disposal, use disposal-based status
         if self.disposal:
-            if self.disposal == "sold":
-                base_status = gettext("sold")
-                base_color = "dark"
-            elif self.disposal == "out_of_use":
+            if self.disposal == "out_of_use":
                 base_status = gettext("out of use")
-                base_color = "black"
-            elif self.disposal == "private_withdrawal":
-                base_status = gettext("private withdrawal")
-                base_color = "primary"
+                base_color = "dark"
             elif self.disposal == "divested":
                 base_status = gettext("divested")
-                base_color = "black"
+                base_color = "secondary"
         else:
             # No disposal, check current value
             current_val = self.current_value or 0
@@ -462,9 +481,11 @@ class Asset(models.Model):
                 name=asset_name,
                 ledger_account_id=ledger_account_id if ledger_account_id else None,
                 purchase_date=start_date_str,
-                purchase_value=float(self.purchase_value_asset)
-                if self.purchase_value_asset
-                else None,
+                purchase_value=(
+                    float(self.purchase_value_asset)
+                    if self.purchase_value_asset
+                    else None
+                ),
             )
 
             # Update local moneybird_data with the response
@@ -651,6 +672,23 @@ class Asset(models.Model):
                 f"Failed to create divestment value change for asset {self.id} on Moneybird: {e}"
             )
             raise
+
+    def create_status_change(self, new_status, status_date, comments=""):
+        """Create a new status change for this asset."""
+        from inventory.models.status_change import StatusChange
+
+        status_change = StatusChange.objects.create(
+            asset=self,
+            new_status=new_status,
+            status_date=status_date,
+            comments=comments,
+        )
+
+        # Clear the cached current status
+        if hasattr(self, "_current_status_cache"):
+            del self._current_status_cache
+
+        return status_change
 
     def get_absolute_url(self):
         return reverse("admin:inventory_asset_view", args=[self.id])

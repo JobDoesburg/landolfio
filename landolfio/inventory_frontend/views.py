@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django_drf_filepond.api import store_upload
 from django_drf_filepond.models import TemporaryUpload
 from django.views import View
+from datetime import date
 import json
 
 from inventory.models.asset import Asset, AssetStates
@@ -18,8 +19,10 @@ from inventory.models.category import Category
 from inventory.models.collection import Collection
 from inventory.models.location import Location
 from inventory.models.remarks import Remark
+from inventory.models.status_change import StatusChange
+from accounting.models.contact import Contact
 from accounting.models import JournalDocumentLine
-from inventory_frontend.forms import AssetForm
+from inventory_frontend.forms import AssetForm, StatusChangeForm
 
 from django.db.models import Count, Prefetch
 from django.views.generic import TemplateView
@@ -28,6 +31,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.views.generic.edit import UpdateView
 from django.contrib.messages.views import SuccessMessageMixin
+from datetime import date
 
 
 class PublicIndexView(TemplateView):
@@ -530,6 +534,9 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
         context["is_disposed"] = asset.is_disposed
         context["disposal_reason"] = asset.disposal_reason_display
 
+        # Add status change form
+        context["status_change_form"] = StatusChangeForm(asset=asset)
+
         # Add form data for status update in logical color grouping order
         context["asset_states"] = [
             # Green - Available
@@ -586,9 +593,9 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
                     "property": prop,
                     "value_obj": value_obj,
                     "current_value": value_obj.value if value_obj else "",
-                    "formatted_value": value_obj.get_formatted_value()
-                    if value_obj
-                    else "",
+                    "formatted_value": (
+                        value_obj.get_formatted_value() if value_obj else ""
+                    ),
                 }
             )
 
@@ -635,15 +642,37 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
                 messages.error(request, "Invalid remark ID")
             return redirect(request.path)
 
+        # Handle status change creation
+        if data.get("action") == "create_status_change":
+            form = StatusChangeForm(data, asset=asset)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Status change created successfully")
+            else:
+                for field, errors in form.errors.items():
+                    for error in errors:
+                        messages.error(request, f"{field}: {error}")
+            return redirect(request.path)
+
+        # Handle status change deletion
+        if data.get("action") == "delete_status_change":
+            status_change_id = data.get("status_change_id")
+            if status_change_id:
+                try:
+                    status_change = StatusChange.objects.get(
+                        id=status_change_id, asset=asset
+                    )
+                    status_change.delete()
+                    messages.success(request, "Status change deleted successfully")
+                except StatusChange.DoesNotExist:
+                    messages.error(request, "Status change not found")
+            else:
+                messages.error(request, "Invalid status change ID")
+            return redirect(request.path)
+
         # Handle unified form updates (status, location, listing price, and properties)
         if data.get("action") in ["update_status", "update_all"]:
             updated_items = []
-
-            # Update local status
-            new_local_status = data.get("new_local_status", "").strip()
-            if new_local_status and new_local_status != asset.local_status:
-                asset.local_status = new_local_status
-                updated_items.append("status")
 
             # Update location
             new_location_id = data.get("new_location", "").strip()
@@ -797,8 +826,15 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
         # Default values are now handled in the form's __init__ method
         response = super().form_valid(form)
 
-        # Try to create on Moneybird if required fields are present
+        # Create initial status change for new asset
         asset = self.object
+        asset.create_status_change(
+            new_status=AssetStates.PLACEHOLDER,
+            status_date=asset.start_date if asset.start_date else date.today(),
+            comments="Initial status for new asset",
+        )
+
+        # Try to create on Moneybird if required fields are present
         if (
             settings.AUTO_CREATE_ASSET_ON_MONEYBIRD
             and asset.start_date
@@ -906,21 +942,25 @@ class AssetAutocompleteView(LoginRequiredMixin, View):
                 {
                     "id": str(asset.id),
                     "name": asset.name,
-                    "category": asset.category.name_singular
-                    if asset.category
-                    else None,
+                    "category": (
+                        asset.category.name_singular if asset.category else None
+                    ),
                     "size": str(asset.size) if asset.size else None,
                     "location": str(asset.location) if asset.location else None,
                     "location_nr": asset.location_nr,
-                    "created_at": asset.created_at.strftime("%d-%m-%Y")
-                    if asset.created_at
-                    else None,
-                    "purchase_value": float(asset.purchase_value_asset)
-                    if asset.purchase_value_asset
-                    else 0,
-                    "listing_price": float(asset.listing_price)
-                    if asset.listing_price
-                    else 0,
+                    "created_at": (
+                        asset.created_at.strftime("%d-%m-%Y")
+                        if asset.created_at
+                        else None
+                    ),
+                    "purchase_value": (
+                        float(asset.purchase_value_asset)
+                        if asset.purchase_value_asset
+                        else 0
+                    ),
+                    "listing_price": (
+                        float(asset.listing_price) if asset.listing_price else 0
+                    ),
                     "is_disposed": asset.is_disposed,
                     "disposal_reason": asset.disposal_reason_display,
                 }
@@ -955,6 +995,35 @@ class PropertyValueAutocompleteView(LoginRequiredMixin, View):
         )
 
         suggestions = [{"value": value} for value in values if value]
+
+        return JsonResponse(suggestions, safe=False)
+
+
+class ContactAutocompleteView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        query = request.GET.get("query", request.GET.get("q", "")).strip()
+
+        if len(query) < 2:
+            return JsonResponse([], safe=False)
+
+        contacts = Contact.objects.filter(
+            Q(company_name__icontains=query)
+            | Q(first_name__icontains=query)
+            | Q(last_name__icontains=query)
+        ).distinct()[:10]
+
+        suggestions = []
+        for contact in contacts:
+            display_name = str(contact)  # Uses the __str__ method
+            suggestions.append(
+                {
+                    "id": contact.id,
+                    "name": display_name,
+                    "company_name": contact.company_name or "",
+                    "first_name": contact.first_name or "",
+                    "last_name": contact.last_name or "",
+                }
+            )
 
         return JsonResponse(suggestions, safe=False)
 
@@ -1289,8 +1358,6 @@ class AssetDisposeMoneybirdView(LoginRequiredMixin, View):
         disposal_reason = request.POST.get("disposal_reason")
         if not disposal_reason or disposal_reason not in [
             "out_of_use",
-            "sold",
-            "private_withdrawal",
             "divested",
         ]:
             messages.error(request, "Invalid disposal reason.")
@@ -1301,55 +1368,36 @@ class AssetDisposeMoneybirdView(LoginRequiredMixin, View):
                 )
             )
 
+        # Get disposal date from form
+        disposal_date_str = request.POST.get("disposal_date")
+        if not disposal_date_str:
+            messages.error(request, "Disposal date is required.")
+            return redirect(
+                request.META.get(
+                    "HTTP_REFERER",
+                    reverse("inventory_frontend:detail", kwargs={"pk": pk}),
+                )
+            )
+
         try:
-            # Use today's date for disposal
-            from datetime import date
+            from datetime import datetime
 
-            disposal_date = date.today()
+            disposal_date = datetime.strptime(disposal_date_str, "%Y-%m-%d").date()
 
-            # TODO: This logic should be refactored once we determine the correct accounting approach
-            # Currently using different methods based on disposal reason for proper accounting treatment
-
-            if disposal_reason in ["sold", "private_withdrawal"]:
-                # TODO: For sold/private withdrawal, we should use divestment value change
-                # This goes to "boekresultaat" (book result) account instead of "afschrijvingen" (depreciation)
-                # Divestment automatically creates disposal, so no separate disposal call needed
-
-                if disposal_reason == "private_withdrawal":
-                    # TODO: For private withdrawal, asset should be moved to a private collection
-                    # This means finding/creating a non-commerce collection and transferring the asset
-                    # The asset would then become a private asset (collection.commerce = False)
-                    pass
-
+            if disposal_reason == "divested":
+                # For divested, use divestment value change which automatically creates disposal
                 asset.create_divestment_value_change_on_moneybird(disposal_date)
                 messages.success(
                     request,
-                    f'Asset "{asset.name}" has been successfully divested on Moneybird as {disposal_reason.replace("_", " ")}.',
+                    f'Asset "{asset.name}" has been successfully divested on Moneybird.',
                 )
             else:
-                # For out_of_use and divested, use the manual value change + disposal approach
-                # First, check if we need to create a value change to zero out the asset
-                current_value = asset.current_value or 0
-                if current_value != 0:
-                    # Create a manual value change to reduce the asset value to zero
-                    value_change_amount = -1 * float(current_value)
-                    description = f"Manual value change before disposal ({disposal_reason.replace('_', ' ')})"
-
-                    asset.create_manual_value_change_on_moneybird(
-                        change_date=disposal_date,
-                        amount=value_change_amount,
-                        description=description,
-                        externally_booked=False,
-                    )
-
-                    # Refresh asset data to get updated current_value
-                    asset.refresh_from_moneybird()
-
-                # Now dispose the asset
-                asset.dispose_on_moneybird(disposal_date, disposal_reason)
+                # For out_of_use, use fully depreciate which automatically creates an "out-of-use" disposal
+                description = f"Full depreciation - out of use"
+                asset.fully_depreciate_on_moneybird(disposal_date, description)
                 messages.success(
                     request,
-                    f'Asset "{asset.name}" has been successfully disposed on Moneybird as {disposal_reason.replace("_", " ")}.',
+                    f'Asset "{asset.name}" has been successfully disposed on Moneybird as out of use.',
                 )
         except Exception as e:
             messages.error(

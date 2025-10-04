@@ -1,4 +1,5 @@
 """Test the accounting models."""
+
 import datetime
 
 from accounting.moneybird import DocKind

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-20 23:02+0200\n"
+"POT-Creation-Date: 2025-09-28 11:50+0200\n"
 "PO-Revision-Date: 2025-07-20 10:49+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -18,27 +18,27 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.6\n"
 
-#: website/settings/common.py:114
+#: website/settings/common.py:115
 msgid "Dutch"
 msgstr "Nederlands"
 
-#: website/settings/common.py:114
+#: website/settings/common.py:115
 msgid "English"
 msgstr "Engels"
 
-#: website/settings/common.py:163
+#: website/settings/common.py:164
 msgid "⚖️ journal document lines"
 msgstr "⚖️ boekregels"
 
-#: website/settings/common.py:172
+#: website/settings/common.py:173
 msgid "📝 ticket settings"
 msgstr "📝 ticket instellingen"
 
-#: website/settings/common.py:177
+#: website/settings/common.py:178
 msgid "🗂 inventory settings"
 msgstr "🗂 inventaris instellingen"
 
-#: website/settings/common.py:191
+#: website/settings/common.py:192
 msgid "accounting settings"
 msgstr "boekhouding instellingen"
 

@@ -1,4 +1,5 @@
 """Test the get_changes module."""
+
 from django.test import TestCase
 
 from website.accounting.moneybird.administration import MockAdministration

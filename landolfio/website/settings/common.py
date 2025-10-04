@@ -1,4 +1,5 @@
 """The settings common to both development and production."""
+
 import os
 from pathlib import Path
 

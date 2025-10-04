@@ -1,4 +1,5 @@
 """Test the Moneybird Administrations."""
+
 from django.test import TestCase
 
 from website.accounting.moneybird.administration import _build_url as build_url

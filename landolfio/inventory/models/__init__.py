@@ -11,6 +11,7 @@ from .category import Category
 from .collection import Collection
 from .location import Location, LocationGroup
 from .remarks import Remark
+from .status_change import StatusChange
 
 __all__ = [
     "Asset",
@@ -28,4 +29,5 @@ __all__ = [
     "Location",
     "LocationGroup",
     "Remark",
+    "StatusChange",
 ]

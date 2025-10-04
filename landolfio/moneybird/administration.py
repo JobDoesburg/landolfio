@@ -5,6 +5,7 @@ This code is largely based on moneybird-python by Jan-Jelle Kester,
 licensed under the MIT license. The source code of moneybird-python
 can be found on GitHub: https://github.com/jjkester/moneybird-python.
 """
+
 import json
 import logging
 from abc import ABC

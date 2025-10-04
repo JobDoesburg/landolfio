@@ -170,52 +170,6 @@
                             </div>
                         </div>
                         
-                        {% if not asset.is_disposed %}
-                        <div class="row g-2 mb-3">
-                            <div class="col-12">
-                                <h6>{% translate "Dispose Asset" %}</h6>
-                                <p class="text-muted small">{% translate "Dispose this asset with automatic value adjustment if needed." %}</p>
-                            </div>
-                            <div class="col-6">
-                                <form method="post" action="{% url 'inventory_frontend:dispose_moneybird' asset.pk %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="disposal_reason" value="sold">
-                                    <button type="submit" class="btn btn-outline-success w-100" onclick="return confirm('{% translate 'Are you sure you want to dispose this asset as sold?' %}')">
-                                        <i class="fas fa-dollar-sign me-1"></i>{% translate "Sell" %}
-                                    </button>
-                                </form>
-                            </div>
-                            <div class="col-6">
-                                <form method="post" action="{% url 'inventory_frontend:dispose_moneybird' asset.pk %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="disposal_reason" value="private_withdrawal">
-                                    <button type="submit" class="btn btn-outline-info w-100" onclick="return confirm('{% translate 'Are you sure you want to dispose this asset as private withdrawal?' %}')">
-                                        <i class="fas fa-user me-1"></i>{% translate "Private Withdraw" %}
-                                    </button>
-                                </form>
-                            </div>
-                            <div class="col-6">
-                                <form method="post" action="{% url 'inventory_frontend:dispose_moneybird' asset.pk %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="disposal_reason" value="out_of_use">
-                                    <button type="submit" class="btn btn-outline-secondary w-100" onclick="return confirm('{% translate 'Are you sure you want to dispose this asset as out of use?' %}')">
-                                        <i class="fas fa-ban me-1"></i>{% translate "Out of Use" %}
-                                    </button>
-                                </form>
-                            </div>
-                            <div class="col-6">
-                                <form method="post" action="{% url 'inventory_frontend:dispose_moneybird' asset.pk %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="disposal_reason" value="divested">
-                                    <button type="submit" class="btn btn-outline-warning w-100" onclick="return confirm('{% translate 'Are you sure you want to divest this asset?' %}')">
-                                        <i class="fas fa-exchange-alt me-1"></i>{% translate "Divest" %}
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                        
-                        <hr>
-                        {% endif %}
                         
                         <div class="row g-2">
                             <div class="col-6">
@@ -345,11 +299,16 @@
                         <tr>
                             <td class="form-label small text-muted">{% translate "Status" %}:</td>
                             <td>
-                                <select class="form-select status-select" id="new_local_status" name="new_local_status">
-                                    {% for value, label in asset_states %}
-                                        <option value="{{ value }}" {% if asset.local_status == value %}selected{% endif %} data-color="{% if value == 'available' %}success{% elif value == 'issued_rent' or value == 'issued_loan' or value == 'issued_unprocessed' %}warning{% elif value == 'maintenance_in_house' or value == 'maintenance_external' or value == 'under_review' %}info{% elif value == 'placeholder' or value == 'to_be_delivered' %}secondary{% elif value == 'sold' or value == 'amortized' %}dark{% elif value == 'unknown' %}danger{% else %}primary{% endif %}">{{ label }}</option>
-                                    {% endfor %}
-                                </select>
+                                <span class="badge 
+                                {% if asset.current_status == 'available' %}bg-success
+                                {% elif asset.current_status == 'issued_rent' or asset.current_status == 'issued_loan' or asset.current_status == 'issued_unprocessed' %}bg-warning
+                                {% elif asset.current_status == 'maintenance_in_house' or asset.current_status == 'maintenance_external' or asset.current_status == 'under_review' %}bg-info
+                                {% elif asset.current_status == 'placeholder' %}bg-light text-dark{% elif asset.current_status == 'to_be_delivered' %}bg-secondary
+                                {% elif asset.current_status == 'sold' %}bg-secondary{% elif asset.current_status == 'amortized' %}bg-dark
+                                {% elif asset.current_status == 'unknown' %}bg-danger
+                                {% else %}bg-primary{% endif %}" style="font-size: 0.7rem;">
+                                    {{ asset.current_status_display }}
+                                </span>
                             </td>
                         </tr>
                         <tr>
@@ -446,6 +405,16 @@
                                 </div>
                             </td>
                         </tr>
+                        {% if asset.collection.commerce and asset.moneybird_asset_id and not asset.is_disposed %}
+                        <tr class="customer-mode-hide">
+                            <td class="form-label small text-muted">{% translate "Disposal" %}:</td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#disposeModal">
+                                    <i class="fas fa-times-circle me-1"></i>{% translate "Dispose Asset" %}
+                                </button>
+                            </td>
+                        </tr>
+                        {% endif %}
                     </table>
                     
                     <!-- Properties Section -->
@@ -516,62 +485,209 @@
         <!-- Right Column -->
         <div class="col-md-6 col-lg-8 purchase-price">
 
-            <!-- Remarks Section -->
-            <div class="card mb-4">
+            <!-- Status History and Remarks Side by Side -->
+            <div class="row g-4 mb-4">
+                <!-- Status History Section (Left 60%) -->
+                <div class="col-lg-7">
+                    <div class="card h-100">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">{% translate "Remarks" %}</h5>
+                    <h5 class="card-title mb-0">{% translate "Status History" %}</h5>
                 </div>
                 <div class="card-body">
-                    {% if asset.remarks.exists %}
+                    {% if asset.status_changes.exists %}
                         <div class="mb-4">
-                            {% for remark in asset.remarks.all %}
-                                <div class="border-bottom pb-2 mb-2">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <p class="mb-1">{{ remark.remark }}</p>
+                            <div class="timeline">
+                                {% for status_change in asset.status_changes.all %}
+                                    <div class="timeline-item {% if forloop.last %}timeline-item-last{% endif %}">
+                                        <div class="timeline-marker">
+                                            <div class="timeline-dot 
+                                                {% if status_change.new_status == 'available' %}timeline-dot-success
+                                                {% elif status_change.new_status == 'issued_rent' or status_change.new_status == 'issued_loan' or status_change.new_status == 'issued_unprocessed' %}timeline-dot-warning
+                                                {% elif status_change.new_status == 'maintenance_in_house' or status_change.new_status == 'maintenance_external' or status_change.new_status == 'under_review' %}timeline-dot-info
+                                                {% elif status_change.new_status == 'placeholder' %}timeline-dot-light
+                                                {% elif status_change.new_status == 'to_be_delivered' %}timeline-dot-secondary
+                                                {% elif status_change.new_status == 'sold' %}timeline-dot-secondary
+                                                {% elif status_change.new_status == 'amortized' %}timeline-dot-dark
+                                                {% elif status_change.new_status == 'unknown' %}timeline-dot-danger
+                                                {% else %}timeline-dot-primary{% endif %}"></div>
                                         </div>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <small class="text-muted">{{ remark.date|date:"d-m-Y" }}</small>
-                                            <form method="post" action="{% url 'inventory_frontend:detail' asset.pk %}" class="d-inline">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="action" value="delete_remark">
-                                                <input type="hidden" name="remark_id" value="{{ remark.id }}">
-                                                <button type="submit" class="btn btn-outline-danger btn-sm" 
-                                                        onclick="return confirm('{% translate "Are you sure you want to delete this remark?" %}')"
-                                                        title="{% translate 'Delete remark' %}">
-                                                    <i class="fas fa-trash-alt"></i>
-                                                </button>
-                                            </form>
+                                        <div class="timeline-content">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                                        {% if status_change.new_status %}
+                                                        <span class="badge 
+                                                        {% if status_change.new_status == 'available' %}bg-success
+                                                        {% elif status_change.new_status == 'issued_rent' or status_change.new_status == 'issued_loan' or status_change.new_status == 'issued_unprocessed' %}bg-warning
+                                                        {% elif status_change.new_status == 'maintenance_in_house' or status_change.new_status == 'maintenance_external' or status_change.new_status == 'under_review' %}bg-info
+                                                        {% elif status_change.new_status == 'placeholder' %}bg-light text-dark{% elif status_change.new_status == 'to_be_delivered' %}bg-secondary
+                                                        {% elif status_change.new_status == 'sold' %}bg-secondary{% elif status_change.new_status == 'amortized' %}bg-dark
+                                                        {% elif status_change.new_status == 'unknown' %}bg-danger
+                                                        {% else %}bg-primary{% endif %}" style="font-size: 0.75rem;">
+                                                            {{ status_change.get_new_status_display }}
+                                                        </span>
+                                                        {% endif %}
+                                                        <span class="timeline-date text-muted fw-medium">{{ status_change.status_date|date:"d-m-Y" }}</span>
+                                                    </div>
+                                                    {% if status_change.comments %}
+                                                        <p class="mb-1 text-muted small">{{ status_change.comments }}</p>
+                                                    {% endif %}
+                                                    {% if status_change.contact %}
+                                                        <p class="mb-0 text-muted small">
+                                                            <i class="fas fa-user me-1"></i>
+                                                            {% if status_change.contact.moneybird_url %}
+                                                                <a href="{{ status_change.contact.moneybird_url }}" target="_blank" class="text-decoration-none">
+                                                                    {{ status_change.contact }}
+                                                                    <i class="fas fa-external-link-alt ms-1" style="font-size: 0.7em;"></i>
+                                                                </a>
+                                                            {% else %}
+                                                                {{ status_change.contact }}
+                                                            {% endif %}
+                                                        </p>
+                                                    {% endif %}
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <small class="text-muted">{{ status_change.created_at|date:"d-m-Y H:i" }}</small>
+                                                    <form method="post" action="{% url 'inventory_frontend:detail' asset.pk %}" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="action" value="delete_status_change">
+                                                        <input type="hidden" name="status_change_id" value="{{ status_change.id }}">
+                                                        <button type="submit" class="btn btn-link btn-sm text-muted p-1" 
+                                                                onclick="return confirm('{% translate 'Are you sure you want to delete this status change?' %}')"
+                                                                title="{% translate 'Delete status change' %}">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            {% endfor %}
+                                {% endfor %}
+                            </div>
                         </div>
                     {% else %}
                         <div class="text-muted mb-4">
-                            <em>{% translate "No remarks yet" %}</em>
+                            <em>{% translate "No status changes recorded" %}</em>
                         </div>
                     {% endif %}
-
-                    <!-- Add New Remark Form -->
+                    
+                    <!-- Add New Status Change Form -->
                     <form method="post" action="{% url 'inventory_frontend:detail' asset.pk %}">
                         {% csrf_token %}
-                        <input type="hidden" name="action" value="add_remark">
+                        <input type="hidden" name="action" value="create_status_change">
                         <div class="mb-3">
-                            <div class="row g-2">
-                                <div class="col-10">
-                                    <textarea class="form-control" id="new_remark" name="new_remark" rows="3" placeholder="{% translate 'Enter new remark here...' %}"></textarea>
+                            <label class="form-label">{% translate "Change Status" %}</label>
+                            <div class="row g-3">
+                                <!-- Left Column: Status and Date -->
+                                <div class="col-md-4">
+                                    <div class="mb-2">
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-exchange-alt"></i></span>
+                                            <select class="form-select status-select status-change-select" id="status_change_new_status" name="new_status">
+                                                <option value="" selected data-color="light">{% translate "No change" %}</option>
+                                                {% for value, label in asset_states %}
+                                                    <option value="{{ value }}" data-color="{% if value == 'available' %}success{% elif value == 'issued_rent' or value == 'issued_loan' or value == 'issued_unprocessed' %}warning{% elif value == 'maintenance_in_house' or value == 'maintenance_external' or value == 'under_review' %}info{% elif value == 'placeholder' %}light{% elif value == 'to_be_delivered' %}secondary{% elif value == 'sold' %}secondary{% elif value == 'amortized' %}dark{% elif value == 'unknown' %}danger{% else %}primary{% endif %}">{{ label }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                            {{ status_change_form.status_date }}
+                                        </div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                            {{ status_change_form.contact_name }}
+                                            {{ status_change_form.contact_id }}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="col-2 d-flex align-items-end">
-                                    <button type="submit" class="btn btn-outline-secondary btn-sm w-100">
-                                        <i class="fas fa-plus me-2"></i>{% translate "Add" %}
-                                    </button>
+                                
+                                <!-- Right Column: Comments -->
+                                <div class="col-md-8">
+                                    {{ status_change_form.comments }}
                                 </div>
+                            </div>
+                            
+                            <!-- Save Button -->
+                            <div class="mt-3 text-start">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus me-2"></i>{% translate "Add Status Change" %}
+                                </button>
                             </div>
                         </div>
                     </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Remarks Section (Right 40%) -->
+                <div class="col-lg-5">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{% translate "Remarks" %}</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if asset.remarks.exists %}
+                                <div class="mb-4">
+                                    {% for remark in asset.remarks.all %}
+                                        <div class="border-bottom pb-2 mb-2">
+                                            <div class="d-flex justify-content-between align-items-start">
+                                                <div class="flex-grow-1">
+                                                    <p class="mb-1">{{ remark.remark }}</p>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <small class="text-muted">{{ remark.date|date:"d-m-Y" }}</small>
+                                                    <form method="post" action="{% url 'inventory_frontend:detail' asset.pk %}" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <input type="hidden" name="action" value="delete_remark">
+                                                        <input type="hidden" name="remark_id" value="{{ remark.id }}">
+                                                        <button type="submit" class="btn btn-link btn-sm text-muted p-1" 
+                                                                onclick="return confirm('{% translate "Are you sure you want to delete this remark?" %}')"
+                                                                title="{% translate 'Delete remark' %}">
+                                                            <i class="fas fa-trash-alt"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="text-muted mb-4">
+                                    <em>{% translate "No remarks yet" %}</em>
+                                </div>
+                            {% endif %}
+
+                            <!-- Add New Remark Form -->
+                            <form method="post" action="{% url 'inventory_frontend:detail' asset.pk %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="add_remark">
+                                <div class="mb-3">
+                                    <label class="form-label">{% translate "Add Remark" %}</label>
+                                    <div class="row g-3">
+                                        <!-- Remark Text -->
+                                        <div class="col-12">
+                                            <textarea class="form-control" id="new_remark" name="new_remark" rows="3" placeholder="{% translate 'Enter new remark here...' %}"></textarea>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Save Button -->
+                                    <div class="mt-3 text-start">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-plus me-2"></i>{% translate "Add Remark" %}
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
+
 
             <!-- Attachments Section -->
             <div class="card mb-4">
@@ -654,6 +770,150 @@
             </div>
         </div>
     </div>
+    {% endif %}
+    
+    <!-- Dispose Modal -->
+    {% if asset.collection.commerce and asset.moneybird_asset_id and not asset.is_disposed %}
+    <div class="modal fade customer-mode-hide" id="disposeModal" tabindex="-1" aria-labelledby="disposeModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="disposeModalLabel">{% translate "Dispose Asset" %}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>{% translate "Warning" %}</strong><br>
+                        {% translate "This action will permanently dispose the asset and cannot be undone." %}
+                    </div>
+                    
+                    <p class="mb-3">{% translate "Choose the disposal method for this asset:" %}</p>
+                    
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="card h-100 disposal-option-card" data-disposal="out_of_use">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-ban fa-2x mb-3 text-secondary"></i>
+                                    <h5 class="card-title">{% translate "Out of Use" %}</h5>
+                                    <p class="card-text text-muted small">
+                                        {% translate "For damaged, lost, or broken assets. Value will be marked as depreciation costs." %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card h-100 disposal-option-card" data-disposal="divested">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-exchange-alt fa-2x mb-3 text-warning"></i>
+                                    <h5 class="card-title">{% translate "Divested" %}</h5>
+                                    <p class="card-text text-muted small">
+                                        {% translate "For sold or privately withdrawn assets. Value will be marked as direct costs of income." %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <label for="disposalDate" class="form-label">{% translate "Disposal Date" %}</label>
+                        <input type="date" class="form-control" id="disposalDate" name="disposal_date" required>
+                        <div class="form-text">{% translate "Enter the date when the disposal should be recorded" %}</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Cancel" %}</button>
+                    <form method="post" action="{% url 'inventory_frontend:dispose_moneybird' asset.pk %}" class="d-inline" id="disposeForm">
+                        {% csrf_token %}
+                        <input type="hidden" name="disposal_reason" id="disposalReasonInput" value="">
+                        <button type="submit" class="btn btn-warning" id="confirmDisposeBtn" disabled>
+                            <i class="fas fa-trash-alt me-2"></i>{% translate "Confirm Disposal" %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        .disposal-option-card {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+        }
+        
+        .disposal-option-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .disposal-option-card.selected {
+            border-color: #0d6efd;
+            background-color: #f8f9fa;
+        }
+        
+        .disposal-option-card.selected .card-body {
+            background-color: rgba(13, 110, 253, 0.1);
+        }
+    </style>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const disposalCards = document.querySelectorAll('.disposal-option-card');
+            const confirmBtn = document.getElementById('confirmDisposeBtn');
+            const disposalInput = document.getElementById('disposalReasonInput');
+            const disposalDateInput = document.getElementById('disposalDate');
+            
+            function checkFormValidity() {
+                // Enable button only if both disposal reason and date are selected
+                const hasReason = disposalInput.value.trim() !== '';
+                const hasDate = disposalDateInput.value.trim() !== '';
+                confirmBtn.disabled = !(hasReason && hasDate);
+            }
+            
+            disposalCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    // Remove selection from all cards
+                    disposalCards.forEach(c => c.classList.remove('selected'));
+                    
+                    // Select this card
+                    this.classList.add('selected');
+                    
+                    // Set the disposal reason
+                    const disposalReason = this.dataset.disposal;
+                    disposalInput.value = disposalReason;
+                    
+                    // Check if form is now valid
+                    checkFormValidity();
+                });
+            });
+            
+            // Listen for date changes
+            if (disposalDateInput) {
+                disposalDateInput.addEventListener('change', checkFormValidity);
+            }
+            
+            // Reset selection when modal is closed
+            const disposeModal = document.getElementById('disposeModal');
+            if (disposeModal) {
+                disposeModal.addEventListener('hidden.bs.modal', function() {
+                    disposalCards.forEach(c => c.classList.remove('selected'));
+                    disposalInput.value = '';
+                    disposalDateInput.value = '';
+                    confirmBtn.disabled = true;
+                });
+                
+                // Set default date to today when modal opens
+                disposeModal.addEventListener('shown.bs.modal', function() {
+                    if (!disposalDateInput.value) {
+                        const today = new Date().toISOString().split('T')[0];
+                        disposalDateInput.value = today;
+                        checkFormValidity();
+                    }
+                });
+            }
+        });
+    </script>
     {% endif %}
 {% endblock %}
 
@@ -756,11 +1016,6 @@
             transform: rotate(5deg);
         }
 
-        /* Status select color coding */
-        .status-select {
-            font-weight: 500;
-        }
-        
         /* Consistent table column widths */
         .asset-details-table {
             table-layout: fixed;
@@ -771,6 +1026,131 @@
         }
         .asset-details-table td:last-child {
             width: 70%;
+        }
+
+        /* Timeline Styles */
+        .timeline {
+            position: relative;
+            padding-left: 0;
+        }
+
+        .timeline-item {
+            position: relative;
+            display: flex;
+            margin-bottom: 1.5rem;
+            min-height: 40px;
+        }
+
+        .timeline-item.timeline-item-last {
+            margin-bottom: 0;
+        }
+
+        .timeline-marker {
+            position: relative;
+            flex-shrink: 0;
+            width: 24px;
+            margin-right: 0.75rem;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 1px;
+        }
+
+        .timeline-marker::before {
+            content: '';
+            position: absolute;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: calc(100% + 1.5rem);
+            background-color: #e9ecef;
+            z-index: 1;
+        }
+
+        .timeline-item.timeline-item-last .timeline-marker::before {
+            display: none;
+        }
+
+        .timeline-dot {
+            position: relative;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            z-index: 2;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .timeline-dot-success {
+            background-color: #198754;
+        }
+
+        .timeline-dot-warning {
+            background-color: #ffc107;
+        }
+
+        .timeline-dot-info {
+            background-color: #0dcaf0;
+        }
+
+        .timeline-dot-light {
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+        }
+
+        .timeline-dot-secondary {
+            background-color: #6c757d;
+        }
+
+        .timeline-dot-dark {
+            background-color: #212529;
+        }
+
+        .timeline-dot-danger {
+            background-color: #dc3545;
+        }
+
+        .timeline-dot-primary {
+            background-color: #0d6efd;
+        }
+
+        .timeline-content {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 0.75rem;
+            border: 1px solid #e9ecef;
+            position: relative;
+        }
+
+        .timeline-content::before {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 8px;
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-right: 6px solid #e9ecef;
+        }
+
+        .timeline-content::after {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 8px;
+            width: 0;
+            height: 0;
+            border-top: 6px solid transparent;
+            border-bottom: 6px solid transparent;
+            border-right: 6px solid #f8f9fa;
+        }
+
+        .timeline-date {
+            font-size: 0.875rem;
+            font-weight: 500;
         }
     </style>
 {% endblock %}
@@ -1033,40 +1413,44 @@
         document.addEventListener('DOMContentLoaded', function() {
             initAttachmentFeatures();
             
-            // Simple status select coloring
-            const statusSelect = document.getElementById('new_local_status');
-            if (statusSelect) {
+            // Status change form coloring
+            const statusChangeSelect = document.getElementById('status_change_new_status');
+            if (statusChangeSelect) {
                 // Set initial color
-                setStatusColor();
+                setStatusChangeColor();
                 
                 // Update color on change
-                statusSelect.addEventListener('change', setStatusColor);
+                statusChangeSelect.addEventListener('change', setStatusChangeColor);
                 
-                function setStatusColor() {
-                    const selectedOption = statusSelect.options[statusSelect.selectedIndex];
+                function setStatusChangeColor() {
+                    const selectedOption = statusChangeSelect.options[statusChangeSelect.selectedIndex];
                     const color = selectedOption.dataset.color ? selectedOption.dataset.color.trim() : '';
                     
                     // Clear all previous Bootstrap background and text color classes
-                    statusSelect.className = statusSelect.className.replace(/\bbg-\w+/g, '').replace(/\btext-\w+/g, '').trim();
+                    statusChangeSelect.className = statusChangeSelect.className.replace(/\bbg-\w+/g, '').replace(/\btext-\w+/g, '').trim();
                     
                     // Add appropriate Bootstrap classes based on status
                     if (color === 'success') {
-                        statusSelect.classList.add('bg-success', 'text-white');
+                        statusChangeSelect.classList.add('bg-success', 'text-white');
                     } else if (color === 'warning') {
-                        statusSelect.classList.add('bg-warning', 'text-dark');
+                        statusChangeSelect.classList.add('bg-warning', 'text-dark');
                     } else if (color === 'info') {
-                        statusSelect.classList.add('bg-info', 'text-white');
+                        statusChangeSelect.classList.add('bg-info', 'text-white');
                     } else if (color === 'secondary') {
-                        statusSelect.classList.add('bg-secondary', 'text-white');
+                        statusChangeSelect.classList.add('bg-secondary', 'text-white');
                     } else if (color === 'dark') {
-                        statusSelect.classList.add('bg-dark', 'text-white');
+                        statusChangeSelect.classList.add('bg-dark', 'text-white');
+                    } else if (color === 'light') {
+                        statusChangeSelect.classList.add('bg-light', 'text-dark');
                     } else if (color === 'danger') {
-                        statusSelect.classList.add('bg-danger', 'text-white');
+                        statusChangeSelect.classList.add('bg-danger', 'text-white');
+                    } else if (color === 'light') {
+                        statusChangeSelect.classList.add('bg-light', 'text-dark');
                     } else if (color === 'primary') {
-                        statusSelect.classList.add('bg-primary', 'text-white');
+                        statusChangeSelect.classList.add('bg-primary', 'text-white');
                     } else {
                         // Default styling for unknown status
-                        statusSelect.classList.add('bg-light', 'text-dark');
+                        statusChangeSelect.classList.add('bg-light', 'text-dark');
                     }
                 }
             }
@@ -1346,10 +1730,238 @@
         document.addEventListener('DOMContentLoaded', function() {
             // Initialize with a small delay to ensure everything is rendered
             setTimeout(initPropertyAutocomplete, 500);
+            setTimeout(initContactAutocomplete, 500);
             
             // Initialize search autocomplete
             initSearchAutocomplete();
         });
+        
+        /**
+         * Contact Autocomplete System
+         * Provides autocomplete functionality for contact selection fields
+         */
+        function initContactAutocomplete() {
+            const contactInputs = document.querySelectorAll('.contact-autocomplete');
+            
+            if (contactInputs.length === 0) {
+                return;
+            }
+            
+            contactInputs.forEach(function(input) {
+                // Skip if already initialized
+                if (input.hasAttribute('data-contact-autocomplete-initialized')) {
+                    return;
+                }
+                input.setAttribute('data-contact-autocomplete-initialized', 'true');
+                
+                setupContactAutocompleteForInput(input);
+            });
+        }
+        
+        /**
+         * Setup contact autocomplete functionality for a single input
+         * @param {HTMLInputElement} input - The input element to enhance
+         */
+        function setupContactAutocompleteForInput(input) {
+            let timeoutId;
+            let currentSuggestions = [];
+            let selectedContactId = null;
+            
+            // Create suggestions container
+            const suggestionsContainer = createContactSuggestionsContainer();
+            
+            // Position dropdown relative to input
+            function positionDropdown() {
+                const rect = input.getBoundingClientRect();
+                suggestionsContainer.style.top = rect.bottom + 'px';
+                suggestionsContainer.style.left = rect.left + 'px';
+                suggestionsContainer.style.width = rect.width + 'px';
+            }
+            
+            // Fetch and display suggestions
+            function fetchContactSuggestions(query) {
+                const url = `{% url 'inventory_frontend:contact_autocomplete' %}?query=${encodeURIComponent(query)}`;
+                
+                return fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        currentSuggestions = data || [];
+                        renderContactSuggestions(currentSuggestions, suggestionsContainer, input, positionDropdown);
+                    })
+                    .catch(error => {
+                        console.error('Contact autocomplete error:', error);
+                        suggestionsContainer.style.display = 'none';
+                    });
+            }
+            
+            // Event listeners for contact input
+            setupContactInputEventListeners(input, suggestionsContainer, fetchContactSuggestions, positionDropdown, timeoutId);
+            setupContactKeyboardNavigation(input, suggestionsContainer);
+            setupWindowEventListeners(suggestionsContainer, positionDropdown);
+            
+            // Store selected contact ID in hidden field (if exists)
+            input.addEventListener('contactSelected', function(e) {
+                selectedContactId = e.detail.contactId;
+                // Set the hidden field for the contact ID
+                const hiddenField = input.form.querySelector('input[name="contact_id"]');
+                if (hiddenField) {
+                    hiddenField.value = selectedContactId;
+                }
+            });
+        }
+        
+        /**
+         * Create and return a contact suggestions container element
+         */
+        function createContactSuggestionsContainer() {
+            const container = document.createElement('div');
+            container.className = 'contact-autocomplete-suggestions';
+            container.style.cssText = `
+                position: fixed;
+                z-index: 9999;
+                background: white;
+                border: 1px solid #ced4da;
+                border-radius: 0.375rem;
+                max-height: 200px;
+                overflow-y: auto;
+                display: none;
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+                min-width: 200px;
+            `;
+            document.body.appendChild(container);
+            return container;
+        }
+        
+        /**
+         * Setup contact input event listeners for autocomplete
+         */
+        function setupContactInputEventListeners(input, container, fetchSuggestions, positionDropdown, timeoutId) {
+            // Input typing
+            input.addEventListener('input', function(e) {
+                clearTimeout(timeoutId);
+                const query = this.value.trim();
+                
+                if (query.length < 2) {
+                    container.style.display = 'none';
+                    return;
+                }
+                
+                timeoutId = setTimeout(() => fetchSuggestions(query), 300);
+            });
+            
+            // Focus/blur handling
+            input.addEventListener('blur', function() {
+                setTimeout(() => container.style.display = 'none', 150);
+            });
+            
+            input.addEventListener('focus', function() {
+                if (currentSuggestions.length > 0 && this.value.trim().length > 1) {
+                    positionDropdown();
+                    container.style.display = 'block';
+                }
+            });
+        }
+        
+        /**
+         * Setup keyboard navigation for contact autocomplete
+         */
+        function setupContactKeyboardNavigation(input, container) {
+            input.addEventListener('keydown', function(e) {
+                const suggestions = container.querySelectorAll('.contact-autocomplete-suggestion');
+                const selectedSuggestion = container.querySelector('.contact-autocomplete-suggestion.selected');
+                
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        navigateDown(suggestions, selectedSuggestion);
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        navigateUp(suggestions, selectedSuggestion);
+                        break;
+                    case 'Enter':
+                        e.preventDefault();
+                        if (selectedSuggestion) {
+                            selectedSuggestion.click();
+                        }
+                        break;
+                    case 'Escape':
+                        container.style.display = 'none';
+                        break;
+                }
+            });
+        }
+        
+        /**
+         * Render contact suggestions in the container
+         */
+        function renderContactSuggestions(suggestions, container, input, positionDropdown) {
+            container.innerHTML = '';
+            
+            if (!suggestions || suggestions.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+            
+            suggestions.forEach(function(suggestion) {
+                const div = createContactSuggestionElement(suggestion, container, input);
+                container.appendChild(div);
+            });
+            
+            positionDropdown();
+            container.style.display = 'block';
+        }
+        
+        /**
+         * Create a single contact suggestion element
+         */
+        function createContactSuggestionElement(suggestion, container, input) {
+            const div = document.createElement('div');
+            div.className = 'contact-autocomplete-suggestion';
+            div.style.cssText = `
+                padding: 0.75rem;
+                cursor: pointer;
+                border-bottom: 1px solid #e9ecef;
+                background: white;
+                transition: background-color 0.15s ease-in-out;
+            `;
+            div.textContent = suggestion.name;
+            
+            // Mouse events
+            div.addEventListener('mouseenter', function() {
+                container.querySelectorAll('.contact-autocomplete-suggestion').forEach(s => s.classList.remove('selected'));
+                this.classList.add('selected');
+                this.style.backgroundColor = '#e9ecef';
+            });
+            
+            div.addEventListener('mouseleave', function() {
+                this.classList.remove('selected');
+                this.style.backgroundColor = 'white';
+            });
+            
+            div.addEventListener('mousedown', function(e) {
+                e.preventDefault(); // Prevent blur event
+            });
+            
+            div.addEventListener('click', function() {
+                input.value = suggestion.name;
+                input.dispatchEvent(new CustomEvent('contactSelected', {
+                    detail: {
+                        contactId: suggestion.id,
+                        contactName: suggestion.name
+                    }
+                }));
+                container.style.display = 'none';
+                input.focus();
+            });
+            
+            return div;
+        }
         
         /**
          * Search Autocomplete System

@@ -4,6 +4,7 @@ The production settings.
 These settings are to be used in deployment.
 Also see https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/.
 """
+
 import os
 
 from .common import *  # pylint: disable=wildcard-import,unused-wildcard-import

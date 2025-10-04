@@ -1,4 +1,5 @@
 """Tests for Django development settings."""
+
 from django.test import TestCase
 
 

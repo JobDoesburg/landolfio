@@ -1,4 +1,5 @@
 """Tests for the inventory Admin interface."""
+
 from accounting.models import Document
 from accounting.models import DocumentLine
 from accounting.models import Ledger

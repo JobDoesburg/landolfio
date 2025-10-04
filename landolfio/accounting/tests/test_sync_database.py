@@ -1,4 +1,5 @@
 """Test the sync_database module."""
+
 from django.test import TestCase
 from inmemorystorage import InMemoryStorage
 
