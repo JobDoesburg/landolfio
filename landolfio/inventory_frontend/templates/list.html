@@ -385,14 +385,22 @@
                     {% endif %}
                 </form>
 
-                <!-- View Toggle -->
-                <div class="btn-group d-none d-md-flex mb-4" role="group">
-                    <button type="button" id="grid-view-btn" class="btn btn-outline-primary active">
-                        <i class="fas fa-th-large"></i><span class="ms-1">{% translate "Grid" %}</span>
-                    </button>
-                    <button type="button" id="list-view-btn" class="btn btn-outline-primary">
-                        <i class="fas fa-list"></i><span class="ms-1">{% translate "List" %}</span>
-                    </button>
+                <!-- View Toggle and Page Size -->
+                <div class="d-none d-md-flex gap-2 mb-4">
+                    <div class="btn-group" role="group">
+                        <button type="button" id="grid-view-btn" class="btn btn-outline-primary active">
+                            <i class="fas fa-th-large"></i><span class="ms-1">{% translate "Grid" %}</span>
+                        </button>
+                        <button type="button" id="list-view-btn" class="btn btn-outline-primary">
+                            <i class="fas fa-list"></i><span class="ms-1">{% translate "List" %}</span>
+                        </button>
+                    </div>
+                    <select class="form-select" style="width: auto;" id="page-size-selector" onchange="changePageSize(this.value)">
+                        <option value="12" {% if request.GET.page_size == '12' or not request.GET.page_size %}selected{% endif %}>12</option>
+                        <option value="24" {% if request.GET.page_size == '24' %}selected{% endif %}>24</option>
+                        <option value="48" {% if request.GET.page_size == '48' %}selected{% endif %}>48</option>
+                        <option value="96" {% if request.GET.page_size == '96' %}selected{% endif %}>96</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -1062,6 +1070,16 @@ function toggleLocationGroup(groupId) {
 
     // Update filters
     updateFilters();
+}
+
+/**
+ * Change page size
+ */
+function changePageSize(pageSize) {
+    const url = new URL(window.location);
+    url.searchParams.set('page_size', pageSize);
+    url.searchParams.delete('page'); // Reset to page 1
+    window.location.href = url.toString();
 }
 
 /**

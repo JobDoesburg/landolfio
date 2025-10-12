@@ -94,6 +94,18 @@ class AssetListView(LoginRequiredMixin, ListView):
     model = Asset
     paginate_by = 12
 
+    def get_paginate_by(self, queryset):
+        """Allow user to specify page size via GET parameter."""
+        page_size = self.request.GET.get("page_size", self.paginate_by)
+        try:
+            page_size = int(page_size)
+            # Limit to reasonable values
+            if page_size in [12, 24, 48, 96]:
+                return page_size
+        except (ValueError, TypeError):
+            pass
+        return self.paginate_by
+
     def get_queryset(self):
         queryset = super().get_queryset()
 

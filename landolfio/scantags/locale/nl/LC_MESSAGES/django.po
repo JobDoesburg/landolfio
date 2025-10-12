@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-21 13:37+0100\n"
+"POT-Creation-Date: 2025-10-12 11:10+0200\n"
 "PO-Revision-Date: 2023-02-21 13:41+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -25,6 +25,7 @@ msgid "🔖 Scan tags"
 msgstr "Scan tags"
 
 #: scantags/models.py:19
+#, python-brace-format
 msgid "Length must be {} characters."
 msgstr "Lengte moet {} karakters zijn."
 
@@ -50,13 +51,16 @@ msgid "scan tags"
 msgstr "scan tags"
 
 #: scantags/views.py:20
+#, python-brace-format
 msgid "Tag {} is not linked to an asset."
 msgstr "Tag {} is niet gelinkt aan een eigendom."
 
 #: scantags/views.py:32
+#, python-brace-format
 msgid "Scanned a tag with an invalid id: {}"
 msgstr "Een tag met invalide id is gescand: {}"
 
 #: scantags/views.py:36
+#, python-brace-format
 msgid "New tag generated: {}"
 msgstr "Nieuwe tag gegenereerd: {}"

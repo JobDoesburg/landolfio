@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-19 20:43+0200\n"
+"POT-Creation-Date: 2025-10-12 11:10+0200\n"
 "PO-Revision-Date: 2023-02-21 13:40+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -83,6 +83,7 @@ msgid "new customers"
 msgstr "nieuwe klanten"
 
 #: new_customers/services.py:14
+#, python-brace-format
 msgid "New customer registration: {}"
 msgstr "Nieuwe huurder: {}"
 

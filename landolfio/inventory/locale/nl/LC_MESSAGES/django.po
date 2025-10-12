@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-28 11:50+0200\n"
+"POT-Creation-Date: 2025-10-12 11:10+0200\n"
 "PO-Revision-Date: 2023-02-21 13:39+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -514,6 +514,7 @@ msgid "Value must be a valid number for numeric properties"
 msgstr ""
 
 #: inventory/models/asset_property.py:186
+#, python-brace-format
 msgid "Value must be one of the allowed dropdown options: {}"
 msgstr ""
 
