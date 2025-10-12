@@ -26,7 +26,6 @@ INSTALLED_APPS = [
     "django_easy_admin_object_actions",
     "localflavor",
     "admin_numeric_filter",
-    "admin_reorder",
     "autocompletefilter",
     "django_drf_filepond",
     "storages",
@@ -51,7 +50,6 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "admin_reorder.middleware.ModelAdminReorder",
 ]
 
 ROOT_URLCONF = "website.urls"
@@ -132,127 +130,20 @@ MEDIA_URL = "media/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
-ADMIN_REORDER = (
-    {
-        "app": "tickets",
-        "models": (
-            "tickets.Ticket",
-            "new_customers.NewCustomer",
-            "new_rental_customers.NewRentalCustomer",
-        ),
-    },
-    {
-        "app": "inventory",
-        "models": ("inventory.Asset",),
-    },
-    "scantags",
-    {
-        "app": "accounting",
-        "models": (
-            "accounting.Contact",
-            "accounting.SalesInvoice",
-            "accounting.PurchaseDocument",
-            "accounting.GeneralJournalDocument",
-            "accounting.Subscription",
-            "accounting.RecurringSalesInvoice",
-            "accounting.Estimate",
-        ),
-    },
-    {
-        "app": "accounting",
-        "label": gettext_lazy("⚖️ journal document lines"),
-        "models": (
-            "accounting.JournalDocumentLine",
-            "accounting.EstimateDocumentLine",
-            "accounting.RecurringSalesInvoiceDocumentLine",
-        ),
-    },
-    {
-        "app": "tickets",
-        "label": gettext_lazy("📝 ticket settings"),
-        "models": ("tickets.TicketType",),
-    },
-    {
-        "app": "inventory",
-        "label": gettext_lazy("🗂 inventory settings"),
-        "models": (
-            "inventory.Collection",
-            "inventory.Category",
-            "inventory.AssetProperty",
-            "inventory.AssetPropertyValue",
-            "inventory.Size",
-            "inventory.Location",
-            "inventory.LocationGroup",
-            "inventory.Attachment",
-        ),
-    },
-    {
-        "app": "accounting",
-        "label": gettext_lazy("accounting settings"),
-        "models": (
-            "accounting.Product",
-            "accounting.Project",
-            "accounting.LedgerAccount",
-            "accounting.TaxRate",
-            "accounting.Workflow",
-            "accounting.DocumentStyle",
-        ),
-    },
-    "auth",
-    "sites",
-)
-
 # Moneybird resources to syncronize
 MONEYBIRD_ADMINISTRATION_ID = int(os.environ.get("MONEYBIRD_ADMINISTRATION_ID", 0))
 MONEYBIRD_API_KEY = os.environ.get("MONEYBIRD_API_KEY")
 MONEYBIRD_RESOURCE_TYPES = [
-    "accounting.models.document_style.DocumentStyleResourceType",
-    "accounting.models.tax_rate.TaxRateResourceType",
-    "accounting.models.workflow.WorkflowResourceType",
-    "accounting.models.ledger_account.LedgerAccountResourceType",
-    "accounting.models.product.ProductResourceType",
-    "accounting.models.project.ProjectResourceType",
     "accounting.models.contact.ContactResourceType",
-    "accounting.models.recurring_sales_invoice.RecurringSalesInvoiceResourceType",
-    "accounting.models.estimate.EstimateResourceType",
-    "accounting.models.sales_invoice.SalesInvoiceResourceType",
-    "accounting.models.purchase_document.PurchaseInvoiceDocumentResourceType",
-    "accounting.models.purchase_document.ReceiptResourceType",
-    "accounting.models.general_journal_document.GeneralJournalDocumentResourceType",
     "accounting.models.subscription.SubscriptionResourceType",
 ]
 MONEYBIRD_WEBHOOK_EVENTS = [
     WebhookEvent.CONTACT,
-    WebhookEvent.SALES_INVOICE,
-    WebhookEvent.DOCUMENT,
-    WebhookEvent.ESTIMATE,
-    WebhookEvent.RECURRING_SALES_INVOICE,
     WebhookEvent.SUBSCRIPTION_CANCELLED,
     WebhookEvent.SUBSCRIPTION_CREATED,
     WebhookEvent.SUBSCRIPTION_UPDATED,
     WebhookEvent.SUBSCRIPTION_EDITED,
     WebhookEvent.SUBSCRIPTION_DESTROYED,
-    WebhookEvent.TAX_RATE_UPDATED,
-    WebhookEvent.TAX_RATE_CREATED,
-    WebhookEvent.TAX_RATE_DEACTIVATED,
-    WebhookEvent.TAX_RATE_DESTROYED,
-    WebhookEvent.TAX_RATE_ACTIVATED,
-    WebhookEvent.WORKFLOW,
-    WebhookEvent.LEDGER_ACCOUNT,
-    WebhookEvent.PRODUCT_UPDATED,
-    WebhookEvent.PRODUCT_CREATED,
-    WebhookEvent.PRODUCT_DEACTIVATED,
-    WebhookEvent.PRODUCT_DESTROYED,
-    WebhookEvent.PRODUCT_ACTIVATED,
-    WebhookEvent.PROJECT_UPDATED,
-    WebhookEvent.PROJECT_CREATED,
-    WebhookEvent.PROJECT_ARCHIVED,
-    WebhookEvent.PROJECT_DESTROYED,
-    WebhookEvent.PROJECT_ACTIVATED,
-    WebhookEvent.DOCUMENT_STYLE_CREATED,
-    WebhookEvent.DOCUMENT_STYLE_UPDATED,
-    WebhookEvent.DOCUMENT_STYLE_DESTROYED,
 ]
 MONEYBIRD_WEBHOOK_ID = os.environ.get("MONEYBIRD_WEBHOOK_ID")
 MONEYBIRD_WEBHOOK_TOKEN = os.environ.get("MONEYBIRD_WEBHOOK_TOKEN")

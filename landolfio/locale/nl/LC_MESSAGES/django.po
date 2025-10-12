@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-12 11:20+0200\n"
-"PO-Revision-Date: 2025-10-12 11:11+0200\n"
+"POT-Creation-Date: 2025-10-12 19:01+0200\n"
+"PO-Revision-Date: 2025-10-12 19:02+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -18,40 +18,81 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.7\n"
 
-#: inventory_frontend/forms.py:129
+#: inventory_frontend/forms.py:129 inventory_frontend/forms.py:227
 msgid "Status Date"
 msgstr "Status datum"
 
-#: inventory_frontend/forms.py:134 inventory_frontend/templates/detail.html:577
+#: inventory_frontend/forms.py:134 inventory_frontend/forms.py:232
+#: inventory_frontend/templates/detail.html:577
 msgid "No change"
 msgstr "Geen wijziging"
 
-#: inventory_frontend/forms.py:136
+#: inventory_frontend/forms.py:136 inventory_frontend/forms.py:234
 msgid "New Status"
 msgstr "Nieuwe status"
 
-#: inventory_frontend/forms.py:143
+#: inventory_frontend/forms.py:143 inventory_frontend/forms.py:241
 msgid "Search for contact..."
 msgstr "Zoek contact…"
 
-#: inventory_frontend/forms.py:145
+#: inventory_frontend/forms.py:145 inventory_frontend/forms.py:243
+#: inventory_frontend/templates/bulk_update.html:75
 msgid "Contact"
 msgstr "Contact"
 
-#: inventory_frontend/forms.py:146
+#: inventory_frontend/forms.py:146 inventory_frontend/forms.py:244
 msgid "Associated Moneybird contact (optional)"
 msgstr "Gekoppeld Moneybird contact (optioneel)"
 
-#: inventory_frontend/forms.py:159
+#: inventory_frontend/forms.py:159 inventory_frontend/forms.py:255
 msgid "Optional comments about this status change..."
 msgstr "Eventuele opmerkingen over deze statusverandering…"
 
+#: inventory_frontend/forms.py:215
+msgid "Start typing asset names..."
+msgstr "Zoek eigendommen…"
+
+#: inventory_frontend/forms.py:218
+#: inventory_frontend/templates/bulk_update.html:29
+msgid "Assets"
+msgstr "Eigendommen"
+
+#: inventory_frontend/forms.py:219
+msgid "Select multiple assets using autocomplete"
+msgstr "Selecteer meerdere eigendommen door te typen"
+
+#: inventory_frontend/forms.py:258
+#: inventory_frontend/templates/bulk_update.html:90
+msgid "Comments"
+msgstr "Opmerkingen"
+
+#: inventory_frontend/templates/bulk_update.html:9
 #: inventory_frontend/templates/create.html:9
 #: inventory_frontend/templates/detail.html:13
 #: inventory_frontend/templates/detail.html:67
 #: inventory_frontend/templates/update.html:9
 msgid "Back"
 msgstr "Terug"
+
+#: inventory_frontend/templates/bulk_update.html:12
+msgid "Bulk status update"
+msgstr "Bulk statusverandering"
+
+#: inventory_frontend/templates/bulk_update.html:13
+msgid "Create status changes for multiple assets at once"
+msgstr "Verander status voor meerdere eigendommen tegelijk"
+
+#: inventory_frontend/templates/bulk_update.html:49
+msgid "Status date"
+msgstr "Status datum"
+
+#: inventory_frontend/templates/bulk_update.html:62
+msgid "New status"
+msgstr "Nieuwe status"
+
+#: inventory_frontend/templates/bulk_update.html:103
+msgid "Create status changes"
+msgstr "Statusverandering opslaan"
 
 #: inventory_frontend/templates/create.html:12
 #: inventory_frontend/templates/index.html:26
@@ -64,14 +105,14 @@ msgstr "Maak een nieuw eigendom in het inventaris"
 
 #: inventory_frontend/templates/create.html:27
 #: inventory_frontend/templates/detail.html:264
-#: inventory_frontend/templates/list.html:662
+#: inventory_frontend/templates/list.html:682
 #: inventory_frontend/templates/update.html:42
 msgid "Name"
 msgstr "Naam"
 
 #: inventory_frontend/templates/create.html:38
 #: inventory_frontend/templates/detail.html:268
-#: inventory_frontend/templates/list.html:663
+#: inventory_frontend/templates/list.html:683
 #: inventory_frontend/templates/update.html:53
 msgid "Category"
 msgstr "Categorie"
@@ -90,7 +131,7 @@ msgstr "Collectie"
 
 #: inventory_frontend/templates/create.html:71
 #: inventory_frontend/templates/detail.html:315
-#: inventory_frontend/templates/list.html:664
+#: inventory_frontend/templates/list.html:684
 #: inventory_frontend/templates/update.html:86
 msgid "Location"
 msgstr "Locatie"
@@ -102,7 +143,7 @@ msgstr "Locatie nummer"
 
 #: inventory_frontend/templates/create.html:93
 #: inventory_frontend/templates/detail.html:400
-#: inventory_frontend/templates/list.html:665
+#: inventory_frontend/templates/list.html:685
 #: inventory_frontend/templates/update.html:108
 msgid "Listing Price"
 msgstr "Vraagprijs"
@@ -110,8 +151,8 @@ msgstr "Vraagprijs"
 #: inventory_frontend/templates/create.html:104
 #: inventory_frontend/templates/detail.html:300
 #: inventory_frontend/templates/detail.html:365
-#: inventory_frontend/templates/list.html:231
-#: inventory_frontend/templates/list.html:675
+#: inventory_frontend/templates/list.html:237
+#: inventory_frontend/templates/list.html:695
 #: inventory_frontend/templates/update.html:122
 msgid "Status"
 msgstr "Status"
@@ -122,7 +163,7 @@ msgid "Purchase Value"
 msgstr "Aankoopprijs"
 
 #: inventory_frontend/templates/create.html:129
-#: inventory_frontend/templates/list.html:678
+#: inventory_frontend/templates/list.html:698
 #: inventory_frontend/templates/update.html:147
 msgid "Start Date"
 msgstr "Inkoopdatum"
@@ -153,7 +194,7 @@ msgstr "Maak eigendom"
 
 #: inventory_frontend/templates/detail.html:17
 #: inventory_frontend/templates/list.html:13
-#: inventory_frontend/templates/list.html:43
+#: inventory_frontend/templates/list.html:46
 msgid "Search..."
 msgstr "Zoek…"
 
@@ -170,8 +211,8 @@ msgstr "Verwijder"
 
 #: inventory_frontend/templates/detail.html:37
 #: inventory_frontend/templates/detail.html:114
-#: inventory_frontend/templates/list.html:28
-#: inventory_frontend/templates/list.html:58
+#: inventory_frontend/templates/list.html:31
+#: inventory_frontend/templates/list.html:64
 msgid "Toggle Customer Mode"
 msgstr "Wissel klantmodus"
 
@@ -184,8 +225,8 @@ msgid "Manage Moneybird Connection"
 msgstr "Beheer Moneybird-koppeling"
 
 #: inventory_frontend/templates/detail.html:132
-#: inventory_frontend/templates/list.html:616
-#: inventory_frontend/templates/list.html:758
+#: inventory_frontend/templates/list.html:636
+#: inventory_frontend/templates/list.html:778
 msgid "Connect to Moneybird"
 msgstr "Koppel met Moneybird"
 
@@ -301,7 +342,7 @@ msgstr "Niet gespecificeerd"
 
 #: inventory_frontend/templates/detail.html:292
 #: inventory_frontend/templates/detail.html:539
-#: inventory_frontend/templates/list.html:679
+#: inventory_frontend/templates/list.html:699
 msgid "Created"
 msgstr "Aangemaakt"
 
@@ -377,7 +418,7 @@ msgid "Dispose Asset"
 msgstr "Eigendom afschrijven"
 
 #: inventory_frontend/templates/detail.html:422
-#: inventory_frontend/templates/list.html:285
+#: inventory_frontend/templates/list.html:311
 msgid "Properties"
 msgstr "Eigenschappen"
 
@@ -665,114 +706,126 @@ msgid "Search %(count)s assets..."
 msgstr "Zoek in %(count)s eigendommen..."
 
 #: inventory_frontend/templates/index.html:29
+msgid "Bulk Update"
+msgstr "Bulk update"
+
+#: inventory_frontend/templates/index.html:32
 msgid "Admin"
 msgstr "Admin"
 
-#: inventory_frontend/templates/index.html:33
+#: inventory_frontend/templates/index.html:36
 msgid "Or immediately go to..."
 msgstr "Of ga direct naar…"
 
-#: inventory_frontend/templates/index.html:39
-#: inventory_frontend/templates/list.html:113
+#: inventory_frontend/templates/index.html:42
+#: inventory_frontend/templates/list.html:119
 msgid "Categories"
 msgstr "Categoriën"
 
-#: inventory_frontend/templates/index.html:62
-#: inventory_frontend/templates/list.html:164
+#: inventory_frontend/templates/index.html:65
+#: inventory_frontend/templates/list.html:170
 msgid "Locations"
 msgstr "Locaties"
 
-#: inventory_frontend/templates/index.html:78
-#: inventory_frontend/templates/list.html:208
+#: inventory_frontend/templates/index.html:81
+#: inventory_frontend/templates/list.html:214
 msgid "Collections"
 msgstr "Collecties"
 
-#: inventory_frontend/templates/list.html:52
+#: inventory_frontend/templates/list.html:55
 msgid "New"
 msgstr "Nieuw"
 
-#: inventory_frontend/templates/list.html:70
+#: inventory_frontend/templates/list.html:58
+msgid "Bulk update"
+msgstr "Bulk update"
+
+#: inventory_frontend/templates/list.html:76
 msgid "Filters"
 msgstr "Filters"
 
-#: inventory_frontend/templates/list.html:136
+#: inventory_frontend/templates/list.html:142
 msgid "Sizes"
 msgstr "Maten"
 
-#: inventory_frontend/templates/list.html:155
+#: inventory_frontend/templates/list.html:161
 msgid "No sizes available"
 msgstr "Geen maten beschikbaar"
 
 #: inventory_frontend/templates/list.html:263
-#: inventory_frontend/templates/list.html:1229
+msgid "Archived"
+msgstr "Gearchiveerd"
+
+#: inventory_frontend/templates/list.html:289
+#: inventory_frontend/templates/list.html:1291
 msgid "Price"
 msgstr "Prijs"
 
-#: inventory_frontend/templates/list.html:276
-#: inventory_frontend/templates/list.html:331
-#: inventory_frontend/templates/list.html:339
+#: inventory_frontend/templates/list.html:302
+#: inventory_frontend/templates/list.html:357
+#: inventory_frontend/templates/list.html:365
 msgid "Min"
 msgstr "Min"
 
-#: inventory_frontend/templates/list.html:277
-#: inventory_frontend/templates/list.html:349
-#: inventory_frontend/templates/list.html:357
+#: inventory_frontend/templates/list.html:303
+#: inventory_frontend/templates/list.html:375
+#: inventory_frontend/templates/list.html:383
 msgid "Max"
 msgstr "Max"
 
-#: inventory_frontend/templates/list.html:320
+#: inventory_frontend/templates/list.html:346
 msgid "No options available"
 msgstr "Geen opties beschikbaar"
 
-#: inventory_frontend/templates/list.html:366
+#: inventory_frontend/templates/list.html:392
 msgid "Contains text..."
 msgstr "Bevat tekst…"
 
-#: inventory_frontend/templates/list.html:374
+#: inventory_frontend/templates/list.html:400
 msgid "No properties configured yet"
 msgstr "Geen eigenschappen geconfigureerd"
 
-#: inventory_frontend/templates/list.html:383
+#: inventory_frontend/templates/list.html:409
 msgid "Clear"
 msgstr "Wissen"
 
-#: inventory_frontend/templates/list.html:392
+#: inventory_frontend/templates/list.html:418
 msgid "Grid"
 msgstr "Rooster"
 
-#: inventory_frontend/templates/list.html:395
+#: inventory_frontend/templates/list.html:421
 msgid "List"
 msgstr "Lijst"
 
-#: inventory_frontend/templates/list.html:645
-#: inventory_frontend/templates/list.html:785
+#: inventory_frontend/templates/list.html:665
+#: inventory_frontend/templates/list.html:805
 msgid "No assets found"
 msgstr "Geen eigendommen gevonden"
 
-#: inventory_frontend/templates/list.html:647
-#: inventory_frontend/templates/list.html:787
+#: inventory_frontend/templates/list.html:667
+#: inventory_frontend/templates/list.html:807
 #, python-format
 msgid "No results found for \"%(query)s\""
 msgstr "Geen eigendommen gevonden voor \"%(query)s\""
 
-#: inventory_frontend/templates/list.html:649
-#: inventory_frontend/templates/list.html:789
+#: inventory_frontend/templates/list.html:669
+#: inventory_frontend/templates/list.html:809
 msgid "Clear all filters"
 msgstr "Wis alle filters"
 
-#: inventory_frontend/templates/list.html:661
+#: inventory_frontend/templates/list.html:681
 msgid "Image"
 msgstr "Afbeelding"
 
-#: inventory_frontend/templates/list.html:676
-msgid "Accounting status"
-msgstr "Boekhoudkundige status"
+#: inventory_frontend/templates/list.html:696
+msgid "Accounting"
+msgstr "Boekhoudkundig"
 
-#: inventory_frontend/templates/list.html:677
+#: inventory_frontend/templates/list.html:697
 msgid "Purchase Price"
 msgstr "Aankoopprijs"
 
-#: inventory_frontend/templates/list.html:861
+#: inventory_frontend/templates/list.html:881
 #, python-format
 msgid "Page %(current)s of %(total)s (%(count)s total items)"
 msgstr "Pagina %(current)s van %(total)s (%(count)s items)"
@@ -803,6 +856,9 @@ msgstr ""
 #: ninox_import/apps.py:9
 msgid "Ninox import"
 msgstr "Ninox import"
+
+#~ msgid "Accounting status"
+#~ msgstr "Boekhoudkundige status"
 
 #~ msgid "Source Documents"
 #~ msgstr "Brondocumenten"
@@ -913,9 +969,6 @@ msgstr "Ninox import"
 
 #~ msgid "No active agreements"
 #~ msgstr "Geen actieve overeenkomsten"
-
-#~ msgid "Account"
-#~ msgstr "Account"
 
 #~ msgid "Amount"
 #~ msgstr "Waarde"

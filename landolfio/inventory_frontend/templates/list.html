@@ -3,7 +3,7 @@
 
 {% block header %}
     <!-- Mobile Search Header -->
-    <div class="d-block d-lg-none py-3">
+    <div class="d-md-none py-3">
         <form action="{% url 'inventory_frontend:list' %}" method="get" class="d-flex gap-2 align-items-center">
             <a href="{% url 'inventory_frontend:search' %}">
                 <img src="{% static 'img/logo.png' %}" alt="Logo" class="img-fluid" style="max-height: 32px;">
@@ -36,7 +36,7 @@
     </div>
 
     <!-- Desktop Search Header -->
-    <div class="d-none d-lg-block py-4">
+    <div class="d-none d-md-block py-4">
         <form action="{% url 'inventory_frontend:list' %}" method="get" class="d-flex gap-3 align-items-center">
             <a href="{% url 'inventory_frontend:search' %}">
                 <img src="{% static 'img/logo.png' %}" alt="Logo" class="img-fluid" style="max-height: 38px;">
@@ -52,11 +52,25 @@
                 </button>
             </div>
             <a href="{% url 'inventory_frontend:create' %}" class="btn btn-success">
-                <i class="fas fa-plus me-2"></i>{% translate "New" %}
+                <i class="fas fa-plus"></i><span class="ms-2 d-none d-xl-inline">{% translate "New" %}</span>
             </a>
             <a href="{% url 'inventory_frontend:bulk_update' %}" class="btn btn-primary">
-                <i class="fas fa-layer-group me-2"></i>{% translate "Bulk Update" %}
+                <i class="fas fa-layer-group"></i><span class="ms-2 d-none d-xl-inline">{% translate "Bulk update" %}</span>
             </a>
+            <div class="input-group" style="width: auto;">
+                <button type="button" id="grid-view-btn" class="btn btn-outline-primary active">
+                    <i class="fas fa-th-large"></i><span class="ms-1 d-none d-xl-inline">{% translate "Grid" %}</span>
+                </button>
+                <button type="button" id="list-view-btn" class="btn btn-outline-primary">
+                    <i class="fas fa-list"></i><span class="ms-1 d-none d-xl-inline">{% translate "List" %}</span>
+                </button>
+                <select class="form-select" style="width: auto;" id="page-size-selector" onchange="changePageSize(this.value)">
+                    <option value="12" {% if request.GET.page_size == '12' or not request.GET.page_size %}selected{% endif %}>12</option>
+                    <option value="24" {% if request.GET.page_size == '24' %}selected{% endif %}>24</option>
+                    <option value="48" {% if request.GET.page_size == '48' %}selected{% endif %}>48</option>
+                    <option value="96" {% if request.GET.page_size == '96' %}selected{% endif %}>96</option>
+                </select>
+            </div>
             <div class="btn-group" role="group">
                 <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
                     <i class="fas fa-cog"></i>
@@ -75,13 +89,19 @@
                 <button class="btn btn-outline-secondary" type="button" onclick="toggleFilters()">
                     <i class="fas fa-filter me-2"></i>{% translate "Filters" %}
                 </button>
-                <div class="btn-group" role="group">
+                <div class="input-group" style="width: auto;">
                     <button type="button" id="grid-view-btn-mobile" class="btn btn-outline-primary active">
                         <i class="fas fa-th-large"></i>
                     </button>
                     <button type="button" id="list-view-btn-mobile" class="btn btn-outline-primary">
                         <i class="fas fa-list"></i>
                     </button>
+                    <select class="form-select" style="width: auto;" id="page-size-selector-mobile" onchange="changePageSize(this.value)">
+                        <option value="12" {% if request.GET.page_size == '12' or not request.GET.page_size %}selected{% endif %}>12</option>
+                        <option value="24" {% if request.GET.page_size == '24' %}selected{% endif %}>24</option>
+                        <option value="48" {% if request.GET.page_size == '48' %}selected{% endif %}>48</option>
+                        <option value="96" {% if request.GET.page_size == '96' %}selected{% endif %}>96</option>
+                    </select>
                 </div>
             </div>
         </div>
@@ -239,26 +259,46 @@
                                 <span class="badge bg-primary ms-1">{{ current_filters.statuses|length }}</span>
                             {% endif %}
                         </button>
-                        <div class="dropdown-menu p-2" style="width: 250px;">
-                            {% for value, label in asset_states %}
+                        <div class="dropdown-menu p-2" style="width: 250px; max-height: 400px; overflow-y: auto;">
+                            {% for status_type in active_status_types %}
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="status" value="{{ value }}" 
-                                           id="status-{{ value }}"
-                                           {% if value in current_filters.statuses %}checked{% endif %}
+                                    <input class="form-check-input" type="checkbox" name="status" value="{{ status_type.slug }}"
+                                           id="status-{{ status_type.slug }}"
+                                           {% if status_type.slug in current_filters.statuses %}checked{% endif %}
                                            onchange="updateFilters()">
-                                    <label class="form-check-label d-flex align-items-center" for="status-{{ value }}">
-                                        <span class="badge me-2
-                                        {% if value == 'available' %}bg-success
-                                        {% elif value == 'issued_rent' or value == 'issued_loan' or value == 'issued_unprocessed' %}bg-warning
-                                        {% elif value == 'maintenance_in_house' or value == 'maintenance_external' or value == 'under_review' %}bg-info
-                                        {% elif value == 'placeholder' or value == 'to_be_delivered' %}bg-secondary
-                                        {% elif value == 'sold' or value == 'amortized' %}bg-dark
-                                        {% elif value == 'unknown' %}bg-danger
-                                        {% else %}bg-primary{% endif %}" style="font-size: 0.6rem; width: 12px; height: 12px;">&nbsp;</span>
-                                        {{ label }}
+                                    <label class="form-check-label d-flex align-items-center" for="status-{{ status_type.slug }}">
+                                        <span class="badge me-2" style="font-size: 0.6rem; width: 12px; height: 12px; background-color: {{ status_type.background_color }};">&nbsp;</span>
+                                        {{ status_type.name }}
                                     </label>
                                 </div>
                             {% endfor %}
+
+                            {% if archived_status_types %}
+                                <div class="border-top mt-2 pt-2">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input archived-group-checkbox" type="checkbox"
+                                               id="include-archived"
+                                               onchange="toggleArchivedGroup()">
+                                        <label class="form-check-label fw-bold small text-muted" for="include-archived">
+                                            {% translate "Archived" %}
+                                        </label>
+                                    </div>
+                                    <div id="archived-statuses" class="ms-3">
+                                        {% for status_type in archived_status_types %}
+                                            <div class="form-check">
+                                                <input class="form-check-input archived-status" type="checkbox" name="status" value="{{ status_type.slug }}"
+                                                       id="status-{{ status_type.slug }}"
+                                                       {% if status_type.slug in current_filters.statuses %}checked{% endif %}
+                                                       onchange="updateFilters(); updateArchivedGroupState()">
+                                                <label class="form-check-label d-flex align-items-center small text-muted" for="status-{{ status_type.slug }}">
+                                                    <span class="badge me-2" style="font-size: 0.6rem; width: 12px; height: 12px; background-color: {{ status_type.background_color }};">&nbsp;</span>
+                                                    {{ status_type.name }}
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
 
@@ -390,24 +430,6 @@
                         </a>
                     {% endif %}
                 </form>
-
-                <!-- View Toggle and Page Size -->
-                <div class="d-none d-md-flex gap-2 mb-4">
-                    <div class="btn-group" role="group">
-                        <button type="button" id="grid-view-btn" class="btn btn-outline-primary active">
-                            <i class="fas fa-th-large"></i><span class="ms-1">{% translate "Grid" %}</span>
-                        </button>
-                        <button type="button" id="list-view-btn" class="btn btn-outline-primary">
-                            <i class="fas fa-list"></i><span class="ms-1">{% translate "List" %}</span>
-                        </button>
-                    </div>
-                    <select class="form-select" style="width: auto;" id="page-size-selector" onchange="changePageSize(this.value)">
-                        <option value="12" {% if request.GET.page_size == '12' or not request.GET.page_size %}selected{% endif %}>12</option>
-                        <option value="24" {% if request.GET.page_size == '24' %}selected{% endif %}>24</option>
-                        <option value="48" {% if request.GET.page_size == '48' %}selected{% endif %}>48</option>
-                        <option value="96" {% if request.GET.page_size == '96' %}selected{% endif %}>96</option>
-                    </select>
-                </div>
             </div>
         </div>
     </div>
@@ -543,36 +565,30 @@
                             <div class="card-body py-2 px-3 d-flex flex-column">
                                 <!-- Top Content -->
                                 <div class="flex-grow-1">
-                                    <!-- Asset Name and Badges Row -->
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <h4 class="card-title mb-0 fw-bold flex-grow-1 me-3" style="line-height: 1.2;">{{ asset.name }}</h4>
-                                        <div class="d-flex flex-column gap-1 align-items-end" style="min-width: fit-content;">
-                                            <!-- Classification Badges Row -->
-                                            <div class="d-flex gap-1 justify-content-end">
-                                                <span class="badge bg-primary" style="font-size: 0.6rem;">{{ asset.category.name_singular }}</span>
-                                                {% if asset.size %}
-                                                    <span class="badge bg-secondary" style="font-size: 0.6rem;">{{ asset.size }}</span>
-                                                {% endif %}
-                                            </div>
-                                            <!-- Status Badges Row -->
-                                            <div class="d-flex gap-1 justify-content-end">
-                                                <span class="badge
-                                                {% if asset.current_status == 'available' %}bg-success
-                                                {% elif asset.current_status == 'issued_rent' or asset.current_status == 'issued_loan' or asset.current_status == 'issued_unprocessed' %}bg-warning
-                                                {% elif asset.current_status == 'maintenance_in_house' or asset.current_status == 'maintenance_external' or asset.current_status == 'under_review' %}bg-info
-                                                {% elif asset.current_status == 'placeholder' %}bg-light text-dark{% elif asset.current_status == 'to_be_delivered' %}bg-secondary
-                                                {% elif asset.current_status == 'sold' %}bg-secondary{% elif asset.current_status == 'amortized' %}bg-dark
-                                                {% elif asset.current_status == 'unknown' %}bg-danger
-                                                {% else %}bg-primary{% endif %}" style="font-size: 0.6rem;">
-                                                    {{ asset.current_status_display }}
-                                                </span>
-                                                {% if asset.collection.commerce and asset.moneybird_asset_id %}
-                                                    <span class="badge bg-{{ asset.financial_status_color }} customer-mode-hide" style="font-size: 0.6rem;">
-                                                        {{ asset.financial_status_display|title }}
-                                                    </span>
-                                                {% endif %}
-                                            </div>
-                                        </div>
+                                    <!-- Asset Name -->
+                                    <h4 class="card-title mb-1 fw-bold" style="line-height: 1.2;">{{ asset.name }}</h4>
+
+                                    <!-- Badges Section -->
+                                    <div class="d-flex flex-wrap gap-1 mb-2">
+                                        <span class="badge bg-primary" style="font-size: 0.6rem; white-space: nowrap;">{{ asset.category.name_singular }}</span>
+                                        {% if asset.size %}
+                                            <span class="badge bg-secondary" style="font-size: 0.6rem; white-space: nowrap;">{{ asset.size }}</span>
+                                        {% endif %}
+                                        <span class="badge
+                                        {% if asset.current_status == 'available' %}bg-success
+                                        {% elif asset.current_status == 'issued_rent' or asset.current_status == 'issued_loan' or asset.current_status == 'issued_unprocessed' %}bg-warning
+                                        {% elif asset.current_status == 'maintenance_in_house' or asset.current_status == 'maintenance_external' or asset.current_status == 'under_review' %}bg-info
+                                        {% elif asset.current_status == 'placeholder' %}bg-light text-dark{% elif asset.current_status == 'to_be_delivered' %}bg-secondary
+                                        {% elif asset.current_status == 'sold' %}bg-secondary{% elif asset.current_status == 'amortized' %}bg-dark
+                                        {% elif asset.current_status == 'unknown' %}bg-danger
+                                        {% else %}bg-primary{% endif %}" style="font-size: 0.6rem; white-space: nowrap;">
+                                            {{ asset.current_status_display }}
+                                        </span>
+                                        {% if asset.collection.commerce and asset.moneybird_asset_id %}
+                                            <span class="badge bg-{{ asset.financial_status_color }} customer-mode-hide" style="font-size: 0.6rem; white-space: nowrap;">
+                                                {{ asset.financial_status_display|title }}
+                                            </span>
+                                        {% endif %}
                                     </div>
                                     
                                     <!-- Location -->
@@ -679,7 +695,7 @@
                                 </th>
                             {% endfor %}
                             <th>{% translate "Status" %}</th>
-                            <th class="customer-mode-hide">{% translate "Accounting status" %}</th>
+                            <th class="customer-mode-hide">{% translate "Accounting" %}</th>
                             <th class="customer-mode-hide">{% translate "Purchase Price" %}</th>
                             <th class="customer-mode-hide">{% translate "Start Date" %}</th>
                             <th class="customer-mode-hide">{% translate "Created" %}</th>
@@ -931,6 +947,48 @@ function toggleFilters() {
         }, 300);
     }
 }
+
+// Handle archived group checkbox (like location groups)
+function toggleArchivedGroup() {
+    const groupCheckbox = document.getElementById('include-archived');
+    const archivedCheckboxes = document.querySelectorAll('.archived-status');
+
+    const allChecked = Array.from(archivedCheckboxes).every(cb => cb.checked);
+    const shouldCheck = !allChecked;
+
+    archivedCheckboxes.forEach(cb => {
+        cb.checked = shouldCheck;
+    });
+
+    updateArchivedGroupState();
+    updateFilters();
+}
+
+function updateArchivedGroupState() {
+    const groupCheckbox = document.getElementById('include-archived');
+    const archivedCheckboxes = document.querySelectorAll('.archived-status');
+
+    if (!groupCheckbox || archivedCheckboxes.length === 0) return;
+
+    const checkedCount = Array.from(archivedCheckboxes).filter(cb => cb.checked).length;
+    const totalCount = archivedCheckboxes.length;
+
+    if (checkedCount === 0) {
+        groupCheckbox.checked = false;
+        groupCheckbox.indeterminate = false;
+    } else if (checkedCount === totalCount) {
+        groupCheckbox.checked = true;
+        groupCheckbox.indeterminate = false;
+    } else {
+        groupCheckbox.checked = false;
+        groupCheckbox.indeterminate = true;
+    }
+}
+
+// Initialize archived group state on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateArchivedGroupState();
+});
 
 // Make sure updateFilters is available immediately
 function updateFilters() {

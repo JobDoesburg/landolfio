@@ -8,7 +8,6 @@ from django_countries.fields import CountryField
 from localflavor.generic.countries.sepa import IBAN_SEPA_COUNTRIES
 from localflavor.generic.models import IBANField, BICField
 
-from accounting.models.workflow import Workflow, WorkflowTypes, WorkflowResourceType
 from moneybird import resources
 from moneybird.administration import get_moneybird_administration
 from moneybird.models import (
@@ -164,24 +163,6 @@ class Contact(SynchronizableMoneybirdResourceModel):
     tax_number_valid = models.BooleanField(
         verbose_name=_("tax number valid"), default=False
     )
-    invoice_workflow = models.ForeignKey(
-        Workflow,
-        verbose_name=_("default invoice workflow"),
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        limit_choices_to={"active": True, "type": WorkflowTypes.INVOICE_WORKFLOW},
-        related_name="invoice_workflow_contacts",
-    )
-    estimate_workflow = models.ForeignKey(
-        Workflow,
-        verbose_name=_("default estimate workflow"),
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        limit_choices_to={"active": True, "type": WorkflowTypes.ESTIMATE_WORKFLOW},
-        related_name="estimate_workflow_contacts",
-    )
     sales_invoices_url = models.URLField(
         verbose_name=_("sales invoices url"), blank=True, max_length=2048, null=True
     )
@@ -300,16 +281,6 @@ class ContactResourceType(resources.ContactResourceType):
         )
         kwargs["sepa_sequence_type"] = resource_data["sepa_sequence_type"]
         kwargs["tax_number_valid"] = resource_data["tax_number_valid"] or False
-        kwargs[
-            "invoice_workflow"
-        ] = WorkflowResourceType.get_or_create_from_moneybird_data(
-            resource_data["invoice_workflow_id"]
-        )
-        kwargs[
-            "estimate_workflow"
-        ] = WorkflowResourceType.get_or_create_from_moneybird_data(
-            resource_data["estimate_workflow_id"]
-        )
         kwargs["sales_invoices_url"] = resource_data["sales_invoices_url"]
         return kwargs
 

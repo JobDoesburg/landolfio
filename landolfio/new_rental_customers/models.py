@@ -2,7 +2,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from accounting.models import Contact
-from accounting.models.estimate import Estimate
 from inventory.models.asset import Asset
 from new_customers.models import NewCustomer
 from tickets.models import Ticket, TicketType

@@ -11,9 +11,6 @@ class SubscriptionAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
     list_display = (
         "contact",
         "reference",
-        "product",
-        "frequency",
-        "frequency_type",
         "start_date",
         "end_date",
         "cancelled_at",
@@ -24,8 +21,6 @@ class SubscriptionAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
     date_hierarchy = "start_date"
 
     search_fields = (
-        "product__title",
-        "product__description",
         "reference",
         "contact__company_name",
         "contact__first_name",
@@ -33,13 +28,9 @@ class SubscriptionAdmin(AutocompleteFilterMixin, MoneybirdResourceModelAdmin):
         "contact__customer_id",
     )
 
-    autocomplete_fields = (
-        "contact",
-        "product",
-    )
+    autocomplete_fields = ("contact",)
 
     readonly_fields = (
-        "recurring_sales_invoice",
         "end_date",
         "cancelled_at",
     )

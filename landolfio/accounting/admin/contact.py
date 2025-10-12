@@ -52,10 +52,7 @@ class ContactAdmin(MoneybirdResourceModelAdmin):
         "email",
         "attention",
     )
-    autocomplete_fields = (
-        "invoice_workflow",
-        "estimate_workflow",
-    )
+    autocomplete_fields = ()
 
     fieldsets = [
         (

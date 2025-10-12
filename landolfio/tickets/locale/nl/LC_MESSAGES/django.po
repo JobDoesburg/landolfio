@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-07 12:56+0200\n"
+"POT-Creation-Date: 2025-10-12 18:57+0200\n"
 "PO-Revision-Date: 2023-02-21 16:34+0100\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -83,83 +83,75 @@ msgstr "Niet verlopen"
 msgid "📝 Tickets"
 msgstr "📝 Tickets"
 
-#: tickets/models.py:16
+#: tickets/models.py:14
 msgid "name"
 msgstr "naam"
 
-#: tickets/models.py:17
+#: tickets/models.py:15
 msgid "code defined"
 msgstr "code-defined"
 
-#: tickets/models.py:21
+#: tickets/models.py:19
 msgid "New customer"
 msgstr "Nieuwe klant"
 
-#: tickets/models.py:27 tickets/models.py:62
+#: tickets/models.py:25 tickets/models.py:60
 msgid "ticket type"
 msgstr "ticket type"
 
-#: tickets/models.py:28
+#: tickets/models.py:26
 msgid "ticket types"
 msgstr "ticket types"
 
-#: tickets/models.py:32
+#: tickets/models.py:30
 msgid "created at"
 msgstr "aangemaakt op"
 
-#: tickets/models.py:33
+#: tickets/models.py:31
 msgid "updated at"
 msgstr "geüpdate up"
 
-#: tickets/models.py:34
+#: tickets/models.py:32
 msgid "closed"
 msgstr "gesloten"
 
-#: tickets/models.py:36
+#: tickets/models.py:34
 msgid "closed at"
 msgstr "gesloten op"
 
-#: tickets/models.py:38
+#: tickets/models.py:36
 msgid "date due"
 msgstr "uitgestelde datum"
 
-#: tickets/models.py:42
+#: tickets/models.py:40
 msgid "created by"
 msgstr "aangemaakt door"
 
-#: tickets/models.py:50
+#: tickets/models.py:48
 msgid "assigned to"
 msgstr "toegewezen aan"
 
-#: tickets/models.py:64
+#: tickets/models.py:62
 msgid "description"
 msgstr "omschrijving"
 
-#: tickets/models.py:67
+#: tickets/models.py:65
 msgid "assets"
 msgstr "eigendommen"
 
-#: tickets/models.py:71
+#: tickets/models.py:69
 msgid "contact"
 msgstr "contact"
 
-#: tickets/models.py:78
-msgid "estimate"
-msgstr "offerte"
-
-#: tickets/models.py:82
-msgid "sales invoices"
-msgstr "verkoopfacturen"
-
-#: tickets/models.py:90
+#: tickets/models.py:79
 msgid "Ticket"
 msgstr "Ticket"
 
-#: tickets/models.py:120
+#: tickets/models.py:109
 msgid "ticket"
 msgstr "ticket"
 
-#: tickets/models.py:121
+#: tickets/models.py:110
 msgid "tickets"
 msgstr "tickets"
 
@@ -175,6 +167,12 @@ msgstr "Nieuwe klant"
 #: tickets/templates/admin/tickets/ticket/change_list_object_tools.html:18
 msgid "Add new rental customer"
 msgstr "Nieuwe huurder"
+
+#~ msgid "estimate"
+#~ msgstr "offerte"
+
+#~ msgid "sales invoices"
+#~ msgstr "verkoopfacturen"
 
 #~ msgid "Due"
 #~ msgstr "Uitgesteld"

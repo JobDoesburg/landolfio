@@ -12,7 +12,6 @@ from datetime import date
 import json
 
 from inventory.models.asset import Asset, AssetStates
-from inventory.models.asset_on_document_line import AssetOnJournalDocumentLine
 from inventory.models.asset_property import AssetProperty, AssetPropertyValue
 from inventory.models.attachment import Attachment, attachments_directory_path
 from inventory.models.category import Category
@@ -21,7 +20,6 @@ from inventory.models.location import Location
 from inventory.models.remarks import Remark
 from inventory.models.status_change import StatusChange
 from accounting.models.contact import Contact
-from accounting.models import JournalDocumentLine
 from inventory_frontend.forms import AssetForm, StatusChangeForm, BulkStatusChangeForm
 
 from django.db.models import Count, Prefetch
@@ -119,6 +117,34 @@ class AssetListView(LoginRequiredMixin, ListView):
         min_value = self.request.GET.get("min_value")
         max_value = self.request.GET.get("max_value")
 
+        # By default, exclude archived statuses unless specific statuses are selected
+        if not statuses:
+            from inventory.models.status_type import StatusType
+
+            non_archived_statuses = StatusType.objects.filter(
+                is_archived=False
+            ).values_list("slug", flat=True)
+
+            latest_status = (
+                StatusChange.objects.filter(
+                    asset=OuterRef("pk"), new_status__isnull=False
+                )
+                .order_by("-status_date", "-created_at")
+                .values("new_status")[:1]
+            )
+
+            queryset = queryset.annotate(
+                latest_status_from_changes=Subquery(latest_status)
+            )
+
+            queryset = queryset.filter(
+                Q(latest_status_from_changes__in=non_archived_statuses)
+                | Q(
+                    latest_status_from_changes__isnull=True,
+                    local_status__in=non_archived_statuses,
+                )
+            )
+
         # Apply filters
         if search_query and search_query.strip():
             queryset = queryset.filter(
@@ -143,10 +169,13 @@ class AssetListView(LoginRequiredMixin, ListView):
             statuses = [stat for stat in statuses if stat.strip()]
             if statuses:
                 # Annotate each asset with its latest status from StatusChanges
-                latest_status = StatusChange.objects.filter(
-                    asset=OuterRef('pk'),
-                    new_status__isnull=False
-                ).order_by('-status_date', '-created_at').values('new_status')[:1]
+                latest_status = (
+                    StatusChange.objects.filter(
+                        asset=OuterRef("pk"), new_status__isnull=False
+                    )
+                    .order_by("-status_date", "-created_at")
+                    .values("new_status")[:1]
+                )
 
                 queryset = queryset.annotate(
                     latest_status_from_changes=Subquery(latest_status)
@@ -155,8 +184,11 @@ class AssetListView(LoginRequiredMixin, ListView):
                 # Filter where either the latest status change matches OR
                 # no status changes exist and local_status matches
                 queryset = queryset.filter(
-                    Q(latest_status_from_changes__in=statuses) |
-                    Q(latest_status_from_changes__isnull=True, local_status__in=statuses)
+                    Q(latest_status_from_changes__in=statuses)
+                    | Q(
+                        latest_status_from_changes__isnull=True,
+                        local_status__in=statuses,
+                    )
                 )
 
         if locations:
@@ -480,27 +512,12 @@ class AssetListView(LoginRequiredMixin, ListView):
             asset_count=Count("asset")
         ).order_by("name")
 
-        # Add asset states in logical color grouping order
-        context["asset_states"] = [
-            # Green - Available
-            (AssetStates.AVAILABLE, AssetStates.AVAILABLE.label),
-            # Blue - Maintenance/Review
-            (AssetStates.UNDER_REVIEW, AssetStates.UNDER_REVIEW.label),
-            (AssetStates.MAINTENANCE_IN_HOUSE, AssetStates.MAINTENANCE_IN_HOUSE.label),
-            (AssetStates.MAINTENANCE_EXTERNAL, AssetStates.MAINTENANCE_EXTERNAL.label),
-            # Yellow - Active/Issued
-            (AssetStates.ISSUED_UNPROCESSED, AssetStates.ISSUED_UNPROCESSED.label),
-            (AssetStates.ISSUED_LOAN, AssetStates.ISSUED_LOAN.label),
-            (AssetStates.ISSUED_RENT, AssetStates.ISSUED_RENT.label),
-            # Dark - Final/Completed
-            (AssetStates.SOLD, AssetStates.SOLD.label),
-            (AssetStates.AMORTIZED, AssetStates.AMORTIZED.label),
-            # Red - Problem
-            (AssetStates.UNKNOWN, AssetStates.UNKNOWN.label),
-            # Gray - Placeholder/Pending
-            (AssetStates.PLACEHOLDER, AssetStates.PLACEHOLDER.label),
-            (AssetStates.TO_BE_DELIVERED, AssetStates.TO_BE_DELIVERED.label),
-        ]
+        # Get status types and separate into active and archived
+        from inventory.models.status_type import StatusType
+
+        all_status_types = StatusType.objects.order_by("order", "name")
+        context["active_status_types"] = all_status_types.filter(is_archived=False)
+        context["archived_status_types"] = all_status_types.filter(is_archived=True)
 
         # Get all properties for the filter dropdown with current values
         context["all_properties"] = self._get_properties_with_current_values()
@@ -587,16 +604,7 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
         ]
         context["locations"] = Location.objects.all().order_by("order", "name")
 
-        context["journal_history"] = (
-            AssetOnJournalDocumentLine.objects.filter(asset=asset)
-            .select_related("document_line__ledger_account")
-            .prefetch_related(
-                Prefetch(
-                    "document_line",
-                    queryset=JournalDocumentLine.objects.select_subclasses(),
-                )
-            )
-        )
+        context["journal_history"] = []
 
         # Add asset properties
         category_properties = AssetProperty.objects.filter(
@@ -1439,7 +1447,6 @@ class AssetDisposeMoneybirdView(LoginRequiredMixin, View):
                 "HTTP_REFERER", reverse("inventory_frontend:detail", kwargs={"pk": pk})
             )
         )
-
 
 
 class BulkStatusChangeView(LoginRequiredMixin, TemplateView):

@@ -6,7 +6,7 @@
         <div id="branding">
         {% block branding %}
             <h1 id="site-name" style="white-space: nowrap;">
-                <a href="{% url 'admin:inventory_asset_overview' %}"><img src="{% static 'img/logo.svg' %}" height="30px" alt="Landolfio logo" style="margin-right: 10px"/>Landolfio</a>
+                <a href="{% url 'admin:index' %}"><img src="{% static 'img/logo.svg' %}" height="30px" alt="Landolfio logo" style="margin-right: 10px"/>Landolfio</a>
             </h1>
         {% endblock %}
         </div>
@@ -14,24 +14,9 @@
             {% block quicklinks %}
                 <div style="padding: 5px;">
                     <h4 style="text-align: center; margin-top: 0; margin-bottom: 0">
-                        <a href="{% url 'admin:inventory_asset_overview' %}" style="padding: 0 5px; white-space: nowrap;">🗂 {% trans 'Inventory' %}</a> /
+                        <a href="{% url 'inventory_frontend:search' %}" style="padding: 0 5px; white-space: nowrap;">🗂 {% trans 'Inventory' %}</a> /
                         <a href="{% url 'admin:tickets_ticket_changelist' %}" style="padding: 0 5px; white-space: nowrap;"> 📝 {% trans 'Tickets' %}</a> /
-                        <a href="{% url 'inventory_frontend:search' %}" style="padding: 0 5px; white-space: nowrap;">🆕 {% trans 'New UI' %}</a> /
                         <a href="{% url 'admin:index' %}" style="padding: 0 5px; white-space: nowrap;">⚙️ {% trans 'Settings' %}</a>
-                    </h4>
-                </div>
-            {% endblock %}
-            {% block searchbar %}
-                <div class="related-widget-wrapper" data-model-ref="eigendom" style="justify-content: center; padding: 10px 15px;">
-                    <select name="assets" id="assets_search" class="admin-autocomplete select2-hidden-accessible" data-ajax--cache="true" data-ajax--delay="250" data-ajax--type="GET" data-ajax--url="/admin/autocomplete/" data-app-label="tickets" data-model-name="ticket" data-field-name="assets" data-theme="admin-autocomplete" data-allow-clear="true" data-placeholder="" lang="nl" data-select2-id="assets_search" tabindex="-1" aria-hidden="true" oninput="redirectToAsset()" style="width: 200px;"></select>
-                </div>
-                <script src="{% static "admin/js/autocomplete.js" %}"></script>
-            {% endblock %}
-            {% block quickbuttons %}
-                <div style="padding: 5px;">
-                    <h4 style="text-align: center; margin-top: 0; margin-bottom: 0; padding-bottom: 0;">
-                        <a href="{% url 'admin:tickets_ticket_add' %}" class="button" style="background: var(--button-hover-bg); display:inline-block; margin: 3px; padding: 10px; white-space: nowrap;">📝 {% trans 'New ticket' %}</a>
-                        <a href="{% url 'admin:inventory_asset_add' %}" class="button" style="background: var(--button-hover-bg); display:inline-block; margin: 3px; padding: 10px; white-space: nowrap;">🗂 {% trans 'New asset' %}</a>
                     </h4>
                 </div>
             {% endblock %}
@@ -85,7 +70,7 @@
         function redirectToAsset() {
             const assetsSearch = document.getElementById("assets_search");
             const selectedAsset = assetsSearch.options[assetsSearch.selectedIndex];
-            window.location.href = "/admin/inventory/asset/" + selectedAsset.value + "/view/";
+            window.location.href = "/admin/inventory/asset/" + selectedAsset.value + "/change/";
         }
     </script>
     <script src="{% static "js/sync_database_button.js" %}" defer></script>

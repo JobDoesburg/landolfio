@@ -5,9 +5,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from model_utils.managers import InheritanceManager
 
-from accounting.models import GeneralJournalDocument, SalesInvoice
 from accounting.models import Contact
-from accounting.models import Estimate
 from inventory.models.asset import Asset
 from inventory.services import find_existing_asset_from_description
 
@@ -72,15 +70,6 @@ class Ticket(models.Model):
         on_delete=models.PROTECT,
         blank=True,
         null=True,
-        related_name="tickets",
-    )
-    estimates = models.ManyToManyField(
-        Estimate, verbose_name=_("estimate"), blank=True, related_name="tickets"
-    )
-    sales_invoices = models.ManyToManyField(
-        SalesInvoice,
-        verbose_name=_("sales invoices"),
-        blank=True,
         related_name="tickets",
     )
 

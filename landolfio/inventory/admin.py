@@ -26,7 +26,6 @@ from inventory.admin_inlines import (
     AttachmentInlineAdmin,
     StatusChangeInline,
 )
-from inventory.admin_views import ViewAssetView, AssetOverviewView
 from inventory.models.asset import (
     Asset,
 )
@@ -35,6 +34,7 @@ from inventory.models.attachment import Attachment
 from inventory.models.category import Category, Size
 from inventory.models.collection import Collection
 from inventory.models.location import Location, LocationGroup
+from inventory.models.status_type import StatusType
 
 
 class AssetPropertyValueInline(admin.TabularInline):
@@ -119,7 +119,7 @@ class AssetAdmin(
     show_facets = admin.ShowFacets.NEVER
 
     list_display = (
-        "asset_view_link",
+        "name",
         "category",
         "size",
         "location",
@@ -275,15 +275,6 @@ class AssetAdmin(
         return obj.has_loan_agreement
 
     @admin.display(
-        ordering="name",
-        description=_("asset"),
-    )
-    def asset_view_link(self, obj):
-        return format_html(
-            f'<a href="{reverse("admin:inventory_asset_view", kwargs={"id": obj.id})}">{obj.name}</a>',
-        )
-
-    @admin.display(
         boolean=True,
         ordering="is_margin_asset",
         description=_("margin asset"),
@@ -351,80 +342,6 @@ class AssetAdmin(
             request, queryset, search_term
         )
         return queryset, use_distinct
-
-    def get_urls(self):
-        urls = super().get_urls()
-        my_urls = [
-            path(
-                "<uuid:id>/view/",
-                self.admin_site.admin_view(
-                    ViewAssetView.as_view(
-                        extra_context={
-                            "site_title": self.admin_site.site_title,
-                            "site_header": self.admin_site.site_header,
-                            "site_url": self.admin_site.site_url,
-                            "has_permission": True,
-                            "is_popup": False,
-                            "show_assets_sidebar": True,
-                            "categories": Category.objects.all().order_by("order"),
-                            "locations": Location.objects.all().order_by("order"),
-                            "collections": Collection.objects.all().order_by("order"),
-                            "recent_assets": Asset.objects.all().order_by(
-                                "-created_at"
-                            )[:10],
-                        },
-                    )
-                ),
-                name="inventory_asset_view",
-            ),
-            path(
-                "overview/",
-                self.admin_site.admin_view(
-                    AssetOverviewView.as_view(
-                        extra_context={
-                            "site_title": self.admin_site.site_title,
-                            "site_header": self.admin_site.site_header,
-                            "site_url": self.admin_site.site_url,
-                            "has_permission": True,
-                            "is_popup": False,
-                            "show_assets_sidebar": True,
-                            "categories": Category.objects.all().order_by("order"),
-                            "locations": Location.objects.all().order_by("order"),
-                            "collections": Collection.objects.all().order_by("order"),
-                            "recent_assets": Asset.objects.all().order_by(
-                                "-created_at"
-                            )[:10],
-                        },
-                    )
-                ),
-                name="inventory_asset_overview",
-            ),
-            path(
-                "overview/changelist/",
-                self.overview_changelist_view,
-                name="inventory_asset_overview_changelist",
-            ),
-        ]
-        return my_urls + urls
-
-    def overview_changelist_view(self, request, extra_context=None):
-        extra_context = extra_context or {}
-        extra_context["show_assets_sidebar"] = True
-        return self.changelist_view(request, extra_context=extra_context)
-
-    def changelist_view(self, request, extra_context=None):
-        extra_context = extra_context or {}
-        extra_context["categories"] = Category.objects.all().order_by("order")
-        extra_context["locations"] = Location.objects.all().order_by("order")
-        extra_context["collections"] = Collection.objects.all().order_by("order")
-        extra_context["recent_assets"] = Asset.objects.all().order_by("-created_at")[
-            :10
-        ]
-        return super().changelist_view(request, extra_context=extra_context)
-
-    def add_view(self, request, form_url="", extra_context=None):
-        extra_context = extra_context or {"is_nav_sidebar_enabled": False}
-        return super().add_view(request, form_url, extra_context=extra_context)
 
 
 @admin.register(Collection)
@@ -544,3 +461,32 @@ class AssetPropertyValueAdmin(admin.ModelAdmin):
                 categories=request._asset_category
             )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+@admin.register(StatusType)
+class StatusTypeAdmin(admin.ModelAdmin):
+    """Admin interface for managing status types."""
+
+    list_display = ["slug", "name", "color_badge", "is_archived", "order"]
+    list_editable = ["order"]
+    list_filter = ["is_archived"]
+    search_fields = ["slug", "name"]
+    ordering = ["order", "name"]
+
+    fieldsets = (
+        (_("Basic Information"), {"fields": ("slug", "name", "order")}),
+        (
+            _("Display Settings"),
+            {"fields": ("background_color", "text_color", "is_archived")},
+        ),
+    )
+
+    @admin.display(description=_("Color"))
+    def color_badge(self, obj):
+        """Display a colored badge showing the status color."""
+        return format_html(
+            '<span class="badge" style="background-color: {}; color: {};">{}</span>',
+            obj.background_color,
+            obj.text_color,
+            obj.name,
+        )

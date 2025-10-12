@@ -246,11 +246,25 @@ class Asset(models.Model):
         # If there's a disposal, use disposal-based status
         if self.disposal:
             if self.disposal == "out_of_use":
-                base_status = gettext("out of use")
-                base_color = "dark"
+                from inventory.models.status_type import StatusType
+
+                try:
+                    status_type = StatusType.objects.get(slug="out_of_use")
+                    base_status = status_type.name
+                    base_color = status_type.background_color
+                except StatusType.DoesNotExist:
+                    base_status = gettext("out of use")
+                    base_color = "dark"
             elif self.disposal == "divested":
-                base_status = gettext("divested")
-                base_color = "secondary"
+                from inventory.models.status_type import StatusType
+
+                try:
+                    status_type = StatusType.objects.get(slug="divested")
+                    base_status = status_type.name
+                    base_color = status_type.background_color
+                except StatusType.DoesNotExist:
+                    base_status = gettext("divested")
+                    base_color = "secondary"
         else:
             # No disposal, check current value
             current_val = self.current_value or 0

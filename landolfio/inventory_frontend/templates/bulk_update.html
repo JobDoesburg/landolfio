@@ -1,0 +1,452 @@
+{% extends "page-no-header.html" %}
+{% load static i18n %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <a href="{% url 'inventory_frontend:list' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>{% translate "Back" %}
+        </a>
+        <div class="text-center flex-grow-1">
+            <h2 class="mb-1">{% translate "Bulk status update" %}</h2>
+            <p class="text-muted mb-0">{% translate "Create status changes for multiple assets at once" %}</p>
+        </div>
+        <div style="width: 95px"><!-- Spacer to maintain centering --></div>
+    </div>
+
+    <!-- Form -->
+    <div class="card">
+        <div class="card-body">
+            <form method="post" id="bulk-status-form">
+                {% csrf_token %}
+                <input type="hidden" name="asset_ids" id="asset-ids-input" value="[]">
+
+                <div class="row g-3">
+                    <!-- Assets Selection -->
+                    <div class="col-12">
+                        <label for="{{ form.assets.id_for_label }}" class="form-label">
+                            {% translate "Assets" %} <span class="text-danger">*</span>
+                        </label>
+                        <div class="position-relative">
+                            {{ form.assets }}
+                            <div id="asset-autocomplete-suggestions" class="position-absolute w-100 mt-1 bg-white border rounded shadow-lg" style="z-index: 1000; display: none; max-height: 300px; overflow-y: auto;"></div>
+                        </div>
+                        <small class="form-text text-muted">{{ form.assets.help_text }}</small>
+                        {% if form.assets.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.assets.errors|join:", " }}
+                            </div>
+                        {% endif %}
+
+                        <!-- Selected Assets Display -->
+                        <div id="selected-assets" class="mt-2"></div>
+                    </div>
+
+                    <!-- Status Date -->
+                    <div class="col-md-6">
+                        <label for="{{ form.status_date.id_for_label }}" class="form-label">
+                            {% translate "Status date" %} <span class="text-danger">*</span>
+                        </label>
+                        {{ form.status_date }}
+                        {% if form.status_date.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.status_date.errors|join:", " }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- New Status -->
+                    <div class="col-md-6">
+                        <label for="{{ form.new_status.id_for_label }}" class="form-label">
+                            {% translate "New status" %}
+                        </label>
+                        {{ form.new_status }}
+                        {% if form.new_status.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.new_status.errors|join:", " }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Contact -->
+                    <div class="col-12">
+                        <label for="{{ form.contact_name.id_for_label }}" class="form-label">
+                            {% translate "Contact" %}
+                        </label>
+                        {{ form.contact_name }}
+                        {{ form.contact_id }}
+                        <small class="form-text text-muted">{{ form.contact_name.help_text }}</small>
+                        {% if form.contact_name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.contact_name.errors|join:", " }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="col-12">
+                        <label for="{{ form.comments.id_for_label }}" class="form-label">
+                            {% translate "Comments" %}
+                        </label>
+                        {{ form.comments }}
+                        {% if form.comments.errors %}
+                            <div class="invalid-feedback d-block">
+                                {{ form.comments.errors|join:", " }}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>{% translate "Create status changes" %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block body_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        initStatusSelect();
+        initContactAutocomplete();
+        initAssetAutocomplete();
+    });
+
+    // Helper function to get status badge class
+    function getStatusBadgeClass(status) {
+        const statusMap = {
+            'available': 'bg-success',
+            'issued_rent': 'bg-warning text-dark',
+            'issued_loan': 'bg-warning text-dark',
+            'issued_unprocessed': 'bg-warning text-dark',
+            'maintenance_in_house': 'bg-info',
+            'maintenance_external': 'bg-info',
+            'under_review': 'bg-info',
+            'placeholder': 'bg-light text-dark',
+            'to_be_delivered': 'bg-secondary',
+            'sold': 'bg-secondary',
+            'amortized': 'bg-dark',
+            'unknown': 'bg-danger'
+        };
+        return statusMap[status] || 'bg-primary';
+    }
+
+    // Status select color functionality
+    function initStatusSelect() {
+        const statusSelect = document.querySelector('#id_new_status');
+
+        if (statusSelect) {
+            function updateStatusSelectColor() {
+                const selectedOption = statusSelect.options[statusSelect.selectedIndex];
+                const color = selectedOption.getAttribute('data-color') || 'primary';
+
+                // Remove all bg- and text- classes
+                statusSelect.className = statusSelect.className.split(' ').filter(cls =>
+                    !cls.startsWith('bg-') && !cls.startsWith('text-')
+                ).join(' ');
+
+                // Add base classes back
+                statusSelect.classList.add('form-select', 'status-select');
+
+                // Add new color classes
+                statusSelect.classList.add('bg-' + color);
+                if (color === 'light' || color === 'warning') {
+                    statusSelect.classList.add('text-dark');
+                } else {
+                    statusSelect.classList.add('text-white');
+                }
+            }
+
+            statusSelect.addEventListener('change', updateStatusSelectColor);
+            updateStatusSelectColor();
+        }
+    }
+
+    // Contact Autocomplete (reuse from detail.html)
+    function initContactAutocomplete() {
+        const contactInputs = document.querySelectorAll('.contact-autocomplete');
+
+        if (contactInputs.length === 0) {
+            return;
+        }
+
+        contactInputs.forEach(function(input) {
+            if (input.hasAttribute('data-contact-autocomplete-initialized')) {
+                return;
+            }
+            input.setAttribute('data-contact-autocomplete-initialized', 'true');
+
+            let timeoutId;
+            let currentSuggestions = [];
+            let selectedContactId = null;
+
+            const suggestionsContainer = document.createElement('div');
+            suggestionsContainer.className = 'contact-autocomplete-suggestions';
+            suggestionsContainer.style.cssText = `
+                position: fixed;
+                z-index: 9999;
+                background: white;
+                border: 1px solid #ced4da;
+                border-radius: 0.375rem;
+                max-height: 200px;
+                overflow-y: auto;
+                display: none;
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+                min-width: 200px;
+            `;
+            document.body.appendChild(suggestionsContainer);
+
+            function positionDropdown() {
+                const rect = input.getBoundingClientRect();
+                suggestionsContainer.style.top = rect.bottom + 'px';
+                suggestionsContainer.style.left = rect.left + 'px';
+                suggestionsContainer.style.width = rect.width + 'px';
+            }
+
+            function fetchContactSuggestions(query) {
+                const url = `{% url 'inventory_frontend:contact_autocomplete' %}?query=${encodeURIComponent(query)}`;
+
+                return fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        currentSuggestions = data || [];
+                        displaySuggestions();
+                    });
+            }
+
+            function displaySuggestions() {
+                suggestionsContainer.innerHTML = '';
+
+                if (currentSuggestions.length === 0) {
+                    suggestionsContainer.style.display = 'none';
+                    return;
+                }
+
+                currentSuggestions.forEach(suggestion => {
+                    const div = document.createElement('div');
+                    div.className = 'contact-autocomplete-suggestion';
+                    div.style.cssText = `
+                        padding: 0.75rem;
+                        cursor: pointer;
+                        border-bottom: 1px solid #e9ecef;
+                        background: white;
+                        transition: background-color 0.15s ease-in-out;
+                    `;
+                    div.textContent = suggestion.name;
+
+                    div.addEventListener('mouseenter', function() {
+                        this.style.backgroundColor = '#e9ecef';
+                    });
+
+                    div.addEventListener('mouseleave', function() {
+                        this.style.backgroundColor = 'white';
+                    });
+
+                    div.addEventListener('click', function() {
+                        input.value = suggestion.name;
+                        selectedContactId = suggestion.id;
+                        const hiddenField = document.getElementById('id_contact_id');
+                        if (hiddenField) {
+                            hiddenField.value = selectedContactId;
+                        }
+                        suggestionsContainer.style.display = 'none';
+                    });
+
+                    suggestionsContainer.appendChild(div);
+                });
+
+                positionDropdown();
+                suggestionsContainer.style.display = 'block';
+            }
+
+            input.addEventListener('input', function() {
+                clearTimeout(timeoutId);
+                const query = this.value.trim();
+
+                if (query.length < 2) {
+                    suggestionsContainer.style.display = 'none';
+                    return;
+                }
+
+                timeoutId = setTimeout(() => fetchContactSuggestions(query), 300);
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!input.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+                    suggestionsContainer.style.display = 'none';
+                }
+            });
+        });
+    }
+
+    // Asset Autocomplete for bulk selection
+    function initAssetAutocomplete() {
+        const assetInput = document.querySelector('.asset-autocomplete-bulk');
+        const suggestionsDiv = document.getElementById('asset-autocomplete-suggestions');
+        const selectedAssetsDiv = document.getElementById('selected-assets');
+        const assetIdsInput = document.getElementById('asset-ids-input');
+
+        if (!assetInput || !suggestionsDiv) return;
+
+        let selectedAssets = [];
+        let timeoutId;
+        let selectedIndex = -1;
+        let currentSuggestions = [];
+
+        assetInput.addEventListener('input', function() {
+            clearTimeout(timeoutId);
+            const query = this.value.trim();
+
+            if (query.length < 2) {
+                suggestionsDiv.style.display = 'none';
+                return;
+            }
+
+            timeoutId = setTimeout(() => {
+                fetch(`{% url 'inventory_frontend:autocomplete' %}?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        currentSuggestions = data || [];
+                        displayAssetSuggestions(data);
+                    });
+            }, 300);
+        });
+
+        // Keyboard navigation
+        assetInput.addEventListener('keydown', function(e) {
+            const suggestions = suggestionsDiv.querySelectorAll('.asset-suggestion');
+            if (suggestions.length === 0) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = Math.min(selectedIndex + 1, suggestions.length - 1);
+                updateSelection(suggestions);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = Math.max(selectedIndex - 1, -1);
+                updateSelection(suggestions);
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (selectedIndex >= 0 && selectedIndex < currentSuggestions.length) {
+                    addAsset(currentSuggestions[selectedIndex]);
+                    assetInput.value = '';
+                    suggestionsDiv.style.display = 'none';
+                    selectedIndex = -1;
+                }
+            } else if (e.key === 'Escape') {
+                suggestionsDiv.style.display = 'none';
+                selectedIndex = -1;
+            }
+        });
+
+        function updateSelection(suggestions) {
+            suggestions.forEach((div, index) => {
+                if (index === selectedIndex) {
+                    div.style.backgroundColor = '#e9ecef';
+                    div.scrollIntoView({ block: 'nearest' });
+                } else {
+                    div.style.backgroundColor = '';
+                }
+            });
+        }
+
+        function displayAssetSuggestions(suggestions) {
+            suggestionsDiv.innerHTML = '';
+            selectedIndex = -1;
+
+            if (!suggestions || suggestions.length === 0) {
+                suggestionsDiv.style.display = 'none';
+                return;
+            }
+
+            suggestions.forEach((suggestion, index) => {
+                const div = document.createElement('div');
+                div.className = 'p-3 border-bottom asset-suggestion';
+                div.style.cursor = 'pointer';
+                div.dataset.index = index;
+
+                div.innerHTML = `
+                    <div class="fw-bold">${suggestion.name}</div>
+                    <div class="small text-muted d-flex gap-1 align-items-center flex-wrap">
+                        ${suggestion.category ? `<span class="badge bg-primary">${suggestion.category}</span>` : ''}
+                        ${suggestion.current_status ? `<span class="badge ${getStatusBadgeClass(suggestion.current_status)}">${suggestion.current_status_display}</span>` : ''}
+                        ${suggestion.location ? `<span>${suggestion.location}</span>` : ''}
+                    </div>
+                `;
+
+                div.addEventListener('mouseenter', function() {
+                    this.style.backgroundColor = '#e9ecef';
+                });
+
+                div.addEventListener('mouseleave', function() {
+                    this.style.backgroundColor = '';
+                });
+
+                div.addEventListener('click', function() {
+                    addAsset(suggestion);
+                    assetInput.value = '';
+                    suggestionsDiv.style.display = 'none';
+                });
+
+                suggestionsDiv.appendChild(div);
+            });
+
+            suggestionsDiv.style.display = 'block';
+        }
+
+        function addAsset(asset) {
+            // Check if already selected
+            if (selectedAssets.some(a => a.id === asset.id)) {
+                return;
+            }
+
+            selectedAssets.push(asset);
+            updateSelectedAssetsDisplay();
+            updateAssetIdsInput();
+        }
+
+        function removeAsset(assetId) {
+            selectedAssets = selectedAssets.filter(a => a.id !== assetId);
+            updateSelectedAssetsDisplay();
+            updateAssetIdsInput();
+        }
+
+        function updateSelectedAssetsDisplay() {
+            if (selectedAssets.length === 0) {
+                selectedAssetsDiv.innerHTML = '';
+                return;
+            }
+
+            selectedAssetsDiv.innerHTML = '<div class="d-flex flex-wrap gap-2">' +
+                selectedAssets.map(asset => `
+                    <span class="badge bg-primary d-flex align-items-center gap-2">
+                        ${asset.name}
+                        <button type="button" class="btn-close btn-close-white" style="font-size: 0.6rem;"
+                                onclick="removeAssetById('${asset.id}')"></button>
+                    </span>
+                `).join('') +
+                '</div>';
+        }
+
+        function updateAssetIdsInput() {
+            assetIdsInput.value = JSON.stringify(selectedAssets.map(a => a.id));
+        }
+
+        // Make removeAsset accessible globally for onclick
+        window.removeAssetById = removeAsset;
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!assetInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+                suggestionsDiv.style.display = 'none';
+            }
+        });
+    }
+</script>
+{% endblock %}

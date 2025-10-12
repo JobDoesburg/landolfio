@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-09-28 11:50+0200\n"
+"POT-Creation-Date: 2025-10-12 18:57+0200\n"
 "PO-Revision-Date: 2025-10-12 11:21+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -18,29 +18,13 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.7\n"
 
-#: website/settings/common.py:115
+#: website/settings/common.py:113
 msgid "Dutch"
 msgstr "Nederlands"
 
-#: website/settings/common.py:115
+#: website/settings/common.py:113
 msgid "English"
 msgstr "Engels"
-
-#: website/settings/common.py:164
-msgid "⚖️ journal document lines"
-msgstr "⚖️ boekregels"
-
-#: website/settings/common.py:173
-msgid "📝 ticket settings"
-msgstr "📝 ticket instellingen"
-
-#: website/settings/common.py:178
-msgid "🗂 inventory settings"
-msgstr "🗂 inventaris instellingen"
-
-#: website/settings/common.py:192
-msgid "accounting settings"
-msgstr "boekhouding instellingen"
 
 #: website/templates/admin/base_site.html:17
 msgid "Inventory"
@@ -51,26 +35,14 @@ msgid "Tickets"
 msgstr "Tickets"
 
 #: website/templates/admin/base_site.html:19
-msgid "New UI"
-msgstr "Nieuwe UI"
-
-#: website/templates/admin/base_site.html:20
 msgid "Settings"
 msgstr "Instellingen"
 
-#: website/templates/admin/base_site.html:33
-msgid "New ticket"
-msgstr "Nieuw ticket"
-
-#: website/templates/admin/base_site.html:34
-msgid "New asset"
-msgstr "Nieuw eigendom"
-
-#: website/templates/admin/base_site.html:43
+#: website/templates/admin/base_site.html:28
 msgid "Welcome,"
 msgstr "Welkom,"
 
-#: website/templates/admin/base_site.html:49
+#: website/templates/admin/base_site.html:34
 msgid "Log out"
 msgstr "Log uit"
 
@@ -102,6 +74,27 @@ msgstr "Gebruikersnaam of wachtwoord vergeten?"
 #: website/templates/registration/login.html:60
 msgid "Log in"
 msgstr "Log in"
+
+#~ msgid "⚖️ journal document lines"
+#~ msgstr "⚖️ boekregels"
+
+#~ msgid "📝 ticket settings"
+#~ msgstr "📝 ticket instellingen"
+
+#~ msgid "🗂 inventory settings"
+#~ msgstr "🗂 inventaris instellingen"
+
+#~ msgid "accounting settings"
+#~ msgstr "boekhouding instellingen"
+
+#~ msgid "New UI"
+#~ msgstr "Nieuwe UI"
+
+#~ msgid "New ticket"
+#~ msgstr "Nieuw ticket"
+
+#~ msgid "New asset"
+#~ msgstr "Nieuw eigendom"
 
 #, fuzzy
 #~| msgid "Synchronize with MoneyBird"
