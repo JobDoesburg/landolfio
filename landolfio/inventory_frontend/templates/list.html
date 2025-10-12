@@ -542,15 +542,15 @@
                                             </div>
                                             <!-- Status Badges Row -->
                                             <div class="d-flex gap-1 justify-content-end">
-                                                <span class="badge 
-                                                {% if asset.local_status == 'available' %}bg-success
-                                                {% elif asset.local_status == 'issued_rent' or asset.local_status == 'issued_loan' or asset.local_status == 'issued_unprocessed' %}bg-warning
-                                                {% elif asset.local_status == 'maintenance_in_house' or asset.local_status == 'maintenance_external' or asset.local_status == 'under_review' %}bg-info
-                                                {% elif asset.local_status == 'placeholder' or asset.local_status == 'to_be_delivered' %}bg-secondary
-                                                {% elif asset.local_status == 'sold' or asset.local_status == 'amortized' or asset.is_disposed %}bg-dark
-                                                {% elif asset.local_status == 'unknown' %}bg-danger
+                                                <span class="badge
+                                                {% if asset.current_status == 'available' %}bg-success
+                                                {% elif asset.current_status == 'issued_rent' or asset.current_status == 'issued_loan' or asset.current_status == 'issued_unprocessed' %}bg-warning
+                                                {% elif asset.current_status == 'maintenance_in_house' or asset.current_status == 'maintenance_external' or asset.current_status == 'under_review' %}bg-info
+                                                {% elif asset.current_status == 'placeholder' %}bg-light text-dark{% elif asset.current_status == 'to_be_delivered' %}bg-secondary
+                                                {% elif asset.current_status == 'sold' %}bg-secondary{% elif asset.current_status == 'amortized' %}bg-dark
+                                                {% elif asset.current_status == 'unknown' %}bg-danger
                                                 {% else %}bg-primary{% endif %}" style="font-size: 0.6rem;">
-                                                    {{ asset.get_local_status_display }}
+                                                    {{ asset.current_status_display }}
                                                 </span>
                                                 {% if asset.collection.commerce and asset.moneybird_asset_id %}
                                                     <span class="badge bg-{{ asset.financial_status_color }} customer-mode-hide" style="font-size: 0.6rem;">
@@ -723,14 +723,14 @@
                                 <td>
                                     <div class="d-flex flex-column gap-1">
                                         <span class="badge
-                                        {% if asset.local_status == 'available' %}bg-success
-                                        {% elif asset.local_status == 'issued_rent' or asset.local_status == 'issued_loan' or asset.local_status == 'issued_unprocessed' %}bg-warning
-                                        {% elif asset.local_status == 'maintenance_in_house' or asset.local_status == 'maintenance_external' or asset.local_status == 'under_review' %}bg-info
-                                        {% elif asset.local_status == 'placeholder' or asset.local_status == 'to_be_delivered' %}bg-secondary
-                                        {% elif asset.local_status == 'sold' or asset.local_status == 'amortized' or asset.is_disposed %}bg-dark
-                                        {% elif asset.local_status == 'unknown' %}bg-danger
+                                        {% if asset.current_status == 'available' %}bg-success
+                                        {% elif asset.current_status == 'issued_rent' or asset.current_status == 'issued_loan' or asset.current_status == 'issued_unprocessed' %}bg-warning
+                                        {% elif asset.current_status == 'maintenance_in_house' or asset.current_status == 'maintenance_external' or asset.current_status == 'under_review' %}bg-info
+                                        {% elif asset.current_status == 'placeholder' %}bg-light text-dark{% elif asset.current_status == 'to_be_delivered' %}bg-secondary
+                                        {% elif asset.current_status == 'sold' %}bg-secondary{% elif asset.current_status == 'amortized' %}bg-dark
+                                        {% elif asset.current_status == 'unknown' %}bg-danger
                                         {% else %}bg-primary{% endif %}" style="font-size: 0.7rem;">
-                                            {{ asset.get_local_status_display }}
+                                            {{ asset.current_status_display }}
                                         </span>
                                     </div>
                                 </td>
