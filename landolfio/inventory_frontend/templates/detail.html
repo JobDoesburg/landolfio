@@ -623,7 +623,7 @@
                 <div class="card-body overflow-auto flex-grow-1" id="attachments-drop-zone">
                     <div class="row g-3" id="attachments-gallery">
                         {% for photo in asset.attachments.all %}
-                            <div class="col-6 col-sm-4 col-md-custom-5 col-lg-2 col-xxl-3" data-attachment-id="{{ photo.pk|unlocalize }}">
+                            <div class="col-6 col-sm-4 col-md-custom-5 col-lg-2 col-xxl-3" data-attachment-id="{{ photo.pk }}">
                                 <div class="position-relative attachment-item" style="aspect-ratio: 1;">
                                     <img src="{{ photo.attachment.url }}"
                                          data-fancybox="gallery"
@@ -633,7 +633,7 @@
                                          style="object-fit: cover; cursor: pointer;"/>
                                     <div class="attachment-controls position-absolute top-0 end-0 p-2">
                                         <button class="btn btn-sm btn-danger delete-attachment-btn"
-                                                data-attachment-id="{{ photo.pk|unlocalize }}"
+                                                data-attachment-id="{{ photo.pk }}"
                                                 title="{% translate 'Delete attachment' %}">
                                             <i class="fas fa-trash"></i>
                                         </button>
