@@ -155,7 +155,7 @@ class StatusChangeForm(forms.ModelForm):
             "comments": forms.Textarea(
                 attrs={
                     "class": "form-control",
-                    "rows": 3,
+                    "rows": 5,
                     "placeholder": _("Optional comments about this status change..."),
                 }
             ),
