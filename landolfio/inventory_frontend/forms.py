@@ -202,3 +202,62 @@ class StatusChangeForm(forms.ModelForm):
         if commit:
             status_change.save()
         return status_change
+
+
+class BulkStatusChangeForm(forms.Form):
+    """Form for creating status changes for multiple assets at once."""
+
+    assets = forms.CharField(
+        required=True,
+        widget=forms.TextInput(
+            attrs={
+                "class": "form-control asset-autocomplete-bulk",
+                "placeholder": _("Start typing asset names..."),
+            }
+        ),
+        label=_("Assets"),
+        help_text=_("Select multiple assets using autocomplete"),
+    )
+
+    status_date = forms.DateField(
+        required=True,
+        widget=HTML5DateInput(attrs={"class": "form-control"}),
+        input_formats=["%Y-%m-%d"],
+        localize=False,
+        label=_("Status Date"),
+        initial=date.today,
+    )
+
+    new_status = forms.ChoiceField(
+        choices=[("", _("No change"))] + list(AssetStates.choices),
+        widget=ColoredStatusSelect(attrs={"class": "form-control status-select"}),
+        label=_("New Status"),
+        required=False,
+    )
+
+    contact_name = forms.CharField(
+        required=False,
+        widget=ContactAutocompleteWidget(
+            attrs={"placeholder": _("Search for contact...")}
+        ),
+        label=_("Contact"),
+        help_text=_("Associated Moneybird contact (optional)"),
+    )
+
+    contact_id = forms.CharField(required=False, widget=forms.HiddenInput())
+
+    comments = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control",
+                "rows": 5,
+                "placeholder": _("Optional comments about this status change..."),
+            }
+        ),
+        label=_("Comments"),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["status_date"].initial = date.today()

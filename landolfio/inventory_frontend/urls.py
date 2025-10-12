@@ -19,6 +19,7 @@ from .views import (
     AssetRefreshMoneybirdView,
     AssetUpdateMoneybirdView,
     AssetDisposeMoneybirdView,
+    BulkStatusChangeView,
 )
 
 app_name = "inventory_frontend"
@@ -27,6 +28,7 @@ urlpatterns = [
     path("", PublicIndexView.as_view(), name="public_index"),
     path("search/", AssetSearchView.as_view(), name="search"),
     path("list/", AssetListView.as_view(), name="list"),
+    path("bulk-update/", BulkStatusChangeView.as_view(), name="bulk_update"),
     path("autocomplete/", AssetAutocompleteView.as_view(), name="autocomplete"),
     path(
         "property-autocomplete/",

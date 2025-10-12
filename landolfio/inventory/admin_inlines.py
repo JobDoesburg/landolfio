@@ -3,6 +3,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from inventory.models.attachment import Attachment
 from inventory.models.remarks import Remark
+from inventory.models.status_change import StatusChange
 
 
 def is_an_image_path(path: str) -> bool:
@@ -36,3 +37,11 @@ class RemarkInline(admin.StackedInline):
 
     def has_change_permission(self, request, obj=None):
         return False
+
+
+class StatusChangeInline(admin.TabularInline):
+    model = StatusChange
+    fields = ["status_date", "new_status", "comments", "created_at"]
+    readonly_fields = ["created_at"]
+    extra = 1
+    ordering = ["-status_date", "-created_at"]

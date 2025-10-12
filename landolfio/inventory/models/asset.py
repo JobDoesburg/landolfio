@@ -117,6 +117,8 @@ class Asset(models.Model):
         max_digits=10,
         decimal_places=2,
     )
+    # DEPRECATED: Use current_status property which gets status from StatusChange model
+    # This field is kept for backwards compatibility and as fallback when no StatusChanges exist
     local_status = models.CharField(
         max_length=40,
         choices=AssetStates.choices,

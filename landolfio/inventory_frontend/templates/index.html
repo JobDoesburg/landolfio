@@ -25,6 +25,9 @@
             <a href="{% url 'inventory_frontend:create' %}" class="btn btn-success">
                 <i class="fas fa-plus me-2"></i>{% translate "New Asset" %}
             </a>
+            <a href="{% url 'inventory_frontend:bulk_update' %}" class="btn btn-primary">
+                <i class="fas fa-layer-group me-2"></i>{% translate "Bulk Update" %}
+            </a>
             <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary" title="Settings">
                 <i class="fas fa-cog me-2"></i>{% translate "Admin" %}
             </a>
@@ -125,6 +128,24 @@ document.addEventListener('DOMContentLoaded', function() {
             return cookieValue;
         }
 
+        function getStatusBadgeClass(status) {
+            const statusMap = {
+                'available': 'bg-success',
+                'issued_rent': 'bg-warning text-dark',
+                'issued_loan': 'bg-warning text-dark',
+                'issued_unprocessed': 'bg-warning text-dark',
+                'maintenance_in_house': 'bg-info',
+                'maintenance_external': 'bg-info',
+                'under_review': 'bg-info',
+                'placeholder': 'bg-light text-dark',
+                'to_be_delivered': 'bg-secondary',
+                'sold': 'bg-secondary',
+                'amortized': 'bg-dark',
+                'unknown': 'bg-danger'
+            };
+            return statusMap[status] || 'bg-primary';
+        }
+
         function fetchSuggestions(query) {
             console.log('Index page: Fetching suggestions for:', query);
             if (query.length < 2) {
@@ -192,6 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="small text-muted d-flex gap-2 flex-wrap">
                                 ${suggestion.category ? `<span class="badge bg-primary">${suggestion.category}</span>` : ''}
                                 ${suggestion.size ? `<span class="badge bg-secondary">${suggestion.size}</span>` : ''}
+                                ${suggestion.current_status ? `<span class="badge ${getStatusBadgeClass(suggestion.current_status)}">${suggestion.current_status_display}</span>` : ''}
                                 ${locationText ? `<span class="text-muted">${locationText}</span>` : ''}
                                 ${!isCustomerMode && suggestion.created_at ? `<span class="text-muted">Created: ${suggestion.created_at}</span>` : ''}
                             </div>

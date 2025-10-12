@@ -22,7 +22,7 @@ from inventory.models.remarks import Remark
 from inventory.models.status_change import StatusChange
 from accounting.models.contact import Contact
 from accounting.models import JournalDocumentLine
-from inventory_frontend.forms import AssetForm, StatusChangeForm
+from inventory_frontend.forms import AssetForm, StatusChangeForm, BulkStatusChangeForm
 
 from django.db.models import Count, Prefetch
 from django.views.generic import TemplateView
@@ -990,6 +990,8 @@ class AssetAutocompleteView(LoginRequiredMixin, View):
                     ),
                     "is_disposed": asset.is_disposed,
                     "disposal_reason": asset.disposal_reason_display,
+                    "current_status": asset.current_status,
+                    "current_status_display": asset.current_status_display,
                 }
             )
 
@@ -1437,3 +1439,85 @@ class AssetDisposeMoneybirdView(LoginRequiredMixin, View):
                 "HTTP_REFERER", reverse("inventory_frontend:detail", kwargs={"pk": pk})
             )
         )
+
+
+
+class BulkStatusChangeView(LoginRequiredMixin, TemplateView):
+    template_name = "bulk_update.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["form"] = BulkStatusChangeForm()
+        context["asset_states"] = AssetStates.choices
+        return context
+
+    def post(self, request, *args, **kwargs):
+        form = BulkStatusChangeForm(request.POST)
+
+        if form.is_valid():
+            # Parse asset IDs from hidden input
+            asset_ids_json = request.POST.get("asset_ids", "[]")
+            try:
+                asset_ids = json.loads(asset_ids_json)
+            except json.JSONDecodeError:
+                messages.error(request, "Invalid asset data")
+                return self.render_to_response(self.get_context_data(form=form))
+
+            if not asset_ids:
+                messages.error(request, "Please select at least one asset")
+                return self.render_to_response(self.get_context_data(form=form))
+
+            # Get form data
+            status_date = form.cleaned_data["status_date"]
+            new_status = form.cleaned_data.get("new_status")
+            comments = form.cleaned_data.get("comments", "")
+            contact_id = form.cleaned_data.get("contact_id")
+
+            # Handle empty new_status
+            if new_status == "":
+                new_status = None
+
+            # Get contact if provided
+            contact = None
+            if contact_id:
+                try:
+                    contact = Contact.objects.get(id=contact_id)
+                except Contact.DoesNotExist:
+                    pass
+
+            # Create status changes for all selected assets
+            created_count = 0
+            failed_assets = []
+
+            for asset_id in asset_ids:
+                try:
+                    asset = Asset.objects.get(id=asset_id)
+                    StatusChange.objects.create(
+                        asset=asset,
+                        status_date=status_date,
+                        new_status=new_status,
+                        comments=comments,
+                        contact=contact,
+                    )
+                    created_count += 1
+                except Asset.DoesNotExist:
+                    failed_assets.append(asset_id)
+                except Exception as e:
+                    failed_assets.append(f"{asset_id} ({str(e)})")
+
+            # Show success/error messages
+            if created_count > 0:
+                messages.success(
+                    request,
+                    f"Successfully created {created_count} status change(s)",
+                )
+
+            if failed_assets:
+                messages.warning(
+                    request,
+                    f"Failed to create status changes for some assets: {', '.join(map(str, failed_assets))}",
+                )
+
+            return redirect("inventory_frontend:bulk_update")
+
+        return self.render_to_response(self.get_context_data(form=form))

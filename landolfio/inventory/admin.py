@@ -24,6 +24,7 @@ from django_admin_multi_select_filter.filters import (
 from inventory.admin_inlines import (
     RemarkInline,
     AttachmentInlineAdmin,
+    StatusChangeInline,
 )
 from inventory.admin_views import ViewAssetView, AssetOverviewView
 from inventory.models.asset import (
@@ -125,8 +126,7 @@ class AssetAdmin(
         "asset_location_nr",
         "collection",
         "listing_price",
-        # "accounting_status",
-        "local_status",
+        "current_status_display_admin",
         "is_margin_asset_display",
         "is_disposed_display",
         "disposal_reason",
@@ -171,7 +171,6 @@ class AssetAdmin(
                     "location",
                     "location_nr",
                     "collection",
-                    "local_status",
                     "listing_price",
                     "created_at",
                     "start_date",
@@ -208,10 +207,17 @@ class AssetAdmin(
     ]
 
     inlines = [
+        StatusChangeInline,
         RemarkInline,
         AttachmentInlineAdmin,
         AssetPropertyValueInline,
     ]
+
+    @admin.display(
+        description=_("status"),
+    )
+    def current_status_display_admin(self, obj):
+        return obj.current_status_display
 
     @admin.display(
         ordering="location_nr",
