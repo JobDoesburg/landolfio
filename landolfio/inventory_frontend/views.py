@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
 from django.views.generic import ListView, DetailView, CreateView
-from django.db.models import Q, Max
+from django.db.models import Q, Max, OuterRef, Subquery
 from django.http import JsonResponse
 from django_drf_filepond.api import store_upload
 from django_drf_filepond.models import TemporaryUpload
@@ -142,7 +142,22 @@ class AssetListView(LoginRequiredMixin, ListView):
             # Filter non-empty values
             statuses = [stat for stat in statuses if stat.strip()]
             if statuses:
-                queryset = queryset.filter(local_status__in=statuses)
+                # Annotate each asset with its latest status from StatusChanges
+                latest_status = StatusChange.objects.filter(
+                    asset=OuterRef('pk'),
+                    new_status__isnull=False
+                ).order_by('-status_date', '-created_at').values('new_status')[:1]
+
+                queryset = queryset.annotate(
+                    latest_status_from_changes=Subquery(latest_status)
+                )
+
+                # Filter where either the latest status change matches OR
+                # no status changes exist and local_status matches
+                queryset = queryset.filter(
+                    Q(latest_status_from_changes__in=statuses) |
+                    Q(latest_status_from_changes__isnull=True, local_status__in=statuses)
+                )
 
         if locations:
             # Filter non-empty values
