@@ -59,18 +59,18 @@ class NewCustomerRegistrationView(CreateView):
 
         if obj.wants_sepa_mandate:
             # If the customer requested a SEPA mandate, show them a different success page
-
-            obj.refresh_from_db()
-            if not obj.sepa_mandate_sent:
-                # If something went wrong during sending the SEPA mandate request, error
-                logging.error(
-                    "Something went wrong while sending the SEPA mandate request."
+            mandate_url = None
+            try:
+                mandate_url = obj.contact.get_payments_mandate_url()
+            except Exception as e:
+                logging.warning(
+                    f"Could not get SEPA mandate URL (possibly demo administration): {e}"
                 )
-                messages.error(
-                    self.request, _("Something went wrong. Please contact us.")
-                )
-                return self.form_invalid(form)
 
-            return render(self.request, "register-customer-success-sepa.html")
+            return render(
+                self.request,
+                "register-customer-success-sepa.html",
+                {"mandate_url": mandate_url},
+            )
 
         return render(self.request, "register-customer-success.html")

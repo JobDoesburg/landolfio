@@ -226,17 +226,12 @@ class Contact(SynchronizableMoneybirdResourceModel):
         verbose_name_plural = _("contacts")
         ordering = ["company_name", "last_name", "first_name"]
 
-    def request_payments_mandate(self, message=None, identity=None):
+    def get_payments_mandate_url(self):
         administration = get_moneybird_administration()
-        data = {"mandate_request": {}}
-        if message:
-            data["mandate_request"]["email_message"] = message
-        if identity:
-            data["mandate_request"]["identity_id"] = identity
-        administration.post(
-            f"contacts/{self.moneybird_id}/moneybird_payments_mandate", data=data
+        response = administration.post(
+            f"contacts/{self.moneybird_id}/moneybird_payments_mandate/url", data={}
         )
-        logging.info("Sent SEPA mandate request to %s", self)
+        return response.get("url")
 
 
 class ContactResourceType(resources.ContactResourceType):
@@ -318,17 +313,6 @@ class ContactResourceType(resources.ContactResourceType):
             else None
         )
         data["sepa_sequence_type"] = instance.sepa_sequence_type
-
-        data["invoice_workflow_id"] = (
-            instance.invoice_workflow.moneybird_id
-            if instance.invoice_workflow
-            else None
-        )
-        data["estimate_workflow_id"] = (
-            instance.estimate_workflow.moneybird_id
-            if instance.estimate_workflow
-            else None
-        )
 
         data["send_invoices_to_email"] = instance.email
         data["send_estimates_to_email"] = instance.email

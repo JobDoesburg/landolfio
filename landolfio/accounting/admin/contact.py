@@ -114,11 +114,7 @@ class ContactAdmin(MoneybirdResourceModelAdmin):
         (
             _("Moneybird"),
             {
-                "fields": (
-                    "invoice_workflow",
-                    "estimate_workflow",
-                    "sales_invoices_url",
-                ),
+                "fields": ("sales_invoices_url",),
             },
         ),
     ]

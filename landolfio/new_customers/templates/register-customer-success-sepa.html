@@ -7,16 +7,35 @@
 {% endblock %}
 
 {% block header %}
-    <h2>{% blocktrans %}Confirm your mandate{% endblocktrans %}</h2>
-    <p class="lead">
-        {% blocktrans trimmed %}
-            You have just received an email with a request to confirm your SEPA mandate via email. Please open this email and proceed with the instructions.
-            If you do not confirm your mandate, we will not be able to process withdrawals from your account.
-        {% endblocktrans %}
-    </p>
-    <p class="lead">
-        {% blocktrans trimmed %}
-            If you have any questions, please contact us at <a href="mailto:contact@vofdoesburg.nl">contact@vofdoesburg.nl</a>.
-        {% endblocktrans %}
-    </p>
+    <h2>{% blocktrans %}Success!{% endblocktrans %}</h2>
+    {% if mandate_url %}
+        <p class="lead">
+            {% blocktrans trimmed %}
+                Your registration has been received successfully. To complete the setup of automatic payments via SEPA direct debit,
+                please click the button below to confirm your mandate.
+            {% endblocktrans %}
+        </p>
+        <p class="my-4">
+            <a href="{{ mandate_url }}" class="btn btn-primary btn-lg">
+                {% translate "Sign SEPA Mandate" %}
+            </a>
+        </p>
+        <p class="text-muted">
+            {% blocktrans trimmed %}
+                If you do not confirm your mandate, we will not be able to process automatic withdrawals from your account.
+                If you have any questions, please contact us at <a href="mailto:contact@vofdoesburg.nl">contact@vofdoesburg.nl</a>.
+            {% endblocktrans %}
+        </p>
+    {% else %}
+        <p class="lead">
+            {% blocktrans trimmed %}
+                Your registration has been received successfully. We will contact you shortly to complete the setup of automatic payments via SEPA direct debit.
+            {% endblocktrans %}
+        </p>
+        <p class="text-muted">
+            {% blocktrans trimmed %}
+                If you have any questions, please contact us at <a href="mailto:contact@vofdoesburg.nl">contact@vofdoesburg.nl</a>.
+            {% endblocktrans %}
+        </p>
+    {% endif %}
 {% endblock %}

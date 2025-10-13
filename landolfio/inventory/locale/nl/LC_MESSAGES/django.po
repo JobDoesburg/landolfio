@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-12 18:57+0200\n"
+"POT-Creation-Date: 2025-10-13 11:01+0200\n"
 "PO-Revision-Date: 2023-02-21 13:39+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -59,57 +59,57 @@ msgstr "heeft huurovereenkomst"
 msgid "has loan agreement"
 msgstr "heeft leenovereenkomst"
 
-#: inventory/admin.py:281
+#: inventory/admin.py:280
 #, fuzzy
 #| msgid "margin"
 msgid "margin asset"
 msgstr "marge"
 
-#: inventory/admin.py:288 inventory/models/asset.py:145
+#: inventory/admin.py:287 inventory/models/asset.py:145
 msgid "start date"
 msgstr "startdatum"
 
-#: inventory/admin.py:294
+#: inventory/admin.py:293
 msgid "Moneybird Asset"
 msgstr ""
 
-#: inventory/admin.py:310
+#: inventory/admin.py:309
 msgid "Moneybird Asset URL"
 msgstr ""
 
-#: inventory/admin.py:326
+#: inventory/admin.py:325
 msgid "disposed"
 msgstr ""
 
-#: inventory/admin.py:333
+#: inventory/admin.py:332
 msgid "disposal reason"
 msgstr ""
 
-#: inventory/admin.py:407
+#: inventory/admin.py:406
 #, fuzzy
 #| msgid "categories"
 msgid "Categories"
 msgstr "categorieën"
 
-#: inventory/admin.py:411 inventory/admin.py:479
+#: inventory/admin.py:410 inventory/admin.py:477
 msgid "Basic Information"
 msgstr ""
 
-#: inventory/admin.py:415
+#: inventory/admin.py:414
 msgid "Type-Specific Settings"
 msgstr ""
 
-#: inventory/admin.py:419
+#: inventory/admin.py:418
 msgid ""
 "Unit is used for numeric properties. Dropdown options should be a JSON array "
 "like [\"Option 1\", \"Option 2\"]"
 msgstr ""
 
-#: inventory/admin.py:485
+#: inventory/admin.py:479
 msgid "Display Settings"
 msgstr ""
 
-#: inventory/admin.py:492
+#: inventory/admin.py:484
 msgid "Color"
 msgstr ""
 
@@ -177,11 +177,11 @@ msgstr "beschikbaar of afgeschreven"
 msgid "Name must be uppercase"
 msgstr ""
 
-#: inventory/models/asset.py:71 inventory/models/asset.py:255
+#: inventory/models/asset.py:71 inventory/models/asset.py:256
 msgid "out of use"
 msgstr ""
 
-#: inventory/models/asset.py:72 inventory/models/asset.py:264
+#: inventory/models/asset.py:72 inventory/models/asset.py:266
 msgid "divested"
 msgstr ""
 
@@ -202,7 +202,7 @@ msgstr "nummer"
 #: inventory/models/asset.py:82 inventory/models/category.py:13
 #: inventory/models/category.py:37 inventory/models/collection.py:6
 #: inventory/models/location.py:13 inventory/models/location.py:30
-#: inventory/models/status_type.py:21
+#: inventory/models/status_type.py:23
 msgid "name"
 msgstr "naam"
 
@@ -305,25 +305,25 @@ msgstr "aankoopwaarde"
 msgid "Current value of the asset from Moneybird"
 msgstr "aankoopwaarde"
 
-#: inventory/models/asset.py:271
+#: inventory/models/asset.py:273
 msgid "active depreciated"
 msgstr ""
 
-#: inventory/models/asset.py:275
+#: inventory/models/asset.py:277
 msgid "active"
 msgstr "actief"
 
-#: inventory/models/asset.py:277
+#: inventory/models/asset.py:279
 msgid "margin"
 msgstr "marge"
 
-#: inventory/models/asset.py:728 inventory/models/asset_on_document_line.py:12
+#: inventory/models/asset.py:730 inventory/models/asset_on_document_line.py:12
 #: inventory/models/asset_property.py:141 inventory/models/attachment.py:17
 #: inventory/models/remarks.py:9 inventory/models/status_change.py:13
 msgid "asset"
 msgstr "eigendom"
 
-#: inventory/models/asset.py:729
+#: inventory/models/asset.py:731
 msgid "assets"
 msgstr "eigendommen"
 
@@ -485,7 +485,7 @@ msgstr "uploaddatum"
 #: inventory/models/attachment.py:30 inventory/models/category.py:23
 #: inventory/models/category.py:43 inventory/models/collection.py:9
 #: inventory/models/location.py:16 inventory/models/location.py:40
-#: inventory/models/status_type.py:47
+#: inventory/models/status_type.py:51
 msgid "order"
 msgstr "volgorde"
 
@@ -593,49 +593,49 @@ msgstr "status"
 msgid "status changes"
 msgstr "status"
 
-#: inventory/models/status_type.py:16
+#: inventory/models/status_type.py:17
 msgid "Unique identifier used in code (e.g., 'available', 'issued_rent')"
 msgstr ""
 
-#: inventory/models/status_type.py:22
+#: inventory/models/status_type.py:24
 msgid "Display name for this status"
 msgstr ""
 
-#: inventory/models/status_type.py:27
+#: inventory/models/status_type.py:29
 msgid "background color"
 msgstr ""
 
-#: inventory/models/status_type.py:29
+#: inventory/models/status_type.py:31
 msgid "Hex color code for background (e.g., '#198754' for green)"
 msgstr ""
 
-#: inventory/models/status_type.py:34
+#: inventory/models/status_type.py:36
 msgid "text color"
 msgstr ""
 
-#: inventory/models/status_type.py:36
+#: inventory/models/status_type.py:38
 msgid "Hex color code for text (e.g., '#ffffff' for white)"
 msgstr ""
 
-#: inventory/models/status_type.py:41
+#: inventory/models/status_type.py:43
 msgid "is archived"
 msgstr ""
 
-#: inventory/models/status_type.py:42
+#: inventory/models/status_type.py:45
 msgid "Indicates if this status means the asset is archived/no longer active"
 msgstr ""
 
-#: inventory/models/status_type.py:48
+#: inventory/models/status_type.py:52
 msgid "Display order in lists and dropdowns"
 msgstr ""
 
-#: inventory/models/status_type.py:53
+#: inventory/models/status_type.py:57
 #, fuzzy
 #| msgid "start date"
 msgid "status type"
 msgstr "startdatum"
 
-#: inventory/models/status_type.py:54
+#: inventory/models/status_type.py:58
 #, fuzzy
 #| msgid "start date"
 msgid "status types"

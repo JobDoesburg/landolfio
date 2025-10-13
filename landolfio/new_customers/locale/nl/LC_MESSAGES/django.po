@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-12 11:10+0200\n"
-"PO-Revision-Date: 2023-02-21 13:40+0100\n"
+"POT-Creation-Date: 2025-10-13 11:01+0200\n"
+"PO-Revision-Date: 2025-10-13 11:05+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.7\n"
 
 #: new_customers/admin.py:26 new_customers/templates/register-customer.html:5
 msgid "New customer"
@@ -66,19 +66,19 @@ msgstr "Opmerkingen"
 msgid "Optional room for additional notes."
 msgstr "Optionele ruimte voor extra opmerkingen."
 
-#: new_customers/models.py:16
+#: new_customers/models.py:15
 msgid "Wants SEPA mandate"
 msgstr "Wil SEPA-mandaat"
 
-#: new_customers/models.py:19
+#: new_customers/models.py:18
 msgid "SEPA mandate request was sent"
 msgstr "SEPA-mandaatverzoek is verzonden"
 
-#: new_customers/models.py:49
+#: new_customers/models.py:38
 msgid "new customer"
 msgstr "nieuwe klant"
 
-#: new_customers/models.py:50
+#: new_customers/models.py:39
 msgid "new customers"
 msgstr "nieuwe klanten"
 
@@ -149,21 +149,42 @@ msgid "Success - New customer"
 msgstr "Gelukt - Nieuwe huurder"
 
 #: new_customers/templates/register-customer-success-sepa.html:10
-msgid "Confirm your mandate"
-msgstr "Bevestig uw mandaat"
+msgid "Success!"
+msgstr "Gelukt!"
 
-#: new_customers/templates/register-customer-success-sepa.html:12
+#: new_customers/templates/register-customer-success-sepa.html:13
 msgid ""
-"You have just received an email with a request to confirm your SEPA mandate "
-"via email. Please open this email and proceed with the instructions. If you "
-"do not confirm your mandate, we will not be able to process withdrawals from "
-"your account."
+"Your registration has been received successfully. To complete the setup of "
+"automatic payments via SEPA direct debit, please click the button below to "
+"confirm your mandate."
 msgstr ""
-"U heeft zojuist een e-mail ontvangen met het verzoek om uw SEPA-mandaat via "
-"e-mail te bevestigen. Open deze e-mail en volg de instructies. Als u uw "
-"mandaat niet bevestigt, kunnen wij geen opnames van uw rekening verwerken."
+"We hebben uw gegevens ontvangen. Klik op de onderstaande knop om een SEPA "
+"machtiging voor automatische incasso af te geven."
 
-#: new_customers/templates/register-customer-success-sepa.html:18
+#: new_customers/templates/register-customer-success-sepa.html:20
+msgid "Sign SEPA Mandate"
+msgstr "Geef SEPA automatische incassomachtiging af"
+
+#: new_customers/templates/register-customer-success-sepa.html:24
+msgid ""
+"If you do not confirm your mandate, we will not be able to process automatic "
+"withdrawals from your account. If you have any questions, please contact us "
+"at <a href=\"mailto:contact@vofdoesburg.nl\">contact@vofdoesburg.nl</a>."
+msgstr ""
+"Als u geen machtiging afgeeft, kunnen we geen automatische incasso "
+"uitvoeren. Neem bij vragen contact met ons op via <a "
+"href=\"mailto:contact@vofdoesburg.nl\">contact@vofdoesburg.nl</a>."
+
+#: new_customers/templates/register-customer-success-sepa.html:31
+msgid ""
+"Your registration has been received successfully. We will contact you "
+"shortly to complete the setup of automatic payments via SEPA direct debit."
+msgstr ""
+"We geven uw gegevens ontvangen. Door omstandigheden is het momenteel echter "
+"niet mogelijk om een automatische incassomachtiging af te geven. We nemen "
+"hiervoor binnenkort contact met u op."
+
+#: new_customers/templates/register-customer-success-sepa.html:36
 #: new_customers/templates/register-customer-success.html:17
 #: new_customers/templates/register-customer.html:16
 msgid ""
@@ -205,9 +226,23 @@ msgstr "Contactgegevens"
 msgid "Extra"
 msgstr "Extra"
 
-#: new_customers/views.py:50 new_customers/views.py:70
+#: new_customers/views.py:50
 msgid "Something went wrong. Please contact us."
 msgstr "Er is iets misgegaan. Neem contact met ons op."
+
+#~ msgid "Confirm your mandate"
+#~ msgstr "Bevestig uw mandaat"
+
+#~ msgid ""
+#~ "You have just received an email with a request to confirm your SEPA "
+#~ "mandate via email. Please open this email and proceed with the "
+#~ "instructions. If you do not confirm your mandate, we will not be able to "
+#~ "process withdrawals from your account."
+#~ msgstr ""
+#~ "U heeft zojuist een e-mail ontvangen met het verzoek om uw SEPA-mandaat "
+#~ "via e-mail te bevestigen. Open deze e-mail en volg de instructies. Als u "
+#~ "uw mandaat niet bevestigt, kunnen wij geen opnames van uw rekening "
+#~ "verwerken."
 
 #~ msgid "Mark processed"
 #~ msgstr "Verwerk"

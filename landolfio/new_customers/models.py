@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.db import models
-from django.template import loader
 from django.utils.translation import gettext_lazy as _
 
 from moneybird.administration import MoneybirdNotConfiguredError
@@ -28,19 +27,9 @@ class NewCustomer(Ticket):
         try:
             if self.contact and not self.contact.is_synced_with_moneybird:
                 self.contact.push_to_moneybird()
-
-            if self.contact and self.wants_sepa_mandate and not self.sepa_mandate_sent:
-                self.contact.request_payments_mandate(
-                    message=loader.render_to_string(
-                        "email/mandate_request_message.txt", {"customer": self.contact}
-                    )
-                )
-                self.sepa_mandate_sent = True
         except MoneybirdNotConfiguredError as e:
-            # Allow Moneybird to be disabled in development, treat it as if the mandate was sent
-            if settings.DEBUG:
-                self.sepa_mandate_sent = True
-            else:
+            # Allow Moneybird to be disabled in development
+            if not settings.DEBUG:
                 raise e
 
         super().save(force_insert, force_update, using, update_fields)
