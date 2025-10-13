@@ -47,7 +47,6 @@ class NewRentalCustomerAdmin(NewCustomerAdmin):
         extra_classes="default",
         log_message="Draft agreement created",
         perform_after_saving=True,
-        condition=lambda request, obj: not obj.estimates,
     )
     def draft_agreement(self, request, obj):
         services.create_draft_agreement(obj)
