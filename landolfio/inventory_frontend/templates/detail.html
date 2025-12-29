@@ -622,10 +622,10 @@
                     {% if asset.attachments.exists %}
                     <div class="d-flex gap-2">
                         <button type="button" class="btn btn-sm btn-outline-secondary" id="toggle-select-all-btn">
-                            <i class="fas fa-check-square me-1"></i>{% translate "Select All" %}
+                            <i class="fas fa-check-square"></i><span class="d-none d-sm-inline ms-1">{% translate "Select All" %}</span>
                         </button>
                         <button type="button" class="btn btn-sm btn-primary" id="download-zip-btn" style="display: none;">
-                            <i class="fas fa-download me-1"></i>{% translate "Download ZIP" %}
+                            <i class="fas fa-download"></i><span class="d-none d-sm-inline ms-1">{% translate "Download ZIP" %}</span>
                         </button>
                     </div>
                     {% endif %}
@@ -1482,8 +1482,8 @@
                     // Update button text and icon
                     const icon = this.querySelector('i');
                     const text = allSelected ? '{% translate "Deselect All" %}' : '{% translate "Select All" %}';
-                    icon.className = allSelected ? 'fas fa-square me-1' : 'fas fa-check-square me-1';
-                    this.innerHTML = icon.outerHTML + text;
+                    icon.className = allSelected ? 'fas fa-square' : 'fas fa-check-square';
+                    this.innerHTML = icon.outerHTML + '<span class="d-none d-sm-inline ms-1">' + text + '</span>';
                 });
 
                 // Update download button visibility when individual checkboxes change
@@ -1495,8 +1495,8 @@
                         allSelected = checkedCount === checkboxes.length;
                         const icon = toggleSelectAllBtn.querySelector('i');
                         const text = allSelected ? '{% translate "Deselect All" %}' : '{% translate "Select All" %}';
-                        icon.className = allSelected ? 'fas fa-square me-1' : 'fas fa-check-square me-1';
-                        toggleSelectAllBtn.innerHTML = icon.outerHTML + text;
+                        icon.className = allSelected ? 'fas fa-square' : 'fas fa-check-square';
+                        toggleSelectAllBtn.innerHTML = icon.outerHTML + '<span class="d-none d-sm-inline ms-1">' + text + '</span>';
                     });
                 });
 
