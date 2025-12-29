@@ -1401,8 +1401,10 @@
                     ghostClass: 'sortable-ghost',
                     dragClass: 'sortable-drag',
                     handle: '.drag-handle',
+                    forceFallback: true,
+                    fallbackTolerance: 3,
                     onEnd: function(evt) {
-                        const attachmentIds = Array.from(galleryElement.children).map(item => 
+                        const attachmentIds = Array.from(galleryElement.children).map(item =>
                             item.getAttribute('data-attachment-id')
                         );
                         updateAttachmentOrder(attachmentIds);
