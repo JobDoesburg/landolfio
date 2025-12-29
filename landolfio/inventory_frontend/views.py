@@ -3,7 +3,8 @@ from datetime import date
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Count, Max, OuterRef, Prefetch, Q, Subquery
 from django.http import JsonResponse
@@ -24,7 +25,8 @@ from inventory.models.collection import Collection
 from inventory.models.location import Location
 from inventory.models.remarks import Remark
 from inventory.models.status_change import StatusChange
-from inventory_frontend.forms import AssetForm, BulkStatusChangeForm, StatusChangeForm
+from inventory_frontend.forms import (AssetForm, BulkStatusChangeForm,
+                                      StatusChangeForm)
 
 
 class PublicIndexView(TemplateView):

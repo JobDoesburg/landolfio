@@ -2,14 +2,13 @@ import logging
 import threading
 from typing import Generator
 
-from moneybird.administration import Administration, get_moneybird_administration
-from moneybird.resource_types import (
-    MoneybirdResourceId,
-    MoneybirdResourceType,
-    MoneybirdResourceVersion,
-    SynchronizableMoneybirdResourceType,
-    get_moneybird_resources,
-)
+from moneybird.administration import (Administration,
+                                      get_moneybird_administration)
+from moneybird.resource_types import (MoneybirdResourceId,
+                                      MoneybirdResourceType,
+                                      MoneybirdResourceVersion,
+                                      SynchronizableMoneybirdResourceType,
+                                      get_moneybird_resources)
 
 MAX_REQUEST_SIZE = 100
 

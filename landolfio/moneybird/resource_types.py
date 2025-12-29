@@ -5,7 +5,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 from django.utils.module_loading import import_string
 
-from moneybird.administration import Administration, get_moneybird_administration
+from moneybird.administration import (Administration,
+                                      get_moneybird_administration)
 from moneybird.settings import settings
 from moneybird.webhooks.events import WebhookEvent
 

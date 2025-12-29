@@ -1,6 +1,7 @@
 from .asset import Asset, AssetStates
 from .asset_on_document_line import AssetSubscription
-from .asset_property import AssetProperty, AssetPropertyType, AssetPropertyValue
+from .asset_property import (AssetProperty, AssetPropertyType,
+                             AssetPropertyValue)
 from .attachment import Attachment
 from .category import Category
 from .collection import Collection

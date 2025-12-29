@@ -4,10 +4,8 @@ from django_easy_admin_object_actions.decorators import object_action
 
 from new_customers.admin import NewCustomerAdmin
 from new_rental_customers import services
-from new_rental_customers.models import (
-    NewRentalCustomer,
-    get_rental_customer_ticket_type,
-)
+from new_rental_customers.models import (NewRentalCustomer,
+                                         get_rental_customer_ticket_type)
 
 
 @admin.register(NewRentalCustomer)

@@ -1,10 +1,7 @@
-from moneybird.resource_types import (
-    MoneybirdResource,
-    MoneybirdResourceType,
-    MoneybirdResourceTypeWithDocumentLines,
-    SynchronizableMoneybirdResourceType,
-    get_moneybird_resource_type_for_entity,
-)
+from moneybird.resource_types import (MoneybirdResource, MoneybirdResourceType,
+                                      MoneybirdResourceTypeWithDocumentLines,
+                                      SynchronizableMoneybirdResourceType,
+                                      get_moneybird_resource_type_for_entity)
 from moneybird.settings import settings
 
 

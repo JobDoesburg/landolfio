@@ -1,28 +1,15 @@
 from django.urls import path
 
-from .views import (
-    AssetAutocompleteView,
-    AssetCreateMoneybirdView,
-    AssetCreateView,
-    AssetDeleteMoneybirdView,
-    AssetDeleteView,
-    AssetDetailView,
-    AssetDisposeMoneybirdView,
-    AssetLinkMoneybirdView,
-    AssetListView,
-    AssetRefreshMoneybirdView,
-    AssetSearchView,
-    AssetUnlinkMoneybirdView,
-    AssetUpdateMoneybirdView,
-    AssetUpdateView,
-    AttachmentDeleteView,
-    AttachmentDownloadZipView,
-    AttachmentReorderView,
-    BulkStatusChangeView,
-    ContactAutocompleteView,
-    PropertyValueAutocompleteView,
-    PublicIndexView,
-)
+from .views import (AssetAutocompleteView, AssetCreateMoneybirdView,
+                    AssetCreateView, AssetDeleteMoneybirdView, AssetDeleteView,
+                    AssetDetailView, AssetDisposeMoneybirdView,
+                    AssetLinkMoneybirdView, AssetListView,
+                    AssetRefreshMoneybirdView, AssetSearchView,
+                    AssetUnlinkMoneybirdView, AssetUpdateMoneybirdView,
+                    AssetUpdateView, AttachmentDeleteView,
+                    AttachmentDownloadZipView, AttachmentReorderView,
+                    BulkStatusChangeView, ContactAutocompleteView,
+                    PropertyValueAutocompleteView, PublicIndexView)
 
 app_name = "inventory_frontend"
 
