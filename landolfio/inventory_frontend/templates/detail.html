@@ -633,26 +633,27 @@
                 <div class="card-body overflow-auto flex-grow-1" id="attachments-drop-zone">
                     <div class="row g-3" id="attachments-gallery">
                         {% for photo in asset.attachments.all %}
-                            <div class="col-6 col-sm-4 col-md-custom-5 col-lg-2 col-xxl-3" data-attachment-id="{{ photo.pk|stringformat:'d' }}">
+                            <div class="col-6 col-sm-4 col-md-custom-5 col-lg-2 col-xxl-3 attachment-col" data-attachment-id="{{ photo.pk|stringformat:'d' }}">
                                 <div class="position-relative attachment-item" style="aspect-ratio: 1;">
                                     <img src="{{ photo.attachment.url }}"
                                          data-fancybox="gallery"
-                                         data-caption="{{ photo.upload_date}} · {{ photo.filename }}"
+                                         data-caption="{{ photo.filename }} · {{ photo.upload_date}}"
+                                         data-filename="{{ photo.filename }}"
                                          alt="{{ photo.filename }}"
                                          class="img-fluid rounded w-100 h-100"
                                          style="object-fit: cover; cursor: pointer;"/>
-                                    <div class="attachment-controls position-absolute top-0 end-0 p-2">
+                                    <div class="attachment-controls position-absolute top-0 end-0 p-2" style="pointer-events: auto;">
                                         <button class="btn btn-sm btn-danger delete-attachment-btn"
                                                 data-attachment-id="{{ photo.pk|stringformat:'d' }}"
                                                 title="{% translate 'Delete attachment' %}">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
-                                    <div class="drag-handle position-absolute top-0 start-0 p-2"
+                                    <div class="drag-handle position-absolute top-0 start-0 p-2" style="touch-action: none; user-select: none;"
                                          title="{% translate 'Drag to reorder' %}">
-                                        <i class="fas fa-grip-vertical text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);"></i>
+                                        <i class="fas fa-grip-vertical text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); pointer-events: none;"></i>
                                     </div>
-                                    <div class="attachment-checkbox position-absolute bottom-0 end-0 p-2">
+                                    <div class="attachment-checkbox position-absolute bottom-0 end-0 p-2" style="pointer-events: auto;">
                                         <input type="checkbox" class="form-check-input attachment-select-checkbox"
                                                data-attachment-id="{{ photo.pk|stringformat:'d' }}"
                                                style="width: 20px; height: 20px; cursor: pointer;">
@@ -935,14 +936,24 @@
             opacity: 0.7;
             cursor: grab;
             transition: opacity 0.2s ease;
+            z-index: 10;
+            pointer-events: auto;
         }
-        
+
         .drag-handle:active {
             cursor: grabbing;
         }
-        
+
         .attachment-item:hover .drag-handle {
             opacity: 1;
+        }
+
+        .attachment-controls {
+            z-index: 10;
+        }
+
+        .attachment-checkbox {
+            z-index: 10;
         }
 
         .upload-skeleton-btn:hover {
@@ -1250,7 +1261,7 @@
                             e.preventDefault();
                             e.stopPropagation();
                             const url = slide.src;
-                            const filename = url.split('/').pop();
+                            const filename = slide.el?.dataset?.filename || url.split('/').pop();
 
                             fetch(url)
                                 .then(resp => resp.blob())
@@ -1280,15 +1291,6 @@
                 AJAX_FORBIDDEN: "{% translate "Error Loading AJAX : Forbidden" %}",
                 IFRAME_ERROR: "{% translate "Error Loading Page" %}",
             },
-        });
-
-        // Initialize Carousel
-        const carousel = new Carousel(document.querySelector(".carousel"), {
-            'l10n': {
-                NEXT: "{% translate "Next" %}",
-                PREV: "{% translate "Previous slide" %}",
-                GOTO: "{% translate "Go to slide %d" %}",
-            }
         });
     </script>
     <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
@@ -1444,11 +1446,12 @@
                     ghostClass: 'sortable-ghost',
                     dragClass: 'sortable-drag',
                     handle: '.drag-handle',
-                    forceFallback: true,
-                    fallbackTolerance: 3,
                     onEnd: function(evt) {
+                        if (evt.oldIndex === evt.newIndex) {
+                            return;
+                        }
                         const attachmentIds = Array.from(galleryElement.children).map(item =>
-                            item.getAttribute('data-attachment-id')
+                            parseInt(item.getAttribute('data-attachment-id'))
                         );
                         updateAttachmentOrder(attachmentIds);
                     }
