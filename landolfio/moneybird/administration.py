@@ -8,8 +8,7 @@ can be found on GitHub: https://github.com/jjkester/moneybird-python.
 
 import json
 import logging
-from abc import ABC
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 from functools import reduce
 from typing import Type, Union
 from urllib.parse import urljoin

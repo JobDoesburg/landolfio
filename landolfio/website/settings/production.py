@@ -7,10 +7,10 @@ Also see https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/.
 
 import os
 
-from .common import *  # pylint: disable=wildcard-import,unused-wildcard-import
-
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+
+from .common import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 SENTRY_DSN = os.environ.get("SENTRY_DSN", None)
 

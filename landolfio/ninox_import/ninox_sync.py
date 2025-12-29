@@ -2,6 +2,7 @@ import logging
 
 import bleach
 import requests
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.utils.dateparse import parse_datetime
 from django.utils.text import slugify
@@ -9,15 +10,12 @@ from django.utils.timezone import make_aware
 from requests import HTTPError
 from requests.auth import AuthBase
 
-from django.conf import settings
-
-from inventory.models.asset import Asset
+from inventory.models.asset import Asset, AssetStates
 from inventory.models.attachment import Attachment
 from inventory.models.category import Category, Size
 from inventory.models.collection import Collection
-from inventory.models.location import LocationGroup, Location
+from inventory.models.location import Location, LocationGroup
 from inventory.models.remarks import Remark
-from inventory.models.asset import AssetStates
 
 
 class TokenAuthentication(AuthBase):

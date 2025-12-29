@@ -1,24 +1,22 @@
-import uuid
 import logging
+import uuid
 from datetime import datetime
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import (
-    PROTECT,
-    Count,
-)
+from django.db.models import PROTECT, Count
 from django.urls import reverse
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from inventory.moneybird import MoneybirdAssetService
 
 logger = logging.getLogger(__name__)
 from queryable_properties.managers import QueryablePropertiesManager
 from queryable_properties.properties import (
-    RelatedExistenceCheckProperty,
     AggregateProperty,
+    RelatedExistenceCheckProperty,
 )
 
 from inventory.models.category import Category, Size

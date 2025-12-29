@@ -5,7 +5,6 @@ from unittest import mock
 
 from django.test import TestCase
 
-
 MOCK_ENVIRONMENT_PRODUCTION = {
     "LANDOLFIO_SECRET_KEY": "myverysecretkey",
     "LANDOLFIO_ALLOWED_HOSTS": "landolfio.example.com, landolfio2.example.com",

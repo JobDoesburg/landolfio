@@ -1,6 +1,6 @@
 from unittest import mock
 
-from django.test import Client, TestCase, RequestFactory
+from django.test import Client, RequestFactory, TestCase
 
 from moneybird.webhooks.views import webhook_receive
 

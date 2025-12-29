@@ -2,7 +2,7 @@
 
 from django.test import TestCase
 
-from website.inventory.models import Collection, Asset
+from website.inventory.models import Asset, Collection
 
 
 class AssetModelTest(TestCase):

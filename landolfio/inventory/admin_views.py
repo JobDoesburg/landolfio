@@ -10,8 +10,8 @@ from django_drf_filepond.api import store_upload
 from django_drf_filepond.models import TemporaryUpload
 
 from inventory.models.asset import Asset
-from inventory.models.remarks import Remark
 from inventory.models.attachment import Attachment, attachments_directory_path
+from inventory.models.remarks import Remark
 
 
 class NewStatusForm(ModelForm):

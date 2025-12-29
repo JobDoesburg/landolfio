@@ -1,6 +1,6 @@
 import logging
 
-from django.forms import models, Textarea
+from django.forms import Textarea, models
 from django.utils.translation import gettext_lazy as _
 
 from accounting.models import Contact

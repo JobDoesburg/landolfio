@@ -1,7 +1,7 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from inventory.models.asset import Asset
-from django.utils.translation import gettext_lazy as _
 
 
 class Remark(models.Model):

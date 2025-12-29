@@ -2,8 +2,8 @@
 
 from django.test import TestCase
 
-from website.accounting.moneybird.administration import _build_url as build_url
 from website.accounting.moneybird import Administration
+from website.accounting.moneybird.administration import _build_url as build_url
 
 
 class MockAdministration(Administration):

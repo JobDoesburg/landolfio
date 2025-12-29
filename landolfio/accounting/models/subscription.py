@@ -3,9 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from accounting.models.contact import Contact, ContactResourceType
 from moneybird import resources
-from moneybird.models import (
-    MoneybirdResourceModel,
-)
+from moneybird.models import MoneybirdResourceModel
 from moneybird.resource_types import MoneybirdResourceId
 
 

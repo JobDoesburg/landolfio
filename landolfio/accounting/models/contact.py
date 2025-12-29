@@ -6,13 +6,11 @@ from django.db.models.functions import datetime
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
 from localflavor.generic.countries.sepa import IBAN_SEPA_COUNTRIES
-from localflavor.generic.models import IBANField, BICField
+from localflavor.generic.models import BICField, IBANField
 
 from moneybird import resources
 from moneybird.administration import get_moneybird_administration
-from moneybird.models import (
-    SynchronizableMoneybirdResourceModel,
-)
+from moneybird.models import SynchronizableMoneybirdResourceModel
 
 
 class SepaSequenceTypes(models.TextChoices):

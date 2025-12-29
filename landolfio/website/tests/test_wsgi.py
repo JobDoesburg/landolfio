@@ -1,7 +1,6 @@
 """Tests for Wsgi."""
 
-from django.test import RequestFactory
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 
 from website.wsgi import application
 

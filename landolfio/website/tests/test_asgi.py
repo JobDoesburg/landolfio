@@ -1,7 +1,6 @@
 """Tests for Asgi."""
 
-from django.test import RequestFactory
-from django.test import TestCase
+from django.test import RequestFactory, TestCase
 
 from website.website.asgi import application
 

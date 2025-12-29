@@ -1,8 +1,10 @@
+import os
+
 import shortuuid
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from inventory.models.asset import Asset
-from django.utils.translation import gettext_lazy as _
 
 
 def attachments_directory_path(instance, filename):
@@ -33,6 +35,10 @@ class Attachment(models.Model):
 
     def __str__(self):
         return f"{self.attachment} {_('from')} {self.asset}"
+
+    @property
+    def filename(self):
+        return os.path.basename(self.attachment.name)
 
     class Meta:
         verbose_name = _("attachment")

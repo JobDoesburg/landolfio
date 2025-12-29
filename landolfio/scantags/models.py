@@ -1,10 +1,9 @@
 import random
 
-from stdnum.iso7064 import mod_37_36
-
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from stdnum.iso7064 import mod_37_36
 
 from inventory.models.asset import Asset
 from scantags import settings

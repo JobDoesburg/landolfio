@@ -1,9 +1,11 @@
-from django import forms
 from datetime import date
+
+from django import forms
 from django.utils.translation import gettext_lazy as _
+
+from accounting.models.contact import Contact
 from inventory.models.asset import Asset, AssetStates
 from inventory.models.status_change import StatusChange
-from accounting.models.contact import Contact
 
 
 class HTML5DateInput(forms.DateInput):

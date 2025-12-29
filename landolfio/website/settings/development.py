@@ -9,7 +9,6 @@ import os
 
 from .common import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
-
 SECRET_KEY = "django-insecure-y%!#gz*&6n!av8zdlci#*x+w-!z&fkb)@se*pzoyk+2team_-r"
 
 DEBUG = True

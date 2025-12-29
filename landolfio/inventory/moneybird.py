@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Any, Dict
 
 from moneybird.administration import get_moneybird_administration
 

@@ -1,12 +1,11 @@
 """Tests for the inventory Admin interface."""
 
-from accounting.models import Document
-from accounting.models import DocumentLine
-from accounting.models import Ledger
-from accounting.moneybird import DocKind
 from django.contrib.admin import AdminSite
 from django.shortcuts import render
 from django.test import TestCase
+
+from accounting.models import Document, DocumentLine, Ledger
+from accounting.moneybird import DocKind
 from inventory.admin import AssetAdmin
 from inventory.models import Asset
 

@@ -1,6 +1,6 @@
 from django.contrib import admin
-from django_easy_admin_object_actions.decorators import object_action
 from django.utils.translation import gettext_lazy as _
+from django_easy_admin_object_actions.decorators import object_action
 
 from new_customers.admin import NewCustomerAdmin
 from new_rental_customers import services

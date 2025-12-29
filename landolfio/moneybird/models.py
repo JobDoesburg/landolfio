@@ -1,11 +1,11 @@
-from django.db import models, IntegrityError
+from django.db import IntegrityError, models
 from django.db.models.utils import resolve_callables
 from django.utils.translation import gettext_lazy as _
 
 from moneybird.resource_types import (
-    get_moneybird_resource_type_for_model,
-    get_moneybird_resource_type_for_document_lines_model,
     MoneybirdResourceType,
+    get_moneybird_resource_type_for_document_lines_model,
+    get_moneybird_resource_type_for_model,
 )
 
 

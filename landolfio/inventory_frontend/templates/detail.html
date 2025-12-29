@@ -617,8 +617,18 @@
         <!-- Right Column: Attachments -->
         <div class="col-12 col-md-12 col-xxl-5 order-2 order-md-2">
             <div class="card mb-4 h-100 d-flex flex-column">
-                <div class="card-header">
+                <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">{% translate "Attachments" %}</h5>
+                    {% if asset.attachments.exists %}
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="toggle-select-all-btn">
+                            <i class="fas fa-check-square me-1"></i>{% translate "Select All" %}
+                        </button>
+                        <button type="button" class="btn btn-sm btn-primary" id="download-zip-btn" style="display: none;">
+                            <i class="fas fa-download me-1"></i>{% translate "Download ZIP" %}
+                        </button>
+                    </div>
+                    {% endif %}
                 </div>
                 <div class="card-body overflow-auto flex-grow-1" id="attachments-drop-zone">
                     <div class="row g-3" id="attachments-gallery">
@@ -627,8 +637,8 @@
                                 <div class="position-relative attachment-item" style="aspect-ratio: 1;">
                                     <img src="{{ photo.attachment.url }}"
                                          data-fancybox="gallery"
-                                         data-caption="{{ photo.upload_date}} · {{ photo.attachment.name }}"
-                                         alt="{{ photo.attachment.name }}"
+                                         data-caption="{{ photo.upload_date}} · {{ photo.filename }}"
+                                         alt="{{ photo.filename }}"
                                          class="img-fluid rounded w-100 h-100"
                                          style="object-fit: cover; cursor: pointer;"/>
                                     <div class="attachment-controls position-absolute top-0 end-0 p-2">
@@ -641,6 +651,11 @@
                                     <div class="drag-handle position-absolute top-0 start-0 p-2"
                                          title="{% translate 'Drag to reorder' %}">
                                         <i class="fas fa-grip-vertical text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8);"></i>
+                                    </div>
+                                    <div class="attachment-checkbox position-absolute bottom-0 end-0 p-2">
+                                        <input type="checkbox" class="form-check-input attachment-select-checkbox"
+                                               data-attachment-id="{{ photo.pk|stringformat:'d' }}"
+                                               style="width: 20px; height: 20px; cursor: pointer;">
                                     </div>
                                 </div>
                             </div>
@@ -1225,6 +1240,34 @@
             Thumbs: {
                 autoStart: true,
             },
+            on: {
+                done: (fancybox, slide) => {
+                    if (!fancybox || !fancybox.container) return;
+
+                    const downloadBtn = fancybox.container.querySelector('.fancybox__button--download');
+                    if (downloadBtn) {
+                        downloadBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const url = slide.src;
+                            const filename = url.split('/').pop();
+
+                            fetch(url)
+                                .then(resp => resp.blob())
+                                .then(blob => {
+                                    const a = document.createElement('a');
+                                    a.href = window.URL.createObjectURL(blob);
+                                    a.download = filename;
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    document.body.removeChild(a);
+                                    window.URL.revokeObjectURL(a.href);
+                                })
+                                .catch(() => window.open(url, '_blank'));
+                        });
+                    }
+                }
+            },
             l10n: {
                 CLOSE: "{% translate "Close" %}",
                 NEXT: "{% translate "Next" %}",
@@ -1418,6 +1461,88 @@
                 button.removeEventListener('click', handleDeleteClick);
                 button.addEventListener('click', handleDeleteClick);
             });
+
+            // Initialize attachment selection and ZIP download
+            const toggleSelectAllBtn = document.getElementById('toggle-select-all-btn');
+            const downloadZipBtn = document.getElementById('download-zip-btn');
+            const checkboxes = document.querySelectorAll('.attachment-select-checkbox');
+
+            if (toggleSelectAllBtn && downloadZipBtn && checkboxes.length > 0) {
+                let allSelected = false;
+
+                // Toggle all checkboxes
+                toggleSelectAllBtn.addEventListener('click', function() {
+                    allSelected = !allSelected;
+                    checkboxes.forEach(cb => cb.checked = allSelected);
+                    updateDownloadButton();
+
+                    // Update button text and icon
+                    const icon = this.querySelector('i');
+                    const text = allSelected ? '{% translate "Deselect All" %}' : '{% translate "Select All" %}';
+                    icon.className = allSelected ? 'fas fa-square me-1' : 'fas fa-check-square me-1';
+                    this.innerHTML = icon.outerHTML + text;
+                });
+
+                // Update download button visibility when individual checkboxes change
+                checkboxes.forEach(cb => {
+                    cb.addEventListener('change', function() {
+                        updateDownloadButton();
+                        // Update toggle button state
+                        const checkedCount = document.querySelectorAll('.attachment-select-checkbox:checked').length;
+                        allSelected = checkedCount === checkboxes.length;
+                        const icon = toggleSelectAllBtn.querySelector('i');
+                        const text = allSelected ? '{% translate "Deselect All" %}' : '{% translate "Select All" %}';
+                        icon.className = allSelected ? 'fas fa-square me-1' : 'fas fa-check-square me-1';
+                        toggleSelectAllBtn.innerHTML = icon.outerHTML + text;
+                    });
+                });
+
+                // Download selected attachments as ZIP
+                downloadZipBtn.addEventListener('click', function() {
+                    const selectedIds = Array.from(document.querySelectorAll('.attachment-select-checkbox:checked'))
+                        .map(cb => cb.getAttribute('data-attachment-id'));
+
+                    if (selectedIds.length === 0) return;
+
+                    const csrfToken = getCsrfToken();
+                    if (!csrfToken) return;
+
+                    fetch('{% url "inventory_frontend:attachment_download_zip" asset.pk %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrfToken,
+                        },
+                        body: JSON.stringify({
+                            attachment_ids: selectedIds
+                        })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            return response.blob();
+                        }
+                        throw new Error('Network response was not ok');
+                    })
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = '{{ asset.name }}_attachments.zip';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        window.URL.revokeObjectURL(url);
+                    })
+                    .catch(() => {
+                        alert('{% translate "Error downloading attachments. Please try again." %}');
+                    });
+                });
+
+                function updateDownloadButton() {
+                    const checkedCount = document.querySelectorAll('.attachment-select-checkbox:checked').length;
+                    downloadZipBtn.style.display = checkedCount > 0 ? 'inline-block' : 'none';
+                }
+            }
         }
         
         function handleDeleteClick(e) {

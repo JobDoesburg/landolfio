@@ -4,8 +4,8 @@ from django.utils.translation import gettext_lazy as _
 from django_easy_admin_object_actions.decorators import object_action
 
 from new_customers.models import get_customer_ticket_type
-from new_rental_customers.models import NewCustomer
 from new_rental_customers import services
+from new_rental_customers.models import NewCustomer
 from tickets.admin import TicketAdmin
 
 

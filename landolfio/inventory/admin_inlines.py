@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+
 from inventory.models.attachment import Attachment
 from inventory.models.remarks import Remark
 from inventory.models.status_change import StatusChange

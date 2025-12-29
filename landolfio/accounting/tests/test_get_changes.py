@@ -3,9 +3,8 @@
 from django.test import TestCase
 
 from website.accounting.moneybird.administration import MockAdministration
+from website.accounting.moneybird.get_changes import Diff, DocKind
 from website.accounting.moneybird.get_changes import _chunk as chunk
-from website.accounting.moneybird.get_changes import Diff
-from website.accounting.moneybird.get_changes import DocKind
 from website.accounting.moneybird.get_changes import get_administration_changes
 
 

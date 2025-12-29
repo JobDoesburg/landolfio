@@ -2,10 +2,10 @@
 
 import datetime
 
-from accounting.moneybird import DocKind
 from django.test import TestCase
-from inventory.models import Asset
-from inventory.models import Collection
+
+from accounting.moneybird import DocKind
+from inventory.models import Asset, Collection
 
 from .models import Document
 

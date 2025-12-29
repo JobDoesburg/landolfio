@@ -3,13 +3,13 @@ from django.contrib import admin
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
 from django_easy_admin_object_actions.admin import ObjectActionsMixin
 from django_easy_admin_object_actions.decorators import object_action
-from django.utils.translation import gettext_lazy as _
 
 from tickets.admin_filters import (
-    ClosedTicketFilter,
     AssignedTicketFilter,
+    ClosedTicketFilter,
     DueTicketFilter,
 )
 from tickets.models import Ticket, TicketType

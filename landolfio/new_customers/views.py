@@ -2,10 +2,10 @@ import logging
 
 from django.contrib import messages
 from django.shortcuts import render
-from django.views.generic import CreateView
 from django.utils.translation import gettext_lazy as _
+from django.views.generic import CreateView
 
-from new_customers.forms import NewCustomerForm, NewContactForm
+from new_customers.forms import NewContactForm, NewCustomerForm
 from new_customers.models import NewCustomer
 from new_customers.services import send_new_customer_notification
 

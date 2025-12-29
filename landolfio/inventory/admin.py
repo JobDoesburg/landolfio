@@ -1,34 +1,31 @@
-from admin_numeric_filter.admin import SliderNumericFilter, NumericFilterModelAdmin
+from admin_numeric_filter.admin import NumericFilterModelAdmin, SliderNumericFilter
 from admin_numeric_filter.forms import SliderNumericForm
-from django.contrib.admin import register
-from django.db import models
-from django.db.models import Max, Min
-from django.forms import CheckboxSelectMultiple
-from django.urls import reverse, path
-from django.utils.html import format_html
-from django.db.models.fields import DecimalField, FloatField
-
 from autocompletefilter.admin import AutocompleteFilterMixin
 from autocompletefilter.filters import AutocompleteListFilter
 from django.contrib import admin
+from django.contrib.admin import register
+from django.db import models
+from django.db.models import Max, Min
+from django.db.models.fields import DecimalField, FloatField
+from django.forms import CheckboxSelectMultiple
+from django.urls import path, reverse
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-from queryable_properties.admin import (
-    QueryablePropertiesAdminMixin,
-    QueryablePropertiesAdmin,
-)
 from django_admin_multi_select_filter.filters import (
     MultiSelectFieldListFilter,
     MultiSelectRelatedFieldListFilter,
 )
+from queryable_properties.admin import (
+    QueryablePropertiesAdmin,
+    QueryablePropertiesAdminMixin,
+)
 
 from inventory.admin_inlines import (
-    RemarkInline,
     AttachmentInlineAdmin,
+    RemarkInline,
     StatusChangeInline,
 )
-from inventory.models.asset import (
-    Asset,
-)
+from inventory.models.asset import Asset
 from inventory.models.asset_property import AssetProperty, AssetPropertyValue
 from inventory.models.attachment import Attachment
 from inventory.models.category import Category, Size

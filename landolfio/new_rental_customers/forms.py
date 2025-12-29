@@ -1,4 +1,4 @@
-from django.forms import Textarea, DateField
+from django.forms import DateField, Textarea
 from django.utils.translation import gettext_lazy as _
 
 from inventory.services import find_existing_asset_from_description

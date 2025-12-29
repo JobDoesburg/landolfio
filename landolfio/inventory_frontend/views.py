@@ -1,16 +1,21 @@
+import json
+from datetime import date
+
 from django.conf import settings
 from django.contrib import messages
-from django.shortcuts import redirect, get_object_or_404
-from django.urls import reverse
-from django.views.generic import ListView, DetailView, CreateView
-from django.db.models import Q, Max, OuterRef, Subquery
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import Count, Max, OuterRef, Prefetch, Q, Subquery
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse, reverse_lazy
+from django.views import View
+from django.views.generic import CreateView, DetailView, ListView, TemplateView
+from django.views.generic.edit import DeleteView, UpdateView
 from django_drf_filepond.api import store_upload
 from django_drf_filepond.models import TemporaryUpload
-from django.views import View
-from datetime import date
-import json
 
+from accounting.models.contact import Contact
 from inventory.models.asset import Asset, AssetStates
 from inventory.models.asset_property import AssetProperty, AssetPropertyValue
 from inventory.models.attachment import Attachment, attachments_directory_path
@@ -19,17 +24,7 @@ from inventory.models.collection import Collection
 from inventory.models.location import Location
 from inventory.models.remarks import Remark
 from inventory.models.status_change import StatusChange
-from accounting.models.contact import Contact
-from inventory_frontend.forms import AssetForm, StatusChangeForm, BulkStatusChangeForm
-
-from django.db.models import Count, Prefetch
-from django.views.generic import TemplateView
-from django.views.generic.edit import DeleteView
-from django.urls import reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
-from django.views.generic.edit import UpdateView
-from django.contrib.messages.views import SuccessMessageMixin
-from datetime import date
+from inventory_frontend.forms import AssetForm, BulkStatusChangeForm, StatusChangeForm
 
 
 class PublicIndexView(TemplateView):
@@ -489,8 +484,9 @@ class AssetListView(LoginRequiredMixin, ListView):
         )
 
         # Get locations grouped by location group with counts
-        from inventory.models.location import LocationGroup
         from django.db.models import Prefetch
+
+        from inventory.models.location import LocationGroup
 
         # Prefetch locations with their asset counts
         locations_with_counts = Location.objects.annotate(
@@ -1100,6 +1096,52 @@ class AttachmentReorderView(LoginRequiredMixin, View):
 
         except Exception as e:
             messages.error(request, f"Error reordering attachments: {str(e)}")
+            return JsonResponse({"success": False, "error": str(e)})
+
+
+class AttachmentDownloadZipView(LoginRequiredMixin, View):
+    def post(self, request, asset_pk):
+        import io
+        import os
+        import zipfile
+
+        from django.http import HttpResponse
+
+        asset = get_object_or_404(Asset, pk=asset_pk)
+
+        try:
+            data = json.loads(request.body)
+            attachment_ids = data.get("attachment_ids", [])
+
+            if not attachment_ids:
+                return JsonResponse(
+                    {"success": False, "error": "No attachments selected"}
+                )
+
+            zip_buffer = io.BytesIO()
+
+            with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
+                for attachment_id in attachment_ids:
+                    try:
+                        attachment = Attachment.objects.get(
+                            pk=attachment_id, asset=asset
+                        )
+                        filename = os.path.basename(attachment.attachment.name)
+                        zip_file.write(attachment.attachment.path, filename)
+                    except (Attachment.DoesNotExist, FileNotFoundError):
+                        continue
+
+            zip_buffer.seek(0)
+            response = HttpResponse(
+                zip_buffer.getvalue(), content_type="application/zip"
+            )
+            response[
+                "Content-Disposition"
+            ] = f'attachment; filename="{asset.name}_attachments.zip"'
+
+            return response
+
+        except Exception as e:
             return JsonResponse({"success": False, "error": str(e)})
 
 
