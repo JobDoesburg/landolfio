@@ -7,8 +7,11 @@ from django.utils.translation import gettext_lazy as _
 from django_easy_admin_object_actions.admin import ObjectActionsMixin
 from django_easy_admin_object_actions.decorators import object_action
 
-from tickets.admin_filters import (AssignedTicketFilter, ClosedTicketFilter,
-                                   DueTicketFilter)
+from tickets.admin_filters import (
+    AssignedTicketFilter,
+    ClosedTicketFilter,
+    DueTicketFilter,
+)
 from tickets.models import Ticket, TicketType
 
 

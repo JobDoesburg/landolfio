@@ -14,8 +14,10 @@ from inventory.moneybird import MoneybirdAssetService
 
 logger = logging.getLogger(__name__)
 from queryable_properties.managers import QueryablePropertiesManager
-from queryable_properties.properties import (AggregateProperty,
-                                             RelatedExistenceCheckProperty)
+from queryable_properties.properties import (
+    AggregateProperty,
+    RelatedExistenceCheckProperty,
+)
 
 from inventory.models.category import Category, Size
 from inventory.models.collection import Collection

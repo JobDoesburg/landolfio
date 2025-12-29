@@ -3,11 +3,14 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
-from moneybird.models import (MoneybirdDocumentLineModel,
-                              SynchronizableMoneybirdResourceModel)
+from moneybird.models import (
+    MoneybirdDocumentLineModel,
+    SynchronizableMoneybirdResourceModel,
+)
 from moneybird.resource_types import (
     get_moneybird_resource_type_for_document_lines_model,
-    get_moneybird_resource_type_for_model)
+    get_moneybird_resource_type_for_model,
+)
 from moneybird.settings import settings
 
 

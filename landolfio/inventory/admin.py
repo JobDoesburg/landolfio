@@ -1,5 +1,4 @@
-from admin_numeric_filter.admin import (NumericFilterModelAdmin,
-                                        SliderNumericFilter)
+from admin_numeric_filter.admin import NumericFilterModelAdmin, SliderNumericFilter
 from admin_numeric_filter.forms import SliderNumericForm
 from autocompletefilter.admin import AutocompleteFilterMixin
 from autocompletefilter.filters import AutocompleteListFilter
@@ -13,12 +12,19 @@ from django.urls import path, reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django_admin_multi_select_filter.filters import (
-    MultiSelectFieldListFilter, MultiSelectRelatedFieldListFilter)
-from queryable_properties.admin import (QueryablePropertiesAdmin,
-                                        QueryablePropertiesAdminMixin)
+    MultiSelectFieldListFilter,
+    MultiSelectRelatedFieldListFilter,
+)
+from queryable_properties.admin import (
+    QueryablePropertiesAdmin,
+    QueryablePropertiesAdminMixin,
+)
 
-from inventory.admin_inlines import (AttachmentInlineAdmin, RemarkInline,
-                                     StatusChangeInline)
+from inventory.admin_inlines import (
+    AttachmentInlineAdmin,
+    RemarkInline,
+    StatusChangeInline,
+)
 from inventory.models.asset import Asset
 from inventory.models.asset_property import AssetProperty, AssetPropertyValue
 from inventory.models.attachment import Attachment

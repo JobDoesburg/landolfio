@@ -5,7 +5,8 @@ from django.utils.translation import gettext_lazy as _
 from moneybird.resource_types import (
     MoneybirdResourceType,
     get_moneybird_resource_type_for_document_lines_model,
-    get_moneybird_resource_type_for_model)
+    get_moneybird_resource_type_for_model,
+)
 
 
 class MoneybirdResourceModel(models.Model):
