@@ -1446,6 +1446,9 @@
                     ghostClass: 'sortable-ghost',
                     dragClass: 'sortable-drag',
                     handle: '.drag-handle',
+                    delayOnTouchOnly: true,
+                    delay: 100,
+                    touchStartThreshold: 5,
                     onEnd: function(evt) {
                         if (evt.oldIndex === evt.newIndex) {
                             return;
