@@ -631,29 +631,29 @@
                     {% endif %}
                 </div>
                 <div class="card-body overflow-auto flex-grow-1" id="attachments-drop-zone">
-                    <div class="row g-3" id="attachments-gallery">
+                    <div id="attachments-gallery" style="display: flex; flex-wrap: wrap; gap: 1rem;">
                         {% for photo in asset.attachments.all %}
-                            <div class="col-6 col-sm-4 col-md-custom-5 col-lg-2 col-xxl-3 attachment-col" data-attachment-id="{{ photo.pk|stringformat:'d' }}">
+                            <div class="attachment-col" data-attachment-id="{{ photo.pk|stringformat:'d' }}">
                                 <div class="position-relative attachment-item" style="aspect-ratio: 1;">
                                     <img src="{{ photo.attachment.url }}"
-                                         data-fancybox="gallery"
-                                         data-caption="{{ photo.filename }} · {{ photo.upload_date}}"
+                                         data-attachment-url="{{ photo.attachment.url }}"
+                                         data-attachment-caption="{{ photo.filename }} · {{ photo.upload_date}}"
                                          data-filename="{{ photo.filename }}"
                                          alt="{{ photo.filename }}"
-                                         class="img-fluid rounded w-100 h-100"
-                                         style="object-fit: cover; cursor: pointer;"/>
-                                    <div class="attachment-controls position-absolute top-0 end-0 p-2" style="pointer-events: auto;">
+                                         class="img-fluid rounded w-100 h-100 attachment-image"
+                                         style="object-fit: cover; user-select: none; -webkit-user-drag: none; -webkit-touch-callout: none; cursor: pointer;"/>
+                                    <div class="attachment-controls position-absolute top-0 end-0 p-2" style="pointer-events: auto; z-index: 11;">
                                         <button class="btn btn-sm btn-danger delete-attachment-btn"
                                                 data-attachment-id="{{ photo.pk|stringformat:'d' }}"
                                                 title="{% translate 'Delete attachment' %}">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
-                                    <div class="drag-handle position-absolute top-0 start-0 p-2" style="touch-action: none; user-select: none;"
+                                    <div class="drag-handle position-absolute top-0 start-0 p-2" style="user-select: none; -webkit-user-select: none; cursor: grab; z-index: 12; width: 44px; height: 44px;"
                                          title="{% translate 'Drag to reorder' %}">
                                         <i class="fas fa-grip-vertical text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); pointer-events: none;"></i>
                                     </div>
-                                    <div class="attachment-checkbox position-absolute bottom-0 end-0 p-2" style="pointer-events: auto;">
+                                    <div class="attachment-checkbox position-absolute bottom-0 end-0 p-2" style="pointer-events: auto; z-index: 11;">
                                         <input type="checkbox" class="form-check-input attachment-select-checkbox"
                                                data-attachment-id="{{ photo.pk|stringformat:'d' }}"
                                                style="width: 20px; height: 20px; cursor: pointer;">
@@ -861,7 +861,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css"/>
 
     <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 {% endblock %}
 
 {% block extrastyle %}
@@ -915,10 +915,39 @@
             display: none;
         }
         
+        .attachment-col {
+            width: calc(50% - 0.5rem);
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 576px) {
+            .attachment-col {
+                width: calc(33.333% - 0.667rem);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .attachment-col {
+                width: calc(20% - 0.8rem);
+            }
+        }
+
+        @media (min-width: 992px) {
+            .attachment-col {
+                width: calc(16.666% - 0.833rem);
+            }
+        }
+
+        @media (min-width: 1400px) {
+            .attachment-col {
+                width: calc(25% - 0.75rem);
+            }
+        }
+
         .attachment-item {
             transition: transform 0.2s ease;
         }
-        
+
         .attachment-item:hover {
             transform: scale(1.02);
         }
@@ -970,9 +999,18 @@
         .sortable-ghost {
             opacity: 0.5;
         }
-        
+
         .sortable-drag {
             transform: rotate(5deg);
+        }
+
+        .sortable-fallback {
+            opacity: 0.8;
+            cursor: grabbing !important;
+        }
+
+        .sortable-chosen {
+            opacity: 0.5;
         }
 
         /* Consistent table column widths */
@@ -1441,24 +1479,146 @@
             // Initialize drag-and-drop reordering
             const galleryElement = document.getElementById('attachments-gallery');
             if (galleryElement) {
-                new Sortable(galleryElement, {
-                    animation: 150,
-                    ghostClass: 'sortable-ghost',
-                    dragClass: 'sortable-drag',
-                    handle: '.drag-handle',
-                    delayOnTouchOnly: true,
-                    delay: 100,
-                    touchStartThreshold: 5,
-                    onEnd: function(evt) {
-                        if (evt.oldIndex === evt.newIndex) {
-                            return;
+                const scrollContainer = document.getElementById('attachments-drop-zone');
+
+                // Use SortableJS for desktop only
+                const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
+                if (!isTouchDevice) {
+                    // Desktop drag and drop
+                    new Sortable(galleryElement, {
+                        animation: 150,
+                        ghostClass: 'sortable-ghost',
+                        handle: '.drag-handle',
+                        draggable: '.attachment-col',
+                        onEnd: function(evt) {
+                            if (evt.oldIndex === evt.newIndex) return;
+                            const attachmentIds = Array.from(galleryElement.children).map(item =>
+                                parseInt(item.getAttribute('data-attachment-id'))
+                            );
+                            updateAttachmentOrder(attachmentIds);
                         }
-                        const attachmentIds = Array.from(galleryElement.children).map(item =>
-                            parseInt(item.getAttribute('data-attachment-id'))
-                        );
-                        updateAttachmentOrder(attachmentIds);
-                    }
-                });
+                    });
+                } else {
+                    // Mobile touch-based drag and drop
+                    let draggedElement = null;
+                    let ghostElement = null;
+                    let touchStartTime = 0;
+                    let touchStartX = 0;
+                    let touchStartY = 0;
+                    let isDragging = false;
+                    let elementOffsetX = 0;
+                    let elementOffsetY = 0;
+
+                    document.querySelectorAll('.drag-handle').forEach(handle => {
+                        handle.addEventListener('touchstart', function(e) {
+                            touchStartTime = Date.now();
+                            touchStartX = e.touches[0].clientX;
+                            touchStartY = e.touches[0].clientY;
+                            draggedElement = this.closest('.attachment-col');
+
+                            const rect = draggedElement.getBoundingClientRect();
+                            elementOffsetX = touchStartX - rect.left;
+                            elementOffsetY = touchStartY - rect.top;
+                        }, {passive: true});
+
+                        handle.addEventListener('touchmove', function(e) {
+                            if (!draggedElement) return;
+
+                            const timeDiff = Date.now() - touchStartTime;
+                            const xDiff = Math.abs(e.touches[0].clientX - touchStartX);
+                            const yDiff = Math.abs(e.touches[0].clientY - touchStartY);
+
+                            // Start drag after 100ms OR if moved more than 5px
+                            if (timeDiff > 100 || xDiff > 5 || yDiff > 5) {
+                                if (!isDragging) {
+                                    isDragging = true;
+                                    scrollContainer.style.overflow = 'hidden';
+                                    document.body.style.overflow = 'hidden';
+
+                                    // Create ghost element
+                                    ghostElement = draggedElement.cloneNode(true);
+                                    const rect = draggedElement.getBoundingClientRect();
+                                    ghostElement.style.position = 'fixed';
+                                    ghostElement.style.width = rect.width + 'px';
+                                    ghostElement.style.height = rect.height + 'px';
+                                    ghostElement.style.pointerEvents = 'none';
+                                    ghostElement.style.zIndex = '9999';
+                                    ghostElement.style.opacity = '0.8';
+                                    ghostElement.style.transform = 'scale(1.1) rotate(3deg)';
+                                    ghostElement.style.transition = 'none';
+                                    ghostElement.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)';
+                                    document.body.appendChild(ghostElement);
+
+                                    // Make original semi-transparent
+                                    draggedElement.style.opacity = '0.3';
+                                }
+
+                                e.preventDefault();
+
+                                const touch = e.touches[0];
+
+                                // Move ghost element
+                                if (ghostElement) {
+                                    ghostElement.style.left = (touch.clientX - elementOffsetX) + 'px';
+                                    ghostElement.style.top = (touch.clientY - elementOffsetY) + 'px';
+                                }
+
+                                const elements = document.elementsFromPoint(touch.clientX, touch.clientY);
+                                const targetCol = elements.find(el => el.classList.contains('attachment-col') && el !== draggedElement && el !== ghostElement);
+
+                                if (targetCol) {
+                                    const rect = targetCol.getBoundingClientRect();
+                                    const midpoint = rect.left + rect.width / 2;
+
+                                    if (touch.clientX < midpoint) {
+                                        targetCol.parentNode.insertBefore(draggedElement, targetCol);
+                                    } else {
+                                        targetCol.parentNode.insertBefore(draggedElement, targetCol.nextSibling);
+                                    }
+                                }
+                            }
+                        });
+
+                        handle.addEventListener('touchend', function(e) {
+                            if (isDragging) {
+                                e.preventDefault();
+
+                                // Remove ghost
+                                if (ghostElement) {
+                                    ghostElement.remove();
+                                    ghostElement = null;
+                                }
+
+                                draggedElement.style.opacity = '';
+                                scrollContainer.style.overflow = 'auto';
+                                document.body.style.overflow = '';
+
+                                const attachmentIds = Array.from(galleryElement.children).map(item =>
+                                    parseInt(item.getAttribute('data-attachment-id'))
+                                );
+                                updateAttachmentOrder(attachmentIds);
+                            }
+
+                            draggedElement = null;
+                            isDragging = false;
+                        });
+
+                        handle.addEventListener('touchcancel', function(e) {
+                            if (ghostElement) {
+                                ghostElement.remove();
+                                ghostElement = null;
+                            }
+                            if (draggedElement) {
+                                draggedElement.style.opacity = '';
+                            }
+                            scrollContainer.style.overflow = 'auto';
+                            document.body.style.overflow = '';
+                            draggedElement = null;
+                            isDragging = false;
+                        });
+                    });
+                }
             }
             
             // Initialize delete buttons
@@ -1466,6 +1626,22 @@
             deleteButtons.forEach(button => {
                 button.removeEventListener('click', handleDeleteClick);
                 button.addEventListener('click', handleDeleteClick);
+            });
+
+            // Handle image clicks for fancybox
+            const attachmentImages = document.querySelectorAll('.attachment-image');
+            attachmentImages.forEach(img => {
+                img.addEventListener('click', function(e) {
+                    if (!e.target.closest('.drag-handle') && !e.target.closest('.attachment-controls') && !e.target.closest('.attachment-checkbox')) {
+                        Fancybox.show([{
+                            src: this.getAttribute('data-attachment-url'),
+                            caption: this.getAttribute('data-attachment-caption'),
+                            type: 'image'
+                        }], {
+                            groupAll: true
+                        });
+                    }
+                });
             });
 
             // Initialize attachment selection and ZIP download
