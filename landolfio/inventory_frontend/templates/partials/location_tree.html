@@ -1,0 +1,35 @@
+{% for location in locations %}
+    {% if location.children_list %}
+        <div class="form-check" style="margin-left: {{ depth }}rem;">
+            <input class="form-check-input location-parent-checkbox location-checkbox" type="checkbox" name="location" value="{{ location.id }}"
+                   id="location-parent-{{ location.id }}"
+                   data-location-id="{{ location.id }}"
+                   data-group-id="{{ group_id }}"
+                   {% if parent_id %}data-parent-id="{{ parent_id }}"{% endif %}
+                   {% if location.id|stringformat:"s" in current_filters.locations %}checked{% endif %}
+                   onchange="toggleLocationParent({{ location.id }}, {{ group_id }})">
+            <label class="form-check-label small fw-semibold" for="location-parent-{{ location.id }}">
+                {{ location.name }}
+                {% if location.total_asset_count > 0 %}
+                    <span class="text-muted">({{ location.total_asset_count }})</span>
+                {% endif %}
+            </label>
+        </div>
+        {% include "partials/location_tree.html" with locations=location.children_list group_id=group_id depth=depth|add:1 parent_id=location.id %}
+    {% else %}
+        <div class="form-check" style="margin-left: {{ depth }}rem;">
+            <input class="form-check-input location-checkbox" type="checkbox" name="location" value="{{ location.id }}"
+                   id="location-{{ location.id }}"
+                   data-group-id="{{ group_id }}"
+                   {% if parent_id %}data-parent-id="{{ parent_id }}"{% endif %}
+                   {% if location.id|stringformat:"s" in current_filters.locations %}checked{% endif %}
+                   onchange="updateFilters(); updateLocationHierarchyState({{ location.id }}, {{ group_id }})">
+            <label class="form-check-label small" for="location-{{ location.id }}">
+                {{ location.name }}
+                {% if location.asset_count > 0 %}
+                    <span class="text-muted">({{ location.asset_count }})</span>
+                {% endif %}
+            </label>
+        </div>
+    {% endif %}
+{% endfor %}
