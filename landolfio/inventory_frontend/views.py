@@ -76,7 +76,7 @@ class AssetSearchView(LoginRequiredMixin, TemplateView):
         categories = (
             Category.objects.annotate(asset_count=Count("asset"))
             .filter(asset_count__gt=0)
-            .order_by("-asset_count")
+            .order_by("order", "name")
             .prefetch_related("size_set")
         )
 
@@ -129,9 +129,11 @@ class AssetSearchView(LoginRequiredMixin, TemplateView):
         context["locations"] = root_locations
 
         # Get collections with counts
-        context["collections"] = Collection.objects.annotate(
-            asset_count=Count("asset")
-        ).order_by("-asset_count")[:5]
+        context["collections"] = (
+            Collection.objects.annotate(asset_count=Count("asset"))
+            .filter(asset_count__gt=0)
+            .order_by("order", "name")
+        )
 
         return context
 
