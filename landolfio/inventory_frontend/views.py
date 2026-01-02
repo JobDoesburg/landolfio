@@ -27,6 +27,31 @@ from inventory.models.status_change import StatusChange
 from inventory_frontend.forms import AssetForm, BulkStatusChangeForm, StatusChangeForm
 
 
+def get_locations_hierarchical():
+    """Get locations sorted hierarchically by order field recursively."""
+    all_locations = list(Location.objects.all())
+    location_dict = {loc.id: loc for loc in all_locations}
+
+    # Get ancestry chain order values for sorting
+    def get_order_chain(location):
+        """Returns tuple of order values from root to this location."""
+        chain = []
+        current = location
+        while current:
+            chain.insert(
+                0, (current.order if current.order is not None else 999999, current.id)
+            )
+            if current.parent_id and not current.display_as_root:
+                current = location_dict.get(current.parent_id)
+            else:
+                break
+        return tuple(chain)
+
+    # Sort all locations by their ancestry chain
+    sorted_locations = sorted(all_locations, key=get_order_chain)
+    return sorted_locations
+
+
 class PublicIndexView(TemplateView):
     template_name = "public_index.html"
 
@@ -50,6 +75,7 @@ class AssetSearchView(LoginRequiredMixin, TemplateView):
 
         categories = (
             Category.objects.annotate(asset_count=Count("asset"))
+            .filter(asset_count__gt=0)
             .order_by("-asset_count")
             .prefetch_related("size_set")
         )
@@ -61,17 +87,46 @@ class AssetSearchView(LoginRequiredMixin, TemplateView):
                 size_asset_count = Asset.objects.filter(
                     category=category, size=size
                 ).count()
-                if size_asset_count > 0:  # Only include sizes that have assets
+                if size_asset_count > 0:
                     category.sizes_with_counts.append(
                         {"size": size, "asset_count": size_asset_count}
                     )
 
         context["categories"] = categories
 
-        # Get locations with counts
-        context["locations"] = Location.objects.annotate(
-            asset_count=Count("asset")
-        ).order_by("-asset_count")[:5]
+        # Get locations marked as display_as_root with their children
+        root_locations = (
+            Location.objects.filter(display_as_root=True)
+            .annotate(asset_count=Count("asset"))
+            .order_by("order", "pk")
+        )
+
+        # Add child locations with counts for each root location
+        for location in root_locations:
+            location.children_with_counts = []
+            children = (
+                Location.objects.filter(
+                    parent=location,
+                    display_as_root=False,  # Don't show locations that are themselves roots
+                )
+                .annotate(child_asset_count=Count("asset"))
+                .order_by("order", "pk")
+            )
+
+            for child in children:
+                if child.child_asset_count == 0:
+                    continue
+
+                location.children_with_counts.append(
+                    {"location": child, "asset_count": child.child_asset_count}
+                )
+
+        root_locations = [
+            loc
+            for loc in root_locations
+            if loc.asset_count > 0 or loc.children_with_counts
+        ]
+        context["locations"] = root_locations
 
         # Get collections with counts
         context["collections"] = Collection.objects.annotate(
@@ -188,9 +243,19 @@ class AssetListView(LoginRequiredMixin, ListView):
 
         if locations:
             # Filter non-empty values
-            locations = [loc for loc in locations if loc.strip()]
-            if locations:
-                queryset = queryset.filter(location_id__in=locations)
+            locations_ids = [loc for loc in locations if loc.strip()]
+            if locations_ids:
+                # Include sublocations for each selected location
+                all_location_ids = set(locations_ids)
+                for loc_id in locations_ids:
+                    try:
+                        location = Location.objects.get(id=loc_id)
+                        # Add all descendant location IDs
+                        descendants = location.get_descendants(include_self=False)
+                        all_location_ids.update([str(d.id) for d in descendants])
+                    except Location.DoesNotExist:
+                        pass
+                queryset = queryset.filter(location_id__in=all_location_ids)
 
         if collections:
             # Filter non-empty values
@@ -483,25 +548,39 @@ class AssetListView(LoginRequiredMixin, ListView):
             "order", "name"
         )
 
-        # Get locations grouped by location group with counts
-        from django.db.models import Prefetch
+        # Get hierarchical locations with counts
+        from django.db.models import Prefetch, Q
 
-        from inventory.models.location import LocationGroup
-
-        # Prefetch locations with their asset counts
-        locations_with_counts = Location.objects.annotate(
-            asset_count=Count("asset")
-        ).order_by("order", "pk")
-
-        location_groups = (
-            LocationGroup.objects.prefetch_related(
-                Prefetch("location_set", queryset=locations_with_counts)
-            )
-            .annotate(asset_count=Count("location__asset"))
-            .order_by("order", "pk")
+        # Get all locations with their asset counts
+        all_locations = Location.objects.annotate(asset_count=Count("asset")).order_by(
+            "order", "pk"
         )
 
-        context["location_groups"] = location_groups
+        # Build hierarchical structure
+        # Get root locations (no parent or display_as_root=True)
+        root_locations = all_locations.filter(
+            Q(parent__isnull=True) | Q(display_as_root=True)
+        )
+
+        # Build full tree for each root location
+        def build_tree(location, all_locs):
+            """Recursively build the full location tree."""
+            children = [loc for loc in all_locs if loc.parent_id == location.id]
+            location.children_list = []
+            total_count = location.asset_count
+
+            for child in children:
+                build_tree(child, all_locs)
+                location.children_list.append(child)
+                total_count += child.total_asset_count
+
+            location.total_asset_count = total_count
+
+        all_locs_list = list(all_locations)
+        for root in root_locations:
+            build_tree(root, all_locs_list)
+
+        context["location_groups"] = root_locations
 
         # Get collections with counts
         context["collections"] = Collection.objects.annotate(
@@ -598,7 +677,7 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
             (AssetStates.PLACEHOLDER, AssetStates.PLACEHOLDER.label),
             (AssetStates.TO_BE_DELIVERED, AssetStates.TO_BE_DELIVERED.label),
         ]
-        context["locations"] = Location.objects.all().order_by("order", "name")
+        context["locations"] = get_locations_hierarchical()
 
         context["journal_history"] = []
 
@@ -893,7 +972,7 @@ class AssetCreateView(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["categories"] = Category.objects.all()
-        context["locations"] = Location.objects.all()
+        context["locations"] = get_locations_hierarchical()
         context["collections"] = Collection.objects.all()
         return context
 
@@ -1099,6 +1178,23 @@ class AttachmentReorderView(LoginRequiredMixin, View):
             return JsonResponse({"success": False, "error": str(e)})
 
 
+class AttachmentDownloadView(LoginRequiredMixin, View):
+    def get(self, request, asset_pk, attachment_pk):
+        from django.http import FileResponse
+
+        asset = get_object_or_404(Asset, pk=asset_pk)
+        attachment = get_object_or_404(Attachment, pk=attachment_pk, asset=asset)
+
+        try:
+            file_handle = attachment.attachment.open("rb")
+            response = FileResponse(
+                file_handle, as_attachment=True, filename=attachment.filename
+            )
+            return response
+        except Exception as e:
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+
 class AttachmentDownloadZipView(LoginRequiredMixin, View):
     def post(self, request, asset_pk):
         import io
@@ -1118,6 +1214,16 @@ class AttachmentDownloadZipView(LoginRequiredMixin, View):
                     {"success": False, "error": "No attachments selected"}
                 )
 
+            if len(attachment_ids) == 1:
+                attachment = get_object_or_404(
+                    Attachment, pk=attachment_ids[0], asset=asset
+                )
+                file_handle = attachment.attachment.open("rb")
+                response = FileResponse(
+                    file_handle, as_attachment=True, filename=attachment.filename
+                )
+                return response
+
             zip_buffer = io.BytesIO()
 
             with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zip_file:
@@ -1127,7 +1233,8 @@ class AttachmentDownloadZipView(LoginRequiredMixin, View):
                             pk=attachment_id, asset=asset
                         )
                         filename = os.path.basename(attachment.attachment.name)
-                        zip_file.write(attachment.attachment.path, filename)
+                        with attachment.attachment.open("rb") as f:
+                            zip_file.writestr(filename, f.read())
                     except (Attachment.DoesNotExist, FileNotFoundError):
                         continue
 
@@ -1135,9 +1242,9 @@ class AttachmentDownloadZipView(LoginRequiredMixin, View):
             response = HttpResponse(
                 zip_buffer.getvalue(), content_type="application/zip"
             )
-            response[
-                "Content-Disposition"
-            ] = f'attachment; filename="{asset.name}_attachments.zip"'
+            response["Content-Disposition"] = (
+                f'attachment; filename="{asset.name}_attachments.zip"'
+            )
 
             return response
 

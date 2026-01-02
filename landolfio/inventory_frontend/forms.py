@@ -5,7 +5,33 @@ from django.utils.translation import gettext_lazy as _
 
 from accounting.models.contact import Contact
 from inventory.models.asset import Asset, AssetStates
+from inventory.models.location import Location
 from inventory.models.status_change import StatusChange
+
+
+def get_locations_hierarchical():
+    """Get locations sorted hierarchically by order field recursively."""
+    all_locations = list(Location.objects.all())
+    location_dict = {loc.id: loc for loc in all_locations}
+
+    # Get ancestry chain order values for sorting
+    def get_order_chain(location):
+        """Returns tuple of order values from root to this location."""
+        chain = []
+        current = location
+        while current:
+            chain.insert(
+                0, (current.order if current.order is not None else 999999, current.id)
+            )
+            if current.parent_id and not current.display_as_root:
+                current = location_dict.get(current.parent_id)
+            else:
+                break
+        return tuple(chain)
+
+    # Sort all locations by their ancestry chain
+    sorted_locations = sorted(all_locations, key=get_order_chain)
+    return sorted_locations
 
 
 class HTML5DateInput(forms.DateInput):
@@ -109,6 +135,23 @@ class AssetForm(forms.ModelForm):
         self.fields["start_date"].required = False
         self.fields["is_margin_asset"].required = False
 
+        # Set hierarchical location ordering
+        ordered_locations = get_locations_hierarchical()
+        # Convert list to queryset with preserved order
+        if ordered_locations:
+            location_ids = [loc.id for loc in ordered_locations]
+            # Use Case/When to preserve the order
+            from django.db.models import Case, When
+
+            preserved_order = Case(
+                *[When(pk=pk, then=pos) for pos, pk in enumerate(location_ids)]
+            )
+            self.fields["location"].queryset = Location.objects.filter(
+                id__in=location_ids
+            ).order_by(preserved_order)
+        else:
+            self.fields["location"].queryset = Location.objects.none()
+
         # Set better initial values for create form (when instance doesn't exist yet)
         if not self.instance or not self.instance.pk:
             # Default start date to today for new assets
@@ -157,7 +200,7 @@ class StatusChangeForm(forms.ModelForm):
             "comments": forms.Textarea(
                 attrs={
                     "class": "form-control",
-                    "rows": 5,
+                    "rows": 3,
                     "placeholder": _("Optional comments about this status change..."),
                 }
             ),

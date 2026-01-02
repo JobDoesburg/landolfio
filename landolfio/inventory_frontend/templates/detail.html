@@ -20,7 +20,7 @@
                 <i class="fas fa-search position-absolute top-50 end-0 translate-middle-y me-2 text-muted" style="pointer-events: none;"></i>
             </div>
         </div>
-        <div class="btn-group">
+        <div class="btn-group customer-mode-hide">
             <a href="{% url 'inventory_frontend:update' asset.pk %}" class="btn btn-outline-primary">
                 <i class="fas fa-edit me-sm-1 d-inline"></i><span class="d-none d-sm-inline">{% translate "Edit" %}</span>
             </a>
@@ -31,7 +31,7 @@
             {% endif %}
         </div>
         <div class="btn-group">
-            <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
+            <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary customer-mode-hide">
                 <i class="fas fa-cog"></i>
             </a>
             <button type="button" class="btn btn-outline-secondary customer-mode-toggle" title="{% translate 'Toggle Customer Mode' %}">
@@ -97,7 +97,7 @@
     <!-- Right side buttons - same width as left side -->
     <div class="d-flex justify-content-end" style="flex: 0 0 auto; min-width: 350px;">
         <div class="d-flex gap-2">
-            <div class="btn-group" role="group">
+            <div class="btn-group customer-mode-hide" role="group">
                 <a href="{% url 'inventory_frontend:update' asset.pk %}" class="btn btn-outline-primary">
                     <i class="fas fa-edit me-2"></i>{% translate "Edit" %}
                 </a>
@@ -108,7 +108,7 @@
                 {% endif %}
             </div>
             <div class="btn-group" role="group">
-                <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
+                <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary customer-mode-hide">
                     <i class="fas fa-cog"></i>
                 </a>
                 <button type="button" class="btn btn-outline-secondary customer-mode-toggle" title="{% translate 'Toggle Customer Mode' %}">
@@ -318,7 +318,7 @@
                                     <select class="form-select" id="new_location" name="new_location">
                                         <option value="">— {% translate "Select location" %} —</option>
                                         {% for location in locations %}
-                                            <option value="{{ location.pk }}" {% if asset.location and asset.location.pk == location.pk %}selected{% endif %}>{{ location.name }}</option>
+                                            <option value="{{ location.pk }}" {% if asset.location and asset.location.pk == location.pk %}selected{% endif %}>{{ location }}</option>
                                         {% endfor %}
                                     </select>
                                     <span class="input-group-text">#</span>
@@ -471,7 +471,7 @@
                     {% endif %}
                     
                     <!-- Save Button -->
-                    <div class="mt-4 pt-3 text-end">
+                    <div class="mt-4 pt-3 text-end customer-mode-hide">
                         <button type="submit" class="btn btn-success">
                             <i class="fas fa-save me-2"></i>{% translate "Save Changes" %}
                         </button>
@@ -497,42 +497,24 @@
                                         <div class="timeline-marker">
                                             <div class="timeline-dot" data-status="{{ status_change.new_status|default:'' }}" data-has-status="{% if status_change.new_status %}true{% else %}false{% endif %}"></div>
                                         </div>
-                                        <div class="timeline-content">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <div class="flex-grow-1">
-                                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                                        {% if status_change.new_status %}
-                                                        <span class="badge
-                                                        {% if status_change.new_status == 'available' %}bg-success
-                                                        {% elif status_change.new_status == 'issued_rent' or status_change.new_status == 'issued_loan' or status_change.new_status == 'issued_unprocessed' %}bg-warning
-                                                        {% elif status_change.new_status == 'maintenance_in_house' or status_change.new_status == 'maintenance_external' or status_change.new_status == 'under_review' %}bg-info
-                                                        {% elif status_change.new_status == 'placeholder' %}bg-light text-dark{% elif status_change.new_status == 'to_be_delivered' %}bg-secondary
-                                                        {% elif status_change.new_status == 'sold' %}bg-secondary{% elif status_change.new_status == 'amortized' %}bg-dark
-                                                        {% elif status_change.new_status == 'unknown' %}bg-danger
-                                                        {% else %}bg-primary{% endif %}" style="font-size: 0.75rem;">
-                                                            {{ status_change.get_new_status_display }}
-                                                        </span>
-                                                        {% endif %}
-                                                        <span class="timeline-date text-muted fw-medium">{{ status_change.status_date|date:"d-m-Y" }}</span>
-                                                    </div>
-                                                    {% if status_change.comments %}
-                                                        <p class="mb-1 text-muted small">{{ status_change.comments }}</p>
+                                        <div class="timeline-content timeline-item-hover">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                                    {% if status_change.new_status %}
+                                                    <span class="badge
+                                                    {% if status_change.new_status == 'available' %}bg-success
+                                                    {% elif status_change.new_status == 'issued_rent' or status_change.new_status == 'issued_loan' or status_change.new_status == 'issued_unprocessed' %}bg-warning
+                                                    {% elif status_change.new_status == 'maintenance_in_house' or status_change.new_status == 'maintenance_external' or status_change.new_status == 'under_review' %}bg-info
+                                                    {% elif status_change.new_status == 'placeholder' %}bg-light text-dark{% elif status_change.new_status == 'to_be_delivered' %}bg-secondary
+                                                    {% elif status_change.new_status == 'sold' %}bg-secondary{% elif status_change.new_status == 'amortized' %}bg-dark
+                                                    {% elif status_change.new_status == 'unknown' %}bg-danger
+                                                    {% else %}bg-primary{% endif %}" style="font-size: 0.75rem;">
+                                                        {{ status_change.get_new_status_display }}
+                                                    </span>
                                                     {% endif %}
-                                                    {% if status_change.contact %}
-                                                        <p class="mb-0 text-muted small">
-                                                            <i class="fas fa-user me-1"></i>
-                                                            {% if status_change.contact.moneybird_url %}
-                                                                <a href="{{ status_change.contact.moneybird_url }}" target="_blank" class="text-decoration-none">
-                                                                    {{ status_change.contact }}
-                                                                    <i class="fas fa-external-link-alt ms-1" style="font-size: 0.7em;"></i>
-                                                                </a>
-                                                            {% else %}
-                                                                {{ status_change.contact }}
-                                                            {% endif %}
-                                                        </p>
-                                                    {% endif %}
+                                                    <span class="timeline-date text-muted fw-medium">{{ status_change.status_date|date:"d-m-Y" }}</span>
                                                 </div>
-                                                <div class="d-flex align-items-center gap-2">
+                                                <div class="d-flex align-items-center gap-2 timeline-actions">
                                                     <i class="fas fa-info-circle text-muted"
                                                        data-bs-toggle="tooltip"
                                                        data-bs-placement="top"
@@ -550,6 +532,22 @@
                                                     </form>
                                                 </div>
                                             </div>
+                                            {% if status_change.comments %}
+                                                <p class="mb-1 text-muted small">{{ status_change.comments }}</p>
+                                            {% endif %}
+                                            {% if status_change.contact %}
+                                                <p class="mb-0 text-muted small">
+                                                    <i class="fas fa-user me-1"></i>
+                                                    {% if status_change.contact.moneybird_url %}
+                                                        <a href="{{ status_change.contact.moneybird_url }}" target="_blank" class="text-decoration-none">
+                                                            {{ status_change.contact }}
+                                                            <i class="fas fa-external-link-alt ms-1" style="font-size: 0.7em;"></i>
+                                                        </a>
+                                                    {% else %}
+                                                        {{ status_change.contact }}
+                                                    {% endif %}
+                                                </p>
+                                            {% endif %}
                                         </div>
                                     </div>
                                 {% endfor %}
@@ -568,8 +566,7 @@
                         <div class="mb-3">
                             <label class="form-label">{% translate "Change Status" %}</label>
                             <div class="row g-3">
-                                <!-- Left Column: Status and Date -->
-                                <div class="col-12 col-xxl-4">
+                                <div class="col-12">
                                     <div class="mb-2">
                                         <div class="input-group">
                                             <span class="input-group-text"><i class="fas fa-exchange-alt"></i></span>
@@ -594,11 +591,9 @@
                                             {{ status_change_form.contact_id }}
                                         </div>
                                     </div>
-                                </div>
-
-                                <!-- Right Column: Comments -->
-                                <div class="col-12 col-xxl-8">
-                                    {{ status_change_form.comments }}
+                                    <div>
+                                        {{ status_change_form.comments }}
+                                    </div>
                                 </div>
                             </div>
 
@@ -620,12 +615,12 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">{% translate "Attachments" %}</h5>
                     {% if asset.attachments.exists %}
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-2 customer-mode-hide">
                         <button type="button" class="btn btn-sm btn-outline-secondary" id="toggle-select-all-btn">
                             <i class="fas fa-check-square"></i><span class="d-none d-sm-inline ms-1">{% translate "Select All" %}</span>
                         </button>
                         <button type="button" class="btn btn-sm btn-primary" id="download-zip-btn" style="display: none;">
-                            <i class="fas fa-download"></i><span class="d-none d-sm-inline ms-1">{% translate "Download ZIP" %}</span>
+                            <i class="fas fa-download"></i><span class="d-none d-sm-inline ms-1">{% translate "Download" %}</span>
                         </button>
                     </div>
                     {% endif %}
@@ -642,18 +637,18 @@
                                          alt="{{ photo.filename }}"
                                          class="img-fluid rounded w-100 h-100 attachment-image"
                                          style="object-fit: cover; user-select: none; -webkit-user-drag: none; -webkit-touch-callout: none; cursor: pointer;"/>
-                                    <div class="attachment-controls position-absolute top-0 end-0 p-2" style="pointer-events: auto; z-index: 11;">
+                                    <div class="attachment-controls position-absolute top-0 end-0 p-2 customer-mode-hide" style="pointer-events: auto; z-index: 11;">
                                         <button class="btn btn-sm btn-danger delete-attachment-btn"
                                                 data-attachment-id="{{ photo.pk|stringformat:'d' }}"
                                                 title="{% translate 'Delete attachment' %}">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </div>
-                                    <div class="drag-handle position-absolute top-0 start-0 p-2" style="user-select: none; -webkit-user-select: none; cursor: grab; z-index: 12; width: 44px; height: 44px;"
+                                    <div class="drag-handle position-absolute top-0 start-0 p-2 customer-mode-hide" style="user-select: none; -webkit-user-select: none; cursor: grab; z-index: 12; width: 44px; height: 44px;"
                                          title="{% translate 'Drag to reorder' %}">
                                         <i class="fas fa-grip-vertical text-white" style="text-shadow: 1px 1px 2px rgba(0,0,0,0.8); pointer-events: none;"></i>
                                     </div>
-                                    <div class="attachment-checkbox position-absolute bottom-0 end-0 p-2" style="pointer-events: auto; z-index: 11;">
+                                    <div class="attachment-checkbox position-absolute bottom-0 end-0 p-2 customer-mode-hide" style="pointer-events: auto; z-index: 11;">
                                         <input type="checkbox" class="form-check-input attachment-select-checkbox"
                                                data-attachment-id="{{ photo.pk|stringformat:'d' }}"
                                                style="width: 20px; height: 20px; cursor: pointer;">
@@ -663,7 +658,7 @@
                         {% endfor %}
                     </div>
                 </div>
-                <div class="card-footer" id="upload-footer">
+                <div class="card-footer customer-mode-hide" id="upload-footer">
                     <form method="post" id="attachment-upload-form">
                         {% csrf_token %}
                         <div id="filepond-container" class="mb-3">
@@ -776,17 +771,17 @@
             transition: all 0.2s ease;
             border: 2px solid transparent;
         }
-        
+
         .disposal-option-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-        
+
         .disposal-option-card.selected {
             border-color: #0d6efd;
             background-color: #f8f9fa;
         }
-        
+
         .disposal-option-card.selected .card-body {
             background-color: rgba(13, 110, 253, 0.1);
         }
@@ -1178,6 +1173,29 @@
             font-size: 0.875rem;
             font-weight: 500;
         }
+
+        /* Timeline hover actions - hide by default on desktop */
+        .timeline-content .timeline-actions {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        /* Show on hover (desktop) */
+        .timeline-content.timeline-item-hover:hover .timeline-actions {
+            opacity: 1;
+        }
+
+        /* Always show on mobile/touch devices */
+        @media (hover: none), (pointer: coarse) {
+            .timeline-content .timeline-actions {
+                opacity: 1;
+            }
+        }
+
+        /* Show when tapped/active */
+        .timeline-content:active .timeline-actions {
+            opacity: 1;
+        }
     </style>
 {% endblock %}
 
@@ -1226,15 +1244,66 @@
             document.cookie = name + "=" + value + ";" + expires + ";path=/";
         }
 
+        // Toggle form inputs based on customer mode
+        function toggleFormInputs() {
+            const isCustomerMode = getCookie('customer_mode') === 'true';
+
+            // Disable/enable listing price input
+            const listingPriceInput = document.querySelector('input[name="listing_price"]');
+            if (listingPriceInput) {
+                listingPriceInput.readOnly = isCustomerMode;
+                if (isCustomerMode) {
+                    listingPriceInput.classList.add('bg-light');
+                } else {
+                    listingPriceInput.classList.remove('bg-light');
+                }
+            }
+
+            // Disable/enable location inputs
+            const newLocationSelect = document.getElementById('new_location');
+            if (newLocationSelect) {
+                newLocationSelect.disabled = isCustomerMode;
+            }
+
+            const newLocationNrInput = document.getElementById('new_location_nr');
+            if (newLocationNrInput) {
+                newLocationNrInput.readOnly = isCustomerMode;
+                if (isCustomerMode) {
+                    newLocationNrInput.classList.add('bg-light');
+                } else {
+                    newLocationNrInput.classList.remove('bg-light');
+                }
+            }
+
+            // Disable/enable property inputs
+            const propertyInputs = document.querySelectorAll('[name^="property_"]');
+            propertyInputs.forEach(input => {
+                if (input.tagName === 'SELECT') {
+                    input.disabled = isCustomerMode;
+                } else {
+                    input.readOnly = isCustomerMode;
+                    if (isCustomerMode) {
+                        input.classList.add('bg-light');
+                    } else {
+                        input.classList.remove('bg-light');
+                    }
+                }
+            });
+        }
+
         // Adjust layout on page load
         document.addEventListener('DOMContentLoaded', function() {
             adjustOverviewLayout();
+            toggleFormInputs();
 
             // Listen for customer mode changes and adjust layout
             document.addEventListener('click', function(e) {
                 if (e.target.matches('.customer-mode-toggle') || e.target.closest('.customer-mode-toggle')) {
                     // Small delay to allow cookie to be set by base template handler
-                    setTimeout(adjustOverviewLayout, 100);
+                    setTimeout(function() {
+                        adjustOverviewLayout();
+                        toggleFormInputs();
+                    }, 100);
                 }
             });
 
@@ -1329,6 +1398,15 @@
                 AJAX_FORBIDDEN: "{% translate "Error Loading AJAX : Forbidden" %}",
                 IFRAME_ERROR: "{% translate "Error Loading Page" %}",
             },
+        });
+
+        // Initialize Carousel
+        const carousel = new Carousel(document.querySelector(".carousel"), {
+            'l10n': {
+                NEXT: "{% translate "Next" %}",
+                PREV: "{% translate "Previous slide" %}",
+                GOTO: "{% translate "Go to slide %d" %}",
+            }
         });
     </script>
     <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
@@ -1630,15 +1708,35 @@
 
             // Handle image clicks for fancybox
             const attachmentImages = document.querySelectorAll('.attachment-image');
-            attachmentImages.forEach(img => {
+            attachmentImages.forEach((img, index) => {
                 img.addEventListener('click', function(e) {
                     if (!e.target.closest('.drag-handle') && !e.target.closest('.attachment-controls') && !e.target.closest('.attachment-checkbox')) {
-                        Fancybox.show([{
-                            src: this.getAttribute('data-attachment-url'),
-                            caption: this.getAttribute('data-attachment-caption'),
-                            type: 'image'
-                        }], {
-                            groupAll: true
+                        const allImages = Array.from(attachmentImages).map(image => {
+                            const attachmentId = image.closest('.attachment-col').getAttribute('data-attachment-id');
+                            return {
+                                src: image.getAttribute('data-attachment-url'),
+                                caption: image.getAttribute('data-attachment-caption'),
+                                type: 'image',
+                                downloadUrl: '{% url "inventory_frontend:attachment_download" asset.pk 0 %}'.replace('0', attachmentId),
+                                filename: image.getAttribute('data-filename')
+                            };
+                        });
+                        Fancybox.show(allImages, {
+                            startIndex: index,
+                            on: {
+                                done: (fancybox, slide) => {
+                                    if (!fancybox || !fancybox.container) return;
+
+                                    const downloadBtn = fancybox.container.querySelector('.fancybox__button--download');
+                                    if (downloadBtn && slide.downloadUrl) {
+                                        downloadBtn.onclick = (e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            window.location.href = slide.downloadUrl;
+                                        };
+                                    }
+                                }
+                            }
                         });
                     }
                 });

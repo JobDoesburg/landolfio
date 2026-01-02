@@ -459,10 +459,10 @@ class MoneybirdResourceTypeWithDocumentLines(SynchronizableMoneybirdResourceType
 
         diff = super().get_remote_data_diff(remote_data, local_data)
 
-        diff[
-            cls.document_lines_attributes_name
-        ] = cls.get_document_line_remote_data_diff(
-            document_lines_remote_data, document_lines_local_data
+        diff[cls.document_lines_attributes_name] = (
+            cls.get_document_line_remote_data_diff(
+                document_lines_remote_data, document_lines_local_data
+            )
         )
         return diff
 

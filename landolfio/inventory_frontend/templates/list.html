@@ -18,14 +18,14 @@
                     <i class="fas fa-search text-muted"></i>
                 </button>
             </div>
-            <a href="{% url 'inventory_frontend:create' %}" class="btn btn-success">
+            <a href="{% url 'inventory_frontend:create' %}" class="btn btn-success customer-mode-hide">
                 <i class="fas fa-plus"></i>
             </a>
-            <a href="{% url 'inventory_frontend:bulk_update' %}" class="btn btn-primary">
+            <a href="{% url 'inventory_frontend:bulk_update' %}" class="btn btn-primary customer-mode-hide">
                 <i class="fas fa-layer-group"></i>
             </a>
             <div class="btn-group" role="group">
-                <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
+                <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary customer-mode-hide">
                     <i class="fas fa-cog"></i>
                 </a>
                 <button type="button" class="btn btn-outline-secondary customer-mode-toggle" title="{% translate 'Toggle Customer Mode' %}">
@@ -51,10 +51,10 @@
                     <i class="fas fa-search text-muted"></i>
                 </button>
             </div>
-            <a href="{% url 'inventory_frontend:create' %}" class="btn btn-success">
+            <a href="{% url 'inventory_frontend:create' %}" class="btn btn-success customer-mode-hide">
                 <i class="fas fa-plus"></i><span class="ms-2 d-none d-xl-inline">{% translate "New" %}</span>
             </a>
-            <a href="{% url 'inventory_frontend:bulk_update' %}" class="btn btn-primary">
+            <a href="{% url 'inventory_frontend:bulk_update' %}" class="btn btn-primary customer-mode-hide">
                 <i class="fas fa-layer-group"></i><span class="ms-2 d-none d-xl-inline">{% translate "Bulk update" %}</span>
             </a>
             <div class="input-group" style="width: auto;">
@@ -72,7 +72,7 @@
                 </select>
             </div>
             <div class="btn-group" role="group">
-                <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary">
+                <a href="{% url 'admin:index' %}" class="btn btn-outline-secondary customer-mode-hide">
                     <i class="fas fa-cog"></i>
                 </a>
                 <button type="button" class="btn btn-outline-secondary customer-mode-toggle" title="{% translate 'Toggle Customer Mode' %}">
@@ -196,33 +196,19 @@
                             {% for location_group in location_groups %}
                                 <div class="mb-3">
                                     <div class="form-check">
-                                        <input class="form-check-input location-group-checkbox" type="checkbox" 
-                                               id="location-group-{{ location_group.id }}" 
+                                        <input class="form-check-input location-group-checkbox" type="checkbox"
+                                               id="location-group-{{ location_group.id }}"
                                                data-group-id="{{ location_group.id }}"
                                                onchange="toggleLocationGroup({{ location_group.id }})">
                                         <label class="form-check-label fw-bold text-dark small" for="location-group-{{ location_group.id }}">
-                                            {{ location_group.name }}
-                                            {% if location_group.asset_count > 0 %}
-                                                <span class="badge bg-primary text-white ms-1">{{ location_group.asset_count }}</span>
+                                            {{ location_group }}
+                                            {% if location_group.total_asset_count > 0 %}
+                                                <span class="badge bg-primary text-white ms-1">{{ location_group.total_asset_count }}</span>
                                             {% endif %}
                                         </label>
                                     </div>
                                     <div class="border-bottom mb-2"></div>
-                                    {% for location in location_group.location_set.all %}
-                                        <div class="form-check ms-3">
-                                            <input class="form-check-input location-checkbox" type="checkbox" name="location" value="{{ location.id }}" 
-                                                   id="location-{{ location.id }}"
-                                                   data-group-id="{{ location_group.id }}"
-                                                   {% if location.id|stringformat:"s" in current_filters.locations %}checked{% endif %}
-                                                   onchange="updateFilters(); updateLocationGroupState({{ location_group.id }})">
-                                            <label class="form-check-label small" for="location-{{ location.id }}">
-                                                {{ location.name }}
-                                                {% if location.asset_count > 0 %}
-                                                    <span class="text-muted">({{ location.asset_count }})</span>
-                                                {% endif %}
-                                            </label>
-                                        </div>
-                                    {% endfor %}
+                                    {% include "partials/location_tree.html" with locations=location_group.children_list group_id=location_group.id depth=0 %}
                                 </div>
                             {% endfor %}
                         </div>
@@ -1119,6 +1105,7 @@ function initializePropertyVisibility() {
 function toggleLocationGroup(groupId) {
     const groupCheckbox = document.getElementById(`location-group-${groupId}`);
     const locationCheckboxes = document.querySelectorAll(`input[data-group-id="${groupId}"].location-checkbox`);
+    const parentCheckboxes = document.querySelectorAll(`input[data-group-id="${groupId}"].location-parent-checkbox`);
 
     if (!groupCheckbox) {
         console.error('Group checkbox not found:', `location-group-${groupId}`);
@@ -1130,6 +1117,12 @@ function toggleLocationGroup(groupId) {
     // Set all locations in this group to match the group checkbox state
     locationCheckboxes.forEach(checkbox => {
         checkbox.checked = isChecked;
+    });
+
+    // Set all parent checkboxes in this group to match as well
+    parentCheckboxes.forEach(checkbox => {
+        checkbox.checked = isChecked;
+        checkbox.indeterminate = false;
     });
 
     // Update filters
@@ -1621,7 +1614,51 @@ function initializeClickableCards() {
  * Location group functionality
  */
 function initializeLocationGroups() {
-    // Initialize location group states on page load
+    // Initialize all parent checkbox states first (bottom-up)
+    const allParentCheckboxes = Array.from(document.querySelectorAll('.location-parent-checkbox'));
+
+    // Sort by depth (deepest first) by counting parent-id chain
+    allParentCheckboxes.sort((a, b) => {
+        const getDepth = (checkbox) => {
+            let depth = 0;
+            let current = checkbox;
+            while (current && current.getAttribute('data-parent-id')) {
+                depth++;
+                const parentId = current.getAttribute('data-parent-id');
+                current = document.getElementById(`location-parent-${parentId}`);
+            }
+            return depth;
+        };
+        return getDepth(b) - getDepth(a);
+    });
+
+    // Update each parent checkbox state
+    allParentCheckboxes.forEach(parentCheckbox => {
+        const locationId = parentCheckbox.getAttribute('data-location-id');
+        const groupId = parentCheckbox.getAttribute('data-group-id');
+
+        const childParents = document.querySelectorAll(`input.location-parent-checkbox[data-parent-id="${locationId}"]`);
+        const childLeaves = document.querySelectorAll(`input.location-checkbox[data-parent-id="${locationId}"]`);
+        const allChildren = [...childParents, ...childLeaves];
+
+        if (allChildren.length > 0) {
+            const checkedChildren = allChildren.filter(cb => cb.checked);
+            const indeterminateChildren = allChildren.filter(cb => cb.indeterminate);
+
+            if (checkedChildren.length === 0 && indeterminateChildren.length === 0) {
+                parentCheckbox.checked = false;
+                parentCheckbox.indeterminate = false;
+            } else if (checkedChildren.length === allChildren.length) {
+                parentCheckbox.checked = true;
+                parentCheckbox.indeterminate = false;
+            } else {
+                parentCheckbox.checked = false;
+                parentCheckbox.indeterminate = true;
+            }
+        }
+    });
+
+    // Finally, initialize root location group states
     document.querySelectorAll('.location-group-checkbox').forEach(groupCheckbox => {
         const groupId = groupCheckbox.getAttribute('data-group-id');
         updateLocationGroupState(groupId);
@@ -1635,16 +1672,21 @@ function initializeLocationGroups() {
 function updateLocationGroupState(groupId) {
     const groupCheckbox = document.getElementById(`location-group-${groupId}`);
     const locationCheckboxes = document.querySelectorAll(`input[data-group-id="${groupId}"].location-checkbox`);
-    
-    if (!groupCheckbox || locationCheckboxes.length === 0) return;
-    
+    const parentCheckboxes = document.querySelectorAll(`input[data-group-id="${groupId}"].location-parent-checkbox`);
+
+    if (!groupCheckbox) return;
+
+    const allCheckboxes = [...locationCheckboxes, ...parentCheckboxes];
+    if (allCheckboxes.length === 0) return;
+
     const checkedLocations = Array.from(locationCheckboxes).filter(cb => cb.checked);
-    
-    if (checkedLocations.length === 0) {
+    const checkedParents = Array.from(parentCheckboxes).filter(cb => cb.checked || cb.indeterminate);
+
+    if (checkedLocations.length === 0 && checkedParents.length === 0) {
         // No locations checked - group unchecked
         groupCheckbox.checked = false;
         groupCheckbox.indeterminate = false;
-    } else if (checkedLocations.length === locationCheckboxes.length) {
+    } else if (checkedLocations.length === locationCheckboxes.length && checkedParents.length === parentCheckboxes.length && !Array.from(parentCheckboxes).some(cb => cb.indeterminate)) {
         // All locations checked - group checked
         groupCheckbox.checked = true;
         groupCheckbox.indeterminate = false;
@@ -1652,6 +1694,97 @@ function updateLocationGroupState(groupId) {
         // Some locations checked - group indeterminate
         groupCheckbox.checked = false;
         groupCheckbox.indeterminate = true;
+    }
+}
+
+function toggleLocationParent(locationId, groupId) {
+    const parentCheckbox = document.getElementById(`location-parent-${locationId}`);
+    if (!parentCheckbox) return;
+
+    const isChecked = parentCheckbox.checked;
+
+    // Only toggle all descendants if checking (not unchecking)
+    // When unchecking, just uncheck this parent
+    if (isChecked) {
+        // Get all descendant checkboxes (both parent and leaf)
+        function getDescendantCheckboxes(parentId) {
+            const descendants = [];
+
+            // Get immediate children
+            const childParents = document.querySelectorAll(`input.location-parent-checkbox[data-parent-id="${parentId}"]`);
+            const childLeaves = document.querySelectorAll(`input.location-checkbox:not(.location-parent-checkbox)[data-parent-id="${parentId}"]`);
+
+            childParents.forEach(child => {
+                descendants.push(child);
+                const childId = child.getAttribute('data-location-id');
+                descendants.push(...getDescendantCheckboxes(childId));
+            });
+
+            childLeaves.forEach(child => {
+                descendants.push(child);
+            });
+
+            return descendants;
+        }
+
+        const descendants = getDescendantCheckboxes(locationId);
+        descendants.forEach(checkbox => {
+            checkbox.checked = true;
+            checkbox.indeterminate = false;
+        });
+    }
+
+    updateFilters();
+    updateLocationHierarchyState(locationId, groupId);
+}
+
+function updateLocationHierarchyState(locationId, groupId) {
+    // Update parent states recursively
+    function updateParentState(childCheckbox) {
+        const parentId = childCheckbox.getAttribute('data-parent-id');
+        if (!parentId) {
+            // We've reached the root, update the group state
+            updateLocationGroupState(groupId);
+            return;
+        }
+
+        const parentCheckbox = document.getElementById(`location-parent-${parentId}`);
+        if (!parentCheckbox) {
+            updateLocationGroupState(groupId);
+            return;
+        }
+
+        // Get all children of this parent
+        const childParents = document.querySelectorAll(`input.location-parent-checkbox[data-parent-id="${parentId}"]`);
+        const childLeaves = document.querySelectorAll(`input.location-checkbox[data-parent-id="${parentId}"]`);
+        const allChildren = [...childParents, ...childLeaves];
+
+        if (allChildren.length === 0) return;
+
+        const checkedChildren = allChildren.filter(cb => cb.checked);
+        const indeterminateChildren = allChildren.filter(cb => cb.indeterminate);
+
+        if (checkedChildren.length === 0 && indeterminateChildren.length === 0) {
+            // No children checked
+            parentCheckbox.checked = false;
+            parentCheckbox.indeterminate = false;
+        } else if (checkedChildren.length === allChildren.length) {
+            // All children checked
+            parentCheckbox.checked = true;
+            parentCheckbox.indeterminate = false;
+        } else {
+            // Some children checked
+            parentCheckbox.checked = false;
+            parentCheckbox.indeterminate = true;
+        }
+
+        // Continue up the tree
+        updateParentState(parentCheckbox);
+    }
+
+    const checkbox = document.getElementById(`location-${locationId}`) || document.getElementById(`location-parent-${locationId}`);
+    if (checkbox) {
+        updateParentState(checkbox);
     }
 }
 </script>

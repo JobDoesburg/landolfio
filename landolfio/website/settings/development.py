@@ -22,7 +22,7 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["0.0.0.0", "localhost", "192.168.3.100", "macbook-job.internal"]
 
 DATABASES = {
     "default": {

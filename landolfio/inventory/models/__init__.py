@@ -4,7 +4,7 @@ from .asset_property import AssetProperty, AssetPropertyType, AssetPropertyValue
 from .attachment import Attachment
 from .category import Category
 from .collection import Collection
-from .location import Location, LocationGroup
+from .location import Location
 from .remarks import Remark
 from .status_change import StatusChange
 from .status_type import StatusType
@@ -20,7 +20,6 @@ __all__ = [
     "Category",
     "Collection",
     "Location",
-    "LocationGroup",
     "Remark",
     "StatusChange",
     "StatusType",

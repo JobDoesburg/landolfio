@@ -30,7 +30,7 @@ from inventory.models.asset_property import AssetProperty, AssetPropertyValue
 from inventory.models.attachment import Attachment
 from inventory.models.category import Category, Size
 from inventory.models.collection import Collection
-from inventory.models.location import Location, LocationGroup
+from inventory.models.location import Location
 from inventory.models.status_type import StatusType
 
 
@@ -138,7 +138,7 @@ class AssetAdmin(
         "category",
         "size",
         ("location", MultiSelectRelatedFieldListFilter),
-        ("location__location_group", MultiSelectRelatedFieldListFilter),
+        ("location__parent", MultiSelectRelatedFieldListFilter),
         ("listing_price", ListingPriceSliderFilter),
         "is_margin_asset",
         "disposal",
@@ -377,12 +377,11 @@ class AssetLocationAdmin(admin.ModelAdmin):
         models.ManyToManyField: {"widget": CheckboxSelectMultiple},
     }
 
+    list_display = ["name", "parent", "display_as_root", "order"]
+    list_filter = ["parent", "display_as_root"]
+    list_editable = ["display_as_root", "order"]
     search_fields = ["name"]
-
-
-@admin.register(LocationGroup)
-class AssetLocationGroupAdmin(admin.ModelAdmin):
-    search_fields = ["name"]
+    ordering = ["order", "pk"]
 
 
 @admin.register(AssetProperty)

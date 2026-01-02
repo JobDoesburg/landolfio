@@ -16,6 +16,7 @@ from .views import (
     AssetUpdateMoneybirdView,
     AssetUpdateView,
     AttachmentDeleteView,
+    AttachmentDownloadView,
     AttachmentDownloadZipView,
     AttachmentReorderView,
     BulkStatusChangeView,
@@ -50,6 +51,11 @@ urlpatterns = [
         "<uuid:asset_pk>/attachment/<int:attachment_pk>/delete/",
         AttachmentDeleteView.as_view(),
         name="attachment_delete",
+    ),
+    path(
+        "<uuid:asset_pk>/attachment/<int:attachment_pk>/download/",
+        AttachmentDownloadView.as_view(),
+        name="attachment_download",
     ),
     path(
         "<uuid:asset_pk>/attachments/reorder/",

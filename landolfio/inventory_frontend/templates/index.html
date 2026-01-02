@@ -8,6 +8,44 @@
     </p>
 {% endblock %}
 
+{% block extrastyle %}
+<style>
+    #categories-accordion,
+    #locations-accordion {
+        position: relative;
+    }
+
+    .category-wrapper,
+    .location-wrapper {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .collapse-spacer {
+        height: 0;
+        overflow: hidden;
+        transition: height 0.35s ease;
+        flex-shrink: 0;
+    }
+
+    .collapse-content {
+        position: absolute;
+        width: 100vw;
+        max-width: 100vw;
+        z-index: 100;
+        padding: 0 1rem;
+        opacity: 0;
+        transition: opacity 0.35s ease;
+        box-sizing: border-box;
+    }
+
+    .collapse-content.show {
+        opacity: 1;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
     <form action="{% url 'inventory_frontend:list' %}" method="get">
         <div class="position-relative mb-4">
@@ -42,7 +80,8 @@
                     {% translate "Categories" %}
                 </small>
             </div>
-            <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <!-- Desktop layout (md and up) -->
+            <div class="d-none d-md-flex flex-wrap gap-2 justify-content-center">
                 {% for category in categories %}
                     <div class="btn-group" role="group">
                         <a href="{% url 'inventory_frontend:list' %}?category={{ category.id }}" class="btn btn-outline-primary">
@@ -56,6 +95,37 @@
                     </div>
                 {% endfor %}
             </div>
+            <!-- Mobile layout (small screens) -->
+            <div class="d-md-none">
+                <div id="categories-accordion" class="d-flex flex-wrap gap-2 justify-content-center">
+                    {% for category in categories %}
+                        <div class="category-wrapper">
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'inventory_frontend:list' %}?category={{ category.id }}" class="btn btn-sm btn-outline-primary">
+                                    {{ category.name }}
+                                </a>
+                                {% if category.sizes_with_counts %}
+                                    <button class="btn btn-sm btn-outline-primary px-2" type="button" data-bs-toggle="collapse" data-bs-target="#category-{{ category.id }}-sizes" aria-expanded="false">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                            {% if category.sizes_with_counts %}
+                                <div class="collapse-spacer" data-spacer-for="category-{{ category.id }}-sizes"></div>
+                                <div class="collapse-content" id="category-{{ category.id }}-sizes-content" style="display: none;">
+                                    <div class="d-flex flex-wrap gap-1 mt-1 mb-3 justify-content-center">
+                                        {% for size_data in category.sizes_with_counts %}
+                                            <a href="{% url 'inventory_frontend:list' %}?category={{ category.id }}&size={{ size_data.size.id }}" class="btn btn-sm btn-outline-secondary">
+                                                {{ size_data.size.name }}
+                                            </a>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
 
         <!-- Locations -->
@@ -65,12 +135,65 @@
                     {% translate "Locations" %}
                 </small>
             </div>
-            <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <!-- Desktop layout (md and up) -->
+            <div class="d-none d-md-flex flex-wrap gap-2 justify-content-center">
                 {% for location in locations %}
-                    <a href="{% url 'inventory_frontend:list' %}?location={{ location.id }}" class="btn btn-outline-primary">
-                        {{ location.name }}
-                    </a>
+                    <div class="btn-group" role="group">
+                        <a href="{% url 'inventory_frontend:list' %}?location={{ location.id }}" class="btn btn-outline-primary">
+                            {{ location.name }}
+                        </a>
+                        {% for child_data in location.children_with_counts %}
+                            <a href="{% url 'inventory_frontend:list' %}?location={{ child_data.location.id }}" class="btn btn-outline-secondary">
+                                {{ child_data.location.name }}
+                            </a>
+                            {% if child_data.location.grandchildren_with_counts %}
+                                {% for grandchild_data in child_data.location.grandchildren_with_counts %}
+                                    <a href="{% url 'inventory_frontend:list' %}?location={{ grandchild_data.location.id }}" class="btn btn-outline-secondary">
+                                        {{ grandchild_data.location.name }}
+                                    </a>
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
                 {% endfor %}
+            </div>
+            <!-- Mobile layout (small screens) -->
+            <div class="d-md-none">
+                <div id="locations-accordion" class="d-flex flex-wrap gap-2 justify-content-center">
+                    {% for location in locations %}
+                        <div class="location-wrapper">
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'inventory_frontend:list' %}?location={{ location.id }}" class="btn btn-sm btn-outline-primary">
+                                    {{ location.name }}
+                                </a>
+                                {% if location.children_with_counts %}
+                                    <button class="btn btn-sm btn-outline-primary px-2" type="button" data-bs-toggle="collapse" data-bs-target="#location-{{ location.id }}-children" aria-expanded="false">
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                            {% if location.children_with_counts %}
+                                <div class="collapse-spacer" data-spacer-for="location-{{ location.id }}-children"></div>
+                                <div class="collapse-content" id="location-{{ location.id }}-children-content" style="display: none;">
+                                    <div class="d-flex flex-wrap gap-1 mt-1 mb-3 justify-content-center">
+                                        {% for child_data in location.children_with_counts %}
+                                            <a href="{% url 'inventory_frontend:list' %}?location={{ child_data.location.id }}" class="btn btn-sm btn-outline-secondary">
+                                                {{ child_data.location.name }}
+                                            </a>
+                                            {% if child_data.location.grandchildren_with_counts %}
+                                                {% for grandchild_data in child_data.location.grandchildren_with_counts %}
+                                                    <a href="{% url 'inventory_frontend:list' %}?location={{ grandchild_data.location.id }}" class="btn btn-sm btn-outline-secondary">
+                                                        {{ grandchild_data.location.name }}
+                                                    </a>
+                                                {% endfor %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
 
@@ -81,12 +204,23 @@
                     {% translate "Collections" %}
                 </small>
             </div>
-            <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <!-- Desktop layout -->
+            <div class="d-none d-md-flex flex-wrap gap-2 justify-content-center">
                 {% for collection in collections %}
                     <a href="{% url 'inventory_frontend:list' %}?collection={{ collection.id }}" class="btn btn-outline-primary">
                         {{ collection.name }}
                     </a>
                 {% endfor %}
+            </div>
+            <!-- Mobile layout -->
+            <div class="d-md-none">
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    {% for collection in collections %}
+                        <a href="{% url 'inventory_frontend:list' %}?collection={{ collection.id }}" class="btn btn-sm btn-outline-primary">
+                            {{ collection.name }}
+                        </a>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </form>
@@ -323,6 +457,212 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         console.log('Index page: Autocomplete setup complete');
+    }
+
+    // Rotate chevron icons on collapse toggle
+    document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(button => {
+        const targetId = button.getAttribute('data-bs-target');
+        if (targetId) {
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                targetElement.addEventListener('show.bs.collapse', function() {
+                    const icon = button.querySelector('.fa-chevron-down');
+                    if (icon) {
+                        icon.style.transform = 'rotate(180deg)';
+                        icon.style.transition = 'transform 0.3s ease';
+                    }
+                });
+                targetElement.addEventListener('hide.bs.collapse', function() {
+                    const icon = button.querySelector('.fa-chevron-down');
+                    if (icon) {
+                        icon.style.transform = 'rotate(0deg)';
+                    }
+                });
+            }
+        }
+    });
+
+    // Mobile collapse behavior: make parent buttons toggle collapse first
+    document.querySelectorAll('.d-md-none .btn-group a.btn').forEach(link => {
+        const btnGroup = link.closest('.btn-group');
+        if (!btnGroup) return;
+
+        const toggleButton = btnGroup.querySelector('[data-bs-toggle="collapse"]');
+        if (!toggleButton) return;
+
+        const targetId = toggleButton.getAttribute('data-bs-target');
+        if (!targetId) return;
+
+        const collapseElement = document.querySelector(targetId);
+        if (!collapseElement) return;
+
+        link.addEventListener('click', function(e) {
+            // Check if collapse is currently hidden
+            if (!collapseElement.classList.contains('show')) {
+                e.preventDefault();
+                // Show the collapse
+                const bsCollapse = new bootstrap.Collapse(collapseElement, {
+                    toggle: true
+                });
+                // Remove active state from button
+                this.blur();
+            }
+            // If collapse is already shown, let the link navigate normally
+        });
+    });
+
+    // Manual collapse handling
+    let currentOpenCategory = null;
+    let currentOpenLocation = null;
+
+    // Handle categories
+    const categoriesAccordion = document.getElementById('categories-accordion');
+    if (categoriesAccordion) {
+        const categoryWrappers = categoriesAccordion.querySelectorAll('.category-wrapper');
+
+        categoryWrappers.forEach(wrapper => {
+            const toggleBtn = wrapper.querySelector('[data-bs-toggle="collapse"]');
+            if (!toggleBtn) return;
+
+            const targetId = toggleBtn.getAttribute('data-bs-target');
+            const spacer = wrapper.querySelector('.collapse-spacer');
+            const collapseContent = wrapper.querySelector('.collapse-content');
+
+            if (!spacer || !collapseContent) return;
+
+            toggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Close currently open category if different
+                if (currentOpenCategory && currentOpenCategory !== wrapper) {
+                    const oldSpacer = currentOpenCategory.querySelector('.collapse-spacer');
+                    const oldContent = currentOpenCategory.querySelector('.collapse-content');
+                    const oldToggleBtn = currentOpenCategory.querySelector('[data-bs-toggle="collapse"]');
+                    oldSpacer.style.height = '0';
+                    oldContent.classList.remove('show');
+                    if (oldToggleBtn) oldToggleBtn.classList.remove('active');
+                    setTimeout(() => oldContent.style.display = 'none', 350);
+                }
+
+                // Toggle current
+                const isOpen = spacer.style.height && spacer.style.height !== '0px';
+
+                if (isOpen) {
+                    // Close
+                    spacer.style.height = '0';
+                    collapseContent.classList.remove('show');
+                    toggleBtn.classList.remove('active');
+                    setTimeout(() => collapseContent.style.display = 'none', 350);
+                    currentOpenCategory = null;
+                } else {
+                    // Open
+                    const btnGroup = wrapper.querySelector('.btn-group');
+                    const rect = btnGroup.getBoundingClientRect();
+                    const wrapperRect = wrapper.getBoundingClientRect();
+
+                    // Find all buttons on the same row
+                    let maxBottom = rect.bottom;
+                    categoryWrappers.forEach(w => {
+                        const wBtn = w.querySelector('.btn-group');
+                        const wRect = wBtn.getBoundingClientRect();
+                        if (Math.abs(wRect.top - rect.top) < 5) {
+                            maxBottom = Math.max(maxBottom, wRect.bottom);
+                        }
+                    });
+
+                    const topPosition = maxBottom - wrapperRect.top + 8;
+                    collapseContent.style.top = topPosition + 'px';
+
+                    // Center on viewport
+                    collapseContent.style.left = -wrapperRect.left + 'px';
+
+                    collapseContent.style.display = 'block';
+
+                    const contentHeight = collapseContent.offsetHeight;
+                    spacer.style.height = contentHeight + 'px';
+
+                    setTimeout(() => collapseContent.classList.add('show'), 10);
+                    toggleBtn.classList.add('active');
+                    currentOpenCategory = wrapper;
+                }
+            });
+        });
+    }
+
+    // Handle locations
+    const locationsAccordion = document.getElementById('locations-accordion');
+    if (locationsAccordion) {
+        const locationWrappers = locationsAccordion.querySelectorAll('.location-wrapper');
+
+        locationWrappers.forEach(wrapper => {
+            const toggleBtn = wrapper.querySelector('[data-bs-toggle="collapse"]');
+            if (!toggleBtn) return;
+
+            const targetId = toggleBtn.getAttribute('data-bs-target');
+            const spacer = wrapper.querySelector('.collapse-spacer');
+            const collapseContent = wrapper.querySelector('.collapse-content');
+
+            if (!spacer || !collapseContent) return;
+
+            toggleBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Close currently open location if different
+                if (currentOpenLocation && currentOpenLocation !== wrapper) {
+                    const oldSpacer = currentOpenLocation.querySelector('.collapse-spacer');
+                    const oldContent = currentOpenLocation.querySelector('.collapse-content');
+                    const oldToggleBtn = currentOpenLocation.querySelector('[data-bs-toggle="collapse"]');
+                    oldSpacer.style.height = '0';
+                    oldContent.classList.remove('show');
+                    if (oldToggleBtn) oldToggleBtn.classList.remove('active');
+                    setTimeout(() => oldContent.style.display = 'none', 350);
+                }
+
+                // Toggle current
+                const isOpen = spacer.style.height && spacer.style.height !== '0px';
+
+                if (isOpen) {
+                    // Close
+                    spacer.style.height = '0';
+                    collapseContent.classList.remove('show');
+                    toggleBtn.classList.remove('active');
+                    setTimeout(() => collapseContent.style.display = 'none', 350);
+                    currentOpenLocation = null;
+                } else {
+                    // Open
+                    const btnGroup = wrapper.querySelector('.btn-group');
+                    const rect = btnGroup.getBoundingClientRect();
+                    const wrapperRect = wrapper.getBoundingClientRect();
+
+                    // Find all buttons on the same row
+                    let maxBottom = rect.bottom;
+                    locationWrappers.forEach(w => {
+                        const wBtn = w.querySelector('.btn-group');
+                        const wRect = wBtn.getBoundingClientRect();
+                        if (Math.abs(wRect.top - rect.top) < 5) {
+                            maxBottom = Math.max(maxBottom, wRect.bottom);
+                        }
+                    });
+
+                    const topPosition = maxBottom - wrapperRect.top + 8;
+                    collapseContent.style.top = topPosition + 'px';
+
+                    // Center on viewport
+                    collapseContent.style.left = -wrapperRect.left + 'px';
+
+                    collapseContent.style.display = 'block';
+
+                    const contentHeight = collapseContent.offsetHeight;
+                    spacer.style.height = contentHeight + 'px';
+
+                    setTimeout(() => collapseContent.classList.add('show'), 10);
+                    toggleBtn.classList.add('active');
+                    currentOpenLocation = wrapper;
+                }
+            });
+        });
     }
 });
 </script>
