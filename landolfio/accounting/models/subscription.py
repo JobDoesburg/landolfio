@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.dateparse import parse_date
 from django.utils.translation import gettext_lazy as _
 
 from accounting.models.contact import Contact, ContactResourceType
@@ -38,9 +39,9 @@ class SubscriptionResourceType(resources.SubscriptionResourceType):
     def get_model_kwargs(cls, resource_data):
         kwargs = super().get_model_kwargs(resource_data)
         kwargs["reference"] = resource_data["reference"]
-        kwargs["start_date"] = resource_data["start_date"]
-        kwargs["end_date"] = resource_data["end_date"]
-        kwargs["cancelled_at"] = resource_data["cancelled_at"]
+        kwargs["start_date"] = parse_date(resource_data["start_date"]) if resource_data.get("start_date") else None
+        kwargs["end_date"] = parse_date(resource_data["end_date"]) if resource_data.get("end_date") else None
+        kwargs["cancelled_at"] = parse_date(resource_data["cancelled_at"]) if resource_data.get("cancelled_at") else None
         kwargs["contact"] = ContactResourceType.get_or_create_from_moneybird_data(
             resource_data["contact_id"]
         )
