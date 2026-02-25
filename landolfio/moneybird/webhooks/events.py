@@ -544,3 +544,66 @@ class WebhookEvent(Enum):
     WORKFLOW_DEACTIVATED = "workflow_deactivated"  # Workflow deactivated
     WORKFLOW_DESTROYED = "workflow_destroyed"  # Workflow deleted
     WORKFLOW_UPDATED = "workflow_updated"  # Workflow updated
+
+    COMPANY_ASSETS_ASSET = "company_assets_asset"
+
+    COMPANY_ASSETS_ASSET_CREATED = "company_assets_asset_created"  # Asset created
+    COMPANY_ASSETS_ASSET_DESTROYED = "company_assets_asset_destroyed"  # Asset destroyed
+    COMPANY_ASSETS_ASSET_UPDATED = "company_assets_asset_updated"  # Asset updated
+    COMPANY_ASSETS_DISPOSAL_CREATED = (
+        "company_assets_disposal_created"  # Asset disposed
+    )
+    COMPANY_ASSETS_DISPOSAL_DESTROYED = (
+        "company_assets_disposal_destroyed"  # Asset disposal reversed
+    )
+    COMPANY_ASSETS_SOURCE_CREATED = (
+        "company_assets_source_created"  # Invoice detail linked to asset
+    )
+    COMPANY_ASSETS_SOURCE_DESTROYED = (
+        "company_assets_source_destroyed"  # Invoice detail unlinked from asset
+    )
+    COMPANY_ASSETS_VALUE_CHANGES_LINEAR_CREATED = (
+        "company_assets_value_changes_linear_created"  # Linear depreciation created
+    )
+    COMPANY_ASSETS_VALUE_CHANGES_LINEAR_DESTROYED = (
+        "company_assets_value_changes_linear_destroyed"  # Linear depreciation destroyed
+    )
+    COMPANY_ASSETS_VALUE_CHANGES_ARBITRARY_CREATED = (
+        "company_assets_value_changes_arbitrary_created"  # Arbitrary depreciation created
+    )
+    COMPANY_ASSETS_VALUE_CHANGES_ARBITRARY_DESTROYED = (
+        "company_assets_value_changes_arbitrary_destroyed"  # Arbitrary depreciation deleted
+    )
+    COMPANY_ASSETS_VALUE_CHANGES_DIVESTMENT_CREATED = (
+        "company_assets_value_changes_divestment_created"  # Divestment created
+    )
+    COMPANY_ASSETS_VALUE_CHANGES_DIVESTMENT_DESTROYED = (
+        "company_assets_value_changes_divestment_destroyed"  # Divestment deleted
+    )
+    COMPANY_ASSETS_VALUE_CHANGES_FULL_DEPRECIATION_CREATED = (
+        "company_assets_value_changes_full_depreciation_created"  # Full depreciation created
+    )
+    COMPANY_ASSETS_VALUE_CHANGES_FULL_DEPRECIATION_DESTROYED = (
+        "company_assets_value_changes_full_depreciation_destroyed"  # Full depreciation destroyed
+    )
+    COMPANY_ASSETS_VALUE_CHANGES_MANUAL_CREATED = (
+        "company_assets_value_changes_manual_created"  # Manual value change created
+    )
+    COMPANY_ASSETS_VALUE_CHANGES_MANUAL_DESTROYED = (
+        "company_assets_value_changes_manual_destroyed"  # Manual value change deleted
+    )
+    COMPANY_ASSETS_VALUE_CHANGE_PLAN_CREATED = (
+        "company_assets_value_change_plan_created"  # Depreciation plan created
+    )
+    COMPANY_ASSETS_VALUE_CHANGE_PLAN_DESTROYED = (
+        "company_assets_value_change_plan_destroyed"  # Depreciation plan destroyed
+    )
+    COMPANY_ASSETS_VALUE_CHANGE_PLAN_UPDATED = (
+        "company_assets_value_change_plan_updated"  # Depreciation plan updated
+    )
+    COMPANY_ASSETS_VALUE_CHANGE_PLAN_DEACTIVATED = (
+        "company_assets_value_change_plan_deactivated"  # Depreciation plan deactivated
+    )
+    COMPANY_ASSETS_VALUE_CHANGE_PLAN_ACTIVATED = (
+        "company_assets_value_change_plan_activated"  # Depreciation plan activated
+    )

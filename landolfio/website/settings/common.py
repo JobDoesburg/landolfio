@@ -136,6 +136,7 @@ MONEYBIRD_API_KEY = os.environ.get("MONEYBIRD_API_KEY")
 MONEYBIRD_RESOURCE_TYPES = [
     "accounting.models.contact.ContactResourceType",
     "accounting.models.subscription.SubscriptionResourceType",
+    "inventory.resource_types.AssetResourceType",
 ]
 MONEYBIRD_WEBHOOK_EVENTS = [
     WebhookEvent.CONTACT,
@@ -144,6 +145,7 @@ MONEYBIRD_WEBHOOK_EVENTS = [
     WebhookEvent.SUBSCRIPTION_UPDATED,
     WebhookEvent.SUBSCRIPTION_EDITED,
     WebhookEvent.SUBSCRIPTION_DESTROYED,
+    WebhookEvent.COMPANY_ASSETS_ASSET,
 ]
 MONEYBIRD_WEBHOOK_ID = os.environ.get("MONEYBIRD_WEBHOOK_ID")
 MONEYBIRD_WEBHOOK_TOKEN = os.environ.get("MONEYBIRD_WEBHOOK_TOKEN")

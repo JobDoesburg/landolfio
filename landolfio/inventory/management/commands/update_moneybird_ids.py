@@ -1,4 +1,7 @@
 import json
+import re
+import time
+from datetime import datetime
 from django.core.management.base import BaseCommand, CommandError
 from inventory.models import Asset
 from inventory.moneybird import MoneybirdAssetService
@@ -13,6 +16,33 @@ class Command(BaseCommand):
             type=str,
             help='Path to JSON file with asset moneybird IDs'
         )
+
+    def _wait_for_rate_limit(self, error):
+        match = re.search(r"Retry after '([^']+)'", str(error))
+        if match:
+            retry_after = datetime.strptime(match.group(1), "%Y-%m-%d %H:%M:%S")
+            wait_seconds = max(0, (retry_after - datetime.now()).total_seconds()) + 1
+            self.stdout.write(self.style.WARNING(f'Rate limited, waiting until {retry_after}...'))
+            time.sleep(wait_seconds)
+            return True
+        return False
+
+    def _sync_with_retry(self, asset):
+        mb = MoneybirdAssetService()
+        while True:
+            try:
+                mb.update_asset(asset_id=asset.moneybird_asset_id, name=str(asset))
+                break
+            except Exception as e:
+                if not self._wait_for_rate_limit(e):
+                    raise
+        while True:
+            try:
+                asset.refresh_from_moneybird()
+                break
+            except Exception as e:
+                if not self._wait_for_rate_limit(e):
+                    raise
 
     def handle(self, *args, **options):
         json_file = options['json_file']
@@ -45,9 +75,7 @@ class Command(BaseCommand):
                 asset.save(update_fields=['moneybird_asset_id'])
 
                 try:
-                    mb = MoneybirdAssetService()
-                    mb.update_asset(asset_id=asset.moneybird_asset_id, name=str(asset))
-                    asset.refresh_from_moneybird()
+                    self._sync_with_retry(asset)
                     self.stdout.write(
                         self.style.SUCCESS(f'Updated {asset_name}: {moneybird_id}, synced name to Moneybird, and refreshed data')
                     )
