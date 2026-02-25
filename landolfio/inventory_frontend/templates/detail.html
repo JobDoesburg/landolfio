@@ -756,6 +756,7 @@
                     <form method="post" action="{% url 'inventory_frontend:dispose_moneybird' asset.pk %}" class="d-inline" id="disposeForm">
                         {% csrf_token %}
                         <input type="hidden" name="disposal_reason" id="disposalReasonInput" value="">
+                        <input type="hidden" name="disposal_date" id="disposalDateFormInput" value="">
                         <button type="submit" class="btn btn-warning" id="confirmDisposeBtn" disabled>
                             <i class="fas fa-trash-alt me-2"></i>{% translate "Confirm Disposal" %}
                         </button>
@@ -822,7 +823,16 @@
             if (disposalDateInput) {
                 disposalDateInput.addEventListener('change', checkFormValidity);
             }
-            
+
+            // Copy date to form when submitting
+            const disposeForm = document.getElementById('disposeForm');
+            const disposalDateFormInput = document.getElementById('disposalDateFormInput');
+            if (disposeForm && disposalDateFormInput) {
+                disposeForm.addEventListener('submit', function(e) {
+                    disposalDateFormInput.value = disposalDateInput.value;
+                });
+            }
+
             // Reset selection when modal is closed
             const disposeModal = document.getElementById('disposeModal');
             if (disposeModal) {
@@ -832,7 +842,7 @@
                     disposalDateInput.value = '';
                     confirmBtn.disabled = true;
                 });
-                
+
                 // Set default date to today when modal opens
                 disposeModal.addEventListener('shown.bs.modal', function() {
                     if (!disposalDateInput.value) {

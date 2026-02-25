@@ -202,6 +202,10 @@ class AssetListView(LoginRequiredMixin, ListView):
             queryset = queryset.filter(
                 Q(name__icontains=search_query.strip())
                 | Q(category__name__icontains=search_query.strip())
+                | Q(remarks__remark__icontains=search_query.strip())
+                | Q(tickets__description__icontains=search_query.strip())
+                | Q(tickets__contact__first_name__icontains=search_query.strip())
+                | Q(tickets__contact__last_name__icontains=search_query.strip())
             )
 
         if categories:
