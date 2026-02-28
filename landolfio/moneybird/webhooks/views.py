@@ -29,12 +29,20 @@ webhook_cache = WebhookCache()
 @require_POST
 @non_atomic_requests
 def webhook_receive(request):
+    import logging
+
+    logger = logging.getLogger(__name__)
+
     idempotency_key = request.headers.get("Idempotency-Key")
     if idempotency_key in webhook_cache:
         return HttpResponse("Webhook already processed.", content_type="text/plain")
 
     payload = json.loads(request.body)
-    process_webhook_payload(payload)
+
+    try:
+        process_webhook_payload(payload)
+    except Exception as e:
+        logger.error(f"Error processing webhook: {e}", exc_info=True)
 
     webhook_cache.add(idempotency_key)
 

@@ -10,11 +10,11 @@ from moneybird.webhooks.events import WebhookEvent
 
 def process_webhook_payload(payload: MoneybirdResource) -> None:
     if payload["action"] == "test_webhook":
-        logging.info(f"Received test webhook from Moneybird: {payload}")
+        logging.info(f"Received test webhook from Moneybird")
         return
 
     if payload["webhook_id"] != settings.MONEYBIRD_WEBHOOK_ID:
-        logging.error("Received webhook with wrong id")
+        logging.error(f"Received webhook with wrong id")
         return
 
     if payload["webhook_token"] != settings.MONEYBIRD_WEBHOOK_TOKEN:
@@ -22,13 +22,13 @@ def process_webhook_payload(payload: MoneybirdResource) -> None:
         return
 
     if int(payload["administration_id"]) != settings.MONEYBIRD_ADMINISTRATION_ID:
-        logging.error("Received webhook for wrong administration")
+        logging.error(f"Received webhook for wrong administration")
         return
 
     try:
         event = WebhookEvent(payload["action"])
     except ValueError:
-        logging.error("Received webhook with invalid event")
+        logging.error(f"Received webhook with invalid event: {payload['action']}")
         return
 
     entity_type = payload["entity_type"]
@@ -42,9 +42,6 @@ def process_webhook_payload(payload: MoneybirdResource) -> None:
     if resource_type is None and entity_type.startswith("CompanyAssets::"):
         resource_type = get_moneybird_resource_type_for_entity("company_assets_asset")
         if resource_type:
-            logging.info(
-                f"Routing {entity_type} webhook (event: {event.value}, entity_id: {entity_id}) to AssetResourceType"
-            )
             # For CompanyAssets sub-entities (disposal, source, value_change), extract asset_id from entity_data
             if (
                 entity_type != "CompanyAssets::Asset"
@@ -52,7 +49,6 @@ def process_webhook_payload(payload: MoneybirdResource) -> None:
                 and "asset_id" in entity_data
             ):
                 asset_id = entity_data["asset_id"]
-                logging.info(f"Extracted asset_id {asset_id} from {entity_type} entity")
                 entity_id = asset_id
 
     if resource_type is None:
