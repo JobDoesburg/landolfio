@@ -378,7 +378,11 @@ class AssetListView(LoginRequiredMixin, ListView):
 
                 for asset in linked_assets:
                     # Check if sources is missing, null, or empty array
-                    sources = asset.moneybird_data.get('sources') if asset.moneybird_data else None
+                    sources = (
+                        asset.moneybird_data.get("sources")
+                        if asset.moneybird_data
+                        else None
+                    )
                     if not sources or len(sources) == 0:
                         asset_ids_with_missing_sources.append(asset.id)
 

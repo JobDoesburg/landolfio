@@ -34,10 +34,20 @@ def process_webhook_payload(payload: MoneybirdResource) -> None:
     entity_type = payload["entity_type"]
     entity_id = payload["entity_id"]
     entity_data = payload["entity"]
+
+    # Try to get exact entity type match first
     resource_type = get_moneybird_resource_type_for_entity(entity_type)
 
+    # If not found and entity_type starts with company_assets_, route to asset resource type
+    if resource_type is None and entity_type.startswith("company_assets_"):
+        resource_type = get_moneybird_resource_type_for_entity("company_assets_asset")
+        if resource_type:
+            logging.info(f"Routing {entity_type} webhook to AssetResourceType")
+
     if resource_type is None:
-        logging.warning("Received webhook with unregistered entity type")
+        logging.warning(
+            f"Received webhook with unregistered entity type: {entity_type} (event: {event.value})"
+        )
         return
 
     return resource_type.process_webhook_event(entity_id, entity_data, event)

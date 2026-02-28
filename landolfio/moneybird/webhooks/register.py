@@ -29,10 +29,12 @@ def create_webhook():
         return
 
     # Convert enum values to strings if needed
-    events = [event.value if hasattr(event, 'value') else event for event in events]
+    events = [event.value if hasattr(event, "value") else event for event in events]
 
     administration = get_moneybird_administration()
-    response = administration.post("webhooks", data={"url": url, "enabled_events": events})
+    response = administration.post(
+        "webhooks", data={"url": url, "enabled_events": events}
+    )
     logging.info(f"Registered webhook with id {response['id']}")
     return response
 
