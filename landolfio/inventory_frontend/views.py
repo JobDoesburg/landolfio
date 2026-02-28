@@ -360,18 +360,32 @@ class AssetListView(LoginRequiredMixin, ListView):
                     )
                 elif warning_type == "missing_sources":
                     # Filter assets linked to Moneybird with no sources (financially unlinked)
-                    # Check for empty sources array or no moneybird_data
-                    warning_filters |= Q(moneybird_asset_id__isnull=False) & (
-                        Q(moneybird_data__isnull=True)
-                        | Q(moneybird_data__sources__isnull=True)
-                        | Q(moneybird_data__sources=[])
-                    )
+                    # SQLite uses json_array_length, PostgreSQL uses jsonb_array_length
+                    # For now, get all linked assets and filter in Python
+                    pass  # Will be handled after applying warning_filters
                 elif warning_type == "no_photos":
                     # Filter assets with no attachments (no photos)
                     warning_filters |= Q(attachments__isnull=True)
 
             if warning_filters:
                 queryset = queryset.filter(warning_filters)
+
+            # Handle missing_sources separately (requires Python-side filtering for JSON array)
+            if "missing_sources" in warnings:
+                # Only check assets that are linked to Moneybird
+                linked_assets = queryset.filter(moneybird_asset_id__isnull=False)
+                asset_ids_with_missing_sources = []
+
+                for asset in linked_assets:
+                    # Check if sources is missing, null, or empty array
+                    sources = asset.moneybird_data.get('sources') if asset.moneybird_data else None
+                    if not sources or len(sources) == 0:
+                        asset_ids_with_missing_sources.append(asset.id)
+
+                if asset_ids_with_missing_sources:
+                    queryset = queryset.filter(id__in=asset_ids_with_missing_sources)
+                else:
+                    queryset = queryset.none()
 
         # Apply property filters
         property_filters = self._get_property_filters()

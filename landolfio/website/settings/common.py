@@ -139,13 +139,9 @@ MONEYBIRD_RESOURCE_TYPES = [
     "inventory.resource_types.AssetResourceType",
 ]
 MONEYBIRD_WEBHOOK_EVENTS = [
-    WebhookEvent.CONTACT,
-    WebhookEvent.SUBSCRIPTION_CANCELLED,
-    WebhookEvent.SUBSCRIPTION_CREATED,
-    WebhookEvent.SUBSCRIPTION_UPDATED,
-    WebhookEvent.SUBSCRIPTION_EDITED,
-    WebhookEvent.SUBSCRIPTION_DESTROYED,
-    WebhookEvent.COMPANY_ASSETS_ASSET,
+    "contact",
+    "subscription",
+    "company_assets",  # Matches all company_assets_* events
 ]
 MONEYBIRD_WEBHOOK_ID = os.environ.get("MONEYBIRD_WEBHOOK_ID")
 MONEYBIRD_WEBHOOK_TOKEN = os.environ.get("MONEYBIRD_WEBHOOK_TOKEN")

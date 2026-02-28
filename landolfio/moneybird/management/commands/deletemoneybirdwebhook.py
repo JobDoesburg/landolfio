@@ -7,7 +7,7 @@ class Command(BaseCommand):
     help = "Delete webhook at Moneybird"
 
     def add_arguments(self, parser):
-        parser.add_argument("webhook_id", nargs="+", type=int)
+        parser.add_argument("webhook_id", type=int)
 
     def handle(self, *args, **options):
         webhook_id = options["webhook_id"]
