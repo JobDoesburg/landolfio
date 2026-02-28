@@ -42,18 +42,34 @@ class AssetResourceType(MoneybirdResourceType):
         data: dict,
         event: WebhookEvent,
     ):
-        logger.info(f"Processing {event} for {cls.entity_type_name} {resource_id}")
+        logger.info(
+            f"Processing {event.value} for {cls.entity_type_name} {resource_id}"
+        )
 
+        # If no data, the asset was deleted
         if not data:
             return cls.delete_from_moneybird(resource_id)
 
+        # Check if asset already exists locally
         try:
             asset = cls.get_queryset().get(moneybird_asset_id=resource_id)
-            logger.info(f"Asset {resource_id} already exists locally, refreshing")
+            logger.info(
+                f"Asset {resource_id} already exists locally, refreshing from Moneybird"
+            )
             asset.refresh_from_moneybird()
-            asset.update_on_moneybird()
+
+            # If this is a created event and the name doesn't match, update Moneybird
+            if event.value == "company_assets_asset_created":
+                moneybird_name = data.get("name", "")
+                if moneybird_name and moneybird_name != asset.name:
+                    logger.info(
+                        f"Asset name mismatch: Moneybird has '{moneybird_name}', local has '{asset.name}'. Updating Moneybird."
+                    )
+                    asset.update_on_moneybird()
+
             return asset
         except cls.model.DoesNotExist:
+            # Asset doesn't exist locally - try to find by name and link
             asset_name = data.get("name", "")
             if asset_name:
                 try:
@@ -64,7 +80,15 @@ class AssetResourceType(MoneybirdResourceType):
                         f"Found existing asset with name '{asset_name}', linking to Moneybird asset {resource_id}"
                     )
                     asset.moneybird_asset_id = resource_id
-                    asset._refresh_from_moneybird(data)
+                    asset.refresh_from_moneybird()
+
+                    # Check if name needs updating on Moneybird
+                    if asset_name != asset.name:
+                        logger.info(
+                            f"Linked asset name differs from Moneybird name. Updating Moneybird from '{asset_name}' to '{asset.name}'."
+                        )
+                        asset.update_on_moneybird()
+
                     return asset
                 except cls.model.DoesNotExist:
                     logger.info(

@@ -141,7 +141,13 @@ MONEYBIRD_RESOURCE_TYPES = [
 MONEYBIRD_WEBHOOK_EVENTS = [
     "contact",
     "subscription",
-    "company_assets",  # Matches all company_assets_* events
+    "company_assets_asset_created",
+    "company_assets_asset_updated",
+    "company_assets_asset_destroyed",
+    "company_assets_disposal",
+    "company_assets_source",
+    "company_assets_value_changes",
+    "company_assets_value_change_plan",
 ]
 MONEYBIRD_WEBHOOK_ID = os.environ.get("MONEYBIRD_WEBHOOK_ID")
 MONEYBIRD_WEBHOOK_TOKEN = os.environ.get("MONEYBIRD_WEBHOOK_TOKEN")

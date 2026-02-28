@@ -38,11 +38,22 @@ def process_webhook_payload(payload: MoneybirdResource) -> None:
     # Try to get exact entity type match first
     resource_type = get_moneybird_resource_type_for_entity(entity_type)
 
-    # If not found and entity_type starts with company_assets_, route to asset resource type
-    if resource_type is None and entity_type.startswith("company_assets_"):
+    # If not found and entity_type starts with CompanyAssets::, route to asset resource type
+    if resource_type is None and entity_type.startswith("CompanyAssets::"):
         resource_type = get_moneybird_resource_type_for_entity("company_assets_asset")
         if resource_type:
-            logging.info(f"Routing {entity_type} webhook to AssetResourceType")
+            logging.info(
+                f"Routing {entity_type} webhook (event: {event.value}, entity_id: {entity_id}) to AssetResourceType"
+            )
+            # For CompanyAssets sub-entities (disposal, source, value_change), extract asset_id from entity_data
+            if (
+                entity_type != "CompanyAssets::Asset"
+                and entity_data
+                and "asset_id" in entity_data
+            ):
+                asset_id = entity_data["asset_id"]
+                logging.info(f"Extracted asset_id {asset_id} from {entity_type} entity")
+                entity_id = asset_id
 
     if resource_type is None:
         logging.warning(
