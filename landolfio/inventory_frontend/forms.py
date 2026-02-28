@@ -162,6 +162,17 @@ class AssetForm(forms.ModelForm):
         # For existing instances, the custom start_date field will automatically
         # handle the proper formatting with localize=False
 
+        # If asset is linked to Moneybird, make financial fields readonly
+        if self.instance and self.instance.pk and self.instance.moneybird_asset_id:
+            readonly_fields = ["is_margin_asset", "start_date", "purchase_value_asset"]
+            for field_name in readonly_fields:
+                if field_name in self.fields:
+                    self.fields[field_name].disabled = True
+                    self.fields[field_name].widget.attrs["readonly"] = True
+                    self.fields[field_name].help_text = (
+                        "This field is read-only because the asset is linked to Moneybird."
+                    )
+
 
 class StatusChangeForm(forms.ModelForm):
     """Form for creating new status changes."""

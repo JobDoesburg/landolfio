@@ -99,6 +99,4 @@ class AssetResourceType(MoneybirdResourceType):
                 ]
             )
         except cls.model.DoesNotExist:
-            logger.info(
-                f"Asset {resource_id} not found locally, nothing to unlink"
-            )
+            logger.info(f"Asset {resource_id} not found locally, nothing to unlink")

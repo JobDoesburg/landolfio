@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-13 11:01+0200\n"
-"PO-Revision-Date: 2023-02-21 13:39+0100\n"
+"POT-Creation-Date: 2026-02-28 21:35+0100\n"
+"PO-Revision-Date: 2026-02-28 21:50+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
 "Language: nl\n"
@@ -16,108 +16,106 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.8\n"
 
-#: inventory/admin.py:164
+#: inventory/admin.py:161
 msgid "Name"
 msgstr "Naam"
 
-#: inventory/admin.py:185
+#: inventory/admin.py:182
 msgid "Financial"
 msgstr "Financieel"
 
-#: inventory/admin.py:217
+#: inventory/admin.py:214
 msgid "status"
 msgstr "status"
 
-#: inventory/admin.py:224
+#: inventory/admin.py:221
 msgid "nr"
-msgstr ""
+msgstr "nr"
 
-#: inventory/admin.py:232 inventory/models/attachment.py:39
+#: inventory/admin.py:229 inventory/models/attachment.py:45
 msgid "attachments"
 msgstr "bijlagen"
 
-#: inventory/admin.py:240 inventory/models/collection.py:7
+#: inventory/admin.py:237 inventory/models/collection.py:7
 msgid "commerce"
 msgstr "handelsgoed"
 
-#: inventory/admin.py:248 inventory/models/asset.py:49
-#: inventory/models/asset.py:61
+#: inventory/admin.py:245 inventory/models/asset.py:47
+#: inventory/models/asset.py:59
 msgid "amortized"
 msgstr "afgeschreven"
 
-#: inventory/admin.py:256
+#: inventory/admin.py:253
 msgid "rented"
 msgstr "verhuurd"
 
-#: inventory/admin.py:264
+#: inventory/admin.py:261
 msgid "has rental agreement"
 msgstr "heeft huurovereenkomst"
 
-#: inventory/admin.py:272
+#: inventory/admin.py:269
 msgid "has loan agreement"
 msgstr "heeft leenovereenkomst"
 
-#: inventory/admin.py:280
-#, fuzzy
-#| msgid "margin"
+#: inventory/admin.py:277
 msgid "margin asset"
 msgstr "marge"
 
-#: inventory/admin.py:287 inventory/models/asset.py:145
+#: inventory/admin.py:284 inventory/models/asset.py:143
 msgid "start date"
 msgstr "startdatum"
 
-#: inventory/admin.py:293
+#: inventory/admin.py:290
 msgid "Moneybird Asset"
-msgstr ""
+msgstr "Moneybird bezitting"
 
-#: inventory/admin.py:309
+#: inventory/admin.py:306
 msgid "Moneybird Asset URL"
-msgstr ""
+msgstr "Moneybird bezitting URL"
 
-#: inventory/admin.py:325
+#: inventory/admin.py:322
 msgid "disposed"
-msgstr ""
+msgstr "afgeschreven"
 
-#: inventory/admin.py:332
+#: inventory/admin.py:329
 msgid "disposal reason"
-msgstr ""
+msgstr "reden afschrijving"
 
-#: inventory/admin.py:406
-#, fuzzy
-#| msgid "categories"
+#: inventory/admin.py:402
 msgid "Categories"
-msgstr "categorieën"
+msgstr "Categorieën"
 
-#: inventory/admin.py:410 inventory/admin.py:477
+#: inventory/admin.py:406 inventory/admin.py:473
 msgid "Basic Information"
-msgstr ""
+msgstr "Basisinformatie"
+
+#: inventory/admin.py:410
+msgid "Type-Specific Settings"
+msgstr "Type-specifieke instellingen"
 
 #: inventory/admin.py:414
-msgid "Type-Specific Settings"
-msgstr ""
-
-#: inventory/admin.py:418
 msgid ""
 "Unit is used for numeric properties. Dropdown options should be a JSON array "
 "like [\"Option 1\", \"Option 2\"]"
 msgstr ""
+"De eenheid wordt gebruikt voor numerieke eigenschappen. De opties in de "
+"vervolgkeuzelijst moeten een JSON-array zijn, zoals [“Optie 1”, “Optie 2”]."
 
-#: inventory/admin.py:479
+#: inventory/admin.py:475
 msgid "Display Settings"
-msgstr ""
+msgstr "Weergave instellingen"
 
-#: inventory/admin.py:484
+#: inventory/admin.py:480
 msgid "Color"
-msgstr ""
+msgstr "Kleur"
 
-#: inventory/admin_inlines.py:23
+#: inventory/admin_inlines.py:24
 msgid "Not an image"
 msgstr "Geen afbeelding"
 
-#: inventory/admin_inlines.py:25
+#: inventory/admin_inlines.py:26
 msgid "Image"
 msgstr "Afbeelding"
 
@@ -125,205 +123,216 @@ msgstr "Afbeelding"
 msgid "🗂 Inventory"
 msgstr "🗂 Inventaris"
 
-#: inventory/models/asset.py:39 inventory/models/asset.py:54
+#: inventory/models/asset.py:37 inventory/models/asset.py:52
 msgid "unknown"
 msgstr "onbekend"
 
-#: inventory/models/asset.py:40
+#: inventory/models/asset.py:38
 msgid "placeholder"
 msgstr "placeholder"
 
-#: inventory/models/asset.py:41
+#: inventory/models/asset.py:39
 msgid "to be delivered"
 msgstr "nog niet geleverd"
 
-#: inventory/models/asset.py:42
+#: inventory/models/asset.py:40
 msgid "under review"
 msgstr "onder beoordeling"
 
-#: inventory/models/asset.py:43
+#: inventory/models/asset.py:41
 msgid "maintenance in house"
 msgstr "reparatie in huis"
 
-#: inventory/models/asset.py:44
+#: inventory/models/asset.py:42
 msgid "maintenance external"
 msgstr "reparatie extern"
 
-#: inventory/models/asset.py:45 inventory/models/asset.py:55
+#: inventory/models/asset.py:43 inventory/models/asset.py:53
 msgid "available"
 msgstr "beschikbaar"
 
-#: inventory/models/asset.py:46
+#: inventory/models/asset.py:44
 msgid "issued unprocessed"
 msgstr "uitgegeven onverwerkt"
 
-#: inventory/models/asset.py:47 inventory/models/asset.py:59
+#: inventory/models/asset.py:45 inventory/models/asset.py:57
 msgid "issued rent"
 msgstr "verhuurd"
 
-#: inventory/models/asset.py:48 inventory/models/asset.py:60
+#: inventory/models/asset.py:46 inventory/models/asset.py:58
 msgid "issued loan"
 msgstr "uitgeleend"
 
-#: inventory/models/asset.py:50 inventory/models/asset.py:62
+#: inventory/models/asset.py:48 inventory/models/asset.py:60
 msgid "sold"
 msgstr "verkocht"
 
-#: inventory/models/asset.py:57
+#: inventory/models/asset.py:55
 msgid "available or amortized"
 msgstr "beschikbaar of afgeschreven"
 
-#: inventory/models/asset.py:67
+#: inventory/models/asset.py:65
 msgid "Name must be uppercase"
-msgstr ""
+msgstr "Naam moet hoofdletters zijn"
 
-#: inventory/models/asset.py:71 inventory/models/asset.py:256
+#: inventory/models/asset.py:69 inventory/models/asset.py:254
 msgid "out of use"
-msgstr ""
+msgstr "buiten gebruik"
 
-#: inventory/models/asset.py:72 inventory/models/asset.py:266
+#: inventory/models/asset.py:70 inventory/models/asset.py:264
 msgid "divested"
-msgstr ""
+msgstr "desinvestering"
 
-#: inventory/models/asset.py:76 inventory/models/status_change.py:32
+#: inventory/models/asset.py:74 inventory/models/status_change.py:33
 msgid "created at"
 msgstr "aangemaakt op"
 
-#: inventory/models/asset.py:77
-#, fuzzy
-#| msgid "created at"
+#: inventory/models/asset.py:75
 msgid "updated at"
-msgstr "aangemaakt op"
+msgstr "gewijzigd op"
 
-#: inventory/models/asset.py:79
+#: inventory/models/asset.py:77
 msgid "id"
 msgstr "nummer"
 
-#: inventory/models/asset.py:82 inventory/models/category.py:13
+#: inventory/models/asset.py:80 inventory/models/category.py:13
 #: inventory/models/category.py:37 inventory/models/collection.py:6
-#: inventory/models/location.py:13 inventory/models/location.py:30
-#: inventory/models/status_type.py:23
+#: inventory/models/location.py:13 inventory/models/status_type.py:23
 msgid "name"
 msgstr "naam"
 
-#: inventory/models/asset.py:94 inventory/models/category.py:8
+#: inventory/models/asset.py:92 inventory/models/category.py:8
 msgid "category"
 msgstr "categorie"
 
-#: inventory/models/asset.py:97 inventory/models/category.py:32
+#: inventory/models/asset.py:95 inventory/models/category.py:32
 msgid "size"
 msgstr "maat"
 
-#: inventory/models/asset.py:104 inventory/models/location.py:25
+#: inventory/models/asset.py:102 inventory/models/location.py:8
 msgid "location"
 msgstr "locatie"
 
-#: inventory/models/asset.py:107
-#, fuzzy
-#| msgid "location"
+#: inventory/models/asset.py:105
 msgid "location nr"
-msgstr "locatie"
+msgstr "locatie nr"
 
-#: inventory/models/asset.py:110 inventory/models/collection.py:16
+#: inventory/models/asset.py:108 inventory/models/collection.py:16
 msgid "collection"
 msgstr "collectie"
 
-#: inventory/models/asset.py:114
+#: inventory/models/asset.py:112
 msgid "listing price"
 msgstr "vraagprijs"
 
-#: inventory/models/asset.py:125
+#: inventory/models/asset.py:123
 msgid "local status"
 msgstr "lokale status"
 
-#: inventory/models/asset.py:129
+#: inventory/models/asset.py:127
 msgid "raw data"
-msgstr ""
+msgstr "raw data"
 
-#: inventory/models/asset.py:132
+#: inventory/models/asset.py:130
 msgid "Moneybird asset ID"
-msgstr ""
+msgstr "Moneybird bezitting ID"
 
-#: inventory/models/asset.py:136
+#: inventory/models/asset.py:134
 msgid "ID of the corresponding asset in Moneybird"
-msgstr ""
+msgstr "ID van de bezitting in Moneybird"
 
-#: inventory/models/asset.py:139
+#: inventory/models/asset.py:137
 msgid "Moneybird data"
-msgstr ""
+msgstr "Moneybird data"
 
-#: inventory/models/asset.py:142
+#: inventory/models/asset.py:140
 msgid "Cached data from Moneybird API"
-msgstr ""
+msgstr "Gecachde data van Moneybird API"
 
-#: inventory/models/asset.py:148
+#: inventory/models/asset.py:146
 msgid "Date when the asset was put into service"
-msgstr ""
+msgstr "Datum ingebruikname"
 
-#: inventory/models/asset.py:151
-#, fuzzy
-#| msgid "sold margin"
+#: inventory/models/asset.py:149
 msgid "is margin"
-msgstr "verkocht marge"
+msgstr "is marge"
 
-#: inventory/models/asset.py:154
+#: inventory/models/asset.py:152
 msgid ""
 "From a tax perspective, is this property a used good to which the margin "
 "scheme applies (purchased from a consumer or purchased under the margin "
 "scheme)?"
 msgstr ""
+"Is belastingtechnisch de marge-regeling van toepassing (aangekocht van een "
+"consument of onder margeregeling)?"
 
-#: inventory/models/asset.py:158
+#: inventory/models/asset.py:156
 msgid "purchase value"
 msgstr "aankoopwaarde"
 
-#: inventory/models/asset.py:163
-#, fuzzy
-#| msgid "purchase value"
+#: inventory/models/asset.py:161
 msgid "Purchase value of the asset"
-msgstr "aankoopwaarde"
+msgstr "Aankoopwaarde"
 
-#: inventory/models/asset.py:170
-#, fuzzy
-#| msgid "local status"
+#: inventory/models/asset.py:168
 msgid "disposal status"
-msgstr "lokale status"
+msgstr "afschrijvingsstatus"
 
-#: inventory/models/asset.py:171
+#: inventory/models/asset.py:169
 msgid "Asset disposal reason from Moneybird data"
-msgstr ""
+msgstr "Afschrijvingsreden van Moneybird"
 
-#: inventory/models/asset.py:174
-#, fuzzy
-#| msgid "purchase value"
+#: inventory/models/asset.py:172
 msgid "current value"
-msgstr "aankoopwaarde"
+msgstr "huidige waarde"
 
-#: inventory/models/asset.py:179
-#, fuzzy
-#| msgid "purchase value"
+#: inventory/models/asset.py:177
 msgid "Current value of the asset from Moneybird"
-msgstr "aankoopwaarde"
+msgstr "Huidige waarde op Moneybird"
 
-#: inventory/models/asset.py:273
+#: inventory/models/asset.py:271
 msgid "active depreciated"
-msgstr ""
-
-#: inventory/models/asset.py:277
-msgid "active"
 msgstr "actief"
 
-#: inventory/models/asset.py:279
-msgid "margin"
-msgstr "marge"
+#: inventory/models/asset.py:275
+msgid "active"
+msgstr "lopend"
 
-#: inventory/models/asset.py:730 inventory/models/asset_on_document_line.py:12
-#: inventory/models/asset_property.py:141 inventory/models/attachment.py:17
-#: inventory/models/remarks.py:9 inventory/models/status_change.py:13
+#: inventory/models/asset.py:347
+msgid "Asset is financially unlinked"
+msgstr "Eigendom heeft geen brondocumenten"
+
+#: inventory/models/asset.py:352
+msgid "Local status is amortized but financial disposal is not out of use"
+msgstr ""
+"Lokale status is afgeschreven maar financieel niet afgeschreven als buiten "
+"gebruik"
+
+#: inventory/models/asset.py:356
+msgid "Local status is sold but financial disposal is not divested"
+msgstr ""
+"Lokale status is verkocht maar financieel niet afgeschreven als "
+"desinvestering"
+
+#: inventory/models/asset.py:360
+msgid "Financial disposal is out of use but local status is not amortized"
+msgstr ""
+"Boekhoudkundig afgeschreven als buiten gebruik maar lokale status is niet "
+"afgeschreven"
+
+#: inventory/models/asset.py:364
+msgid "Financial disposal is divested but local status is not sold"
+msgstr ""
+"Boekhoudkundig afgeschreven als desinvestering maar lokale status is niet "
+"verkocht"
+
+#: inventory/models/asset.py:790 inventory/models/asset_on_document_line.py:12
+#: inventory/models/asset_property.py:142 inventory/models/attachment.py:19
+#: inventory/models/remarks.py:9 inventory/models/status_change.py:14
 msgid "asset"
 msgstr "eigendom"
 
-#: inventory/models/asset.py:731
+#: inventory/models/asset.py:791
 msgid "assets"
 msgstr "eigendommen"
 
@@ -332,7 +341,7 @@ msgid "subscription"
 msgstr "abonnement"
 
 #: inventory/models/asset_on_document_line.py:21
-#: inventory/models/asset_property.py:150
+#: inventory/models/asset_property.py:151
 msgid "value"
 msgstr "waarde"
 
@@ -345,155 +354,146 @@ msgid "assets subscriptions"
 msgstr "eigendom-abonnementen"
 
 #: inventory/models/asset_on_document_line.py:32
-#, fuzzy
-#| msgid "open"
 msgid "on"
-msgstr "open"
+msgstr "op"
 
-#: inventory/models/asset_property.py:9
+#: inventory/models/asset_property.py:10
 msgid "String"
 msgstr ""
 
-#: inventory/models/asset_property.py:10
+#: inventory/models/asset_property.py:11
 msgid "Number"
 msgstr ""
 
-#: inventory/models/asset_property.py:11
+#: inventory/models/asset_property.py:12
 msgid "Dropdown"
 msgstr ""
 
-#: inventory/models/asset_property.py:22 inventory/models/category.py:9
+#: inventory/models/asset_property.py:23 inventory/models/category.py:9
 #: inventory/models/category.py:40
 msgid "categories"
 msgstr "categorieën"
 
-#: inventory/models/asset_property.py:23
+#: inventory/models/asset_property.py:24
 #, fuzzy
 #| msgid "assets value"
 msgid "Categories this property applies to"
 msgstr "voorraadwaarde"
 
-#: inventory/models/asset_property.py:27
+#: inventory/models/asset_property.py:28
 msgid "property name"
 msgstr ""
 
-#: inventory/models/asset_property.py:28
+#: inventory/models/asset_property.py:29
 msgid "The name of this property (e.g., 'Color', 'Weight', 'Material')"
 msgstr ""
 
-#: inventory/models/asset_property.py:35 inventory/models/status_type.py:15
+#: inventory/models/asset_property.py:36 inventory/models/status_type.py:15
 msgid "slug"
 msgstr ""
 
-#: inventory/models/asset_property.py:36
+#: inventory/models/asset_property.py:37
 msgid "URL-friendly version of property name (e.g., 'color', 'weight')"
 msgstr ""
 
-#: inventory/models/asset_property.py:42
+#: inventory/models/asset_property.py:43
 msgid "property type"
 msgstr ""
 
-#: inventory/models/asset_property.py:47
+#: inventory/models/asset_property.py:48
 msgid "unit"
 msgstr ""
 
-#: inventory/models/asset_property.py:48
+#: inventory/models/asset_property.py:49
 msgid "Unit for numeric properties (e.g., 'kg', 'cm', 'V')"
 msgstr ""
 
-#: inventory/models/asset_property.py:52
+#: inventory/models/asset_property.py:53
 msgid "dropdown options"
 msgstr ""
 
-#: inventory/models/asset_property.py:54
+#: inventory/models/asset_property.py:55
 msgid ""
 "JSON array of options for dropdown properties (e.g., [\"Red\", \"Blue\", "
 "\"Green\"])"
 msgstr ""
 
-#: inventory/models/asset_property.py:59
+#: inventory/models/asset_property.py:60
 msgid "display order"
 msgstr ""
 
-#: inventory/models/asset_property.py:60
+#: inventory/models/asset_property.py:61
 msgid "Order in which properties are displayed"
 msgstr ""
 
-#: inventory/models/asset_property.py:64
+#: inventory/models/asset_property.py:65
 msgid "asset property"
 msgstr ""
 
-#: inventory/models/asset_property.py:65
-#, fuzzy
-#| msgid "assets subscriptions"
+#: inventory/models/asset_property.py:66
 msgid "asset properties"
-msgstr "eigendom-abonnementen"
+msgstr "eigenschappen"
 
-#: inventory/models/asset_property.py:83
+#: inventory/models/asset_property.py:84
 msgid "Dropdown options are required for dropdown properties"
 msgstr ""
 
-#: inventory/models/asset_property.py:95
+#: inventory/models/asset_property.py:96
 msgid "Dropdown options must be a JSON array of strings"
 msgstr ""
 
-#: inventory/models/asset_property.py:101
+#: inventory/models/asset_property.py:102
 msgid "Invalid JSON format for dropdown options"
 msgstr ""
 
-#: inventory/models/asset_property.py:147
+#: inventory/models/asset_property.py:148
 msgid "property"
 msgstr ""
 
-#: inventory/models/asset_property.py:151
+#: inventory/models/asset_property.py:152
 msgid "The value of this property for this asset"
 msgstr ""
 
-#: inventory/models/asset_property.py:155
-#, fuzzy
-#| msgid "assets value"
-msgid "asset property value"
-msgstr "voorraadwaarde"
-
 #: inventory/models/asset_property.py:156
-#, fuzzy
-#| msgid "assets value"
-msgid "asset property values"
-msgstr "voorraadwaarde"
+msgid "asset property value"
+msgstr "eigenschap waarde"
 
-#: inventory/models/asset_property.py:168
+#: inventory/models/asset_property.py:157
+msgid "asset property values"
+msgstr "eigenschap waardes"
+
+#: inventory/models/asset_property.py:169
 msgid "Property must apply to the asset's category"
 msgstr ""
 
-#: inventory/models/asset_property.py:177
+#: inventory/models/asset_property.py:178
 msgid "Value must be a valid number for numeric properties"
 msgstr ""
 
-#: inventory/models/asset_property.py:186
+#: inventory/models/asset_property.py:187
 #, python-brace-format
 msgid "Value must be one of the allowed dropdown options: {}"
 msgstr ""
 
-#: inventory/models/attachment.py:22 inventory/models/attachment.py:38
+#: inventory/models/attachment.py:24 inventory/models/attachment.py:44
 msgid "attachment"
 msgstr "bijlage"
 
-#: inventory/models/attachment.py:26
+#: inventory/models/attachment.py:28
 msgid "upload date"
 msgstr "uploaddatum"
 
-#: inventory/models/attachment.py:30 inventory/models/category.py:23
+#: inventory/models/attachment.py:32 inventory/models/category.py:23
 #: inventory/models/category.py:43 inventory/models/collection.py:9
-#: inventory/models/location.py:16 inventory/models/location.py:40
-#: inventory/models/status_type.py:51
+#: inventory/models/location.py:31 inventory/models/status_type.py:51
 msgid "order"
 msgstr "volgorde"
 
-#: inventory/models/attachment.py:31
+#: inventory/models/attachment.py:33
 msgid "Order in which attachments are displayed"
 msgstr ""
 
-#: inventory/models/attachment.py:35
+#: inventory/models/attachment.py:37
 msgid "from"
 msgstr ""
 
@@ -509,17 +509,21 @@ msgstr "maten"
 msgid "collections"
 msgstr "collecties"
 
-#: inventory/models/location.py:8 inventory/models/location.py:37
-msgid "location group"
-msgstr "locatiegroep"
-
 #: inventory/models/location.py:9
-msgid "location groups"
-msgstr "locatiegroepen"
-
-#: inventory/models/location.py:26
 msgid "locations"
 msgstr "locaties"
+
+#: inventory/models/location.py:21
+msgid "parent location"
+msgstr "hoofdlocatie"
+
+#: inventory/models/location.py:25
+msgid "display as root"
+msgstr "weergeven als hoofd"
+
+#: inventory/models/location.py:27
+msgid "Display this location as a root location (don't show parents in name)"
+msgstr "Weergeef deze locatie als hoofd"
 
 #: inventory/models/remarks.py:11 inventory/models/remarks.py:23
 msgid "remark"
@@ -530,68 +534,57 @@ msgid "date"
 msgstr "datum"
 
 #: inventory/models/remarks.py:18 inventory/models/remarks.py:20
-#, fuzzy
-#| msgid "Remarks"
 msgid "Remark on"
-msgstr "Opmerkingen"
+msgstr "Opmerking op"
 
 #: inventory/models/remarks.py:24
 msgid "remarks"
 msgstr "opmerkingen"
 
-#: inventory/models/status_change.py:21
-#, fuzzy
-#| msgid "status"
-msgid "new status"
-msgstr "status"
-
 #: inventory/models/status_change.py:22
+msgid "new status"
+msgstr "nieuwe status"
+
+#: inventory/models/status_change.py:23
 msgid "The status the asset changed to, or null for no status change"
 msgstr ""
-
-#: inventory/models/status_change.py:26
-#, fuzzy
-#| msgid "start date"
-msgid "status date"
-msgstr "startdatum"
+"De status waarnaar is gewijzigd, of null als er geen statuswijziging is."
 
 #: inventory/models/status_change.py:27
+msgid "status date"
+msgstr "status datum"
+
+#: inventory/models/status_change.py:28
 msgid "The date when this status change occurred"
-msgstr ""
+msgstr "De datum dat de wijziging plaatsvond"
 
-#: inventory/models/status_change.py:33
+#: inventory/models/status_change.py:34
 msgid "When this status change was recorded in the system"
-msgstr ""
-
-#: inventory/models/status_change.py:38
-#, fuzzy
-#| msgid "attachments"
-msgid "comments"
-msgstr "bijlagen"
+msgstr "Wanneer deze wijziging is vastgelegd"
 
 #: inventory/models/status_change.py:39
-msgid "Optional comments about this status change"
-msgstr ""
+msgid "comments"
+msgstr "opmerkingen"
 
-#: inventory/models/status_change.py:48
+#: inventory/models/status_change.py:40
+msgid "Optional comments about this status change"
+msgstr "Eventuele opmerkingen over deze statusverandering"
+
+#: inventory/models/status_change.py:49
 msgid "contact"
 msgstr "contact"
 
-#: inventory/models/status_change.py:49
+#: inventory/models/status_change.py:50
 msgid "Moneybird contact associated with this status change"
-msgstr ""
-
-#: inventory/models/status_change.py:54
-#, fuzzy
-#| msgid "status"
-msgid "status change"
-msgstr "status"
+msgstr "Moneybird contact voor deze statusverandering"
 
 #: inventory/models/status_change.py:55
-#, fuzzy
-#| msgid "status"
+msgid "status change"
+msgstr "statusverandering"
+
+#: inventory/models/status_change.py:56
 msgid "status changes"
-msgstr "status"
+msgstr "statusveranderingen"
 
 #: inventory/models/status_type.py:17
 msgid "Unique identifier used in code (e.g., 'available', 'issued_rent')"
@@ -630,16 +623,21 @@ msgid "Display order in lists and dropdowns"
 msgstr ""
 
 #: inventory/models/status_type.py:57
-#, fuzzy
-#| msgid "start date"
 msgid "status type"
-msgstr "startdatum"
+msgstr "status type"
 
 #: inventory/models/status_type.py:58
-#, fuzzy
-#| msgid "start date"
 msgid "status types"
-msgstr "startdatum"
+msgstr "status types"
+
+#~ msgid "margin"
+#~ msgstr "marge"
+
+#~ msgid "location group"
+#~ msgstr "locatiegroep"
+
+#~ msgid "location groups"
+#~ msgstr "locatiegroepen"
 
 #~ msgid "document line"
 #~ msgstr "documentregel"
@@ -862,11 +860,6 @@ msgstr "startdatum"
 #~| msgid "status"
 #~ msgid "New status"
 #~ msgstr "status"
-
-#, fuzzy
-#~| msgid "location"
-#~ msgid "New location"
-#~ msgstr "locatie"
 
 #, fuzzy
 #~| msgid "location"

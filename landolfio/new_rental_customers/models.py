@@ -38,7 +38,12 @@ class NewRentalCustomer(NewCustomer):
         if not self.ticket_type:
             self.ticket_type = get_rental_customer_ticket_type()
 
-        super().save(force_insert=force_insert, force_update=force_update, using=using, update_fields=update_fields)
+        super().save(
+            force_insert=force_insert,
+            force_update=force_update,
+            using=using,
+            update_fields=update_fields,
+        )
 
     class Meta:
         verbose_name = _("new rental customer")

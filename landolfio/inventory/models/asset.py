@@ -251,7 +251,7 @@ class Asset(models.Model):
                     base_status = status_type.name
                     base_color = status_type.background_color
                 except StatusType.DoesNotExist:
-                    base_status = gettext("out of use")
+                    base_status = str(_("out of use"))
                     base_color = "dark"
             elif self.disposal == "divested":
                 from inventory.models.status_type import StatusType
@@ -261,25 +261,40 @@ class Asset(models.Model):
                     base_status = status_type.name
                     base_color = status_type.background_color
                 except StatusType.DoesNotExist:
-                    base_status = gettext("divested")
+                    base_status = str(_("divested"))
                     base_color = "secondary"
         else:
             # No disposal, check current value
             current_val = self.current_value or 0
             if current_val == 0:
                 # Active depreciated (no margin suffix)
-                base_status = gettext("active depreciated")
+                base_status = str(_("active depreciated"))
                 base_color = "success"
             else:
-                # Active (with potential margin suffix)
-                base_status = gettext("active")
-                if self.is_margin_asset:
-                    base_status += " - " + gettext("margin")
+                # Active
+                base_status = str(_("active"))
                 base_color = "success"
 
-        # If financially unlinked, append warning but keep original color
+        # Check for status mismatch with local status
+        has_mismatch = False
+        if self.moneybird_asset_id:  # Only check if financially linked
+            current = self.current_status
+            if current == "amortized" and self.disposal != "out_of_use":
+                has_mismatch = True
+            elif current == "sold" and self.disposal != "divested":
+                has_mismatch = True
+            elif self.disposal == "out_of_use" and current != "amortized":
+                has_mismatch = True
+            elif self.disposal == "divested" and current != "sold":
+                has_mismatch = True
+
+        # Append unlink icon if financially unlinked (no sources)
         if self.is_financially_unlinked:
-            base_status += " ⚠"
+            base_status += ' <i class="fa-solid fa-link-slash fa-xs"></i>'
+
+        # Append warning symbol if there's a status mismatch
+        if has_mismatch:
+            base_status += ' <i class="fa-solid fa-triangle-exclamation fa-xs"></i>'
 
         return {"status": base_status, "color": base_color}
 
@@ -303,6 +318,53 @@ class Asset(models.Model):
             "gray": "secondary",
         }
         return color_map.get(color, color)
+
+    @property
+    def has_status_warning(self):
+        """Check if there's a status mismatch warning."""
+        if not self.moneybird_asset_id:
+            return False
+
+        current = self.current_status
+        if current == "amortized" and self.disposal != "out_of_use":
+            return True
+        elif current == "sold" and self.disposal != "divested":
+            return True
+        elif self.disposal == "out_of_use" and current != "amortized":
+            return True
+        elif self.disposal == "divested" and current != "sold":
+            return True
+
+        return False
+
+    @property
+    def status_warning_message(self):
+        """Get the warning message for status mismatch."""
+        if not self.moneybird_asset_id:
+            return None
+
+        if self.is_financially_unlinked:
+            return gettext("Asset is financially unlinked")
+
+        current = self.current_status
+        if current == "amortized" and self.disposal != "out_of_use":
+            return gettext(
+                "Local status is amortized but financial disposal is not out of use"
+            )
+        elif current == "sold" and self.disposal != "divested":
+            return gettext(
+                "Local status is sold but financial disposal is not divested"
+            )
+        elif self.disposal == "out_of_use" and current != "amortized":
+            return gettext(
+                "Financial disposal is out of use but local status is not amortized"
+            )
+        elif self.disposal == "divested" and current != "sold":
+            return gettext(
+                "Financial disposal is divested but local status is not sold"
+            )
+
+        return None
 
     objects = QueryablePropertiesManager()
 

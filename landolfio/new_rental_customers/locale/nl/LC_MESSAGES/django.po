@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-12 18:57+0200\n"
+"POT-Creation-Date: 2026-02-28 21:35+0100\n"
 "PO-Revision-Date: 2023-02-21 13:41+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -97,11 +97,11 @@ msgstr "huurprijs"
 msgid "date received"
 msgstr "datum ontvangst"
 
-#: new_rental_customers/models.py:44
+#: new_rental_customers/models.py:49
 msgid "new rental customer"
 msgstr "nieuwe huurder"
 
-#: new_rental_customers/models.py:45
+#: new_rental_customers/models.py:50
 msgid "new rental customers"
 msgstr "nieuwe huurders"
 

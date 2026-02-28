@@ -166,11 +166,13 @@ class AssetListView(LoginRequiredMixin, ListView):
         statuses = self.request.GET.getlist("status")
         locations = self.request.GET.getlist("location")
         collections = self.request.GET.getlist("collection")
+        warnings = self.request.GET.getlist("warning")
         min_value = self.request.GET.get("min_value")
         max_value = self.request.GET.get("max_value")
 
         # By default, exclude archived statuses unless specific statuses are selected
-        if not statuses:
+        # Exception: when searching, include all statuses
+        if not statuses and not search_query:
             from inventory.models.status_type import StatusType
 
             non_archived_statuses = StatusType.objects.filter(
@@ -286,6 +288,90 @@ class AssetListView(LoginRequiredMixin, ListView):
                     queryset = queryset.filter(listing_price__lte=max_val)
             except (ValueError, TypeError):
                 pass
+
+        # Apply warning filters
+        if warnings:
+            warnings = [w for w in warnings if w.strip()]
+
+            # Check if we need to add status annotations
+            need_status_annotation = "status_mismatch" in warnings
+
+            if need_status_annotation:
+                # Annotate with latest status if not already done
+                if "latest_status_from_changes" not in queryset.query.annotations:
+                    latest_status = (
+                        StatusChange.objects.filter(
+                            asset=OuterRef("pk"), new_status__isnull=False
+                        )
+                        .order_by("-status_date", "-created_at")
+                        .values("new_status")[:1]
+                    )
+                    queryset = queryset.annotate(
+                        latest_status_from_changes=Subquery(latest_status)
+                    )
+
+                # Add effective_status annotation if not already done
+                if "effective_status" not in queryset.query.annotations:
+                    from django.db.models.functions import Coalesce
+
+                    queryset = queryset.annotate(
+                        effective_status=Coalesce(
+                            "latest_status_from_changes", "local_status"
+                        )
+                    )
+
+            # Build warning filters
+            warning_filters = Q()
+            for warning_type in warnings:
+                if warning_type == "status_mismatch":
+                    # Filter assets where local status doesn't match financial disposal
+                    # Only check for mismatches on assets linked to Moneybird
+                    warning_filters |= (
+                        (
+                            # Local status is sold but disposal is not divested (or no disposal at all)
+                            Q(moneybird_asset_id__isnull=False, effective_status="sold")
+                            & ~Q(disposal="divested")
+                        )
+                        | (
+                            # Local status is amortized but disposal is not out_of_use (or no disposal at all)
+                            Q(
+                                moneybird_asset_id__isnull=False,
+                                effective_status="amortized",
+                            )
+                            & ~Q(disposal="out_of_use")
+                        )
+                        | (
+                            # Disposal is divested but local status is not sold
+                            Q(disposal="divested")
+                            & ~Q(effective_status="sold")
+                        )
+                        | (
+                            # Disposal is out_of_use but local status is not amortized
+                            Q(disposal="out_of_use")
+                            & ~Q(effective_status="amortized")
+                        )
+                    )
+                elif warning_type == "non_commerce_linked":
+                    # Filter non-commerce assets linked to Moneybird and not disposed
+                    warning_filters |= Q(
+                        collection__commerce=False,
+                        moneybird_asset_id__isnull=False,
+                        disposal__isnull=True,
+                    )
+                elif warning_type == "missing_sources":
+                    # Filter assets linked to Moneybird with no sources (financially unlinked)
+                    # Check for empty sources array or no moneybird_data
+                    warning_filters |= Q(moneybird_asset_id__isnull=False) & (
+                        Q(moneybird_data__isnull=True)
+                        | Q(moneybird_data__sources__isnull=True)
+                        | Q(moneybird_data__sources=[])
+                    )
+                elif warning_type == "no_photos":
+                    # Filter assets with no attachments (no photos)
+                    warning_filters |= Q(attachments__isnull=True)
+
+            if warning_filters:
+                queryset = queryset.filter(warning_filters)
 
         # Apply property filters
         property_filters = self._get_property_filters()
@@ -597,8 +683,31 @@ class AssetListView(LoginRequiredMixin, ListView):
         from inventory.models.status_type import StatusType
 
         all_status_types = StatusType.objects.order_by("order", "name")
-        context["active_status_types"] = all_status_types.filter(is_archived=False)
-        context["archived_status_types"] = all_status_types.filter(is_archived=True)
+        active_status_types = all_status_types.filter(is_archived=False)
+        archived_status_types = all_status_types.filter(is_archived=True)
+
+        context["active_status_types"] = active_status_types
+        context["archived_status_types"] = archived_status_types
+
+        # Determine which statuses are effectively active
+        selected_statuses = self.request.GET.getlist("status")
+        search_query = self.request.GET.get("q", "").strip()
+
+        if selected_statuses:
+            # If specific statuses are selected, use those
+            effective_statuses = selected_statuses
+            status_filter_modified = True
+        elif search_query:
+            # When searching, all statuses are included
+            effective_statuses = [s.slug for s in all_status_types]
+            status_filter_modified = False
+        else:
+            # By default, only non-archived statuses are included
+            effective_statuses = [s.slug for s in active_status_types]
+            status_filter_modified = False
+
+        context["effective_statuses"] = effective_statuses
+        context["status_filter_modified"] = status_filter_modified
 
         # Get all properties for the filter dropdown with current values
         context["all_properties"] = self._get_properties_with_current_values()
@@ -615,6 +724,7 @@ class AssetListView(LoginRequiredMixin, ListView):
             "statuses": self.request.GET.getlist("status"),
             "locations": self.request.GET.getlist("location"),
             "collections": self.request.GET.getlist("collection"),
+            "warnings": self.request.GET.getlist("warning"),
             "min_value": self.request.GET.get("min_value", ""),
             "max_value": self.request.GET.get("max_value", ""),
             "properties": property_filters,
@@ -762,8 +872,62 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
         if data.get("action") == "create_status_change":
             form = StatusChangeForm(data, asset=asset)
             if form.is_valid():
-                form.save()
-                messages.success(request, "Status change created successfully")
+                status_change = form.save()
+
+                # Handle Moneybird synchronization for sold/amortized statuses
+                sync_to_moneybird = data.get("sync_to_moneybird") == "true"
+                new_status = form.cleaned_data.get("new_status")
+
+                if (
+                    sync_to_moneybird
+                    and asset.moneybird_asset_id
+                    and new_status in ["sold", "amortized"]
+                ):
+                    try:
+                        from datetime import date
+                        from inventory.moneybird import MoneybirdAssetService
+
+                        service = MoneybirdAssetService()
+
+                        # Use the status change date or today's date
+                        status_date = (
+                            form.cleaned_data.get("status_date") or date.today()
+                        )
+                        status_date_str = status_date.strftime("%Y-%m-%d")
+
+                        # Get comments from the form
+                        comments = form.cleaned_data.get("comments", "").strip()
+
+                        if new_status == "sold":
+                            # For sold: create divestment value change (automatically disposes as divested)
+                            description = "Verkocht"
+                            if comments:
+                                description = f"Verkocht - {comments}"
+                            service.create_divestment_value_change(
+                                asset.moneybird_asset_id, status_date_str, description
+                            )
+                            messages.success(
+                                request,
+                                "Status change created and synced to Moneybird as divested",
+                            )
+                        else:  # amortized
+                            # For amortized: fully depreciate (automatically disposes as out_of_use)
+                            description = "Afgeschreven"
+                            if comments:
+                                description = f"Afgeschreven - {comments}"
+                            service.fully_depreciate_asset(
+                                asset.moneybird_asset_id, status_date_str, description
+                            )
+                            messages.success(
+                                request,
+                                "Status change created and synced to Moneybird as out of use",
+                            )
+                    except Exception as e:
+                        messages.error(
+                            request, f"Failed to sync to Moneybird: {str(e)}"
+                        )
+                else:
+                    messages.success(request, "Status change created successfully")
             else:
                 for field, errors in form.errors.items():
                     for error in errors:
@@ -990,32 +1154,18 @@ class AssetUpdateView(LoginRequiredMixin, SuccessMessageMixin, UpdateView):
     success_message = "Asset was updated successfully"
 
     def form_valid(self, form):
-        # Check if Moneybird-related fields have changed
-        moneybird_fields = [
-            "name",
-            "start_date",
-            "is_margin_asset",
-            "purchase_value_asset",
-        ]
         original_asset = Asset.objects.get(pk=self.object.pk)
-
         response = super().form_valid(form)
 
-        # If asset is linked to Moneybird and relevant fields changed, update Moneybird
+        # If asset is linked to Moneybird and name changed, update Moneybird
         if self.object.moneybird_asset_id:
-            fields_changed = []
-            for field in moneybird_fields:
-                old_value = getattr(original_asset, field)
-                new_value = getattr(self.object, field)
-                if old_value != new_value:
-                    fields_changed.append(field)
-
-            if fields_changed:
+            # Only track name changes - financial fields are readonly when linked
+            if original_asset.name != self.object.name:
                 try:
                     self.object.update_on_moneybird()
                     messages.success(
                         self.request,
-                        f"Asset updated successfully and synchronized with Moneybird. Changed fields: {', '.join(fields_changed)}",
+                        "Asset updated successfully and synchronized with Moneybird",
                     )
                 except Exception as e:
                     messages.warning(

@@ -288,6 +288,58 @@
                         </div>
                     </div>
 
+                    <!-- Warnings Multi-Select -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            {% translate "Warnings" %}
+                            {% if current_filters.warnings %}
+                                <span class="badge bg-primary ms-1">{{ current_filters.warnings|length }}</span>
+                            {% endif %}
+                        </button>
+                        <div class="dropdown-menu p-2" style="width: 300px;">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="warning" value="status_mismatch"
+                                       id="warning-status-mismatch"
+                                       {% if 'status_mismatch' in current_filters.warnings %}checked{% endif %}
+                                       onchange="updateFilters()">
+                                <label class="form-check-label" for="warning-status-mismatch">
+                                    <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                                    {% translate "Status mismatch" %}
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="warning" value="non_commerce_linked"
+                                       id="warning-non-commerce"
+                                       {% if 'non_commerce_linked' in current_filters.warnings %}checked{% endif %}
+                                       onchange="updateFilters()">
+                                <label class="form-check-label" for="warning-non-commerce">
+                                    <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                                    {% translate "Non-commerce in Moneybird" %}
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="warning" value="missing_sources"
+                                       id="warning-missing-sources"
+                                       {% if 'missing_sources' in current_filters.warnings %}checked{% endif %}
+                                       onchange="updateFilters()">
+                                <label class="form-check-label" for="warning-missing-sources">
+                                    <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                                    {% translate "Missing sources" %}
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="warning" value="no_photos"
+                                       id="warning-no-photos"
+                                       {% if 'no_photos' in current_filters.warnings %}checked{% endif %}
+                                       onchange="updateFilters()">
+                                <label class="form-check-label" for="warning-no-photos">
+                                    <i class="fas fa-exclamation-triangle text-warning me-1"></i>
+                                    {% translate "No photos" %}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Price Range -->
                     <div class="dropdown">
                         <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown">
@@ -551,28 +603,39 @@
                             <div class="card-body py-2 px-3 d-flex flex-column">
                                 <!-- Top Content -->
                                 <div class="flex-grow-1">
-                                    <!-- Asset Name -->
-                                    <h4 class="card-title mb-1 fw-bold" style="line-height: 1.2;">{{ asset.name }}</h4>
+                                    <!-- Asset Name and Category/Size Badge -->
+                                    <div class="d-flex align-items-start gap-2 mb-1">
+                                        <h4 class="card-title mb-0 fw-bold" style="line-height: 1.2;">{{ asset.name }}</h4>
+                                        <div class="d-flex" style="margin-top: 0.25rem;">
+                                            <span class="badge bg-light text-muted" style="font-size: 0.6rem; white-space: nowrap; {% if asset.size %}border-top-right-radius: 0; border-bottom-right-radius: 0;{% endif %}">{{ asset.category.name_singular }}</span>
+                                            {% if asset.size %}
+                                                <span class="badge text-muted" style="font-size: 0.6rem; white-space: nowrap; border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: 0; background: transparent; border: 1px solid #f8f9fa; border-left: none;">{{ asset.size }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
 
-                                    <!-- Badges Section -->
-                                    <div class="d-flex flex-wrap gap-1 mb-2">
-                                        <span class="badge bg-primary" style="font-size: 0.6rem; white-space: nowrap;">{{ asset.category.name_singular }}</span>
-                                        {% if asset.size %}
-                                            <span class="badge bg-secondary" style="font-size: 0.6rem; white-space: nowrap;">{{ asset.size }}</span>
-                                        {% endif %}
-                                        <span class="badge
-                                        {% if asset.current_status == 'available' %}bg-success
-                                        {% elif asset.current_status == 'issued_rent' or asset.current_status == 'issued_loan' or asset.current_status == 'issued_unprocessed' %}bg-warning
-                                        {% elif asset.current_status == 'maintenance_in_house' or asset.current_status == 'maintenance_external' or asset.current_status == 'under_review' %}bg-info
-                                        {% elif asset.current_status == 'placeholder' %}bg-light text-dark{% elif asset.current_status == 'to_be_delivered' %}bg-secondary
-                                        {% elif asset.current_status == 'sold' %}bg-secondary{% elif asset.current_status == 'amortized' %}bg-dark
-                                        {% elif asset.current_status == 'unknown' %}bg-danger
-                                        {% else %}bg-primary{% endif %}" style="font-size: 0.6rem; white-space: nowrap;">
-                                            {{ asset.current_status_display }}
-                                        </span>
-                                        {% if asset.collection.commerce and asset.moneybird_asset_id %}
-                                            <span class="badge bg-{{ asset.financial_status_color }} customer-mode-hide" style="font-size: 0.6rem; white-space: nowrap;">
-                                                {{ asset.financial_status_display|title }}
+                                    <!-- Status Badges -->
+                                    <div class="d-flex flex-wrap mb-2" style="gap: 0.25rem;">
+                                        <div class="d-flex">
+                                            <span class="badge
+                                            {% if asset.current_status == 'available' %}bg-success
+                                            {% elif asset.current_status == 'issued_rent' or asset.current_status == 'issued_loan' or asset.current_status == 'issued_unprocessed' %}bg-warning
+                                            {% elif asset.current_status == 'maintenance_in_house' or asset.current_status == 'maintenance_external' or asset.current_status == 'under_review' %}bg-info
+                                            {% elif asset.current_status == 'placeholder' %}bg-light text-dark{% elif asset.current_status == 'to_be_delivered' %}bg-secondary
+                                            {% elif asset.current_status == 'sold' %}bg-secondary{% elif asset.current_status == 'amortized' %}bg-dark
+                                            {% elif asset.current_status == 'unknown' %}bg-danger
+                                            {% else %}bg-primary{% endif %}" style="font-size: 0.6rem; white-space: nowrap; {% if asset.moneybird_asset_id %}border-top-right-radius: 0; border-bottom-right-radius: 0;{% endif %}">
+                                                {{ asset.current_status_display }}
+                                            </span>
+                                            {% if asset.moneybird_asset_id %}
+                                                <span class="badge bg-{{ asset.financial_status_color }} customer-mode-hide" style="font-size: 0.6rem; white-space: nowrap; border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: 0;">
+                                                    {{ asset.financial_status_display|safe }}
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                        {% if asset.is_margin_asset %}
+                                            <span class="badge bg-info customer-mode-hide" style="font-size: 0.6rem; white-space: nowrap;">
+                                                <i class="fas fa-recycle"></i>
                                             </span>
                                         {% endif %}
                                     </div>
@@ -615,17 +678,6 @@
                                     <!-- Pricing row -->
                                     <div class="d-flex justify-content-between align-items-end">
                                         <div class="d-flex align-items-center gap-2">
-                                            {% if asset.collection.commerce %}
-                                                {% if asset.moneybird_asset_id %}
-                                                    <a href="{{ asset.moneybird_asset_url }}" target="_blank" class="btn btn-outline-primary btn-sm customer-mode-hide me-1" style="font-size: 0.6rem; padding: 0.15rem 0.3rem;" title="{{ asset.moneybird_asset_name }}" onclick="event.stopPropagation();">
-                                                        <i class="fas fa-external-link-alt"></i> MB
-                                                    </a>
-                                                {% else %}
-                                                    <button class="btn btn-outline-secondary btn-sm customer-mode-hide" style="font-size: 0.6rem; padding: 0.15rem 0.3rem;" title="{% translate 'Connect to Moneybird' %}" onclick="event.stopPropagation();">
-                                                        <i class="fas fa-link"></i>
-                                                    </button>
-                                                {% endif %}
-                                            {% endif %}
                                             {% if asset.start_date %}
                                                 <div class="text-muted" style="font-size: 0.7rem;">
                                                     <i class="fas fa-calendar me-1"></i>{{ asset.start_date|date:"d-m-Y" }}
@@ -654,6 +706,12 @@
                 {% if request.GET.q %}
                     <p class="text-muted">{% blocktranslate with query=request.GET.q %}No results found for "{{ query }}"{% endblocktranslate %}</p>
                 {% endif %}
+                {% if not current_filters.statuses and archived_status_types %}
+                    <div class="alert alert-info d-inline-block mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {% translate "Not showing archived assets. Enable archived statuses in the Status filter to see them." %}
+                    </div>
+                {% endif %}
                 <a href="{% url 'inventory_frontend:list' %}" class="btn btn-outline-primary mt-3">{% translate "Clear all filters" %}</a>
             </div>
         {% endfor %}
@@ -668,9 +726,8 @@
                         <tr>
                             <th>{% translate "Image" %}</th>
                             <th>{% translate "Name" %}</th>
-                            <th>{% translate "Category" %}</th>
                             <th>{% translate "Location" %}</th>
-                            <th>{% translate "Listing Price" %}</th>
+                            <th>{% translate "Status" %}</th>
                             <!-- Dynamic property columns -->
                             {% for property in all_properties %}
                                 <th class="property-column d-none" data-property-slug="{{ property.slug }}">
@@ -680,11 +737,11 @@
                                     {% endif %}
                                 </th>
                             {% endfor %}
-                            <th>{% translate "Status" %}</th>
                             <th class="customer-mode-hide">{% translate "Accounting" %}</th>
-                            <th class="customer-mode-hide">{% translate "Purchase Price" %}</th>
-                            <th class="customer-mode-hide">{% translate "Start Date" %}</th>
-                            <th class="customer-mode-hide">{% translate "Created" %}</th>
+                            <th class="customer-mode-hide text-end">{% translate "Purchase Price" %}</th>
+                            <th class="text-end">{% translate "Listing Price" %}</th>
+                            <th class="customer-mode-hide text-end">{% translate "Start Date" %}</th>
+                            <th class="customer-mode-hide text-end">{% translate "Created" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -706,12 +763,13 @@
                                 </td>
                                 <td>
                                     <strong>{{ asset.name }}</strong>
-                                    {% if asset.size %}
-                                        <br><small class="text-muted">{{ asset.size }}</small>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <span class="badge bg-primary">{{ asset.category.name_singular }}</span>
+                                    <br>
+                                    <div class="d-flex" style="margin-top: 0.25rem;">
+                                        <span class="badge bg-light text-muted" style="font-size: 0.6rem; white-space: nowrap; {% if asset.size %}border-top-right-radius: 0; border-bottom-right-radius: 0;{% endif %}">{{ asset.category.name_singular }}</span>
+                                        {% if asset.size %}
+                                            <span class="badge text-muted" style="font-size: 0.6rem; white-space: nowrap; border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: 0; background: transparent; border: 1px solid #f8f9fa; border-left: none;">{{ asset.size }}</span>
+                                        {% endif %}
+                                    </div>
                                 </td>
                                 <td>
                                     {% if asset.location %}
@@ -721,7 +779,18 @@
                                         <span class="text-muted">—</span>
                                     {% endif %}
                                 </td>
-                                <td><strong>€{{ asset.listing_price|default:0|floatformat:0 }}</strong></td>
+                                <td>
+                                    <span class="badge
+                                    {% if asset.current_status == 'available' %}bg-success
+                                    {% elif asset.current_status == 'issued_rent' or asset.current_status == 'issued_loan' or asset.current_status == 'issued_unprocessed' %}bg-warning
+                                    {% elif asset.current_status == 'maintenance_in_house' or asset.current_status == 'maintenance_external' or asset.current_status == 'under_review' %}bg-info
+                                    {% elif asset.current_status == 'placeholder' %}bg-light text-dark{% elif asset.current_status == 'to_be_delivered' %}bg-secondary
+                                    {% elif asset.current_status == 'sold' %}bg-secondary{% elif asset.current_status == 'amortized' %}bg-dark
+                                    {% elif asset.current_status == 'unknown' %}bg-danger
+                                    {% else %}bg-primary{% endif %}" style="font-size: 0.7rem;">
+                                        {{ asset.current_status_display }}
+                                    </span>
+                                </td>
                                 <!-- Dynamic property data cells -->
                                 {% for property in all_properties %}
                                     <td class="property-column d-none" data-property-slug="{{ property.slug }}">
@@ -736,50 +805,32 @@
                                         {% endfor %}
                                     </td>
                                 {% endfor %}
-                                <td>
-                                    <div class="d-flex flex-column gap-1">
-                                        <span class="badge
-                                        {% if asset.current_status == 'available' %}bg-success
-                                        {% elif asset.current_status == 'issued_rent' or asset.current_status == 'issued_loan' or asset.current_status == 'issued_unprocessed' %}bg-warning
-                                        {% elif asset.current_status == 'maintenance_in_house' or asset.current_status == 'maintenance_external' or asset.current_status == 'under_review' %}bg-info
-                                        {% elif asset.current_status == 'placeholder' %}bg-light text-dark{% elif asset.current_status == 'to_be_delivered' %}bg-secondary
-                                        {% elif asset.current_status == 'sold' %}bg-secondary{% elif asset.current_status == 'amortized' %}bg-dark
-                                        {% elif asset.current_status == 'unknown' %}bg-danger
-                                        {% else %}bg-primary{% endif %}" style="font-size: 0.7rem;">
-                                            {{ asset.current_status_display }}
-                                        </span>
-                                    </div>
-                                </td>
-
                                 <td class="customer-mode-hide">
-                                    {% if asset.collection.commerce %}
-                                        {% if asset.moneybird_asset_id %}
-                                            <div class="d-flex flex-column gap-1">
-                                                <span class="badge bg-{{ asset.financial_status_color }}" style="font-size: 0.65rem;">
-                                                    {{ asset.financial_status_display|title }}
+                                    {% if asset.moneybird_asset_id %}
+                                        <div class="d-flex gap-1">
+                                            <span class="badge bg-{{ asset.financial_status_color }}" style="font-size: 0.65rem;">
+                                                {{ asset.financial_status_display|safe }}
+                                            </span>
+                                            {% if asset.is_margin_asset %}
+                                                <span class="badge bg-info" style="font-size: 0.65rem;">
+                                                    <i class="fas fa-recycle"></i>
                                                 </span>
-                                                <a href="{{ asset.moneybird_asset_url }}" target="_blank" class="btn btn-sm btn-outline-primary" onclick="event.stopPropagation();" style="font-size: 0.65rem;">
-                                                    <i class="fas fa-external-link-alt"></i> {{ asset.moneybird_asset_name|truncatechars:18 }}
-                                                </a>
-                                            </div>
-                                        {% else %}
-                                            <a href="{% url 'inventory_frontend:detail' asset.pk %}#moneybirdModal" class="btn btn-sm btn-outline-secondary" title="{% translate 'Connect to Moneybird' %}" onclick="event.stopPropagation();">
-                                                <i class="fas fa-link"></i>
-                                            </a>
-                                        {% endif %}
+                                            {% endif %}
+                                        </div>
                                     {% else %}
                                         <span class="text-muted">—</span>
                                     {% endif %}
                                 </td>
-                                <td class="customer-mode-hide">€{{ asset.purchase_value_asset|default:0|floatformat:0 }}</td>
-                                <td class="customer-mode-hide">
+                                <td class="customer-mode-hide text-end">€{{ asset.purchase_value_asset|default:0|floatformat:0 }}</td>
+                                <td class="text-end"><strong>€{{ asset.listing_price|default:0|floatformat:0 }}</strong></td>
+                                <td class="customer-mode-hide text-end">
                                     {% if asset.start_date %}
                                         <small>{{ asset.start_date|date:"d-m-Y" }}</small>
                                     {% else %}
                                         <span class="text-muted">—</span>
                                     {% endif %}
                                 </td>
-                                <td class="customer-mode-hide">
+                                <td class="customer-mode-hide text-end">
                                     <small>{{ asset.created_at|date:"d-m-Y" }}</small>
                                 </td>
                             </tr>
@@ -793,6 +844,12 @@
                 <h4 class="text-muted">{% translate "No assets found" %}</h4>
                 {% if request.GET.q %}
                     <p class="text-muted">{% blocktranslate with query=request.GET.q %}No results found for "{{ query }}"{% endblocktranslate %}</p>
+                {% endif %}
+                {% if not current_filters.statuses and archived_status_types %}
+                    <div class="alert alert-info d-inline-block mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        {% translate "Not showing archived assets. Enable archived statuses in the Status filter to see them." %}
+                    </div>
                 {% endif %}
                 <a href="{% url 'inventory_frontend:list' %}" class="btn btn-outline-primary mt-3">{% translate "Clear all filters" %}</a>
             </div>

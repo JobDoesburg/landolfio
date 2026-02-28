@@ -218,6 +218,7 @@ class MoneybirdAssetService:
         self,
         asset_id: int,
         change_date: str,
+        description: str = "Verkocht",
     ) -> Dict[str, Any]:
         """
         Create a divestment value change for the asset.
@@ -227,10 +228,11 @@ class MoneybirdAssetService:
         Args:
             asset_id: The asset ID
             change_date: Change date in YYYY-MM-DD format
+            description: Description for the divestment
 
         Returns:
             Dict containing the value change response data
         """
-        data = {"date": change_date}
+        data = {"date": change_date, "description": description}
 
         return self.admin.post(f"assets/{asset_id}/value_changes/divestment", data)

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-13 11:01+0200\n"
+"POT-Creation-Date: 2026-02-28 21:35+0100\n"
 "PO-Revision-Date: 2025-10-13 11:05+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -74,11 +74,11 @@ msgstr "Wil SEPA-mandaat"
 msgid "SEPA mandate request was sent"
 msgstr "SEPA-mandaatverzoek is verzonden"
 
-#: new_customers/models.py:38
+#: new_customers/models.py:43
 msgid "new customer"
 msgstr "nieuwe klant"
 
-#: new_customers/models.py:39
+#: new_customers/models.py:44
 msgid "new customers"
 msgstr "nieuwe klanten"
 

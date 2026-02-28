@@ -568,24 +568,16 @@ class WebhookEvent(Enum):
     COMPANY_ASSETS_VALUE_CHANGES_LINEAR_DESTROYED = (
         "company_assets_value_changes_linear_destroyed"  # Linear depreciation destroyed
     )
-    COMPANY_ASSETS_VALUE_CHANGES_ARBITRARY_CREATED = (
-        "company_assets_value_changes_arbitrary_created"  # Arbitrary depreciation created
-    )
-    COMPANY_ASSETS_VALUE_CHANGES_ARBITRARY_DESTROYED = (
-        "company_assets_value_changes_arbitrary_destroyed"  # Arbitrary depreciation deleted
-    )
+    COMPANY_ASSETS_VALUE_CHANGES_ARBITRARY_CREATED = "company_assets_value_changes_arbitrary_created"  # Arbitrary depreciation created
+    COMPANY_ASSETS_VALUE_CHANGES_ARBITRARY_DESTROYED = "company_assets_value_changes_arbitrary_destroyed"  # Arbitrary depreciation deleted
     COMPANY_ASSETS_VALUE_CHANGES_DIVESTMENT_CREATED = (
         "company_assets_value_changes_divestment_created"  # Divestment created
     )
     COMPANY_ASSETS_VALUE_CHANGES_DIVESTMENT_DESTROYED = (
         "company_assets_value_changes_divestment_destroyed"  # Divestment deleted
     )
-    COMPANY_ASSETS_VALUE_CHANGES_FULL_DEPRECIATION_CREATED = (
-        "company_assets_value_changes_full_depreciation_created"  # Full depreciation created
-    )
-    COMPANY_ASSETS_VALUE_CHANGES_FULL_DEPRECIATION_DESTROYED = (
-        "company_assets_value_changes_full_depreciation_destroyed"  # Full depreciation destroyed
-    )
+    COMPANY_ASSETS_VALUE_CHANGES_FULL_DEPRECIATION_CREATED = "company_assets_value_changes_full_depreciation_created"  # Full depreciation created
+    COMPANY_ASSETS_VALUE_CHANGES_FULL_DEPRECIATION_DESTROYED = "company_assets_value_changes_full_depreciation_destroyed"  # Full depreciation destroyed
     COMPANY_ASSETS_VALUE_CHANGES_MANUAL_CREATED = (
         "company_assets_value_changes_manual_created"  # Manual value change created
     )

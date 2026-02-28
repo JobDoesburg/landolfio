@@ -239,9 +239,48 @@
 {% block content %}
     <!-- Status Alerts -->
     {% if asset.is_disposed %}
-    <div class="alert alert-info mb-4">
+    <div class="alert alert-dark mb-4">
         <h5 class="alert-heading">{% translate "Asset Status" %}:</h5>
-        <p class="mb-0">{% translate "This asset has been disposed" %}: {{ asset.disposal_reason_display }}</p>
+        <div class="mb-2">
+            <strong>{% translate "Local status" %}:</strong> {{ asset.current_status_display }}
+        </div>
+        <div>
+            <strong>{% translate "Financial status" %}:</strong> {{ asset.disposal_reason_display }}
+        </div>
+        {% if asset.moneybird_asset_id %}
+            {% if asset.disposal == 'divested' and asset.current_status != 'sold' %}
+            <div class="mt-2 text-warning">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                <strong>{% translate "Warning" %}:</strong> {% translate "Local and financial status do not match" %}
+            </div>
+            {% elif asset.disposal == 'out_of_use' and asset.current_status != 'amortized' %}
+            <div class="mt-2 text-warning">
+                <i class="fas fa-exclamation-triangle me-1"></i>
+                <strong>{% translate "Warning" %}:</strong> {% translate "Local and financial status do not match" %}
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if asset.moneybird_asset_id and asset.current_status == 'sold' and asset.disposal != 'divested' %}
+    <div class="alert alert-warning mb-4">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>{% translate "Warning" %}:</strong> {% translate "This asset is marked as sold locally but not divested on Moneybird" %}
+    </div>
+    {% endif %}
+
+    {% if asset.moneybird_asset_id and asset.current_status == 'amortized' and asset.disposal != 'out_of_use' %}
+    <div class="alert alert-warning mb-4">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>{% translate "Warning" %}:</strong> {% translate "This asset is marked as amortized locally but not disposed on Moneybird" %}
+    </div>
+    {% endif %}
+
+    {% if not asset.collection.commerce and asset.moneybird_asset_id and not asset.is_disposed %}
+    <div class="alert alert-warning mb-4">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        <strong>{% translate "Warning" %}:</strong> {% translate "This asset is linked to Moneybird but is not part of a commerce collection. The asset should be disposed on Moneybird." %}
     </div>
     {% endif %}
 
@@ -299,16 +338,23 @@
                         <tr>
                             <td class="form-label small text-muted">{% translate "Status" %}:</td>
                             <td>
-                                <span class="badge 
-                                {% if asset.current_status == 'available' %}bg-success
-                                {% elif asset.current_status == 'issued_rent' or asset.current_status == 'issued_loan' or asset.current_status == 'issued_unprocessed' %}bg-warning
-                                {% elif asset.current_status == 'maintenance_in_house' or asset.current_status == 'maintenance_external' or asset.current_status == 'under_review' %}bg-info
-                                {% elif asset.current_status == 'placeholder' %}bg-light text-dark{% elif asset.current_status == 'to_be_delivered' %}bg-secondary
-                                {% elif asset.current_status == 'sold' %}bg-secondary{% elif asset.current_status == 'amortized' %}bg-dark
-                                {% elif asset.current_status == 'unknown' %}bg-danger
-                                {% else %}bg-primary{% endif %}" style="font-size: 0.7rem;">
-                                    {{ asset.current_status_display }}
-                                </span>
+                                 <div class="d-flex gap-1">
+                                    <span class="badge
+                                    {% if asset.current_status == 'available' %}bg-success
+                                    {% elif asset.current_status == 'issued_rent' or asset.current_status == 'issued_loan' or asset.current_status == 'issued_unprocessed' %}bg-warning
+                                    {% elif asset.current_status == 'maintenance_in_house' or asset.current_status == 'maintenance_external' or asset.current_status == 'under_review' %}bg-info
+                                    {% elif asset.current_status == 'placeholder' %}bg-light text-dark{% elif asset.current_status == 'to_be_delivered' %}bg-secondary
+                                    {% elif asset.current_status == 'sold' %}bg-secondary{% elif asset.current_status == 'amortized' %}bg-dark
+                                    {% elif asset.current_status == 'unknown' %}bg-danger
+                                    {% else %}bg-primary{% endif %}" style="font-size: 0.7rem; {% if asset.moneybird_asset_id %}border-top-right-radius: 0; border-bottom-right-radius: 0;{% endif %}">
+                                        {{ asset.current_status_display }}
+                                    </span>
+                                    {% if asset.moneybird_asset_id %}
+                                        <span class="badge bg-{{ asset.financial_status_color }} customer-mode-hide" style="font-size: 0.7rem; border-top-left-radius: 0; border-bottom-left-radius: 0; margin-left: 0;">
+                                            {{ asset.financial_status_display|safe }}
+                                        </span>
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                         <tr>
@@ -360,18 +406,6 @@
                             </td>
                         </tr>
                         {% endif %}
-                        {% if asset.collection.commerce %}
-                        <tr>
-                            <td class="form-label small text-muted">{% translate "Status" %}:</td>
-                            <td>
-                                {% if asset.moneybird_asset_id %}
-                                <span class="badge bg-{{ asset.financial_status_color }}">{{ asset.financial_status_display|title }}</span>
-                                {% else %}
-                                <span>?</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endif %}
                         <tr class="customer-mode-hide">
                             <td class="form-label small text-muted">{% translate "Purchase" %}:</td>
                             <td>€{{ asset.purchase_value_asset|default:0|floatformat:2|localize }}</td>
@@ -389,7 +423,9 @@
                             <td class="form-label small text-muted">{% translate "Margin" %}:</td>
                             <td>
                                 {% if asset.is_margin_asset %}
-                                    {% translate "Yes" %}
+                                    <span class="badge bg-info" style="font-size: 0.7rem;">
+                                        <i class="fas fa-recycle"></i> {% translate "Yes" %}
+                                    </span>
                                 {% else %}
                                     {% translate "No" %}
                                 {% endif %}
@@ -560,9 +596,10 @@
                     {% endif %}
 
                     <!-- Add New Status Change Form -->
-                    <form method="post" action="{% url 'inventory_frontend:detail' asset.pk %}">
+                    <form method="post" action="{% url 'inventory_frontend:detail' asset.pk %}" id="statusChangeForm">
                         {% csrf_token %}
                         <input type="hidden" name="action" value="create_status_change">
+                        <input type="hidden" name="sync_to_moneybird" id="syncToMoneybirdInput" value="false">
                         <div class="mb-3">
                             <label class="form-label">{% translate "Change Status" %}</label>
                             <div class="row g-3">
@@ -596,6 +633,13 @@
                                     </div>
                                 </div>
                             </div>
+
+                            {% if asset.is_disposed %}
+                            <div class="alert alert-warning mt-3 mb-0">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>{% translate "Warning" %}:</strong> {% translate "This asset is disposed on Moneybird. Status changes here will not sync automatically and may require manual changes on Moneybird." %}
+                            </div>
+                            {% endif %}
 
                             <!-- Save Button -->
                             <div class="mt-3 text-end">
@@ -1964,6 +2008,25 @@
                         statusChangeSelect.classList.add('bg-light', 'text-dark');
                     }
                 }
+            }
+
+            // Handle status change form submission for sold/amortized statuses
+            const statusChangeForm = document.getElementById('statusChangeForm');
+            if (statusChangeForm) {
+                statusChangeForm.addEventListener('submit', function(e) {
+                    const selectedStatus = statusChangeSelect.value;
+                    const hasMoneybirdAsset = {{ asset.moneybird_asset_id|yesno:"true,false" }};
+
+                    if (hasMoneybirdAsset && (selectedStatus === 'sold' || selectedStatus === 'amortized')) {
+                        e.preventDefault();
+
+                        if (confirm('{% translate "Do you also want to make this change on Moneybird?" %}')) {
+                            document.getElementById('syncToMoneybirdInput').value = 'true';
+                        }
+
+                        statusChangeForm.submit();
+                    }
+                });
             }
         });
     </script>

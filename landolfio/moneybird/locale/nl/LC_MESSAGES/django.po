@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-07-19 20:43+0200\n"
+"POT-Creation-Date: 2026-02-28 20:10+0100\n"
 "PO-Revision-Date: 2023-02-21 13:40+0100\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -18,19 +18,19 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Poedit 3.2.2\n"
 
-#: moneybird/admin.py:25
+#: moneybird/admin.py:26
 #, python-format
 msgid "Error pushing %s to Moneybird: %s"
 msgstr "Fout tijdens het pushen van %s naar Moneybird: %s"
 
-#: moneybird/admin.py:36
+#: moneybird/admin.py:37
 #, python-format
 msgid "%d object was successfully pushed to Moneybird."
 msgid_plural "%d objects were successfully pushed to Moneybird."
 msgstr[0] "%d object is succesvol naar Moneybird gepusht."
 msgstr[1] "%d objecten zijn succesvol naar Moneybird gepusht."
 
-#: moneybird/admin.py:108
+#: moneybird/admin.py:109
 #, python-format
 msgid "Error pushing to Moneybird: %s"
 msgstr "Fout tijdens het pushen naar Moneybird: %s"

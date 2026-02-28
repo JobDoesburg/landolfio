@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-10-12 18:57+0200\n"
+"POT-Creation-Date: 2026-02-28 20:10+0100\n"
 "PO-Revision-Date: 2025-07-20 10:47+0200\n"
 "Last-Translator: Job Doesburg <job.doesburg@gmail.com>\n"
 "Language-Team: \n"
@@ -34,7 +34,7 @@ msgstr "SEPA"
 msgid "Moneybird"
 msgstr "Moneybird"
 
-#: accounting/api/views.py:12
+#: accounting/api/views.py:11
 msgid "The database was successfully updated."
 msgstr "De database is succesvol geüpdate."
 
@@ -42,181 +42,181 @@ msgstr "De database is succesvol geüpdate."
 msgid "⚖️ Accounting"
 msgstr "⚖️ Boekhouding"
 
-#: accounting/models/contact.py:19
+#: accounting/models/contact.py:17
 msgid "Recurring"
 msgstr "Periodiek"
 
-#: accounting/models/contact.py:20
+#: accounting/models/contact.py:18
 msgid "First"
 msgstr "Eerste"
 
-#: accounting/models/contact.py:21
+#: accounting/models/contact.py:19
 msgid "Final"
 msgstr "Laatste"
 
-#: accounting/models/contact.py:22
+#: accounting/models/contact.py:20
 msgid "One-off"
 msgstr "Eenmalig"
 
-#: accounting/models/contact.py:27
+#: accounting/models/contact.py:25
 msgid "company name"
 msgstr "bedrijfsnaam"
 
-#: accounting/models/contact.py:33
+#: accounting/models/contact.py:31
 msgid "first name"
 msgstr "voornaam"
 
-#: accounting/models/contact.py:39
+#: accounting/models/contact.py:37
 msgid "last name"
 msgstr "achternaam"
 
-#: accounting/models/contact.py:45
+#: accounting/models/contact.py:43
 msgid "address 1"
 msgstr "adresregel 1"
 
-#: accounting/models/contact.py:51
+#: accounting/models/contact.py:49
 msgid "address 2"
 msgstr "adresregel 2"
 
-#: accounting/models/contact.py:57
+#: accounting/models/contact.py:55
 msgid "zip code"
 msgstr "postcode"
 
-#: accounting/models/contact.py:63
+#: accounting/models/contact.py:61
 msgid "city"
 msgstr "stad"
 
-#: accounting/models/contact.py:68
+#: accounting/models/contact.py:66
 msgid "country"
 msgstr "land"
 
-#: accounting/models/contact.py:70
+#: accounting/models/contact.py:68
 msgid "phone"
 msgstr "telefoonnummer"
 
-#: accounting/models/contact.py:76
+#: accounting/models/contact.py:74
 msgid "customer id"
 msgstr "klantnummer"
 
-#: accounting/models/contact.py:82
+#: accounting/models/contact.py:80
 msgid "tax number"
 msgstr "btw-nummer"
 
-#: accounting/models/contact.py:88
+#: accounting/models/contact.py:86
 msgid "chamber of commerce"
 msgstr "Kamer van Koophandel"
 
-#: accounting/models/contact.py:94
+#: accounting/models/contact.py:92
 msgid "bank account"
 msgstr "bankrekening"
 
-#: accounting/models/contact.py:100
+#: accounting/models/contact.py:98
 msgid "attention"
 msgstr "tenaamstelling"
 
-#: accounting/models/contact.py:106
+#: accounting/models/contact.py:104
 msgid "email"
 msgstr "e-mail"
 
-#: accounting/models/contact.py:110
+#: accounting/models/contact.py:108
 msgid "email ubl"
 msgstr "e-mail ubl"
 
-#: accounting/models/contact.py:112
+#: accounting/models/contact.py:110
 msgid "send invoices to (attention)"
 msgstr "verstuur facturen aan (naam)"
 
-#: accounting/models/contact.py:118
+#: accounting/models/contact.py:116
 msgid "send invoices to (email)"
 msgstr "verstuur facturen aan (e-mail)"
 
-#: accounting/models/contact.py:123
+#: accounting/models/contact.py:121
 msgid "send estimates to (attention)"
 msgstr "verstuur offertes aan (naam)"
 
-#: accounting/models/contact.py:129
+#: accounting/models/contact.py:127
 msgid "send estimates to (email)"
 msgstr "verstuur offertes aan (e-mail)"
 
-#: accounting/models/contact.py:133
+#: accounting/models/contact.py:131
 msgid "SEPA active"
 msgstr "SEPA actief"
 
-#: accounting/models/contact.py:135
+#: accounting/models/contact.py:133
 msgid "SEPA IBAN"
 msgstr "SEPA IBAN"
 
-#: accounting/models/contact.py:141
+#: accounting/models/contact.py:139
 msgid "SEPA IBAN account name"
 msgstr "SEPA IBAN tenaamstelling"
 
-#: accounting/models/contact.py:146
+#: accounting/models/contact.py:144
 msgid "SEPA BIC"
 msgstr "SEPA BIC"
 
-#: accounting/models/contact.py:148
+#: accounting/models/contact.py:146
 msgid "SEPA mandate id"
 msgstr "SEPA mandaatnummer"
 
-#: accounting/models/contact.py:154
+#: accounting/models/contact.py:152
 msgid "SEPA mandate date"
 msgstr "SEPA mandaatdatum"
 
-#: accounting/models/contact.py:157
+#: accounting/models/contact.py:155
 msgid "SEPA sequence type"
 msgstr "SEPA sequencetype"
 
-#: accounting/models/contact.py:164
+#: accounting/models/contact.py:162
 msgid "tax number valid"
 msgstr "btw-nummer valide"
 
-#: accounting/models/contact.py:167
+#: accounting/models/contact.py:165
 msgid "sales invoices url"
 msgstr "facturen url"
 
-#: accounting/models/contact.py:180 accounting/models/contact.py:187
-#: accounting/models/contact.py:194
+#: accounting/models/contact.py:178 accounting/models/contact.py:185
+#: accounting/models/contact.py:192
 msgid "Contact must either have a company name, or first and last name."
 msgstr ""
 "Contact moet ofwel een bedrijfsnaam, ofwel een voor- en achternaam hebben."
 
-#: accounting/models/contact.py:213
+#: accounting/models/contact.py:211
 msgid "Fill in all SEPA fields if SEPA mandate is active."
 msgstr "Vul alle SEPA velden in als SEPA mandaat actief is."
 
-#: accounting/models/contact.py:225 accounting/models/subscription.py:23
+#: accounting/models/contact.py:223 accounting/models/subscription.py:22
 msgid "contact"
 msgstr "contact"
 
-#: accounting/models/contact.py:226
+#: accounting/models/contact.py:224
 msgid "contacts"
 msgstr "contacten"
 
-#: accounting/models/subscription.py:13
+#: accounting/models/subscription.py:12
 msgid "start date"
 msgstr "startdatum"
 
-#: accounting/models/subscription.py:14
+#: accounting/models/subscription.py:13
 msgid "end date"
 msgstr "einddatum"
 
-#: accounting/models/subscription.py:15
+#: accounting/models/subscription.py:14
 msgid "cancelled at"
 msgstr "geannuleerd op"
 
-#: accounting/models/subscription.py:17
+#: accounting/models/subscription.py:16
 msgid "reference"
 msgstr "referentie"
 
-#: accounting/models/subscription.py:28
+#: accounting/models/subscription.py:27
 msgid "for"
 msgstr "voor"
 
-#: accounting/models/subscription.py:31
+#: accounting/models/subscription.py:30
 msgid "subscription"
 msgstr "abonnement"
 
-#: accounting/models/subscription.py:32
+#: accounting/models/subscription.py:31
 msgid "subscriptions"
 msgstr "abonnementen"
 
