@@ -734,6 +734,15 @@ class AssetListView(LoginRequiredMixin, ListView):
         property_filters = self._parse_property_filters_for_display()
         property_filter_count = self._count_active_property_filters()
 
+        # Calculate price range from current queryset
+        from django.db.models import Max, Min
+
+        price_stats = base_qs.aggregate(
+            min_price=Min("listing_price"), max_price=Max("listing_price")
+        )
+        context["queryset_min_price"] = price_stats["min_price"] or 0
+        context["queryset_max_price"] = price_stats["max_price"] or 10000
+
         # Add current filter values
         context["current_filters"] = {
             "q": self.request.GET.get("q", ""),

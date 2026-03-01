@@ -54,9 +54,10 @@ class AssetResourceType(MoneybirdResourceType):
             # If this is a created event and the name doesn't match, update Moneybird
             if event.value == "company_assets_asset_created":
                 moneybird_name = data.get("name", "")
-                if moneybird_name and moneybird_name != asset.name:
+                expected_name = str(asset)
+                if moneybird_name and moneybird_name != expected_name:
                     logger.info(
-                        f"Updating Moneybird asset name from '{moneybird_name}' to '{asset.name}'"
+                        f"Updating Moneybird asset name from '{moneybird_name}' to '{expected_name}'"
                     )
                     asset.update_on_moneybird()
 
@@ -80,10 +81,11 @@ class AssetResourceType(MoneybirdResourceType):
                 asset.save(update_fields=["moneybird_asset_id"])
                 asset.refresh_from_moneybird()
 
-                # Update Moneybird if names differ in case
-                if moneybird_name != asset.name:
+                # Update Moneybird name if it doesn't match local asset representation
+                expected_name = str(asset)
+                if moneybird_name != expected_name:
                     logger.info(
-                        f"Updating Moneybird asset name from '{moneybird_name}' to '{asset.name}'"
+                        f"Updating Moneybird asset name from '{moneybird_name}' to '{expected_name}'"
                     )
                     asset.update_on_moneybird()
 

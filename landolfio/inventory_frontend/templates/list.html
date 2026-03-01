@@ -344,21 +344,25 @@
                     <div class="dropdown">
                         <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown">
                             <span class="value-display">
-                                {% translate "Price" %}: €{{ request.GET.min_value|default:"0"|floatformat:0|localize }} - €{{ request.GET.max_value|default:"10000"|floatformat:0|localize }}
+                                {% translate "Price" %}: €{{ request.GET.min_value|default:queryset_min_price|floatformat:0|localize }} - €{{ request.GET.max_value|default:queryset_max_price|floatformat:0|localize }}
                             </span>
                         </button>
                         <div class="dropdown-menu p-3" style="width: 300px;">
-                            <input type="range" class="form-range mb-2" name="min_value"
-                                   min="0" max="10000" step="100"
-                                   value="{{ request.GET.min_value|default:'0' }}"
-                                   id="valueMin">
-                            <input type="range" class="form-range mb-3" name="max_value"
-                                   min="0" max="10000" step="100"
-                                   value="{{ request.GET.max_value|default:'10000' }}"
-                                   id="valueMax">
+                            <input type="range" class="form-range mb-2"
+                                   min="0" max="100" step="1"
+                                   value="0"
+                                   id="valueMinSlider"
+                                   data-queryset-min="{{ queryset_min_price }}"
+                                   data-queryset-max="{{ queryset_max_price }}">
+                            <input type="range" class="form-range mb-3"
+                                   min="0" max="100" step="1"
+                                   value="100"
+                                   id="valueMaxSlider">
+                            <input type="hidden" name="min_value" id="valueMin" value="{{ request.GET.min_value|default:queryset_min_price }}">
+                            <input type="hidden" name="max_value" id="valueMax" value="{{ request.GET.max_value|default:queryset_max_price }}">
                             <div class="d-flex justify-content-between value-labels small text-muted">
-                                <div>{% translate "Min" %}: €<span id="valueMinLabel">{{ request.GET.min_value|default:"0"|floatformat:0|localize }}</span></div>
-                                <div>{% translate "Max" %}: €<span id="valueMaxLabel">{{ request.GET.max_value|default:"10000"|floatformat:0|localize }}</span></div>
+                                <div>{% translate "Min" %}: €<span id="valueMinLabel">{{ request.GET.min_value|default:queryset_min_price|floatformat:0|localize }}</span></div>
+                                <div>{% translate "Max" %}: €<span id="valueMaxLabel">{{ request.GET.max_value|default:queryset_max_price|floatformat:0|localize }}</span></div>
                             </div>
                         </div>
                     </div>
@@ -1323,23 +1327,43 @@ function initializeMultiSelectFilters() {
 }
 
 /**
- * Price range slider functionality
+ * Price range slider functionality with logarithmic scale
  */
 function initializePriceRangeSliders() {
+    const valueMinSlider = document.getElementById('valueMinSlider');
+    const valueMaxSlider = document.getElementById('valueMaxSlider');
     const valueMin = document.getElementById('valueMin');
     const valueMax = document.getElementById('valueMax');
     const valueMinLabel = document.getElementById('valueMinLabel');
     const valueMaxLabel = document.getElementById('valueMaxLabel');
     const valueDisplay = document.querySelector('.value-display');
 
-    if (!valueMin || !valueMax || !valueMinLabel || !valueMaxLabel || !valueDisplay) return;
+    if (!valueMinSlider || !valueMaxSlider || !valueMin || !valueMax || !valueMinLabel || !valueMaxLabel || !valueDisplay) return;
+
+    // Get dynamic price range from queryset
+    const MIN_PRICE = Number(valueMinSlider.dataset.querysetMin) || 0;
+    const MAX_PRICE = Number(valueMinSlider.dataset.querysetMax) || 10000;
+
+    // Logarithmic scale conversion functions
+    function sliderToPrice(sliderValue) {
+        // Use exponential function for smooth logarithmic scale
+        // Maps 0-100 slider to 0-10000 price with more granularity at lower values
+        const normalized = sliderValue / 100;
+        return Math.round(MIN_PRICE + (MAX_PRICE - MIN_PRICE) * Math.pow(normalized, 2));
+    }
+
+    function priceToSlider(price) {
+        // Reverse conversion from price to slider position
+        const normalized = (price - MIN_PRICE) / (MAX_PRICE - MIN_PRICE);
+        return Math.round(Math.sqrt(normalized) * 100);
+    }
 
     function updateValueLabels() {
-        const minValue = Number(valueMin.value).toLocaleString('nl-NL');
-        const maxValue = Number(valueMax.value).toLocaleString('nl-NL');
-        valueMinLabel.textContent = minValue;
-        valueMaxLabel.textContent = maxValue;
-        valueDisplay.textContent = '{% translate "Price" %}: €' + minValue + ' - €' + maxValue;
+        const minPrice = Number(valueMin.value);
+        const maxPrice = Number(valueMax.value);
+        valueMinLabel.textContent = minPrice.toLocaleString('nl-NL');
+        valueMaxLabel.textContent = maxPrice.toLocaleString('nl-NL');
+        valueDisplay.textContent = '{% translate "Price" %}: €' + minPrice.toLocaleString('nl-NL') + ' - €' + maxPrice.toLocaleString('nl-NL');
     }
 
     function updateForm() {
@@ -1350,19 +1374,33 @@ function initializePriceRangeSliders() {
     }
 
     let timeout;
-    valueMin.addEventListener('input', function() {
-        if (parseInt(valueMin.value) > parseInt(valueMax.value)) {
-            valueMin.value = valueMax.value;
+    valueMinSlider.addEventListener('input', function() {
+        const minPrice = sliderToPrice(Number(valueMinSlider.value));
+        const maxPrice = Number(valueMax.value);
+
+        if (minPrice > maxPrice) {
+            valueMin.value = maxPrice;
+            valueMinSlider.value = priceToSlider(maxPrice);
+        } else {
+            valueMin.value = minPrice;
         }
+
         updateValueLabels();
         clearTimeout(timeout);
         timeout = setTimeout(updateForm, 500);
     });
 
-    valueMax.addEventListener('input', function() {
-        if (parseInt(valueMax.value) < parseInt(valueMin.value)) {
-            valueMax.value = valueMin.value;
+    valueMaxSlider.addEventListener('input', function() {
+        const maxPrice = sliderToPrice(Number(valueMaxSlider.value));
+        const minPrice = Number(valueMin.value);
+
+        if (maxPrice < minPrice) {
+            valueMax.value = minPrice;
+            valueMaxSlider.value = priceToSlider(minPrice);
+        } else {
+            valueMax.value = maxPrice;
         }
+
         updateValueLabels();
         clearTimeout(timeout);
         timeout = setTimeout(updateForm, 500);
@@ -1377,7 +1415,12 @@ function initializePriceRangeSliders() {
         });
     });
 
-    // Initialize with current values
+    // Initialize sliders with current price values
+    const currentMinPrice = Number(valueMin.value) || MIN_PRICE;
+    const currentMaxPrice = Number(valueMax.value) || MAX_PRICE;
+    valueMinSlider.value = priceToSlider(currentMinPrice);
+    valueMaxSlider.value = priceToSlider(currentMaxPrice);
+
     updateValueLabels();
 }
 
