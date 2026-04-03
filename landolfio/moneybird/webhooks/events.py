@@ -100,6 +100,9 @@ class WebhookEvent(Enum):
     CONTACT_MANDATE_REQUEST_SUCCEEDED = (
         "contact_mandate_request_succeeded"  # Mandate request succeeded
     )
+    CONTACT_MANDATE_REQUEST_URL_OBTAINED = (
+        "contact_mandate_request_url_obtained"  # Mandate request URL obtained
+    )
     CONTACT_MERGED = "contact_merged"  # Contact was merged
     CONTACT_PERSON_CREATED = "contact_person_created"  # Contact person created
     CONTACT_PERSON_DESTROYED = "contact_person_destroyed"  # Contact person deleted

@@ -374,9 +374,18 @@ class Asset(models.Model):
         return f"{category_name} {self.name}{size_str}"
 
     def save(self, *args, **kwargs):
-        """Override save to ensure non-commerce assets are always margin assets."""
+        """Override save to ensure non-commerce assets are always margin assets and clear location if status doesn't allow it."""
         if self.collection and not self.collection.commerce:
             self.is_margin_asset = True
+
+        if self.current_status not in [
+            AssetStates.AVAILABLE,
+            AssetStates.UNDER_REVIEW,
+            AssetStates.MAINTENANCE_IN_HOUSE,
+        ]:
+            self.location = None
+            self.location_nr = None
+
         super().save(*args, **kwargs)
 
     def get_asset_ledger_account_id(self):
@@ -763,6 +772,9 @@ class Asset(models.Model):
         # Clear the cached current status
         if hasattr(self, "_current_status_cache"):
             del self._current_status_cache
+
+        # Save the asset to trigger location clearing if needed
+        self.save()
 
         return status_change
 
