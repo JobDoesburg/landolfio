@@ -66,9 +66,7 @@ def sync_unlinked_moneybird_assets():
             )
             continue
 
-        logger.info(
-            f"Found {len(assets)} assets in ledger account {ledger_account_id}"
-        )
+        logger.info(f"Found {len(assets)} assets in ledger account {ledger_account_id}")
 
         for mb_asset in assets:
             stats["total_fetched"] += 1

@@ -246,5 +246,5 @@ class SynchronizableMoneybirdResourceModel(MoneybirdResourceModel):
             push_to_moneybird=push_to_moneybird,
             received_from_moneybird=received_from_moneybird,
             *args,
-            **kwargs
+            **kwargs,
         )

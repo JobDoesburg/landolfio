@@ -1,13 +1,17 @@
-[tool.poetry]
-authors = ["Job Doesburg <job.doesburg@gmail.com>"]
-description = ""
+[project]
 name = "landolfio"
 version = "0.1.0"
+description = ""
+authors = [{name = "Job Doesburg", email = "job.doesburg@gmail.com"}]
+requires-python = ">=3.12"
+dynamic = ["dependencies"]
+
+[tool.poetry]
 
 [tool.poetry.dependencies]
 Django = "^6.0"
 python = "^3.12"
-requests = "^2.32.3"
+requests = "^2.33.0"
 json2html = "^1.3.0"
 django-queryable-properties = "^1.9.2"
 bleach = "^6.2.0"
@@ -16,34 +20,37 @@ django-countries = "^8.2.0"
 django-localflavor = "^5.0"
 django-model-utils = "^5.0.0"
 django-storages = {extras = ["s3"], version = "^1.14.4"}
-boto3 = "^1.35.95"
+boto3 = "^1.42.88"
 django-drf-filepond = "^0.5.0"
 django-admin-numeric-filter = "^0.1.9"
 django-easy-admin-object-actions = "^1.1.0"
 django-admin-multi-select-filter = "^1.4.1"
 django-reorder-admin = "^0.3.1"
-django-bootstrap5 = "^25.1"
-anthropic = "^0.75.0"
+django-bootstrap5 = "^26.2"
+anthropic = "^0.94.0"
 django-scheduled-tasks = "^0.2.16"
-django-tasks-db = "*"
+django-tasks-db = "^0.12.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "^25.1.0"
+black = "^26.3.1"
 coverage = {extras = ["toml"], version = "^7.9.2"}
 django-debug-toolbar = "^6.1.0"
 django-coverage-plugin = "^3.1.1"
 pre-commit = "^4.2.0"
 pydocstyle = {extras = ["toml"], version = "^6.3.0"}
-pylint = "^3.3.7"
+pylint = "^4.0.5"
 toml-sort = "^0.24.2"
 pylint-django = "^2.6.1"
 dj-inmemorystorage = "^2.1.0"
 
 [tool.poetry.group.prod.dependencies]
 uwsgi = "^2.0.28"
-gunicorn = "^23.0.0"
+gunicorn = "^25.3.0"
 psycopg2-binary = "^2.9.10"
 sentry-sdk = "^2.33.0"
+
+[tool.black]
+target-version = ["py312"]
 
 [tool.pydocstyle]
 add-ignore = "D200"
