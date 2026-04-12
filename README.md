@@ -2,8 +2,7 @@
 
 A Django-based asset and inventory management system with integrated Moneybird accounting synchronization.
 
-![Lint and test](https://github.com/GipHouse/Landolfio-2022/actions/workflows/ci.yaml/badge.svg?branch=development)
-![Build and push](https://github.com/GipHouse/Landolfio-2022/actions/workflows/build-and-push.yaml/badge.svg?branch=development)
+![Build and push](https://github.com/GipHouse/Landolfio-2022/actions/workflows/build-and-push.yaml/badge.svg?branch=master)
 
 ## Features
 
