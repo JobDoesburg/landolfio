@@ -236,3 +236,40 @@ class MoneybirdAssetService:
         data = {"date": change_date, "description": description}
 
         return self.admin.post(f"assets/{asset_id}/value_changes/divestment", data)
+
+    def list_assets(
+        self, ledger_account_id: int = None, per_page: int = 100
+    ) -> list[Dict[str, Any]]:
+        """
+        List all assets from Moneybird, optionally filtered by ledger account.
+
+        Args:
+            ledger_account_id: Filter by ledger account ID (optional)
+            per_page: Results per page (max 100)
+
+        Returns:
+            List of asset dicts
+        """
+        params = {"per_page": per_page}
+        if ledger_account_id:
+            params["filter"] = f"ledger_account_id:{ledger_account_id}"
+
+        assets = []
+        page = 1
+
+        while True:
+            params["page"] = page
+            response = self.admin.get("assets", params=params)
+
+            if not response:
+                break
+
+            assets.extend(response)
+
+            # Check if there are more pages
+            if len(response) < per_page:
+                break
+
+            page += 1
+
+        return assets

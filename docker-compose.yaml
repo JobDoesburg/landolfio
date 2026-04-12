@@ -100,6 +100,46 @@ services:
       - NOTIFICATION_EMAIL
       - PUBLIC_CONTACT_EMAIL
 
+  task-worker:
+    image: ghcr.io/jobdoesburg/landolfio:latest
+    restart: unless-stopped
+    command: python manage.py db_worker --queue-name default
+    networks:
+      - db
+    depends_on:
+      - database
+    environment:
+      - DJANGO_SETTINGS_MODULE=website.settings.production
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+      - MONEYBIRD_ADMINISTRATION_ID
+      - MONEYBIRD_API_KEY
+      - MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID
+      - MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID
+      - DJANGO_LOG_LEVEL
+      - SENTRY_DSN
+
+  task-scheduler:
+    image: ghcr.io/jobdoesburg/landolfio:latest
+    restart: unless-stopped
+    command: python manage.py scheduler
+    networks:
+      - db
+    depends_on:
+      - database
+    environment:
+      - DJANGO_SETTINGS_MODULE=website.settings.production
+      - POSTGRES_DB
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOST
+      - POSTGRES_PORT
+      - DJANGO_LOG_LEVEL
+      - SENTRY_DSN
+
 volumes:
   nginx-proxy-html:
   nginx-proxy-vhost.d:

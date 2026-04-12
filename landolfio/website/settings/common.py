@@ -29,6 +29,9 @@ INSTALLED_APPS = [
     "autocompletefilter",
     "django_drf_filepond",
     "storages",
+    "django_tasks",
+    "django_tasks_db",
+    "django_scheduled_tasks",
     "ninox_import",
     "accounting",
     "inventory",
@@ -155,12 +158,20 @@ MONEYBIRD_WEBHOOK_TOKEN = os.environ.get("MONEYBIRD_WEBHOOK_TOKEN")
 MONEYBIRD_AUTO_PUSH = True
 MONEYBIRD_FETCH_BEFORE_PUSH = False
 
-MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID = str(
-    os.environ.get("MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID")
+MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID = os.environ.get(
+    "MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID"
 )
-MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID = str(
-    os.environ.get("MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID")
+MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID = os.environ.get(
+    "MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID"
 )
+
+# Django Tasks configuration
+TASKS = {
+    "default": {
+        "BACKEND": "django_tasks_db.DatabaseBackend",
+        "OPTIONS": {},
+    }
+}
 
 NINOX_API_TOKEN = os.environ.get("NINOX_API_TOKEN")
 NINOX_TEAM_ID = os.environ.get("NINOX_TEAM_ID")

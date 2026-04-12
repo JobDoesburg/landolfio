@@ -9,6 +9,6 @@ class InventoryConfig(AppConfig):
     default = True
 
     def ready(self):
-        """Import the signals when the app is ready."""
+        """Import the signals and tasks when the app is ready."""
         # pylint: disable=unused-import,import-outside-toplevel
-        from . import signals
+        from . import signals, tasks
