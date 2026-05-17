@@ -13,11 +13,13 @@ logger = logging.getLogger(__name__)
 
 @cron_task(cron_schedule="0 3 * * *")  # 3 AM every day
 @task
-def sync_unlinked_moneybird_assets():
+def sync_unlinked_moneybird_assets(**kwargs):
     """
     Fetch all Moneybird assets and link unlinked ones to local assets.
     Runs nightly at 3 AM.
     """
+    if kwargs:
+        logger.warning("Ignoring unexpected task kwargs: %s", sorted(kwargs))
     logger.info("Starting Moneybird asset sync task")
 
     mb = MoneybirdAssetService()

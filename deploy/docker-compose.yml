@@ -142,7 +142,7 @@ services:
 
   task-scheduler:
     image: *landolfio-image
-    command: ["python", "manage.py", "scheduler"]
+    command: ["python", "manage.py", "run_task_scheduler"]
     restart: unless-stopped
     logging: *default-logging
     security_opt:

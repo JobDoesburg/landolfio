@@ -27,7 +27,6 @@ django-easy-admin-object-actions = "^1.1.0"
 django-admin-multi-select-filter = "^1.4.1"
 django-reorder-admin = "^0.3.1"
 django-bootstrap5 = "^26.2"
-anthropic = "^0.94.0"
 django-scheduled-tasks = "^0.2.16"
 django-tasks-db = "^0.12.0"
 
@@ -45,7 +44,6 @@ dj-inmemorystorage = "^2.1.0"
 
 [tool.poetry.group.prod.dependencies]
 uwsgi = "^2.0.28"
-gunicorn = "^25.3.0"
 psycopg2-binary = "^2.9.10"
 sentry-sdk = "^2.33.0"
 

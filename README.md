@@ -2,7 +2,8 @@
 
 A Django-based asset and inventory management system with integrated Moneybird accounting synchronization.
 
-![Build and push](https://github.com/GipHouse/Landolfio-2022/actions/workflows/build-and-push.yaml/badge.svg?branch=master)
+![Build and push](https://github.com/JobDoesburg/landolfio/actions/workflows/build-and-push.yaml/badge.svg?branch=master)
+![Deploy](https://github.com/JobDoesburg/landolfio/actions/workflows/deploy.yaml/badge.svg?branch=master)
 
 ## Features
 
@@ -18,11 +19,12 @@ A Django-based asset and inventory management system with integrated Moneybird a
 
 - **Framework**: Django 6.0
 - **Python**: 3.12+
-- **Database**: PostgreSQL
+- **Database**: PostgreSQL 17
 - **Task Queue**: Django Tasks with database backend
-- **Web Server**: Gunicorn/uWSGI with Nginx
+- **Web Server**: uWSGI behind Caddy (auto-HTTPS)
 - **Storage**: AWS S3 via django-storages
-- **Containerization**: Docker with Docker Compose
+- **Containerization**: Docker Compose
+- **Deployment**: Self-hosted GitHub Actions runner — every push to `master` builds an image and auto-deploys to production
 
 ## Development Setup
 
@@ -97,69 +99,26 @@ poetry run pre-commit run --all-files
 
 ## Production Deployment
 
-### Docker Compose
+Production runs on `landolfio.vofdoesburg.nl` as a Docker Compose stack
+managed by a self-hosted GitHub Actions runner installed on the VM. Every
+push to `master` triggers `Build and push` (publishes the image to GHCR),
+which in turn triggers `Deploy` (writes the compose stack + `.env` from
+GitHub Environment secrets and rolls the containers).
 
-The project includes a complete Docker Compose setup with:
+See [`deploy/README.md`](deploy/README.md) for the full runbook: VM
+prerequisites, runner installation, GitHub Environment secrets and
+variables, image tagging strategy, and rollback procedure.
 
-- **Web Service** - Django application with Gunicorn
-- **Database** - PostgreSQL 14
-- **Nginx** - Reverse proxy with automatic SSL via Let's Encrypt
-- **Task Worker** - Background task processor
-- **Task Scheduler** - Cron-based task scheduler
+The stack consists of:
 
-### Required Environment Variables
+- **caddy** — reverse proxy with automatic HTTPS
+- **database** — PostgreSQL 17
+- **web** — Django app served by uWSGI
+- **task-worker** — background task processor
+- **task-scheduler** — cron-based task scheduler
 
-```bash
-# Django
-LANDOLFIO_SECRET_KEY=<secret-key>
-LANDOLFIO_ALLOWED_HOSTS=<domain>
-DJANGO_SETTINGS_MODULE=website.settings.production
-
-# Database
-POSTGRES_DB=<database-name>
-POSTGRES_USER=<database-user>
-POSTGRES_PASSWORD=<database-password>
-POSTGRES_HOST=database
-POSTGRES_PORT=5432
-
-# Moneybird Integration
-MONEYBIRD_ADMINISTRATION_ID=<admin-id>
-MONEYBIRD_API_KEY=<api-key>
-MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID=<account-id>
-MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID=<account-id>
-
-# AWS S3 Storage
-AWS_ACCESS_KEY_ID=<access-key>
-AWS_SECRET_ACCESS_KEY=<secret-key>
-AWS_STORAGE_BUCKET_NAME=<bucket-name>
-AWS_S3_REGION_NAME=<region>
-
-# Email (SMTP)
-SMTP_HOST=<smtp-host>
-SMTP_PORT=<smtp-port>
-SMTP_USE_TLS=true
-SMTP_USER=<smtp-user>
-SMTP_PASSWORD=<smtp-password>
-SMTP_FROM=<from-address>
-SMTP_FROM_EMAIL=<from-email>
-
-# Monitoring
-SENTRY_DSN=<sentry-dsn>
-DJANGO_LOG_LEVEL=INFO
-```
-
-### Deploy with Docker Compose
-
-```bash
-# Pull latest image
-docker-compose pull
-
-# Start services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f web
-```
+To cut a release, draft a GitHub Release with a `vX.Y.Z` tag — CI then
+publishes a semver-tagged image alongside the immutable `sha-<sha>` tag.
 
 ## Architecture
 
@@ -219,10 +178,10 @@ poetry run coverage report
 
 ## Contributing
 
-1. Create a feature branch from `development`
+1. Create a feature branch from `master`
 2. Make your changes
 3. Ensure all tests pass and code quality checks succeed
-4. Submit a pull request to `development`
+4. Submit a pull request to `master`
 
 ### Code Style
 

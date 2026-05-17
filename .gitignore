@@ -48,4 +48,9 @@ db.sqlite3-journal
 .env
 
 # Django file storage
+/landolfio/media/
 /website/media
+
+# Tooling caches
+.ruff_cache/
+.aider*
