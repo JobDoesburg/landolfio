@@ -117,7 +117,7 @@ services:
       - media:/media
     environment: *django-web-env
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://127.0.0.1/"]
+      test: ["CMD", "curl", "-fsS", "-H", "Host: ${DJANGO_HOSTNAME}", "http://127.0.0.1/"]
       interval: 10s
       timeout: 5s
       retries: 5

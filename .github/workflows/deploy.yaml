@@ -29,8 +29,8 @@ jobs:
           DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
         run: |
           set -euo pipefail
-          install -m 644 deploy/docker-compose.yml "$DEPLOY_DIR/docker-compose.yml"
-          install -m 644 deploy/Caddyfile "$DEPLOY_DIR/Caddyfile"
+          install -m 640 -g deploy-landolfio deploy/docker-compose.yml "$DEPLOY_DIR/docker-compose.yml"
+          install -m 640 -g deploy-landolfio deploy/Caddyfile "$DEPLOY_DIR/Caddyfile"
 
       - name: "Write .env in deploy dir"
         env:
@@ -66,7 +66,7 @@ jobs:
           DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
         run: |
           set -euo pipefail
-          umask 077
+          umask 027
           cat > "$DEPLOY_DIR/.env" <<EOF
           LANDOLFIO_SECRET_KEY=${LANDOLFIO_SECRET_KEY}
           POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -98,6 +98,7 @@ jobs:
           NOTIFICATION_EMAIL=${NOTIFICATION_EMAIL}
           PUBLIC_CONTACT_EMAIL=${PUBLIC_CONTACT_EMAIL}
           EOF
+          chgrp deploy-landolfio "$DEPLOY_DIR/.env"
 
       - name: "Pull image and restart stack"
         env:
