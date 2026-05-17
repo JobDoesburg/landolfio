@@ -78,8 +78,8 @@ human approval.
 | Variable | Example | Purpose |
 | --- | --- | --- |
 | `DEPLOY_DIR` | `/opt/landolfio` | Where the compose stack lives on the VM. |
-| `DJANGO_HOSTNAME` | `landolfio.vofdoesburg.nl` | Public hostname served by Caddy. |
-| `DJANGO_ALLOWED_HOSTS` | `landolfio.vofdoesburg.nl` | Django's `ALLOWED_HOSTS`. |
+| `DJANGO_HOSTNAME` | `landolfio.vofdoesburg.nl` | The single hostname Caddy terminates TLS for and serves directly on this VM. Also used as the `Host:` header for the web healthcheck. |
+| `DJANGO_ALLOWED_HOSTS` | `landolfio.vofdoesburg.nl,landolfio.jobdoesburg.dev` | Django's allowlist (comma-separated). Include `DJANGO_HOSTNAME` plus any hostname that reaches Django via an upstream reverse proxy. |
 | `DJANGO_LOG_LEVEL` | `INFO` | Django log level. |
 | `MONEYBIRD_ADMINISTRATION_ID` | `123456789` | Moneybird administration ID. |
 | `MONEYBIRD_WEBHOOK_ID` | `…` | Moneybird webhook ID. |
