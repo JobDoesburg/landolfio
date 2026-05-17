@@ -1,7 +1,10 @@
 #!/bin/sh
 python manage.py migrate --noinput
 
-# Start tail for uWSGI logs in background (send to stdout for docker logs)
+# Ensure the uWSGI logfile exists so tail -F doesn't print a spurious warning.
+touch /var/log/uwsgi.log
+
+# Stream uWSGI logs to stdout for `docker logs`.
 tail -F /var/log/uwsgi.log &
 
 # Start uWSGI (logs go to both file and stdout)
@@ -10,6 +13,8 @@ uwsgi --http :80 \
       --master \
       --processes 4 \
       --threads 2 \
+      --enable-threads \
+      --py-call-uwsgi-fork-hooks \
       --uid nobody \
       --gid nogroup \
       --static-map ${DJANGO_STATIC_URL}=${DJANGO_STATIC_ROOT} \

@@ -1,12 +1,12 @@
 FROM python:3.12-slim
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Install system dependencies
+# gcc + libpq-dev + python3-dev: needed to compile uWSGI from its sdist.
+# curl + ca-certificates: needed by the compose healthcheck.
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends gcc libpq-dev python3-dev cron curl ca-certificates \
+    && apt-get install -y --no-install-recommends gcc libpq-dev python3-dev curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory in the container
@@ -24,23 +24,17 @@ RUN pip install poetry \
 COPY landolfio /app
 COPY entrypoint.sh /
 
-ENV DJANGO_SETTINGS_MODULE website.settings.production
+ENV DJANGO_SETTINGS_MODULE=website.settings.production
 
-ENV DJANGO_STATIC_ROOT /static
-ENV DJANGO_MEDIA_ROOT /media
+ENV DJANGO_STATIC_ROOT=/static
+ENV DJANGO_MEDIA_ROOT=/media
+ENV DJANGO_STATIC_URL=/static/
+ENV DJANGO_MEDIA_URL=/media/
 
-RUN mkdir -p $DJANGO_STATIC_ROOT
-RUN mkdir -p $DJANGO_MEDIA_ROOT
-
-ENV DJANGO_STATIC_URL /static/
-ENV DJANGO_MEDIA_URL /media/
-
-RUN touch /var/log/django.log
-
-RUN python manage.py collectstatic --noinput
-
-RUN chown -R nobody:nogroup $DJANGO_MEDIA_ROOT
-RUN chown -R nobody:nogroup /var/log/django.log
+RUN mkdir -p $DJANGO_STATIC_ROOT $DJANGO_MEDIA_ROOT \
+    && touch /var/log/django.log /var/log/uwsgi.log \
+    && python manage.py collectstatic --noinput \
+    && chown -R nobody:nogroup $DJANGO_MEDIA_ROOT /var/log/django.log /var/log/uwsgi.log
 
 EXPOSE 80
 
