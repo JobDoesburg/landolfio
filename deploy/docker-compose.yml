@@ -1,0 +1,171 @@
+name: landolfio
+
+x-landolfio-image: &landolfio-image ghcr.io/jobdoesburg/landolfio:latest
+
+# Cap container log growth: 3 × 10 MB per service.
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+# Postgres connection info — needed by anything that talks to the DB.
+x-db-env: &db-env
+  POSTGRES_USER: landolfio
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  POSTGRES_DB: landolfio
+  POSTGRES_HOST: database
+  POSTGRES_PORT: 5432
+
+# Minimum env needed to boot Django + report errors. Used by every service
+# that imports the Django settings (web, task-worker, task-scheduler).
+x-django-core-env: &django-core-env
+  <<: *db-env
+  LANDOLFIO_SECRET_KEY: ${LANDOLFIO_SECRET_KEY}
+  SENTRY_DSN: ${SENTRY_DSN}
+  DJANGO_LOG_LEVEL: ${DJANGO_LOG_LEVEL}
+  MONEYBIRD_ADMINISTRATION_ID: ${MONEYBIRD_ADMINISTRATION_ID}
+  MONEYBIRD_API_KEY: ${MONEYBIRD_API_KEY}
+  MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID: ${MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID}
+  MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID: ${MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID}
+  NINOX_API_TOKEN: ${NINOX_API_TOKEN}
+  NINOX_TEAM_ID: ${NINOX_TEAM_ID}
+  NINOX_DATABASE_ID: ${NINOX_DATABASE_ID}
+  AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+  AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+  AWS_STORAGE_BUCKET_NAME: ${AWS_STORAGE_BUCKET_NAME}
+  AWS_S3_REGION_NAME: ${AWS_S3_REGION_NAME}
+  NOTIFICATION_EMAIL: ${NOTIFICATION_EMAIL}
+  PUBLIC_CONTACT_EMAIL: ${PUBLIC_CONTACT_EMAIL}
+
+# Web-only env: HTTP serving, allowed hosts, Moneybird webhooks, outgoing mail.
+x-django-web-env: &django-web-env
+  <<: *django-core-env
+  LANDOLFIO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS}
+  MONEYBIRD_WEBHOOK_ID: ${MONEYBIRD_WEBHOOK_ID}
+  MONEYBIRD_WEBHOOK_TOKEN: ${MONEYBIRD_WEBHOOK_TOKEN}
+  SMTP_HOST: ${SMTP_HOST}
+  SMTP_PORT: ${SMTP_PORT}
+  SMTP_USE_TLS: ${SMTP_USE_TLS}
+  SMTP_USE_SSL: ${SMTP_USE_SSL}
+  SMTP_USER: ${SMTP_USER}
+  SMTP_PASSWORD: ${SMTP_PASSWORD}
+  SMTP_FROM: ${SMTP_FROM}
+  SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL}
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    logging: *default-logging
+    security_opt:
+      - no-new-privileges:true
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    environment:
+      DJANGO_HOSTNAME: ${DJANGO_HOSTNAME}
+    depends_on:
+      web:
+        condition: service_healthy
+    networks:
+      - web
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:2019/config/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  database:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    logging: *default-logging
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - db
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    environment: *db-env
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "landolfio", "-d", "landolfio"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  web:
+    image: *landolfio-image
+    restart: unless-stopped
+    logging: *default-logging
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - web
+      - db
+      - outbound
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - media:/media
+    environment: *django-web-env
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  task-worker:
+    image: *landolfio-image
+    command: ["python", "manage.py", "db_worker", "--queue-name", "default"]
+    restart: unless-stopped
+    logging: *default-logging
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - db
+      - outbound
+    depends_on:
+      database:
+        condition: service_healthy
+    volumes:
+      - media:/media
+    environment: *django-core-env
+
+  task-scheduler:
+    image: *landolfio-image
+    command: ["python", "manage.py", "scheduler"]
+    restart: unless-stopped
+    logging: *default-logging
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - db
+      - outbound
+    depends_on:
+      database:
+        condition: service_healthy
+    environment: *django-core-env
+
+networks:
+  # Public-facing (caddy) + backend HTTP (web).
+  web:
+  # Database-only network; no internet access, no external services.
+  db:
+    internal: true
+  # Outbound-only network for services that reach external APIs (Moneybird, Ninox, S3, SMTP).
+  outbound:
+
+volumes:
+  pg-data:
+  media:
+  caddy-data:
+  caddy-config:

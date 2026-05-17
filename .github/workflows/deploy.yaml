@@ -1,0 +1,132 @@
+name: "Deploy"
+
+on:
+  workflow_run:
+    workflows: ["Build and push"]
+    types: [completed]
+    branches: [master]
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: "Deploy to production"
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: [self-hosted, production]
+    environment: landolfio.vofdoesburg.nl
+    timeout-minutes: 15
+
+    steps:
+      - name: "Checkout the triggering commit"
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: "Copy compose + Caddyfile into deploy dir"
+        env:
+          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+        run: |
+          set -euo pipefail
+          install -m 644 deploy/docker-compose.yml "$DEPLOY_DIR/docker-compose.yml"
+          install -m 644 deploy/Caddyfile "$DEPLOY_DIR/Caddyfile"
+
+      - name: "Write .env in deploy dir"
+        env:
+          LANDOLFIO_SECRET_KEY: ${{ secrets.LANDOLFIO_SECRET_KEY }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          MONEYBIRD_API_KEY: ${{ secrets.MONEYBIRD_API_KEY }}
+          MONEYBIRD_WEBHOOK_TOKEN: ${{ secrets.MONEYBIRD_WEBHOOK_TOKEN }}
+          NINOX_API_TOKEN: ${{ secrets.NINOX_API_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          MONEYBIRD_ADMINISTRATION_ID: ${{ vars.MONEYBIRD_ADMINISTRATION_ID }}
+          MONEYBIRD_WEBHOOK_ID: ${{ vars.MONEYBIRD_WEBHOOK_ID }}
+          MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID: ${{ vars.MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID }}
+          MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID: ${{ vars.MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID }}
+          NINOX_TEAM_ID: ${{ vars.NINOX_TEAM_ID }}
+          NINOX_DATABASE_ID: ${{ vars.NINOX_DATABASE_ID }}
+          AWS_STORAGE_BUCKET_NAME: ${{ vars.AWS_STORAGE_BUCKET_NAME }}
+          AWS_S3_REGION_NAME: ${{ vars.AWS_S3_REGION_NAME }}
+          SMTP_HOST: ${{ vars.SMTP_HOST }}
+          SMTP_PORT: ${{ vars.SMTP_PORT }}
+          SMTP_USE_TLS: ${{ vars.SMTP_USE_TLS }}
+          SMTP_USE_SSL: ${{ vars.SMTP_USE_SSL }}
+          SMTP_USER: ${{ vars.SMTP_USER }}
+          SMTP_FROM: ${{ vars.SMTP_FROM }}
+          SMTP_FROM_EMAIL: ${{ vars.SMTP_FROM_EMAIL }}
+          DJANGO_HOSTNAME: ${{ vars.DJANGO_HOSTNAME }}
+          DJANGO_ALLOWED_HOSTS: ${{ vars.DJANGO_ALLOWED_HOSTS }}
+          DJANGO_LOG_LEVEL: ${{ vars.DJANGO_LOG_LEVEL }}
+          NOTIFICATION_EMAIL: ${{ vars.NOTIFICATION_EMAIL }}
+          PUBLIC_CONTACT_EMAIL: ${{ vars.PUBLIC_CONTACT_EMAIL }}
+          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+        run: |
+          set -euo pipefail
+          umask 077
+          cat > "$DEPLOY_DIR/.env" <<EOF
+          LANDOLFIO_SECRET_KEY=${LANDOLFIO_SECRET_KEY}
+          POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+          SENTRY_DSN=${SENTRY_DSN}
+          MONEYBIRD_ADMINISTRATION_ID=${MONEYBIRD_ADMINISTRATION_ID}
+          MONEYBIRD_API_KEY=${MONEYBIRD_API_KEY}
+          MONEYBIRD_WEBHOOK_ID=${MONEYBIRD_WEBHOOK_ID}
+          MONEYBIRD_WEBHOOK_TOKEN=${MONEYBIRD_WEBHOOK_TOKEN}
+          MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID=${MONEYBIRD_MARGIN_ASSETS_LEDGER_ACCOUNT_ID}
+          MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID=${MONEYBIRD_NOT_MARGIN_ASSETS_LEDGER_ACCOUNT_ID}
+          NINOX_API_TOKEN=${NINOX_API_TOKEN}
+          NINOX_TEAM_ID=${NINOX_TEAM_ID}
+          NINOX_DATABASE_ID=${NINOX_DATABASE_ID}
+          AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+          AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+          AWS_STORAGE_BUCKET_NAME=${AWS_STORAGE_BUCKET_NAME}
+          AWS_S3_REGION_NAME=${AWS_S3_REGION_NAME}
+          SMTP_HOST=${SMTP_HOST}
+          SMTP_PORT=${SMTP_PORT}
+          SMTP_USE_TLS=${SMTP_USE_TLS}
+          SMTP_USE_SSL=${SMTP_USE_SSL}
+          SMTP_USER=${SMTP_USER}
+          SMTP_PASSWORD=${SMTP_PASSWORD}
+          SMTP_FROM=${SMTP_FROM}
+          SMTP_FROM_EMAIL=${SMTP_FROM_EMAIL}
+          DJANGO_HOSTNAME=${DJANGO_HOSTNAME}
+          DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+          DJANGO_LOG_LEVEL=${DJANGO_LOG_LEVEL}
+          NOTIFICATION_EMAIL=${NOTIFICATION_EMAIL}
+          PUBLIC_CONTACT_EMAIL=${PUBLIC_CONTACT_EMAIL}
+          EOF
+
+      - name: "Pull image and restart stack"
+        env:
+          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+        run: |
+          set -euo pipefail
+          cd "$DEPLOY_DIR"
+          docker compose pull
+          docker compose up -d --remove-orphans
+
+      - name: "Wait for web to be healthy"
+        env:
+          DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
+        run: |
+          set -euo pipefail
+          cd "$DEPLOY_DIR"
+          web_cid=$(docker compose ps -q web)
+          if [ -z "$web_cid" ]; then
+            echo "::error::web container not found; did 'compose up' succeed?"
+            exit 1
+          fi
+          for i in $(seq 1 60); do
+            status=$(docker inspect --format='{{.State.Health.Status}}' "$web_cid" 2>/dev/null || echo missing)
+            case "$status" in
+              healthy) echo "web healthy after ${i}x5s"; exit 0 ;;
+              unhealthy) echo "web unhealthy"; docker logs --tail 100 "$web_cid"; exit 1 ;;
+            esac
+            sleep 5
+          done
+          echo "timeout waiting for web to become healthy"
+          docker logs --tail 100 "$web_cid"
+          exit 1
