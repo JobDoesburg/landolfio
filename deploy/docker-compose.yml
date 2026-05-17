@@ -110,6 +110,7 @@ services:
       - web
       - db
       - outbound
+      - pangolin_proxy
     depends_on:
       database:
         condition: service_healthy
@@ -163,6 +164,10 @@ networks:
     internal: true
   # Outbound-only network for services that reach external APIs (Moneybird, Ninox, S3, SMTP).
   outbound:
+  # External network managed by the Pangolin reverse proxy stack — used to
+  # reach `web` from outside the compose project on a separate hostname.
+  pangolin_proxy:
+    external: true
 
 volumes:
   pg-data:
