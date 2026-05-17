@@ -42,6 +42,12 @@ DATABASES = {
         "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
         "HOST": os.environ.get("POSTGRES_HOST"),
         "PORT": os.environ.get("POSTGRES_PORT"),
+        # Keep DB connections warm so we don't re-resolve `database` DNS
+        # and re-handshake Postgres on every request. Health-checks the
+        # cached connection cheaply before reuse, so a stale socket from
+        # a Postgres restart drops cleanly instead of erroring out.
+        "CONN_MAX_AGE": 600,
+        "CONN_HEALTH_CHECKS": True,
     }
 }
 

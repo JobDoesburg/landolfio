@@ -122,7 +122,11 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 60s
+      # Generous window: every Django container now runs `migrate` on boot
+      # (via entrypoint.sh) and only one acquires Django's advisory lock;
+      # the others block. With three services and a growing schema, cold
+      # boot can take >60s.
+      start_period: 180s
 
   task-worker:
     image: *landolfio-image

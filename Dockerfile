@@ -38,5 +38,6 @@ RUN mkdir -p $DJANGO_STATIC_ROOT $DJANGO_MEDIA_ROOT \
 
 EXPOSE 80
 
-# Command to run uWSGI
-CMD ["/bin/sh", "/entrypoint.sh"]
+# entrypoint.sh runs migrations, then either execs uWSGI (no args) or the
+# command passed via Compose `command:` (workers, scheduler, manage.py ...).
+ENTRYPOINT ["/bin/sh", "/entrypoint.sh"]
