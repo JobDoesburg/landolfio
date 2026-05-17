@@ -66,3 +66,11 @@ updates:
     labels:
       - "dependencies"
       - "docker"
+    # Postgres major bumps (17 → 18) change the on-disk format. CI doesn't
+    # catch this — it would only show up when the new database container
+    # tries to open the existing pg-data volume in production. Keep these
+    # behind a human review for the pg_upgrade dance.
+    ignore:
+      - dependency-name: "postgres"
+        update-types:
+          - "version-update:semver-major"

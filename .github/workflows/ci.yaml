@@ -1,0 +1,95 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: ["master"]
+  release:
+    types: [published]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  # Cancel superseded PR runs. Never cancel master / release runs — they
+  # publish images.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  check:
+    name: "Django check"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: "Install Poetry"
+        run: pipx install poetry
+
+      - name: "Set up Python"
+        uses: actions/setup-python@v6
+        with:
+          # Keep in sync with the Dockerfile FROM line. When Dependabot
+          # bumps either, mismatched versions fail this step.
+          python-version: "3.14"
+          cache: poetry
+
+      - name: "Install dependencies"
+        run: poetry install --with prod --no-interaction --no-root
+
+      - name: "Check for missing migrations"
+        working-directory: landolfio
+        env:
+          DJANGO_SETTINGS_MODULE: website.settings.development
+        run: poetry run python manage.py makemigrations --check --dry-run
+
+      - name: "Django system check"
+        working-directory: landolfio
+        env:
+          DJANGO_SETTINGS_MODULE: website.settings.development
+        run: poetry run python manage.py check
+
+  build-and-push:
+    name: "Push image to GHCR"
+    needs: [check]
+    # Only publish on master pushes and releases. PRs (including Dependabot)
+    # run the check job but stop here — no broken image gets tagged.
+    if: github.event_name == 'push' || github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: "Log in to GHCR"
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - id: meta
+        uses: docker/metadata-action@v6
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/landolfio
+          # Tag strategy:
+          #   master push   → sha-<sha>, latest
+          #   release vX.Y.Z → sha-<sha>, X.Y.Z, X.Y, X (and "latest" only on non-prerelease)
+          tags: |
+            type=sha,format=long
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=latest,enable=${{ github.event_name == 'release' && github.event.release.prerelease == false }}
+
+      - name: "Build and push"
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
