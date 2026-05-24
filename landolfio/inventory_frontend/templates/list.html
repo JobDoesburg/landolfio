@@ -342,9 +342,9 @@
 
                     <!-- Price Range -->
                     <div class="dropdown">
-                        <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <span class="value-display">
-                                {% translate "Price" %}: €{{ request.GET.min_value|default:queryset_min_price|floatformat:0|localize }} - €{{ request.GET.max_value|default:queryset_max_price|floatformat:0|localize }}
+                                {% translate "Price" %}: €{{ request.GET.min_value|default:queryset_min_price|floatformat:0 }} - €{{ request.GET.max_value|default:queryset_max_price|floatformat:0 }}
                             </span>
                         </button>
                         <div class="dropdown-menu p-3" style="width: 300px;">
@@ -352,17 +352,17 @@
                                    min="0" max="100" step="1"
                                    value="0"
                                    id="valueMinSlider"
-                                   data-queryset-min="{{ queryset_min_price }}"
-                                   data-queryset-max="{{ queryset_max_price }}">
+                                   data-queryset-min="{{ queryset_min_price|floatformat:'0u' }}"
+                                   data-queryset-max="{{ queryset_max_price|floatformat:'0u' }}">
                             <input type="range" class="form-range mb-3"
                                    min="0" max="100" step="1"
                                    value="100"
                                    id="valueMaxSlider">
-                            <input type="hidden" name="min_value" id="valueMin" value="{{ request.GET.min_value|default:queryset_min_price }}">
-                            <input type="hidden" name="max_value" id="valueMax" value="{{ request.GET.max_value|default:queryset_max_price }}">
+                            <input type="hidden" name="min_value" id="valueMin" value="{{ request.GET.min_value|default:queryset_min_price|floatformat:'0u' }}">
+                            <input type="hidden" name="max_value" id="valueMax" value="{{ request.GET.max_value|default:queryset_max_price|floatformat:'0u' }}">
                             <div class="d-flex justify-content-between value-labels small text-muted">
-                                <div>{% translate "Min" %}: €<span id="valueMinLabel">{{ request.GET.min_value|default:queryset_min_price|floatformat:0|localize }}</span></div>
-                                <div>{% translate "Max" %}: €<span id="valueMaxLabel">{{ request.GET.max_value|default:queryset_max_price|floatformat:0|localize }}</span></div>
+                                <div>{% translate "Min" %}: €<span id="valueMinLabel">{{ request.GET.min_value|default:queryset_min_price|floatformat:0 }}</span></div>
+                                <div>{% translate "Max" %}: €<span id="valueMaxLabel">{{ request.GET.max_value|default:queryset_max_price|floatformat:0 }}</span></div>
                             </div>
                         </div>
                     </div>
@@ -486,14 +486,7 @@
         gap: 0.5rem;
         transition: height 0.3s ease;
     }
-    
-    /* Only hide overflow during animation on mobile */
-    @media (max-width: 767.98px) {
-        #filter-collapse.animating {
-            overflow: hidden;
-        }
-    }
-    
+
     /* On desktop, always show */
     @media (min-width: 768px) {
         #filter-collapse {
@@ -501,7 +494,50 @@
             height: auto !important;
         }
     }
-    
+
+    /* Mobile: stack filters vertically, each full-width, never overflow viewport */
+    @media (max-width: 767.98px) {
+        #filter-collapse {
+            flex-direction: column;
+            flex-wrap: nowrap;
+            align-items: stretch;
+            width: 100%;
+        }
+
+        #filter-collapse.animating {
+            overflow: hidden;
+        }
+
+        #filter-collapse > .dropdown,
+        #filter-collapse > a.btn {
+            width: 100%;
+        }
+
+        #filter-collapse > .dropdown > .btn {
+            width: 100%;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Let dropdown menus flow as block elements inside each filter row */
+        #filter-collapse .dropdown {
+            position: static;
+        }
+
+        /* Force every dropdown menu to fit within the viewport on mobile */
+        #filter-collapse .dropdown-menu {
+            position: static !important;
+            transform: none !important;
+            inset: auto !important;
+            width: 100% !important;
+            max-width: 100%;
+            min-width: 0;
+            margin-top: 0.25rem;
+        }
+    }
+
     /* Mobile hidden state - applied by JavaScript after initialization */
     #filter-collapse.mobile-hidden {
         display: none;
@@ -1314,11 +1350,14 @@ function initializeViewToggle() {
  * Multi-select filter functionality
  */
 function initializeMultiSelectFilters() {
-    // Keep filter dropdowns open when clicking checkboxes
+    // Keep filter dropdowns open when interacting with inner controls
     document.querySelectorAll('.dropdown-menu').forEach(dropdown => {
         dropdown.addEventListener('click', function(e) {
-            if (e.target.matches('input[type="checkbox"]') || 
-                e.target.matches('.form-check-label') || 
+            if (e.target.matches('input[type="checkbox"]') ||
+                e.target.matches('input[type="range"]') ||
+                e.target.matches('input[type="number"]') ||
+                e.target.matches('input[type="text"]') ||
+                e.target.matches('.form-check-label') ||
                 e.target.matches('.form-check')) {
                 e.stopPropagation();
             }
@@ -1340,30 +1379,45 @@ function initializePriceRangeSliders() {
 
     if (!valueMinSlider || !valueMaxSlider || !valueMin || !valueMax || !valueMinLabel || !valueMaxLabel || !valueDisplay) return;
 
-    // Get dynamic price range from queryset
-    const MIN_PRICE = Number(valueMinSlider.dataset.querysetMin) || 0;
-    const MAX_PRICE = Number(valueMinSlider.dataset.querysetMax) || 10000;
+    // Tolerate locale-formatted numbers like "1.234,56" or "1,234.56" by
+    // stripping anything that isn't a digit. The values are integer euros.
+    function parsePrice(raw) {
+        if (raw === null || raw === undefined) return NaN;
+        const cleaned = String(raw).replace(/[^\d-]/g, '');
+        if (cleaned === '' || cleaned === '-') return NaN;
+        return Number(cleaned);
+    }
 
-    // Logarithmic scale conversion functions
+    const parsedMin = parsePrice(valueMinSlider.dataset.querysetMin);
+    const parsedMax = parsePrice(valueMinSlider.dataset.querysetMax);
+    const MIN_PRICE = Number.isFinite(parsedMin) ? parsedMin : 0;
+    const MAX_PRICE = Number.isFinite(parsedMax) && parsedMax > MIN_PRICE ? parsedMax : Math.max(MIN_PRICE + 1, 10000);
+
     function sliderToPrice(sliderValue) {
-        // Use exponential function for smooth logarithmic scale
-        // Maps 0-100 slider to 0-10000 price with more granularity at lower values
-        const normalized = sliderValue / 100;
+        const normalized = Math.min(Math.max(Number(sliderValue) / 100, 0), 1);
         return Math.round(MIN_PRICE + (MAX_PRICE - MIN_PRICE) * Math.pow(normalized, 2));
     }
 
     function priceToSlider(price) {
-        // Reverse conversion from price to slider position
-        const normalized = (price - MIN_PRICE) / (MAX_PRICE - MIN_PRICE);
+        if (!Number.isFinite(price)) return 0;
+        const range = MAX_PRICE - MIN_PRICE;
+        if (range <= 0) return 0;
+        const normalized = Math.min(Math.max((price - MIN_PRICE) / range, 0), 1);
         return Math.round(Math.sqrt(normalized) * 100);
     }
 
+    function formatPrice(value) {
+        return Number(value).toLocaleString('nl-NL');
+    }
+
     function updateValueLabels() {
-        const minPrice = Number(valueMin.value);
-        const maxPrice = Number(valueMax.value);
-        valueMinLabel.textContent = minPrice.toLocaleString('nl-NL');
-        valueMaxLabel.textContent = maxPrice.toLocaleString('nl-NL');
-        valueDisplay.textContent = '{% translate "Price" %}: €' + minPrice.toLocaleString('nl-NL') + ' - €' + maxPrice.toLocaleString('nl-NL');
+        const minPrice = parsePrice(valueMin.value);
+        const maxPrice = parsePrice(valueMax.value);
+        const safeMin = Number.isFinite(minPrice) ? minPrice : MIN_PRICE;
+        const safeMax = Number.isFinite(maxPrice) ? maxPrice : MAX_PRICE;
+        valueMinLabel.textContent = formatPrice(safeMin);
+        valueMaxLabel.textContent = formatPrice(safeMax);
+        valueDisplay.textContent = '{% translate "Price" %}: €' + formatPrice(safeMin) + ' - €' + formatPrice(safeMax);
     }
 
     function updateForm() {
@@ -1375,8 +1429,9 @@ function initializePriceRangeSliders() {
 
     let timeout;
     valueMinSlider.addEventListener('input', function() {
-        const minPrice = sliderToPrice(Number(valueMinSlider.value));
-        const maxPrice = Number(valueMax.value);
+        const minPrice = sliderToPrice(valueMinSlider.value);
+        const currentMax = parsePrice(valueMax.value);
+        const maxPrice = Number.isFinite(currentMax) ? currentMax : MAX_PRICE;
 
         if (minPrice > maxPrice) {
             valueMin.value = maxPrice;
@@ -1391,8 +1446,9 @@ function initializePriceRangeSliders() {
     });
 
     valueMaxSlider.addEventListener('input', function() {
-        const maxPrice = sliderToPrice(Number(valueMaxSlider.value));
-        const minPrice = Number(valueMin.value);
+        const maxPrice = sliderToPrice(valueMaxSlider.value);
+        const currentMin = parsePrice(valueMin.value);
+        const minPrice = Number.isFinite(currentMin) ? currentMin : MIN_PRICE;
 
         if (maxPrice < minPrice) {
             valueMax.value = minPrice;
@@ -1406,18 +1462,13 @@ function initializePriceRangeSliders() {
         timeout = setTimeout(updateForm, 500);
     });
 
-    // Keep dropdown open while interacting with sliders
-    document.querySelectorAll('.dropdown').forEach(dropdown => {
-        dropdown.addEventListener('click', function(e) {
-            if (e.target.matches('input[type="range"]')) {
-                e.stopPropagation();
-            }
-        });
-    });
-
-    // Initialize sliders with current price values
-    const currentMinPrice = Number(valueMin.value) || MIN_PRICE;
-    const currentMaxPrice = Number(valueMax.value) || MAX_PRICE;
+    // Initialize sliders with current price values, snapping invalid ones to bounds
+    const parsedCurrentMin = parsePrice(valueMin.value);
+    const parsedCurrentMax = parsePrice(valueMax.value);
+    const currentMinPrice = Number.isFinite(parsedCurrentMin) ? parsedCurrentMin : MIN_PRICE;
+    const currentMaxPrice = Number.isFinite(parsedCurrentMax) ? parsedCurrentMax : MAX_PRICE;
+    valueMin.value = currentMinPrice;
+    valueMax.value = currentMaxPrice;
     valueMinSlider.value = priceToSlider(currentMinPrice);
     valueMaxSlider.value = priceToSlider(currentMaxPrice);
 
