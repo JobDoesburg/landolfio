@@ -7,6 +7,10 @@ from django_scheduled_tasks import cron_task
 
 from inventory.models.asset import Asset
 from inventory.moneybird import MoneybirdAssetService
+from inventory.services import (
+    MIN_ASSET_NAME_LENGTH_FOR_FUZZY_LINK,
+    find_unique_unlinked_asset_for_moneybird_name,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -43,18 +47,20 @@ def sync_unlinked_moneybird_assets(**kwargs):
         logger.error("No ledger accounts configured, skipping sync")
         return stats
 
-    # Get all linked Moneybird IDs once
-    linked_mb_ids = set(
-        Asset.objects.filter(moneybird_asset_id__isnull=False).values_list(
+    # Get all linked Moneybird IDs once (stored as BigInteger; compare as str throughout)
+    linked_mb_ids = {
+        str(mb_id)
+        for mb_id in Asset.objects.filter(moneybird_asset_id__isnull=False).values_list(
             "moneybird_asset_id", flat=True
         )
-    )
+    }
 
     # Get all unlinked local assets once (excluding empty/very short names)
     unlinked_local_assets = [
         asset
         for asset in Asset.objects.filter(moneybird_asset_id__isnull=True)
-        if asset.name and len(asset.name.strip()) >= 3
+        if asset.name
+        and len(asset.name.strip()) >= MIN_ASSET_NAME_LENGTH_FOR_FUZZY_LINK
     ]
 
     for ledger_account_id in ledger_accounts:
@@ -80,17 +86,11 @@ def sync_unlinked_moneybird_assets(**kwargs):
                 stats["already_linked"] += 1
                 continue
 
-            # Find matches where Moneybird name contains local asset name
-            mb_name_lower = mb_name.lower()
-            matches = [
-                asset
-                for asset in unlinked_local_assets
-                if asset.name.lower() in mb_name_lower
-            ]
+            local_asset, matches = find_unique_unlinked_asset_for_moneybird_name(
+                mb_name, unlinked_local_assets
+            )
 
-            if len(matches) == 1:
-                local_asset = matches[0]
-
+            if local_asset is not None:
                 try:
                     # Link them atomically
                     with transaction.atomic():

@@ -4,6 +4,7 @@ from moneybird.resource_types import MoneybirdResourceType
 from moneybird.webhooks.events import WebhookEvent
 from inventory.models.asset import Asset
 from inventory.moneybird import MoneybirdAssetService
+from inventory.services import find_unique_unlinked_asset_for_moneybird_name
 
 logger = logging.getLogger(__name__)
 
@@ -28,12 +29,11 @@ class AssetResourceType(MoneybirdResourceType):
 
     @classmethod
     def get_moneybird_ids(cls):
-        return list(
-            filter(
-                None,
-                cls.get_queryset().values_list("moneybird_asset_id", flat=True),
-            )
-        )
+        return [
+            str(mb_id)
+            for mb_id in cls.get_queryset().values_list("moneybird_asset_id", flat=True)
+            if mb_id is not None
+        ]
 
     @classmethod
     def process_webhook_event(
@@ -69,34 +69,53 @@ class AssetResourceType(MoneybirdResourceType):
                 logger.warning(f"Asset {resource_id} has no name, cannot match")
                 return None
 
-            # Try to find exact match (case-insensitive)
-            try:
-                asset = cls.get_queryset().get(
-                    name__iexact=moneybird_name, moneybird_asset_id__isnull=True
-                )
+            asset = cls._find_local_asset_to_link(moneybird_name, resource_id)
+            if asset is None:
+                return None
+
+            logger.info(
+                f"Linking local asset '{asset.name}' to Moneybird asset {resource_id}"
+            )
+            asset.moneybird_asset_id = resource_id
+            asset.save(update_fields=["moneybird_asset_id"])
+            asset.refresh_from_moneybird()
+
+            # Update Moneybird name if it doesn't match local asset representation
+            expected_name = str(asset)
+            if moneybird_name != expected_name:
                 logger.info(
-                    f"Linking local asset '{asset.name}' to Moneybird asset {resource_id}"
+                    f"Updating Moneybird asset name from '{moneybird_name}' to '{expected_name}'"
                 )
-                asset.moneybird_asset_id = resource_id
-                asset.save(update_fields=["moneybird_asset_id"])
-                asset.refresh_from_moneybird()
+                asset.update_on_moneybird()
 
-                # Update Moneybird name if it doesn't match local asset representation
-                expected_name = str(asset)
-                if moneybird_name != expected_name:
-                    logger.info(
-                        f"Updating Moneybird asset name from '{moneybird_name}' to '{expected_name}'"
-                    )
-                    asset.update_on_moneybird()
+            return asset
 
-                return asset
-            except cls.model.DoesNotExist:
-                return None
-            except cls.model.MultipleObjectsReturned:
-                logger.warning(
-                    f"Multiple assets found with name '{moneybird_name}', cannot auto-link"
-                )
-                return None
+    @classmethod
+    def _find_local_asset_to_link(cls, moneybird_name: str, resource_id: str):
+        # First: exact case-insensitive match on name.
+        try:
+            return cls.get_queryset().get(
+                name__iexact=moneybird_name, moneybird_asset_id__isnull=True
+            )
+        except cls.model.DoesNotExist:
+            pass
+        except cls.model.MultipleObjectsReturned:
+            logger.warning(
+                f"Multiple assets found with name '{moneybird_name}', cannot auto-link"
+            )
+            return None
+
+        # Fallback: local asset name appears as a whole word inside the
+        # Moneybird name (e.g. Moneybird "Viool V11" -> local "V11").
+        asset, matches = find_unique_unlinked_asset_for_moneybird_name(moneybird_name)
+        if asset is not None:
+            return asset
+        if len(matches) > 1:
+            logger.warning(
+                f"Multiple local assets match Moneybird name '{moneybird_name}': "
+                f"{[a.name for a in matches]}, cannot auto-link {resource_id}"
+            )
+        return None
 
     @classmethod
     def delete_from_moneybird(cls, resource_id: str):
