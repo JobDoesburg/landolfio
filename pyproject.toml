@@ -31,8 +31,8 @@ django-scheduled-tasks = "^0.2.16"
 django-tasks-db = "^0.12.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "^26.5.0"
-coverage = {extras = ["toml"], version = "^7.14.0"}
+black = "^26.5.1"
+coverage = {extras = ["toml"], version = "^7.14.1"}
 django-debug-toolbar = "^6.1.0"
 django-coverage-plugin = "^3.1.1"
 pre-commit = "^4.6.0"
@@ -45,7 +45,7 @@ dj-inmemorystorage = "^2.1.0"
 [tool.poetry.group.prod.dependencies]
 uwsgi = "^2.0.28"
 psycopg2-binary = "^2.9.10"
-sentry-sdk = "^2.33.0"
+sentry-sdk = "^2.61.1"
 
 [tool.black]
 target-version = ["py312"]
