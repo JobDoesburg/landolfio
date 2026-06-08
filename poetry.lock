@@ -760,14 +760,14 @@ django = "*"
 
 [[package]]
 name = "django-scheduled-tasks"
-version = "0.2.18"
+version = "0.3.0"
 description = "Task scheduling for Django 6.0 task backends"
 optional = false
 python-versions = ">=3.12"
 groups = ["main"]
 files = [
-    {file = "django_scheduled_tasks-0.2.18-py3-none-any.whl", hash = "sha256:2c6ad544375bca66c9e2656019eb60db08f0ebc28d02d940ecd1e9f45ec4ef41"},
-    {file = "django_scheduled_tasks-0.2.18.tar.gz", hash = "sha256:eb68a1c5955b10c64a0ccbc23adedfd1d673dd8ecc4dac5fba0860d24e60ca78"},
+    {file = "django_scheduled_tasks-0.3.0-py3-none-any.whl", hash = "sha256:992ea04945b104d633fe29ec9b20930b72b37122f5b9fad9566e6a78b410d7f0"},
+    {file = "django_scheduled_tasks-0.3.0.tar.gz", hash = "sha256:e3fd429c7670954489b2613882a5bc8988e75c8069cf598c77c151bd430c4d81"},
 ]
 
 [package.dependencies]
@@ -1854,4 +1854,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "bcc2b17850b0a14b838f02bccc063ef285f11ddf60a0dd32e4234d7db9a92607"
+content-hash = "670541ac7503dd82c491a600f347780fc4770ea9471c0f283bb56e17babc4e5e"
