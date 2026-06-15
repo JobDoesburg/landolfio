@@ -37,7 +37,7 @@ django-debug-toolbar = "^6.1.0"
 django-coverage-plugin = "^3.1.1"
 pre-commit = "^4.6.0"
 pydocstyle = {extras = ["toml"], version = "^6.3.0"}
-pylint = "^4.0.5"
+pylint = "^4.0.6"
 toml-sort = "^0.24.2"
 pylint-django = "^2.6.1"
 dj-inmemorystorage = "^2.1.0"
@@ -45,7 +45,7 @@ dj-inmemorystorage = "^2.1.0"
 [tool.poetry.group.prod.dependencies]
 uwsgi = "^2.0.28"
 psycopg2-binary = "^2.9.10"
-sentry-sdk = "^2.61.1"
+sentry-sdk = "^2.62.0"
 
 [tool.black]
 target-version = ["py312"]
