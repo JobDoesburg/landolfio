@@ -597,14 +597,14 @@ jinja = ["jinja2 (>=3.0,<4)"]
 
 [[package]]
 name = "django-countries"
-version = "8.2.0"
+version = "9.0.0"
 description = "Provides a country field for Django models."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.10"
 groups = ["main"]
 files = [
-    {file = "django_countries-8.2.0-py3-none-any.whl", hash = "sha256:2b2617bec7c15dc735bdec38ae89f0058e38fddfffdb19a7f6b75ef1e3d5380f"},
-    {file = "django_countries-8.2.0.tar.gz", hash = "sha256:6df3883180599052c7dfa9a8be0601792441cfb248935dc229ad1ac92e9e39e3"},
+    {file = "django_countries-9.0.0-py3-none-any.whl", hash = "sha256:21fce461733c856355c487d1f24b71338599482505004a0c2e521fd574a59fb1"},
+    {file = "django_countries-9.0.0.tar.gz", hash = "sha256:a993416af08a8a4e6e866d56b71c7ce92351c81a2543da213cd7899917567a42"},
 ]
 
 [package.dependencies]
@@ -1839,4 +1839,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "402eff315743feee08d57c801d894c2f8b6aff668f5c52ae62d27988fddf56ec"
+content-hash = "2da09e1c5c11b38f11a3ffd885e956fcd00374b415b6e24d6e5c893cb9012de7"
