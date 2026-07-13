@@ -32,14 +32,14 @@ django-tasks-db = "^0.12.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^26.5.1"
-coverage = {extras = ["toml"], version = "^7.15.0"}
+coverage = {extras = ["toml"], version = "^7.15.1"}
 django-debug-toolbar = "^7.0.0"
 django-coverage-plugin = "^3.1.1"
 pre-commit = "^4.6.0"
 pydocstyle = {extras = ["toml"], version = "^6.3.0"}
 pylint = "^4.0.6"
 toml-sort = "^0.24.2"
-pylint-django = "^2.6.1"
+pylint-django = "^2.8.0"
 dj-inmemorystorage = "^2.1.0"
 
 [tool.poetry.group.prod.dependencies]
