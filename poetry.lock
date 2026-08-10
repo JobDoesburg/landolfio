@@ -683,19 +683,19 @@ django = ">=3"
 
 [[package]]
 name = "django-localflavor"
-version = "5.0"
+version = "5.1"
 description = "Country-specific Django helpers"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
 files = [
-    {file = "django_localflavor-5.0-py3-none-any.whl", hash = "sha256:ee32749420cc4a93b18667939fe7fa0da36d71024a0d9578b40809a71489cee7"},
-    {file = "django_localflavor-5.0.tar.gz", hash = "sha256:9ddcce5dac6a956d076f3134071c64d4c76e1c7063e8aa7730414a2a1c5ded59"},
+    {file = "django_localflavor-5.1-py3-none-any.whl", hash = "sha256:33a0b5418c99c733e87fd949e08ba3c6ccf7e7a9edd1458dac15586701b2cd90"},
+    {file = "django_localflavor-5.1.tar.gz", hash = "sha256:afacbe4902698a6772c5621a0cad18f4e2f9f198a7284d3da57418c78c150080"},
 ]
 
 [package.dependencies]
 django = ">=4.2"
-python-stdnum = ">=1.6"
+python-stdnum = ">=2.2"
 
 [[package]]
 name = "django-model-utils"
@@ -1840,4 +1840,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "a9f77173d712a63a3ecbb681c78607a408db66f19166301209b9427921837230"
+content-hash = "73fe582bcdbfdf60b75f8bb6d443b23de0b3660d87856b2e69691504a985be53"
