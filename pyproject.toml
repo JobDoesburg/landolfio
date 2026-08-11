@@ -17,7 +17,7 @@ django-queryable-properties = "^1.9.2"
 bleach = "^6.4.0"
 django-autocompletefilter = "^0.0.9"
 django-countries = "^9.0.0"
-django-localflavor = "^5.0"
+django-localflavor = "^5.1"
 django-model-utils = "^5.0.0"
 django-storages = {extras = ["s3"], version = "^1.14.4"}
 boto3 = "^1.43.56"
