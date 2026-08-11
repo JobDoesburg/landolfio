@@ -744,14 +744,14 @@ Django = ">=3.2"
 
 [[package]]
 name = "django-queryable-properties"
-version = "1.12.1"
+version = "1.13.0"
 description = "Write Django model properties that can be used in database queries."
 optional = false
 python-versions = "*"
 groups = ["main"]
 files = [
-    {file = "django_queryable_properties-1.12.1-py2.py3-none-any.whl", hash = "sha256:c8577540157ffe85450caa335524f7af1a72882719a19c79a5e84f1de97d0b39"},
-    {file = "django_queryable_properties-1.12.1.tar.gz", hash = "sha256:94b4063430a4fa461f6077421968f910e7f7d2b5167a307bedb2bfca6762b6c8"},
+    {file = "django_queryable_properties-1.13.0-py2.py3-none-any.whl", hash = "sha256:8d4d67a9206593f477a91d5a4a862ef117c6dfc1132250e5f05b11544f26fd22"},
+    {file = "django_queryable_properties-1.13.0.tar.gz", hash = "sha256:dc9051d54e2eb54081df51702bffaf08078f5a7de76b3324d482312b31a8e420"},
 ]
 
 [package.dependencies]
@@ -1870,4 +1870,4 @@ files = [
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.12"
-content-hash = "32fbc4537ba1304f4be0ef9153f888112b81b53ca02cb3b431822c974a6e9a70"
+content-hash = "81b7ebadb2b51bbf4caee8d560284b713b1ed8ad53214f9e4bfffca531ed8b83"
