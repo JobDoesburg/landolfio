@@ -100,16 +100,6 @@ jobs:
           EOF
           chgrp deploy-landolfio "$DEPLOY_DIR/.env"
 
-      - name: "Free disk space before pull"
-        # The VM disk fills with accumulated GHCR layers and pulls fail
-        # mid-extract with "no space left on device". Prune unused images
-        # before the pull. Running containers and their images are kept.
-        run: |
-          set -euo pipefail
-          docker system prune -af
-          docker volume prune -f
-          df -h /
-
       - name: "Pull image and restart stack"
         env:
           DEPLOY_DIR: ${{ vars.DEPLOY_DIR }}
@@ -143,3 +133,11 @@ jobs:
             docker logs --tail 100 "$web_cid"
             exit 1
           fi
+
+      - name: "Prune old images"
+        # Runs only after the new stack is healthy, so the rollback image
+        # is kept around during the risky window. Without this, GHCR image
+        # layers accumulate on the VM and eventually fill the disk mid-pull.
+        run: |
+          set -euo pipefail
+          docker image prune -af --filter "until=168h"
