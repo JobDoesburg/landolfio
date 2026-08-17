@@ -9,18 +9,22 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends gcc libpq-dev python3-dev curl ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory in the container
+# Install uv
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
+RUN sh /uv-installer.sh && rm /uv-installer.sh
+ENV PATH="/root/.local/bin/:$PATH"
+
 WORKDIR /app
 
-# Copy only the requirements file to leverage Docker cache
-COPY pyproject.toml poetry.lock /app/
+# Copy only the lock/manifest first to leverage Docker cache
+COPY pyproject.toml uv.lock /app/
 
-# Install project dependencies
-RUN pip install poetry \
-    && poetry config virtualenvs.create false \
-    && poetry install --with prod --no-interaction --no-ansi --no-root
+# Install prod dependencies into a project-local .venv
+RUN uv sync --locked --group prod --no-dev
 
-# Copy the current directory contents into the container at /app
+# Put the venv on PATH so `python` / `uwsgi` resolve without `uv run`
+ENV PATH="/app/.venv/bin:$PATH"
+
 COPY landolfio /app
 COPY entrypoint.sh /
 

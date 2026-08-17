@@ -24,31 +24,30 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      - name: "Install Poetry"
-        run: pipx install poetry
+      - name: "Install uv"
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
 
       - name: "Set up Python"
-        uses: actions/setup-python@v7
-        with:
-          # Keep in sync with the Dockerfile FROM line. When Dependabot
-          # bumps either, mismatched versions fail this step.
-          python-version: "3.14"
-          cache: poetry
+        # Keep in sync with the Dockerfile FROM line. When Dependabot
+        # bumps either, mismatched versions fail this step.
+        run: uv python install 3.14
 
       - name: "Install dependencies"
-        run: poetry install --with prod --no-interaction --no-root
+        run: uv sync --locked --group prod
 
       - name: "Check for missing migrations"
         working-directory: landolfio
         env:
           DJANGO_SETTINGS_MODULE: website.settings.development
-        run: poetry run python manage.py makemigrations --check --dry-run
+        run: uv run python manage.py makemigrations --check --dry-run
 
       - name: "Django system check"
         working-directory: landolfio
         env:
           DJANGO_SETTINGS_MODULE: website.settings.development
-        run: poetry run python manage.py check
+        run: uv run python manage.py check
 
   build-and-push:
     name: "Push image to GHCR"

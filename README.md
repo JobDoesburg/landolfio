@@ -31,7 +31,7 @@ A Django-based asset and inventory management system with integrated Moneybird a
 ### Prerequisites
 
 - Python 3.12+
-- [Poetry](https://python-poetry.org/docs/#installation)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - PostgreSQL (optional - SQLite used by default in development)
 
 ### Initial Setup
@@ -41,14 +41,11 @@ A Django-based asset and inventory management system with integrated Moneybird a
 git clone <repository-url>
 cd landolfio
 
-# Install dependencies
-poetry install
+# Install dependencies (creates .venv)
+uv sync
 
 # Install pre-commit hooks
-poetry run pre-commit install
-
-# Activate virtual environment
-poetry shell
+uv run pre-commit install
 
 # Navigate to Django project
 cd landolfio
@@ -57,13 +54,13 @@ cd landolfio
 export DJANGO_SETTINGS_MODULE=website.settings.development
 
 # Initialize database
-python ./manage.py migrate
+uv run python ./manage.py migrate
 
 # (Optional) Load sample data
-python ./manage.py loaddata assets
+uv run python ./manage.py loaddata assets
 
 # Start development server
-python ./manage.py runserver
+uv run python ./manage.py runserver
 ```
 
 The application will be available at `http://localhost:8000`
@@ -74,27 +71,27 @@ The application will be available at `http://localhost:8000`
 ```bash
 cd landolfio
 export DJANGO_SETTINGS_MODULE=website.settings.development
-python ./manage.py runserver
+uv run python ./manage.py runserver
 ```
 
 **Create/apply database migrations:**
 ```bash
 cd landolfio
-python ./manage.py makemigrations
-python ./manage.py migrate
+uv run python ./manage.py makemigrations
+uv run python ./manage.py migrate
 ```
 
 **Run tests:**
 ```bash
 cd landolfio
-python ./manage.py test --settings=website.settings.development
+uv run python ./manage.py test --settings=website.settings.development
 ```
 
 **Code quality checks:**
 ```bash
-poetry run black .
-poetry run pylint landolfio/
-poetry run pre-commit run --all-files
+uv run black .
+uv run pylint landolfio/
+uv run pre-commit run --all-files
 ```
 
 ## Production Deployment
@@ -172,8 +169,8 @@ python ./manage.py test --settings=website.settings.development
 Run with coverage:
 
 ```bash
-poetry run coverage run --source='.' manage.py test --settings=website.settings.development
-poetry run coverage report
+uv run coverage run --source='.' manage.py test --settings=website.settings.development
+uv run coverage report
 ```
 
 ## Contributing

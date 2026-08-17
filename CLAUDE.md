@@ -4,17 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Setup
 
-Landolfio is a Django-based business management system using Poetry for dependency management.
+Landolfio is a Django-based business management system using uv for dependency management.
 
 ### Initial Setup
 ```bash
-poetry install
-poetry run pre-commit install
-poetry shell
+uv sync
+uv run pre-commit install
 cd landolfio
 export DJANGO_SETTINGS_MODULE=website.settings.development
-python ./manage.py migrate
-python ./manage.py runserver
+uv run python ./manage.py migrate
+uv run python ./manage.py runserver
 ```
 
 ### Common Commands
@@ -23,33 +22,33 @@ python ./manage.py runserver
 ```bash
 cd landolfio
 export DJANGO_SETTINGS_MODULE=website.settings.development
-python ./manage.py runserver
+uv run python ./manage.py runserver
 ```
 
 **Database migrations:**
 ```bash
 cd landolfio
-python ./manage.py makemigrations
-python ./manage.py migrate
+uv run python ./manage.py makemigrations
+uv run python ./manage.py migrate
 ```
 
 **Testing:**
 ```bash
 cd landolfio
-python ./manage.py test --settings=website.settings.development
+uv run python ./manage.py test --settings=website.settings.development
 ```
 
 **Code quality:**
 ```bash
-poetry run black .
-poetry run pylint landolfio/
-poetry run pre-commit run --all-files
+uv run black .
+uv run pylint landolfio/
+uv run pre-commit run --all-files
 ```
 
 **Load sample data:**
 ```bash
 cd landolfio
-python ./manage.py loaddata assets
+uv run python ./manage.py loaddata assets
 ```
 
 ## Development Workflow Preferences
