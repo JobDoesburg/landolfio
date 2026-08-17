@@ -123,11 +123,21 @@ jobs:
           for i in $(seq 1 60); do
             status=$(docker inspect --format='{{.State.Health.Status}}' "$web_cid" 2>/dev/null || echo missing)
             case "$status" in
-              healthy) echo "web healthy after ${i}x5s"; exit 0 ;;
+              healthy) echo "web healthy after ${i}x5s"; break ;;
               unhealthy) echo "web unhealthy"; docker logs --tail 100 "$web_cid"; exit 1 ;;
             esac
             sleep 5
           done
-          echo "timeout waiting for web to become healthy"
-          docker logs --tail 100 "$web_cid"
-          exit 1
+          if [ "$status" != "healthy" ]; then
+            echo "timeout waiting for web to become healthy"
+            docker logs --tail 100 "$web_cid"
+            exit 1
+          fi
+
+      - name: "Prune old images"
+        # Runs only after the new stack is healthy, so the rollback image
+        # is kept around during the risky window. Without this, GHCR image
+        # layers accumulate on the VM and eventually fill the disk mid-pull.
+        run: |
+          set -euo pipefail
+          docker image prune -af --filter "until=168h"
