@@ -11,6 +11,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from inventory.moneybird import MoneybirdAssetService
+from moneybird.administration import Administration
 
 logger = logging.getLogger(__name__)
 from queryable_properties.managers import QueryablePropertiesManager
@@ -404,32 +405,31 @@ class Asset(models.Model):
         try:
             moneybird_data = mb.get_asset_financial_info(self.moneybird_asset_id)
             return self._refresh_from_moneybird(moneybird_data)
+        except Administration.NotFound:
+            logger.warning(
+                f"Asset {self.id} (Moneybird ID: {self.moneybird_asset_id}) not found on Moneybird, unlinking asset and clearing Moneybird data"
+            )
+            # Clear all Moneybird-related data since the asset no longer exists
+            self.moneybird_asset_id = None
+            self.moneybird_data = None
+            self.disposal = None
+            self.current_value = None
+            # Note: We keep purchase_value_asset and start_date as they're local business data
+            self.save(
+                update_fields=[
+                    "moneybird_asset_id",
+                    "moneybird_data",
+                    "disposal",
+                    "current_value",
+                ]
+            )
+            return None
+        except (Administration.ServerError, Administration.Throttled) as e:
+            logger.warning(f"Failed to refresh Moneybird data for asset {self.id}: {e}")
+            return None
         except Exception as e:
-            # Check if it's a 404 error (asset doesn't exist on Moneybird)
-            if "404" in str(e) or "Not Found" in str(e):
-                logger.warning(
-                    f"Asset {self.id} (Moneybird ID: {self.moneybird_asset_id}) not found on Moneybird, unlinking asset and clearing Moneybird data"
-                )
-                # Clear all Moneybird-related data since the asset no longer exists
-                self.moneybird_asset_id = None
-                self.moneybird_data = None
-                self.disposal = None
-                self.current_value = None
-                # Note: We keep purchase_value_asset and start_date as they're local business data
-                self.save(
-                    update_fields=[
-                        "moneybird_asset_id",
-                        "moneybird_data",
-                        "disposal",
-                        "current_value",
-                    ]
-                )
-                return None
-            else:
-                logger.error(
-                    f"Failed to refresh Moneybird data for asset {self.id}: {e}"
-                )
-                return None
+            logger.error(f"Failed to refresh Moneybird data for asset {self.id}: {e}")
+            return None
 
     def _refresh_from_moneybird(self, moneybird_data=None):
         """Refresh asset data with Moneybird API data."""

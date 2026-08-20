@@ -113,6 +113,9 @@ class Administration(ABC):
         # pylint: disable=consider-iterating-dictionary
         code_is_known: bool = code in good_codes | bad_codes.keys()
 
+        if not code_is_known and code >= 500:
+            raise Administration.ServerError(code)
+
         if not code_is_known:
             logging.warning(f"Unknown response code {code}")
             raise Administration.Error(
