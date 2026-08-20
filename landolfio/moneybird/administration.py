@@ -15,6 +15,8 @@ from urllib.parse import urljoin
 
 import requests
 from django.utils import timezone
+from requests.adapters import HTTPAdapter
+from urllib3.util import Retry
 
 from moneybird.settings import settings
 
@@ -71,6 +73,15 @@ class Administration(ABC):
 
     class ServerError(Error):
         """An error happened on the server."""
+
+    class ConnectionError(Error):
+        """The server could not be reached."""
+
+        def __init__(self, description: str = None):
+            msg = "Connection error"
+            if description:
+                msg += f": {description}"
+            Exception.__init__(self, msg)
 
     @abstractmethod
     def _create_session(self) -> requests.Session:
@@ -149,6 +160,8 @@ class Administration(ABC):
 class HttpsAdministration(Administration):
     """The HTTPS implementation of the MoneyBird Administration interface."""
 
+    timeout = (5, 15)
+
     def __init__(self, key, administration_id: int):
         """Create a new MoneyBird administration connection."""
         super().__init__(administration_id)
@@ -158,13 +171,27 @@ class HttpsAdministration(Administration):
     def _create_session(self) -> requests.Session:
         session = requests.Session()
         session.headers.update({"Authorization": f"Bearer {self.key}"})
+        retry = Retry(
+            total=2,
+            backoff_factor=0.5,
+            status_forcelist=[502, 503, 504],
+            allowed_methods=["GET"],
+            raise_on_status=False,
+        )
+        session.mount("https://", HTTPAdapter(max_retries=retry))
         return session
+
+    def _request(self, method: str, url: str, **kwargs):
+        try:
+            return getattr(self.session, method)(url, timeout=self.timeout, **kwargs)
+        except requests.RequestException as e:
+            raise Administration.ConnectionError(str(e)) from e
 
     def get(self, resource_path: str, params: dict = None):
         """Do a GET on the Moneybird administration."""
         url = self._build_url(resource_path)
         logging.debug(f"GET {url} {params}")
-        response = self.session.get(url, params=params)
+        response = self._request("get", url, params=params)
         return self._process_response(response)
 
     def post(self, resource_path: str, data: dict):
@@ -172,7 +199,7 @@ class HttpsAdministration(Administration):
         url = self._build_url(resource_path)
         data = json.dumps(data)
         logging.debug(f"POST {url} with {data}")
-        response = self.session.post(url, data=data)
+        response = self._request("post", url, data=data)
         return self._process_response(response)
 
     def patch(self, resource_path: str, data: dict):
@@ -180,14 +207,14 @@ class HttpsAdministration(Administration):
         url = self._build_url(resource_path)
         data = json.dumps(data)
         logging.debug(f"PATCH {url} with {data}")
-        response = self.session.patch(url, data=data)
+        response = self._request("patch", url, data=data)
         return self._process_response(response)
 
     def delete(self, resource_path: str):
         """Do a DELETE on the Moneybird administration."""
         url = self._build_url(resource_path)
         logging.debug(f"DELETE {url}")
-        response = self.session.delete(url)
+        response = self._request("delete", url)
         return self._process_response(response)
 
 

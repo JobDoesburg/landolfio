@@ -424,7 +424,11 @@ class Asset(models.Model):
                 ]
             )
             return None
-        except (Administration.ServerError, Administration.Throttled) as e:
+        except (
+            Administration.ServerError,
+            Administration.Throttled,
+            Administration.ConnectionError,
+        ) as e:
             logger.warning(f"Failed to refresh Moneybird data for asset {self.id}: {e}")
             return None
         except Exception as e:
