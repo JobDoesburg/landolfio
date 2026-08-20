@@ -1,9 +1,9 @@
-from autocompletefilter.admin import AutocompleteFilterMixin
 from autocompletefilter.filters import AutocompleteListFilter
 from django.contrib.admin import register
 
 from accounting.models import Subscription
 from moneybird.admin import MoneybirdResourceModelAdmin
+from website.admin import AutocompleteFilterMixin
 
 
 @register(Subscription)

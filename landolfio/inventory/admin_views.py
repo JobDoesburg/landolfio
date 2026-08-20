@@ -62,9 +62,18 @@ class ViewAssetView(DetailView):
                 continue
 
             attachment = Attachment(asset=asset)
-            stored_upload = store_upload(
-                upload_id, attachments_directory_path(attachment, tu.upload_name)
-            )
+            try:
+                stored_upload = store_upload(
+                    upload_id, attachments_directory_path(attachment, tu.upload_name)
+                )
+            except FileNotFoundError:
+                self.message_user(
+                    request,
+                    f"Upload {tu.upload_name} is no longer available, please upload it again",
+                    level=messages.ERROR,
+                )
+                tu.delete()
+                continue
             attachment.attachment = stored_upload.file
             attachment.save()
             stored_uploads.append(upload_id)

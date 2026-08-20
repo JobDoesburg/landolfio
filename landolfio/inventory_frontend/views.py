@@ -1066,9 +1066,17 @@ class AssetDetailView(LoginRequiredMixin, DetailView):
             max_order = asset.attachments.aggregate(Max("order"))["order__max"] or 0
 
             attachment = Attachment(asset=asset, order=max_order + 1)
-            stored_upload = store_upload(
-                upload_id, attachments_directory_path(attachment, tu.upload_name)
-            )
+            try:
+                stored_upload = store_upload(
+                    upload_id, attachments_directory_path(attachment, tu.upload_name)
+                )
+            except FileNotFoundError:
+                messages.error(
+                    request,
+                    f"Upload {tu.upload_name} is no longer available, please upload it again",
+                )
+                tu.delete()
+                continue
             attachment.attachment = stored_upload.file
             attachment.save()
             stored_uploads.append(upload_id)

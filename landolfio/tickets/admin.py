@@ -1,4 +1,3 @@
-from autocompletefilter.admin import AutocompleteFilterMixin
 from django.contrib import admin
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -13,6 +12,7 @@ from tickets.admin_filters import (
     DueTicketFilter,
 )
 from tickets.models import Ticket, TicketType
+from website.admin import AutocompleteFilterMixin
 
 
 @admin.register(TicketType)

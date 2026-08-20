@@ -1,6 +1,5 @@
 from admin_numeric_filter.admin import NumericFilterModelAdmin, SliderNumericFilter
 from admin_numeric_filter.forms import SliderNumericForm
-from autocompletefilter.admin import AutocompleteFilterMixin
 from autocompletefilter.filters import AutocompleteListFilter
 from django.contrib import admin
 from django.contrib.admin import register
@@ -32,6 +31,7 @@ from inventory.models.category import Category, Size
 from inventory.models.collection import Collection
 from inventory.models.location import Location
 from inventory.models.status_type import StatusType
+from website.admin import AutocompleteFilterMixin
 
 
 class AssetPropertyValueInline(admin.TabularInline):
