@@ -2,7 +2,7 @@
 
 from django.test import RequestFactory, TestCase
 
-from website.website.asgi import application
+from website.asgi import application
 
 
 class AsgiTest(TestCase):

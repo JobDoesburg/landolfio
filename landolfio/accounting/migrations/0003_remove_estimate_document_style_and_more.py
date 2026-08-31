@@ -8,6 +8,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ("accounting", "0002_alter_contact_bank_account_alter_contact_sepa_iban"),
         ("tickets", "0002_remove_ticket_estimates_remove_ticket_sales_invoices"),
+        ("inventory", "0025_alter_assetonjournaldocumentline_unique_together_and_more"),
     ]
 
     operations = [
