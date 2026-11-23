@@ -453,14 +453,14 @@ wheels = [
 
 [[package]]
 name = "django-autocompletefilter"
-version = "0.0.9"
+version = "0.2.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "django" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2b/10/3775f2e14a5c10261898491855cb09046012ba49e63e7fa0783f4135371a/django_autocompletefilter-0.0.9.tar.gz", hash = "sha256:d1d43c2c5cabcf0b657ab03dcde6773ad1bb045dec6ea90164394b5198e7ff5c", size = 5663, upload-time = "2024-09-23T11:54:29.975Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3e/f4/14ec04418d6e16fc8eb312bd5f3a70c0e0a5446f447c3c8aded16d9bdc05/django_autocompletefilter-0.2.0.tar.gz", hash = "sha256:bd0459a2c712f848d2f1dd4f990f0150281766eb8d7356697bce6236feb76d4b", size = 8431, upload-time = "2026-11-17T11:49:42.13Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e9/46/ccd6c2672321c17bee9a72b7907d646b26b9de825e6460fdb2547171be89/django_autocompletefilter-0.0.9-py3-none-any.whl", hash = "sha256:2225053538a3621260016c228d439aa5fcf37eacc8c17a7de9bed85393a255b3", size = 6265, upload-time = "2024-09-23T11:54:29.11Z" },
+    { url = "https://files.pythonhosted.org/packages/31/4c/eb0286155568089439e7e86a568cdc72e931793af39c908c3b70f8470ae1/django_autocompletefilter-0.2.0-py3-none-any.whl", hash = "sha256:13614d2bb14fb8e9b602a00b3852007c381c925cb31d08cd9556b30010b21582", size = 7946, upload-time = "2026-11-17T11:49:40.85Z" },
 ]
 
 [[package]]
